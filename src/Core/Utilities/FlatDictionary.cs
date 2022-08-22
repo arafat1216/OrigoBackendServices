@@ -1,4 +1,5 @@
 ﻿using Common.Extensions;
+using Microsoft.Extensions.FileProviders.Composite;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
@@ -28,44 +29,57 @@ namespace Common.Utilities
         {
             dictionary ??= new Dictionary<string, string>();
             var type = @object.GetType();
-            var properties = GetProperties(type);
 
-            foreach (var (property, getter) in properties)
+            // If it's already a string dictionary, we just want to add the values. No need to do excessive processing.
+            if (type == typeof(Dictionary<string, string>))
             {
-                var key = string.IsNullOrWhiteSpace(prefix) ? property.Name : $"{prefix}.{property.Name}";
-                var value = getter(@object);
-                if (value == null)
+                foreach (var currentKeyValuePair in (Dictionary<string, string>)@object)
                 {
-                    dictionary.Add(key, string.Empty);
-                    continue;
+                    string key = string.IsNullOrWhiteSpace(prefix) ? currentKeyValuePair.Key: $"{prefix}.{currentKeyValuePair.Key}";
+                    dictionary.Add(key, currentKeyValuePair.Value);
                 }
+            }
+            else
+            {
+                var properties = GetProperties(type);
 
-                if (property.PropertyType.IsValueTypeOrString())
+                foreach (var (property, getter) in properties)
                 {
-                    dictionary.Add(key, value.ToStringValueType());
-                }
-                else
-                {
-                    if (value is IEnumerable enumerable)
+                    var key = string.IsNullOrWhiteSpace(prefix) ? property.Name : $"{prefix}.{property.Name}";
+                    var value = getter(@object);
+                    if (value == null)
                     {
-                        var counter = 0;
-                        foreach (var item in enumerable)
-                        {
-                            var itemKey = $"{key}[{counter++}]";
-                            var itemType = item.GetType();
-                            if (itemType.IsValueTypeOrString())
-                            {
-                                dictionary.Add(itemKey, item.ToStringValueType());
-                            }
-                            else
-                            {
-                                ExecuteInternal(item, dictionary, itemKey);
-                            }
-                        }
+                        dictionary.Add(key, string.Empty);
+                        continue;
+                    }
+
+                    if (property.PropertyType.IsValueTypeOrString())
+                    {
+                        dictionary.Add(key, value.ToStringValueType());
                     }
                     else
                     {
-                        ExecuteInternal(value, dictionary, key);
+                        if (value is IEnumerable enumerable)
+                        {
+                            var counter = 0;
+                            foreach (var item in enumerable)
+                            {
+                                var itemKey = $"{key}[{counter++}]";
+                                var itemType = item.GetType();
+                                if (itemType.IsValueTypeOrString())
+                                {
+                                    dictionary.Add(itemKey, item.ToStringValueType());
+                                }
+                                else
+                                {
+                                    ExecuteInternal(item, dictionary, itemKey);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            ExecuteInternal(value, dictionary, key);
+                        }
                     }
                 }
             }

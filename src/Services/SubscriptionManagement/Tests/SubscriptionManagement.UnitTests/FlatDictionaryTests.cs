@@ -4,6 +4,7 @@ using SubscriptionManagementServices.ServiceModels;
 using System.Collections.Generic;
 using System;
 using Common.Utilities;
+using System.Threading.Tasks;
 
 namespace SubscriptionManagement.UnitTests
 {
@@ -51,7 +52,57 @@ namespace SubscriptionManagement.UnitTests
         }
 
         [Fact]
-        public void FlayDictionartTransferToBusiness()
+        public async Task FlatDictionary_ExistingDictionary_NoPrefix()
+        {
+            // Arange
+            Dictionary<string, string> dictionary = new()
+            {
+                { "OperatorName", "Telenor - NO" },
+                { "SubscriptionProductName", "Bedrift fri +" },
+            };
+
+            // Act
+            var flactDictionary = new FlatDictionary();
+            var result = flactDictionary.Execute(dictionary);
+
+            // Assert
+            Assert.Equal(dictionary.Count, result.Count);
+
+            // Ensure that the key-value-pairs in the new dictionary is named the same as the old ones.
+            foreach (var currentKeyValuePair in dictionary)
+            {
+                Assert.True(result.ContainsKey(currentKeyValuePair.Key));
+            }
+        }
+
+
+        [Fact]
+        public async Task FlatDictionary_ExistingDictionary_WithPrefix()
+        {
+            // Arange
+            Dictionary<string, string> dictionary = new()
+            {
+                { "OperatorName", "Telenor - NO" },
+                { "SubscriptionProductName", "Bedrift fri +" },
+            };
+
+            // Act
+            var flactDictionary = new FlatDictionary();
+            var result = flactDictionary.Execute(dictionary, "PrefixName");
+
+            // Assert
+            Assert.Equal(dictionary.Count, result.Count);
+
+            // Ensure that the key-value-pairs in the new dictionary is named the same as the old ones, but with the prefix appended.
+            foreach (var currentKeyValuePair in dictionary)
+            {
+                Assert.True(result.ContainsKey($"PrefixName.{currentKeyValuePair.Key}"));
+            }
+        }
+
+
+        [Fact]
+        public void FlatDictionartTransferToBusiness()
         {
             var newTransferToBusinessFromPrivate = new TransferToBusinessSubscriptionOrderDTO
             {
