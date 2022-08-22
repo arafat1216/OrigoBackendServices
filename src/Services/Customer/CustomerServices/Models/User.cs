@@ -80,11 +80,30 @@ namespace CustomerServices.Models
         public void ChangeUserStatus(string? oktaUserId, UserStatus newStatus)
         {
             LastUpdatedDate = DateTime.UtcNow;
-            OktaUserId = oktaUserId;
+            if(oktaUserId != null) OktaUserId = oktaUserId;
             var oldStatus = _userStatus;
             _userStatus = newStatus;
             AddDomainEvent(new UserStatusChangedDomainEvent(this, oldStatus));
 
+        }
+        
+        public void ActivateUser(string? oktaUserId)
+        {
+            LastUpdatedDate = DateTime.UtcNow;
+            if(!string.IsNullOrEmpty(oktaUserId)) 
+                OktaUserId = oktaUserId;
+            var oldStatus = _userStatus;
+            _userStatus = UserStatus.Activated;
+            AddDomainEvent(new UserStatusChangedDomainEvent(this, oldStatus));
+        }
+        
+        public void DeactivateUser()
+        {
+            LastUpdatedDate = DateTime.UtcNow;
+            OktaUserId = null;
+            var oldStatus = _userStatus;
+            _userStatus = UserStatus.Deactivated;
+            AddDomainEvent(new UserStatusChangedDomainEvent(this, oldStatus));
         }
 
         public Department? Department { get; set; }

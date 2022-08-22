@@ -290,12 +290,13 @@ namespace CustomerServices
                 {
                     var oktaUserId = await _oktaServices.AddOktaUserAsync(user.UserId, user.FirstName, user.LastName,
                         user.Email, user.MobileNumber, true);
-                    user.ChangeUserStatus(oktaUserId, UserStatus.Activated);
+                    user.ActivateUser(oktaUserId);
                 }
                 else
                 {
                     //Ensure that user with no okta id is set to deactivated
-                    if (user.UserStatus == UserStatus.Activated) user.ChangeUserStatus(null, UserStatus.Deactivated);
+                    if (user.UserStatus == UserStatus.Activated) 
+                        user.DeactivateUser();
                     throw new UserNotFoundException("User does not have Okta id and can not be activated.");
                 }
             }
@@ -309,12 +310,12 @@ namespace CustomerServices
                     {
                         // set active, but reuse the userId set on creation of user : (This may change in future)
                         await _oktaServices.AddUserToGroup(user.OktaUserId);
-                        user.ChangeUserStatus(user.OktaUserId, UserStatus.Activated);
+                        user.ActivateUser(user.OktaUserId);
                     }
                     else
                     {
                         await _oktaServices.RemoveUserFromGroupAsync(user.OktaUserId);
-                        user.ChangeUserStatus(null,UserStatus.Deactivated);
+                        user.DeactivateUser();
                     }
                 }
                 else if (isActive)
@@ -323,7 +324,7 @@ namespace CustomerServices
                     // There could be some users whose "OktaUserId" in DB is not null but at the same time do not exist in Okta. They will fall under this condition.
                     var oktaUserId = await _oktaServices.AddOktaUserAsync(user.UserId, user.FirstName, user.LastName,
                         user.Email, user.MobileNumber, true);
-                    user.ChangeUserStatus(oktaUserId, UserStatus.Activated);
+                    user.ActivateUser(oktaUserId);
                 }
                 else
                 {
