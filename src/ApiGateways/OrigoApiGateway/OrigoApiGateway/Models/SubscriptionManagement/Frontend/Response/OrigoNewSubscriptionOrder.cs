@@ -1,6 +1,6 @@
 ﻿using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
-using System;
-using System.Collections.Generic;
+
+#nullable enable
 
 namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response
 {
