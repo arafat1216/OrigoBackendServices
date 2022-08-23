@@ -99,5 +99,5 @@ stages:
       namespace: prod
       tag: '$(Build.BuildId)'
       pipelineWorkspace: $(Pipeline.Workspace)
-      helmOverrideDeployValues: ',ingress.hosts[0].host=smart.techstep.no,ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=smart.techstep.no,ingress.tls[0].secretName=letsencrypt-smart-techstepno'
+      helmOverrideDeployValues: ',ingress.hosts[0].host=smart.techstep.io,ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=smart.techstep.io,ingress.tls[0].secretName=letsencrypt-smart-techstepio'
       runMigration: false

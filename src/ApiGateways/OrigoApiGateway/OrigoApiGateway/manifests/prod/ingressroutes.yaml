@@ -11,7 +11,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-  - match: Host(`smart.techstep.no`) && PathPrefix(`/origoapi`)
+  - match: Host(`smart.techstep.io`) && PathPrefix(`/origoapi`)
     kind: Rule
     services:
     - name: origoapigateway
