@@ -1,10 +1,8 @@
 ﻿using Common.Extensions;
 using Common.Interfaces;
-using HardwareServiceOrderServices.Conmodo.ApiModels;
+using Common.Seedwork;
 using HardwareServiceOrderServices.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Linq.Expressions;
 
 namespace HardwareServiceOrderServices.Infrastructure
 {
@@ -104,7 +102,7 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
-        public async Task<PagedModel<HardwareServiceOrder>> GetAllOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, int page, int limit, CancellationToken cancellationToken)
+        public async Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, int page, int limit, CancellationToken cancellationToken)
         {
             var orders = _hardwareServiceOrderContext.HardwareServiceOrders
                 .Where(m => m.CustomerId == customerId);
@@ -124,17 +122,10 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
-        public async Task<HardwareServiceOrder?> GetOrderAsync(Guid orderId)
+        public async Task<HardwareServiceOrder?> GetServiceOrderAsync(Guid orderId)
         {
             var order = await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == orderId);
             return order;
-        }
-
-
-        /// <inheritdoc/>
-        public async Task<HardwareServiceOrder?> GetOrderAsync(Guid customerId, Guid orderId)
-        {
-            return await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == orderId && m.CustomerId == customerId);
         }
 
 
@@ -146,7 +137,7 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
-        public async Task<HardwareServiceOrder> CreateHardwareServiceOrder(HardwareServiceOrder serviceOrder)
+        public async Task<HardwareServiceOrder> CreateHardwareServiceOrderAsync(HardwareServiceOrder serviceOrder)
         {
             var serviceType = await GetServiceTypeAsync((int)ServiceTypeEnum.SUR) ?? new ServiceType { Id = (int)ServiceTypeEnum.SUR };
             var serviceStatus = await GetServiceStatusAsync((int)ServiceStatusEnum.Registered);
@@ -178,7 +169,7 @@ namespace HardwareServiceOrderServices.Infrastructure
         /// <param name="newStatus">New status <see cref="ServiceStatusEnum"/></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException">Throws exception when orderId is invalid</exception>
-        public async Task<HardwareServiceOrder> UpdateOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus)
+        public async Task<HardwareServiceOrder> UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus)
         {
             var order = await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == orderId);
 
@@ -266,9 +257,10 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
-        public async Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid customerId, int providerId)
+        public async Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid customerId, int serviceProviderId)
         {
-            return await _hardwareServiceOrderContext.CustomerServiceProviders.FirstOrDefaultAsync(m => m.CustomerId == customerId && m.ServiceProviderId == providerId);
+            return await _hardwareServiceOrderContext.CustomerServiceProviders
+                                                     .FirstOrDefaultAsync(m => m.CustomerId == customerId && m.ServiceProviderId == serviceProviderId);
         }
 
         /// <inheritdoc/>
@@ -319,6 +311,73 @@ namespace HardwareServiceOrderServices.Infrastructure
 
             var result = await query.ToListAsync();
             return result;
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<ApiCredential> AddOrUpdateApiCredentialAsync(int customerServiceProviderId, int serviceTypeId, string? apiUsername, string? apiPassword)
+        {
+            ApiCredential? apiCredential = await _hardwareServiceOrderContext.ApiCredentials.FirstOrDefaultAsync(entity => entity.CustomerServiceProviderId == customerServiceProviderId && entity.ServiceTypeId == serviceTypeId);
+
+            if (apiCredential is null)
+            {
+                apiCredential = new(customerServiceProviderId, serviceTypeId, apiUsername, apiPassword);
+                await _hardwareServiceOrderContext.AddAsync(apiCredential);
+            }
+            else
+            {
+                apiCredential.ApiUsername = apiUsername;
+                apiCredential.ApiPassword = apiPassword;
+
+                _hardwareServiceOrderContext.Update(apiCredential);
+            }
+
+            await _hardwareServiceOrderContext.SaveChangesAsync();
+            return apiCredential;
+        }
+
+
+        /// <inheritdoc/>
+        public async Task DeleteApiCredentialAsync(ApiCredential apiCredential)
+        {
+            await Delete(apiCredential);
+        }
+
+
+        /// <summary>
+        ///     Applies a custom delete to entities that's registered as a <see cref="DbSet{TEntity}"/>.
+        ///     
+        ///     <para>
+        ///     This custom deletes first updates the <paramref name="entityToBeDeleted"/> with the related <see cref="Auditable"/>-properties 
+        ///     that's used for tracking deletes. Once this information is persisted, it will delete the entry from the database. </para>
+        ///     
+        ///     <para>
+        ///     This is intended to be used with temporal tables, where the entity is deleted from the main-table instead of just being
+        ///     soft-deleted. </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The entities datatype. </typeparam>
+        /// <param name="entityToBeDeleted"> The entity that should be deleted. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        private async Task Delete<TEntity>(TEntity entityToBeDeleted) where TEntity : Auditable
+        {
+            // Fetch the private-properties we need to use reflections on
+            var deletedByProperty = typeof(Auditable).GetProperty(nameof(Auditable.DeletedBy));
+            var dateDeletedProperty = typeof(Auditable).GetProperty(nameof(Auditable.DateDeleted));
+            var isDeletedProperty = typeof(Auditable).GetProperty(nameof(Auditable.IsDeleted));
+
+            // Update the private setter values
+            deletedByProperty?.SetValue(entityToBeDeleted, _hardwareServiceOrderContext.AuthenticatedUserId);
+            dateDeletedProperty?.SetValue(entityToBeDeleted, DateTimeOffset.UtcNow);
+            isDeletedProperty?.SetValue(entityToBeDeleted, true);
+
+            // Persist the changes (a regular update needs to be done pre-delete so it's updated before it becomes a temporal entry)
+            // We need this operation to run synchronously, so don't make the next call async!
+            _hardwareServiceOrderContext.Set<TEntity>().Update(entityToBeDeleted);
+            _hardwareServiceOrderContext.SaveChanges();
+
+            // Then we can delete it (make it a deleted record in the temporal table)
+            _hardwareServiceOrderContext.Remove(entityToBeDeleted);
+            await _hardwareServiceOrderContext.SaveChangesAsync();
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using Xunit;
 using HardwareServiceOrderServices.Infrastructure;
+using Common.Seedwork;
 using HardwareServiceOrder.UnitTests;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,11 +18,16 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
         ///     The ID for the service-provider test-data that is added in <see cref="HardwareServiceOrderServiceBaseTests.Seed"/>.
         /// </summary>
         private readonly int _testServiceProviderId = 700;
-
+        private static readonly Guid callerId = Guid.Parse("9cd6fb1f-67f0-45bf-b0ba-1c00e78a1fb8");
 
         public HardwareServiceOrderRepositoryTests() : base(new DbContextOptionsBuilder<HardwareServiceOrderContext>().UseSqlite("Data Source=sqlitehardwareserviceorderservicetestsrepository.db").Options)
         {
-            _dbContext = new HardwareServiceOrderContext(ContextOptions);
+            // Mock the interceptor that stores the caller-ID for the incoming ASP.NET HTTP request.
+            // This is needed if we want to add the EF save-interceptor (auto assignment of the auditing attributes).
+            var mock = new Mock<IApiRequesterService>();
+            mock.Setup(e => e.AuthenticatedUserId).Returns(callerId);
+
+            _dbContext = new HardwareServiceOrderContext(ContextOptions, mock.Object);
             _repository = new HardwareServiceOrderRepository(_dbContext);
         }
 
@@ -153,6 +160,83 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
 
             // The test-data item should only have one entry matching these conditions
             Assert.True(serviceProvider?.OfferedServiceOrderAddons?.Count == 1, $"We expected 1 service-addons, but received {serviceProvider?.OfferedServiceOrderAddons?.Count}. Has the seeding-data changed?");
+        }
+
+        [Fact()]
+        public async Task AddOrUpdateApiCredential_AddNewCredential_Test()
+        {
+            // Arrange
+            CustomerServiceProvider customerServiceProvider = new()
+            {
+                CustomerId = Guid.NewGuid(),
+                ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo,
+            };
+            await _dbContext.AddAsync(customerServiceProvider);
+            await _dbContext.SaveChangesAsync();
+
+            // Act
+            ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, (int)ServiceTypeEnum.SUR, "username", "password");
+            var result = await _dbContext.ApiCredentials.FindAsync(apiCredential1.Id);
+
+            // Assert
+            Assert.NotNull(result);
+
+            Assert.Equal(customerServiceProvider.Id, result?.CustomerServiceProviderId);
+            Assert.Equal(apiCredential1.ServiceTypeId, result?.ServiceTypeId);
+            Assert.Equal(apiCredential1.ApiUsername, result?.ApiUsername);
+            Assert.Equal(apiCredential1.ApiPassword, result?.ApiPassword);
+            Assert.Equal(apiCredential1.LastUpdateFetched, result?.LastUpdateFetched);
+        }
+
+
+        [Fact()]
+        public async Task AddOrUpdateApiCredential_UpdateExistingCredential_Test()
+        {
+            // Arrange
+            CustomerServiceProvider customerServiceProvider = new()
+            {
+                CustomerId = Guid.NewGuid(),
+                ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo,
+            };
+            await _dbContext.AddAsync(customerServiceProvider);
+            await _dbContext.SaveChangesAsync();
+
+            ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, (int)ServiceProviderEnum.ConmodoNo, "OldUsername", "OldPassword");
+
+            // Act
+            ApiCredential apiCredential2 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, (int)ServiceProviderEnum.ConmodoNo, "NewUsername", "NewPassword");
+            var result = await _dbContext.ApiCredentials.FindAsync(apiCredential2.Id);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(customerServiceProvider.Id, result?.CustomerServiceProviderId);
+            Assert.Equal(apiCredential2.ServiceTypeId, result?.ServiceTypeId);
+            Assert.Equal(apiCredential2.ApiUsername, result?.ApiUsername);
+            Assert.Equal(apiCredential2.ApiPassword, result?.ApiPassword);
+            Assert.Equal(apiCredential2.LastUpdateFetched, result?.LastUpdateFetched);
+        }
+
+
+        [Fact()]
+        public async Task DeleteApiCredentialAsyncTest()
+        {
+            // Arrange
+            CustomerServiceProvider customerServiceProvider = new()
+            {
+                CustomerId = Guid.NewGuid(),
+                ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo,
+            };
+            await _dbContext.AddAsync(customerServiceProvider);
+            await _dbContext.SaveChangesAsync();
+
+            ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, (int)ServiceProviderEnum.ConmodoNo, "OldUsername", "OldPassword");
+
+            // Act
+            _repository.DeleteApiCredentialAsync(apiCredential1).Wait();
+            ApiCredential? result = await _dbContext.ApiCredentials.FindAsync(apiCredential1.Id);
+
+            // Assert
+            Assert.Null(result);
         }
     }
 }

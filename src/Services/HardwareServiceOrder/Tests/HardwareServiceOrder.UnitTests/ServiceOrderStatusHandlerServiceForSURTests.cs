@@ -122,7 +122,7 @@ namespace HardwareServiceOrder.UnitTests
 
             var hwRepositoryMock = new Mock<IHardwareServiceOrderRepository>();
             hwRepositoryMock
-                .Setup(m => m.UpdateOrderStatusAsync(hardwareServiceOrder.ExternalId, newStatus))
+                .Setup(m => m.UpdateServiceOrderStatusAsync(hardwareServiceOrder.ExternalId, newStatus))
                 .ReturnsAsync(hardwareServiceOrder);
 
             var assetMock = new Mock<IAssetService>();
@@ -154,7 +154,7 @@ namespace HardwareServiceOrder.UnitTests
 
             // Assert/Verify
             hwRepositoryMock.Verify(m => 
-                    m.UpdateOrderStatusAsync(hardwareServiceOrder.ExternalId, newStatus), 
+                    m.UpdateServiceOrderStatusAsync(hardwareServiceOrder.ExternalId, newStatus), 
                 Times.Once);
 
             assetMock.Verify(m => 
@@ -187,7 +187,7 @@ namespace HardwareServiceOrder.UnitTests
 
             var hwRepositoryMock = new Mock<IHardwareServiceOrderRepository>();
             hwRepositoryMock
-                .Setup(m => m.UpdateOrderStatusAsync(hardwareServiceOrder.ExternalId, newStatus))
+                .Setup(m => m.UpdateServiceOrderStatusAsync(hardwareServiceOrder.ExternalId, newStatus))
                 .ReturnsAsync(hardwareServiceOrder);
 
             var assetMock = new Mock<IAssetService>();
@@ -219,7 +219,7 @@ namespace HardwareServiceOrder.UnitTests
 
             // Assert/Verify
             hwRepositoryMock.Verify(m => 
-                    m.UpdateOrderStatusAsync(hardwareServiceOrder.ExternalId, newStatus), 
+                    m.UpdateServiceOrderStatusAsync(hardwareServiceOrder.ExternalId, newStatus), 
                 Times.Never);
 
             assetMock.Verify(m => 
@@ -250,7 +250,7 @@ namespace HardwareServiceOrder.UnitTests
 
             var hwRepositoryMock = new Mock<IHardwareServiceOrderRepository>();
             hwRepositoryMock
-                .Setup(m => m.UpdateOrderStatusAsync(hardwareServiceOrder.ExternalId, newStatus))
+                .Setup(m => m.UpdateServiceOrderStatusAsync(hardwareServiceOrder.ExternalId, newStatus))
                 .ReturnsAsync(hardwareServiceOrder);
 
             var assetMock = new Mock<IAssetService>();
@@ -282,7 +282,7 @@ namespace HardwareServiceOrder.UnitTests
             
             // Assert/Verify
             hwRepositoryMock.Verify(m => 
-                    m.UpdateOrderStatusAsync(hardwareServiceOrder.ExternalId, newStatus), 
+                    m.UpdateServiceOrderStatusAsync(hardwareServiceOrder.ExternalId, newStatus), 
                 Times.Once);
 
             assetMock.Verify(m => 
@@ -314,7 +314,7 @@ namespace HardwareServiceOrder.UnitTests
 
             var hwRepositoryMock = new Mock<IHardwareServiceOrderRepository>();
             hwRepositoryMock
-                .Setup(m => m.UpdateOrderStatusAsync(hardwareServiceOrder.ExternalId, newStatus))
+                .Setup(m => m.UpdateServiceOrderStatusAsync(hardwareServiceOrder.ExternalId, newStatus))
                 .ReturnsAsync(hardwareServiceOrder);
 
             var assetMock = new Mock<IAssetService>();

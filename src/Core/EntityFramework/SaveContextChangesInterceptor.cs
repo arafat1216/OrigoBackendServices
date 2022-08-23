@@ -24,7 +24,7 @@ public class SaveContextChangesInterceptor : SaveChangesInterceptor
     private Guid? CallerId { get; }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="SaveContextChangesInterceptor" /> class, and assigns a global
+    ///     Initializes a new instance of the <see cref="SaveContextChangesInterceptor"/> class, and assigns a global
     ///     callerID.
     /// </summary>
     /// <param name="callerId"> The caller's identifier. </param>
@@ -71,15 +71,18 @@ public class SaveContextChangesInterceptor : SaveChangesInterceptor
             {
                 case EntityState.Modified:
                     HandleModified(ref auditableEntity, timestamp);
-                    entry.CurrentValues.SetValues(auditableEntity);
-                    entry.State = EntityState.Modified;
+                    entry.CurrentValues.SetValues(auditableEntity); // We need to copy the altered values from the type-cast version, back into to the original object.
+                    entry.State = EntityState.Modified; // Let's ensure the item's state is still the same after we have manipulated it!
                     break;
                 case EntityState.Added:
                     HandleAdded(ref auditableEntity, timestamp);
-                    entry.CurrentValues.SetValues(auditableEntity);
-                    entry.State = EntityState.Added;
+                    entry.CurrentValues.SetValues(auditableEntity); // We need to copy the altered values from the type-cast version, back into to the original object.
+                    entry.State = EntityState.Added; // Let's ensure the item's state is still the same after we have manipulated it!
                     break;
                 case EntityState.Deleted:
+                case EntityState.Detached:
+                case EntityState.Unchanged:
+                default:
                     break;
             }
         }
@@ -87,9 +90,9 @@ public class SaveContextChangesInterceptor : SaveChangesInterceptor
 
 
     /// <summary>
-    ///     Set details for entities with <see cref="EntityState.Added" />.
+    ///     Set details for entities with <see cref="EntityState.Added"/>.
     /// </summary>
-    /// <param name="auditableEntity"> The <see cref="Auditable" /> entity to be processed. </param>
+    /// <param name="auditableEntity"> The <see cref="Auditable"/> entity to be processed. </param>
     /// <param name="timestamp"> The creation timestamp. </param>
     private void HandleAdded<T>(ref T auditableEntity, in DateTimeOffset timestamp) where T : Auditable
     {
@@ -115,7 +118,7 @@ public class SaveContextChangesInterceptor : SaveChangesInterceptor
     /// <summary>
     ///     Updates the details for entities with <see cref="EntityState.Modified" />.
     /// </summary>
-    /// <param name="auditableEntity"> The <see cref="Auditable" /> entity to be processed. </param>
+    /// <param name="auditableEntity"> The <see cref="Auditable"/> entity to be processed. </param>
     /// <param name="timestamp"> The creation timestamp. </param>
     private void HandleModified<T>(ref T auditableEntity, in DateTimeOffset timestamp) where T : Auditable
     {
@@ -131,8 +134,8 @@ public class SaveContextChangesInterceptor : SaveChangesInterceptor
     /// <summary>
     ///     Uses reflections to access and set a value in a private-property.
     /// </summary>
-    /// <typeparam name="TEntity"> The class that is used in <paramref name="entity" />. </typeparam>
-    /// <typeparam name="TDatatype"> The datatype that is used in <paramref name="propertyName" />. </typeparam>
+    /// <typeparam name="TEntity"> The class that is used in <paramref name="entity"/>. </typeparam>
+    /// <typeparam name="TDatatype"> The datatype that is used in <paramref name="propertyName"/>. </typeparam>
     /// <param name="entity"> The entity we are using reflections on. </param>
     /// <param name="propertyName"> The '<c>nameof()</c>' for the private property that is accessed. </param>
     /// <param name="newValue"> The new value that will be set. </param>

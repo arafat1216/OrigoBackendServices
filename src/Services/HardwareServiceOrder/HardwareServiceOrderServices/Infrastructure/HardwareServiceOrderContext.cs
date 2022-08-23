@@ -21,6 +21,11 @@ namespace HardwareServiceOrderServices.Infrastructure
         /// </summary>
         public bool IsSQLite => _isSQLite;
 
+        /// <summary>
+        ///     If available, the ID of the authenticated user that made the API call.
+        /// </summary>
+        public Guid? AuthenticatedUserId { get { return apiRequesterService?.AuthenticatedUserId; } }
+
         public DbSet<CustomerSettings> CustomerSettings { get; set; } = null!;
         public DbSet<HardwareServiceOrder> HardwareServiceOrders { get; set; } = null!;
         public DbSet<ServiceProvider> ServiceProviders { get; set; } = null!;
@@ -79,6 +84,8 @@ namespace HardwareServiceOrderServices.Infrastructure
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (_isSQLite is false)
+                optionsBuilder.AddInterceptors(new SaveContextChangesInterceptor(apiRequesterService?.AuthenticatedUserId));
+            else if (_isSQLite && apiRequesterService is not null)
                 optionsBuilder.AddInterceptors(new SaveContextChangesInterceptor(apiRequesterService?.AuthenticatedUserId));
         }
 

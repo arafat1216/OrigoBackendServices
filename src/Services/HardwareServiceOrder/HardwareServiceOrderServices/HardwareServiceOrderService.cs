@@ -2,9 +2,9 @@
 using Common.Interfaces;
 using HardwareServiceOrderServices.Email;
 using HardwareServiceOrderServices.Email.Models;
+using HardwareServiceOrderServices.Exceptions;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
-using HardwareServiceOrderServices.Services;
 using Microsoft.AspNetCore.DataProtection;
 
 namespace HardwareServiceOrderServices
@@ -19,6 +19,15 @@ namespace HardwareServiceOrderServices
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="HardwareServiceOrderService"/>-class using dependency-injection.
+        /// </summary>
+        /// <param name="hardwareServiceOrderRepository"> A dependency-injected implementation of the <see cref="IHardwareServiceOrderRepository"/> interface. </param>
+        /// <param name="mapper"> A dependency-injected implementation of the <see cref="IMapper"/> interface. </param>
+        /// <param name="providerFactory"> A dependency-injected implementation of the <see cref="IProviderFactory"/> interface. </param>
+        /// <param name="statusHandlerFactory"> A dependency-injected implementation of the <see cref="IStatusHandlerFactory"/> interface. </param>
+        /// <param name="emailService"> A dependency-injected implementation of the <see cref="IEmailService"/> interface. </param>
+        /// <param name="dataProtectionProvider"> A dependency-injected implementation of the <see cref="IDataProtectionProvider"/> interface. </param>
         public HardwareServiceOrderService(
             IHardwareServiceOrderRepository hardwareServiceOrderRepository,
             IMapper mapper,
@@ -130,7 +139,7 @@ namespace HardwareServiceOrderServices
                     );
 
                 //Creating order at Origo
-                var origoOrder = await _hardwareServiceOrderRepository.CreateHardwareServiceOrder(serviceOrder);
+                var origoOrder = await _hardwareServiceOrderRepository.CreateHardwareServiceOrderAsync(serviceOrder);
 
                 var orderConfirmationMail = new OrderConfirmationEmail
                 {
@@ -161,7 +170,7 @@ namespace HardwareServiceOrderServices
         /// <inheritdoc/>
         public async Task<HardwareServiceOrderDTO> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)
         {
-            var orderEntity = await _hardwareServiceOrderRepository.GetOrderAsync(orderId);
+            var orderEntity = await _hardwareServiceOrderRepository.GetServiceOrderAsync(orderId);
 
             return _mapper.Map<HardwareServiceOrderDTO>(orderEntity);
         }
@@ -170,7 +179,7 @@ namespace HardwareServiceOrderServices
         /// <inheritdoc/>
         public async Task<PagedModel<HardwareServiceOrderDTO>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
         {
-            var orderEntities = await _hardwareServiceOrderRepository.GetAllOrdersAsync(customerId, userId, activeOnly, page, limit, cancellationToken);
+            var orderEntities = await _hardwareServiceOrderRepository.GetAllServiceOrdersAsync(customerId, userId, activeOnly, page, limit, cancellationToken);
 
             return new PagedModel<HardwareServiceOrderDTO>
             {
@@ -273,6 +282,31 @@ namespace HardwareServiceOrderServices
             var serviceProviderDTOs = _mapper.Map<IEnumerable<ServiceProviderDTO>>(serviceProviders);
 
             return serviceProviderDTOs;
+        }
+
+
+        /// <inheritdoc/>
+        public async Task DeleteApiCredentialAsync(Guid organizationId, int serviceProviderId, int serviceTypeId)
+        {
+            var customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId);
+            ApiCredential? apiCredentialToBeRemoved = customerServiceProvider?.ApiCredentials?.FirstOrDefault(e => e.ServiceTypeId == serviceTypeId);
+
+            if (apiCredentialToBeRemoved is null)
+                throw new NotFoundException("The requested CustomerServiceProvider was not found.");
+
+            await _hardwareServiceOrderRepository.DeleteApiCredentialAsync(apiCredentialToBeRemoved);
+        }
+
+
+        /// <inheritdoc/>
+        public async Task AddOrUpdateApiCredentialAsync(Guid organizationId, int serviceProviderId, int serviceTypeId, string? apiUsername, string? apiPassword)
+        {
+            var customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId);
+
+            if (customerServiceProvider is null)
+                throw new NotFoundException("The API credential's customer-service-provider was not found.");
+
+            await _hardwareServiceOrderRepository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, serviceTypeId, apiUsername, apiPassword);
         }
     }
 }

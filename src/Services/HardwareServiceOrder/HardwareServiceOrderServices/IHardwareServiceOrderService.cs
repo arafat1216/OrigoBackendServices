@@ -1,4 +1,6 @@
 ﻿using Common.Interfaces;
+using HardwareServiceOrderServices.Exceptions;
+using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
 
 namespace HardwareServiceOrderServices
@@ -56,12 +58,46 @@ namespace HardwareServiceOrderServices
         Task UpdateOrderStatusAsync();
 
 
+        /*
+         * Service providers
+         */
+
         /// <summary>
         ///     Returns a list containing all service-providers in the system.
         /// </summary>
         /// <param name="includeSupportedServiceTypes"> Should <see cref="ServiceProviderDTO.SupportedServiceTypes"/> be loaded and included in the result? </param>
         /// <param name="includeOfferedServiceOrderAddons"> Should <see cref="ServiceProviderDTO.OfferedServiceOrderAddons"/> be loaded and included in the result? </param>
-        /// <returns> A list of all service-providers. </returns>
+        /// <returns> A task that represents the asynchronous operation. The task result contains a list of all service-providers in the database. </returns>
         Task<IEnumerable<ServiceProviderDTO>> GetAllServiceProvidersAsync(bool includeSupportedServiceTypes, bool includeOfferedServiceOrderAddons);
+
+
+        /*
+         * Customer Service Provider
+         */
+
+        /// <summary>
+        ///     Deletes an existing API credential.
+        /// </summary>
+        /// <param name="organizationId"> The customer the API credential is attached to. </param>
+        /// <param name="serviceProviderId"> The service-provider the API credential is used with. </param>
+        /// <param name="serviceTypeId"> The service-type the API credentials can be used with. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        Task DeleteApiCredentialAsync(Guid organizationId, int serviceProviderId, int serviceTypeId);
+
+        /// <summary>
+        ///     Register a new API credential.
+        /// </summary>
+        /// <param name="organizationId"> The customer the API credential is attached to. </param>
+        /// <param name="serviceProviderId"> The service-provider the API credential is used with. </param>
+        /// <param name="serviceTypeId"> The <see cref="ServiceType.Id"/> this API credential is valid for. </param>
+        /// <param name="apiUsername"> The API username. If it's not applicable for the service-provider, it should be <see langword="null"/>. </param>
+        /// <param name="apiPassword"> The API password. If it's not applicable for the service-provider, it should be <see langword="null"/>. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="NotFoundException"> Thrown if no <see cref="CustomerServiceProvider"/> entries was found using 
+        ///     the values from <paramref name="organizationId"/> and <paramref name="serviceProviderId"/>. </exception>
+        Task AddOrUpdateApiCredentialAsync(Guid organizationId, int serviceProviderId, int serviceTypeId, string? apiUsername, string? apiPassword);
+
+
+
     }
 }

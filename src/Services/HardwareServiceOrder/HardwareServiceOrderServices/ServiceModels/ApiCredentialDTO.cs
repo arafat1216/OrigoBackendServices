@@ -44,7 +44,7 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// <summary>
         ///     The ID for the <see cref="CustomerServiceProvider"/> that owns this API credential.
         /// </summary>
-        [Required]
+        [JsonIgnore]
         public int CustomerServiceProviderId { get; init; }
 
         /// <summary>

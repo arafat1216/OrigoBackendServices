@@ -1,15 +1,20 @@
 ﻿#if DEBUG
 
+using AutoMapper;
+using HardwareServiceOrder.API.ViewModels;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Infrastructure;
 using HardwareServiceOrderServices.Models;
-using HardwareServiceOrderServices.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace HardwareServiceOrder.API.Controllers
 {
     /// <summary>
     ///     A temporary controller used for testing during development.
+    ///     All data and methods in this controller is purely for local use, and can be freely removed if needed.
     /// </summary>
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -20,18 +25,20 @@ namespace HardwareServiceOrder.API.Controllers
         // Dependency injections
         private readonly IProviderFactory _providerFactory;
         private readonly HardwareServiceOrderContext _context;
-        private readonly Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> _serviceOrderStatusHandlers;
+        private readonly IMapper _mapper;
         private readonly IApiRequesterService _apiRequesterService;
 
-        public TestController(IProviderFactory providerFactory, HardwareServiceOrderContext dbContext, Dictionary<ServiceStatusEnum, ServiceOrderStatusHandlerService> serviceOrderStatusHandlers, IApiRequesterService apiRequesterService)
+
+        public TestController(IProviderFactory providerFactory, HardwareServiceOrderContext dbContext, IMapper mapper, IApiRequesterService apiRequesterService)
         {
             _providerFactory = providerFactory;
             _context = dbContext;
-            _serviceOrderStatusHandlers = serviceOrderStatusHandlers;
+            _mapper = mapper;
             _apiRequesterService = apiRequesterService;
         }
 
 
+        // Please don't delete this one. It's a helper that's used for debugging when we need to fetch the injected caller-ID.
         private object GetResponseObject()
         {
             return new
@@ -41,155 +48,87 @@ namespace HardwareServiceOrder.API.Controllers
         }
 
 
-        /// <summary>
-        ///     Retrieve a given provider-interface.
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("get/providerInterface")]
-        public async Task<ActionResult> GetProviderInterface([FromQuery] int providerId = 1)
+        [HttpGet("customer-service-provider")]
+        public async Task<ActionResult> GetAllCustomerServiceProvidersAsync()
         {
-            try
-            {
-                var providerInterface = await _providerFactory.GetRepairProviderAsync(providerId);
+            var results = await _context.CustomerServiceProviders
+                                       .Include(e => e.ApiCredentials)
+                                       .ToListAsync();
 
-                return Ok(GetResponseObject());
-            }
-            catch (Exception e)
-            {
-                throw;
-            }
+            var mapped = _mapper.Map<IEnumerable<CustomerServiceProviderDto>>(results);
+
+            return Ok(mapped);
         }
 
 
-        /// <summary>
-        ///     Trigger the "get updated orders" method
-        /// </summary>
-        /// <param name="providerId"></param>
-        /// <param name="apiUsername"></param>
-        /// <param name="apiPassword"></param>
-        /// <param name="since"></param>
-        /// <returns></returns>
-        [HttpGet("update/getAllUpdatedOrders")]
-        public async Task<ActionResult> GetUpdatedRepairOrders([FromQuery] int providerId = 1, string? apiUsername = "52079706", string? apiPassword = null, string since = "2010-01-01")
+        [HttpGet("test")]
+        public async Task<ActionResult> Test()
         {
-            try
+            HardwareServiceOrderServices.Models.CustomerServiceProvider customerServiceProvider = new()
             {
-                var providerInterface = await _providerFactory.GetRepairProviderAsync(providerId, apiUsername, apiPassword);
+                CustomerId = Guid.NewGuid(),
 
-                var result = await providerInterface.GetUpdatedRepairOrdersAsync(DateTimeOffset.Parse(since));
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                throw;
-            }
-        }
-
-
-        /// <summary>
-        ///     Create a new repair order
-        /// </summary>
-        /// <param name="repairOrder"></param>
-        /// <param name="providerId"></param>
-        /// <param name="apiUsername"></param>
-        /// <param name="apiPassword"></param>
-        /// <returns></returns>
-        [HttpPost("create/repairOrder")]
-        public async Task<ActionResult> CreateRepairOrder([FromBody] NewExternalRepairOrderDTO repairOrder, [FromQuery] int providerId = 1, string? apiUsername = "52079706", string? apiPassword = null)
-        {
-            var providerInterface = await _providerFactory.GetRepairProviderAsync(providerId, apiUsername, apiPassword);
-            var orderResponse = await providerInterface.CreateRepairOrderAsync(repairOrder, (int)ServiceTypeEnum.SUR, Guid.Empty.ToString());
-
-            return Ok(orderResponse);
-        }
-
-
-        [HttpGet("getRepairOrder")]
-        public async Task<ActionResult> GetRepairOrder([FromQuery] Guid orderId, [FromQuery] int providerId = 1, string? apiUsername = "52079706", string? apiPassword = null)
-        {
-            var providerInterface = await _providerFactory.GetRepairProviderAsync(providerId, apiUsername, apiPassword);
-            var response = await providerInterface.GetRepairOrderAsync(orderId.ToString(), null);
-
-            return Ok(response);
-        }
-
-        /// <summary>
-        ///     Creates a new dummy service-order
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost("repo-test/serviceorder/add")]
-        public async Task<ActionResult> asdasd()
-        {
-            var CUSTOMER_ONE_ID = Guid.Parse("42447F76-D9A8-4F0A-B0FF-B4683ACEDD62");
-
-            var deliveryAddress = new DeliveryAddress(
-                RecipientTypeEnum.Personal,
-                "Recipient",
-                "Address1",
-                "Address2",
-                "PostalCode",
-                "City",
-                "NO"
-            );
-
-
-            var order2 = new HardwareServiceOrderServices.Models.HardwareServiceOrder()
-            {
-                CustomerId = CUSTOMER_ONE_ID,
-                Owner = new ContactDetails(Guid.NewGuid(), "FirstName", "LastName", "test@test.com", "+4790000000"),
-                AssetLifecycleId = Guid.NewGuid(),
-                DeliveryAddress = deliveryAddress,
-                ServiceProviderId = 3,
-                ServiceProviderOrderId1 = Guid.NewGuid().ToString(),
-                ServiceProviderOrderId2 = null,
-                ExternalServiceManagementLink = "http://localhost",
-                ServiceTypeId = (int)ServiceTypeEnum.SUR,
-                StatusId = (int)ServiceStatusEnum.Ongoing,
-                UserDescription = "A problem!"
+                ApiPassword = null,
+                ApiUserName = null,
+                LastUpdateFetched = DateTimeOffset.UtcNow,
+                ServiceProviderId = 1,
             };
 
-            var result = await _context.HardwareServiceOrders.AddAsync(order2);
-            await _context.SaveChangesAsync();
+            _context.Add(customerServiceProvider);
+            _context.SaveChanges();
 
-            return Ok(result.Entity);
+            ApiCredential apiCredential = new(customerServiceProvider.Id, 1, "username", "password");
+            _context.Add(apiCredential);
+            _context.SaveChanges();
+
+            var results = _context.CustomerServiceProviders
+                .Include(e => e.ApiCredentials)
+                .ToList();
+
+            return Ok(results);
         }
 
-        [HttpGet("repo-test/event/get")]
-        public async Task<ActionResult> Tests([FromQuery] bool add = false)
+
+        [HttpPost]
+        public async Task<ActionResult> AddCredential([FromQuery] int servicetypeid, int custserviceproviderid, string? username, string? password)
         {
-            //var result = await _repo.GetServiceEventsForOrder(1);
-            ServiceEvent serviceEvent1 = new()
-            {
-                ServiceStatusId = 2,
-                Timestamp = DateTimeOffset.UtcNow,
-            };
+            ApiCredential apiCredential = new(custserviceproviderid, servicetypeid, username, password);
 
-            if (add)
+            _context.Add(apiCredential);
+            _context.SaveChanges();
+
+            return Ok();
+        }
+
+
+        [HttpDelete]
+        public async Task<ActionResult> DeleteCredential([FromQuery] int servicetypeid, int custserviceproviderid)
+        {
+            var provider = _context.CustomerServiceProviders
+                .Include(e => e.ApiCredentials)
+                .FirstOrDefault();
+
+            ApiCredential? removeditem = provider.ApiCredentials.FirstOrDefault(e => e.ServiceTypeId == servicetypeid && e.CustomerServiceProviderId == custserviceproviderid);
+
+            if (removeditem is not null)
             {
-                var order = await _context.HardwareServiceOrders.FindAsync(7);
-                order.AddServiceEvent(serviceEvent1);
-                //order.ServiceEvents.Add(serviceEvent1);
-                await _context.SaveChangesAsync();
+                //provider.ApiCredentials.Remove(removeditem);
+                _context.Remove(removeditem);
+                return Ok();
             }
+            else
+            {
+                return NotFound();
+            }
+        }
 
-            var result = await _context.HardwareServiceOrders.FindAsync(7);
+
+        [HttpGet]
+        public async Task<ActionResult> GetAll()
+        {
+            var result = _context.CustomerServiceProviders.Include(e => e.ApiCredentials).ToList();
             return Ok(result);
         }
-
-
-        [HttpGet("updateInsertTest")]
-        public async Task<ActionResult> TestValueAssignment([FromHeader(Name = "X-Authenticated-UserId")] Guid userId)
-        {
-            ServiceStatus status = new()
-            {
-
-            };
-
-            var result = await _context.ServiceStatuses.AddAsync(status);
-            await _context.SaveChangesAsync();
-            return Ok(result.Entity);
-        }
-
     }
 }
 

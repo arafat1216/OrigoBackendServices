@@ -60,7 +60,7 @@ namespace HardwareServiceOrderServices.Services
         /// <inheritdoc cref="ServiceOrderStatusHandlerService.HandleServiceOrderUnknownStatusAsync"/>
         protected override async Task HandleServiceOrderUnknownStatusAsync(Guid orderId, ServiceStatusEnum newStatus, ISet<string> newImeis, string? newSerialNumber)
         {
-            var order = await _hardwareServiceOrderRepository.UpdateOrderStatusAsync(orderId, ServiceStatusEnum.Unknown);
+            var order = await _hardwareServiceOrderRepository.UpdateServiceOrderStatusAsync(orderId, ServiceStatusEnum.Unknown);
 
             // Handle email sending
             var parameters = new Dictionary<string, string>
@@ -74,7 +74,7 @@ namespace HardwareServiceOrderServices.Services
 
         private async Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus, ISet<string>? newImeis, string? newSerialNumber)
         {
-            var order = await _hardwareServiceOrderRepository.UpdateOrderStatusAsync(orderId, newStatus);
+            var order = await _hardwareServiceOrderRepository.UpdateServiceOrderStatusAsync(orderId, newStatus);
             
             // Update the asset-microservice
             await _assetService.UpdateAssetLifeCycleStatusAsync(order.AssetLifecycleId, newStatus, newImeis, newSerialNumber);
