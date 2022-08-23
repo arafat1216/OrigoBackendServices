@@ -280,8 +280,8 @@ namespace Customer.API.IntegrationTests.Controllers
             var requestOnBoarding = $"/api/v1/organizations/{_customerId}/initiate-onboarding";
             var responseOnBoarding = await _httpClient.PostAsync(requestOnBoarding, null);
             var organization = await responseOnBoarding.Content.ReadFromJsonAsync<OrganizationDTO>();
-            Assert.Equal(Common.Enums.CustomerStatus.StartedOnboardning, organization?.Status);
-            Assert.Equal("StartedOnboardning", organization?.StatusName);
+            Assert.Equal(Common.Enums.CustomerStatus.StartedOnboarding, organization?.Status);
+            Assert.Equal("StartedOnboarding", organization?.StatusName);
 
             //Get the permissions for user should also change status when status is invited
             var requestPermissions = $"api/v1/organizations/users/{_userOneEmail}/permissions";

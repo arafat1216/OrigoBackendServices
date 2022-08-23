@@ -450,8 +450,8 @@ namespace Customer.API.IntegrationTests.Controllers
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(Common.Enums.CustomerStatus.StartedOnboardning,organization?.Status);
-            Assert.Equal("StartedOnboardning", organization?.StatusName);
+            Assert.Equal(Common.Enums.CustomerStatus.StartedOnboarding,organization?.Status);
+            Assert.Equal("StartedOnboarding", organization?.StatusName);
         }
         [Fact]
         public async Task InitiateOnbarding_OrganizationNotFound()

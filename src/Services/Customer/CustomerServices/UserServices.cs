@@ -201,7 +201,7 @@ namespace CustomerServices
                 userPreference, callerId);
 
             //Only send invitation mail if the customer has started their onbaording 
-            if (customer.CustomerStatus == CustomerStatus.StartedOnboardning)
+            if (customer.CustomerStatus == CustomerStatus.StartedOnboarding)
             {
                 await _emailService.InvitationEmailToUserAsync(new Email.Models.InvitationMail
                 {

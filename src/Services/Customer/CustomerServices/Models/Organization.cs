@@ -347,7 +347,7 @@ namespace CustomerServices.Models
         }
         public void InitiateOnboarding()
         {
-            _customerStatus = CustomerStatus.StartedOnboardning;
+            _customerStatus = CustomerStatus.StartedOnboarding;
             AddDomainEvent(new CustomerStartedOnboardingDomainEvent(this));
         }
     }
