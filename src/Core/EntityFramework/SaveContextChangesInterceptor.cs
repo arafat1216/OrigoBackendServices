@@ -71,13 +71,9 @@ public class SaveContextChangesInterceptor : SaveChangesInterceptor
             {
                 case EntityState.Modified:
                     HandleModified(ref auditableEntity, timestamp);
-                    entry.CurrentValues.SetValues(auditableEntity); // We need to copy the altered values from the type-cast version, back into to the original object.
-                    entry.State = EntityState.Modified; // Let's ensure the item's state is still the same after we have manipulated it!
                     break;
                 case EntityState.Added:
                     HandleAdded(ref auditableEntity, timestamp);
-                    entry.CurrentValues.SetValues(auditableEntity); // We need to copy the altered values from the type-cast version, back into to the original object.
-                    entry.State = EntityState.Added; // Let's ensure the item's state is still the same after we have manipulated it!
                     break;
                 case EntityState.Deleted:
                 case EntityState.Detached:
