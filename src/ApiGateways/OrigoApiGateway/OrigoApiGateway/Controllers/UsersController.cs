@@ -24,12 +24,20 @@ namespace OrigoApiGateway.Controllers
     {
         private readonly ILogger<UsersController> _logger;
         private readonly IUserServices _userServices;
+        private readonly IAssetServices _assetServices;
+        private readonly ICustomerServices _customerServices;
         private readonly IMapper _mapper;
 
-        public UsersController(ILogger<UsersController> logger, IUserServices userServices, IMapper mapper)
+        public UsersController(ILogger<UsersController> logger, 
+            IUserServices userServices, 
+            IAssetServices assetServices,
+            ICustomerServices customerServices, 
+            IMapper mapper)
         {
             _logger = logger;
             _userServices = userServices;
+            _assetServices = assetServices;
+            _customerServices = customerServices;
             _mapper = mapper;
         }
 
@@ -572,7 +580,9 @@ namespace OrigoApiGateway.Controllers
             var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
             _ = Guid.TryParse(actor, out Guid callerId);
 
-            var user = await _userServices.InitiateOffboarding(organizationId, userId, role, department, postData, callerId);
+            var currency = await _customerServices.GetCurrencyByCustomer(organizationId);
+            var lifeCycleSetting = await _assetServices.GetLifeCycleSettingByCustomer(organizationId, currency);
+            var user = await _userServices.InitiateOffboarding(organizationId, userId, role, department, postData, lifeCycleSetting, callerId);
             if (user == null) return NotFound();
             return Ok(user);
         }

@@ -23,6 +23,20 @@ namespace CustomerServices.Email
         /// <param name="languageCode">Code of the language to be used for sending email.</param>
         /// <returns></returns>
         Task OffboardingOverdueEmailToManagersAsync(OffboardingOverdueMail emailData, string languageCode);
+        /// <summary>
+        /// Employee Offboard Initiated with Buyout Option Email to the User to Notify.
+        /// </summary>
+        /// <param name="emailData">Information that will be dynamically inserted into the email.</param>
+        /// <param name="languageCode">Code of the language to be used for sending email.</param>
+        /// <returns></returns>
+        Task OffboardingInitiatedWithBuyoutEmailToUserAsync(OffboardingInitiatedWithBuyout emailData, string languageCode);
+        /// <summary>
+        /// Employee Offboard Initiated without Buyout Option Email to the User to Notify.
+        /// </summary>
+        /// <param name="emailData">Information that will be dynamically inserted into the email.</param>
+        /// <param name="languageCode">Code of the language to be used for sending email.</param>
+        /// <returns></returns>
+        Task OffboardingInitiatedWithoutBuyoutEmailToUserAsync(OffboardingInitiatedWithoutBuyout emailData, string languageCode);
 
     }
 }

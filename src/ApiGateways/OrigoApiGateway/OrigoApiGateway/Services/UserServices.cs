@@ -85,7 +85,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoUser> InitiateOffboarding(Guid customerId, Guid userId, string role, List<Guid> departments, OffboardInitiate offboardDate, Guid callerId)
+        public async Task<OrigoUser> InitiateOffboarding(Guid customerId, Guid userId, string role, List<Guid> departments, OffboardInitiate offboardDate, IList<LifeCycleSetting> lifeCycleSettings, Guid callerId)
         {
             try
             {
@@ -98,7 +98,8 @@ namespace OrigoApiGateway.Services
                 var postDate = new OffboardInitiateDTO()
                 {
                     LastWorkingDay = offboardDate.LastWorkingDay,
-                    CallerId = callerId
+                    CallerId = callerId,
+                    BuyoutAllowed = (lifeCycleSettings != null && lifeCycleSettings.Any( x => x.BuyoutAllowed)) ? true : false
                 };
 
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/users/{userId}/initiate-offboarding", postDate);

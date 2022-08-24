@@ -510,7 +510,7 @@ namespace CustomerServices
             return userDTO;
         }
 
-        public async Task<UserDTO> InitiateOffboarding(Guid customerId, Guid userId, DateTime lastWorkingDay, Guid callerId)
+        public async Task<UserDTO> InitiateOffboarding(Guid customerId, Guid userId, DateTime lastWorkingDay, bool buyoutAllowed, Guid callerId)
         {
             var user = await GetUserAsync(customerId, userId);
             if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
@@ -518,7 +518,25 @@ namespace CustomerServices
             user.OffboardingInitiated(lastWorkingDay, callerId);
             await _organizationRepository.SaveEntitiesAsync();
 
-            // TODO: User Email Notification (in another task)
+            if (buyoutAllowed)
+            {
+                await _emailService.OffboardingInitiatedWithBuyoutEmailToUserAsync(new Email.Models.OffboardingInitiatedWithBuyout
+                {
+                    FirstName = $"{user.FirstName}",
+                    LastBuyoutDay = user.LastDayForReportingSalaryDeduction!.Value.ToShortDateString(),
+                    MyPageLink = "https://www.example.com/",
+                    Recipient = new List<string>() { user.Email }
+                }, string.IsNullOrEmpty(user.UserPreference!.Language) ? "EN" : user.UserPreference!.Language);
+            }
+            else
+            {
+                await _emailService.OffboardingInitiatedWithoutBuyoutEmailToUserAsync(new Email.Models.OffboardingInitiatedWithoutBuyout
+                {
+                    FirstName = $"{user.FirstName}",
+                    MyPageLink = "https://www.example.com/",
+                    Recipient = new List<string>() { user.Email }
+                }, string.IsNullOrEmpty(user.UserPreference!.Language) ? "EN" : user.UserPreference!.Language);
+            }
 
             var userDTO = _mapper.Map<UserDTO>(user);
             return userDTO;
@@ -562,7 +580,7 @@ namespace CustomerServices
                 await _emailService.OffboardingOverdueEmailToManagersAsync(new Email.Models.OffboardingOverdueMail
                 {
                     UserName = $"{user.FirstName} {user.LastName}",
-                    LastWorkingDays = user.LastWorkingDay!.Value,
+                    LastWorkingDays = user.LastWorkingDay!.Value.ToShortDateString(),
                     CustomerId = customerId,
                     UserId = userId,
                     Recipient = department.Managers.Select(x => x.Email).ToList()

@@ -73,6 +73,18 @@ namespace CustomerServices.Email
             var variables = _flatDictionaryProvider.Execute(emailData);
             await SendAsync(emailData.Subject, template, emailData.Recipient , variables);
         }
+        public async Task OffboardingInitiatedWithBuyoutEmailToUserAsync(OffboardingInitiatedWithBuyout emailData, string languageCode)
+        {
+            var template = _resourceManager.GetString(OffboardingInitiatedWithBuyout.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var variables = _flatDictionaryProvider.Execute(emailData);
+            await SendAsync(emailData.Subject, template, emailData.Recipient, variables);
+        }
+        public async Task OffboardingInitiatedWithoutBuyoutEmailToUserAsync(OffboardingInitiatedWithoutBuyout emailData, string languageCode)
+        {
+            var template = _resourceManager.GetString(OffboardingInitiatedWithoutBuyout.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var variables = _flatDictionaryProvider.Execute(emailData);
+            await SendAsync(emailData.Subject, template, emailData.Recipient, variables);
+        }
 
     }
 }

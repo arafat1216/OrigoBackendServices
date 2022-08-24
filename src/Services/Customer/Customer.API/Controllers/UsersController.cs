@@ -385,7 +385,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            var user = await _userServices.InitiateOffboarding(customerId, userId, offboardData.LastWorkingDay, offboardData.CallerId);
+            var user = await _userServices.InitiateOffboarding(customerId, userId, offboardData.LastWorkingDay, offboardData.BuyoutAllowed, offboardData.CallerId);
             return Ok(_mapper.Map<User>(user));
         }
         catch (UserNotFoundException exception)

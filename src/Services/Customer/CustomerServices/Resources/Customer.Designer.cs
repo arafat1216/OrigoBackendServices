@@ -61,6 +61,41 @@ namespace CustomerServices.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;br&gt;Hello {{FirstName}}!&lt;/br&gt;
+        ///&lt;/br&gt;
+        ///In regards of your offboarding, you have some tasks to complete in Origo before you leave.
+        ///&lt;/br&gt;
+        ///&lt;/br&gt;
+        ///1. Transfer or cancel your subscription (final transfer will automatically be done on your last working day).
+        ///2. Choose wether you would like to Buyout or Return your asset to company. If you choose Buyout, this need to be done before {{LastBuyoutDay}}, in order to do a salary deduction. After this date, only Return will be available. Visit Origo to see yourBuyout  [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string OffboardingInitiatedWithBuyout {
+            get {
+                return ResourceManager.GetString("OffboardingInitiatedWithBuyout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;br&gt;Hello {{FirstName}}!&lt;/br&gt;
+        ///&lt;/br&gt;
+        ///In regards of your offboarding, you have some tasks to complete in Origo before you leave.
+        ///&lt;/br&gt;
+        ///&lt;/br&gt;
+        ///1. Transfer or cancel your subscription (final transfer will automatically be done on your last working day).
+        ///2. Return your assets to company
+        ///&lt;/br&gt;
+        ///&lt;/br&gt;
+        ///Please follow the steps provided in the portal
+        ///&lt;/br&gt;
+        ///[Start Offboarding]({{MyPageLink}}).
+        /// </summary>
+        internal static string OffboardingInitiatedWithoutBuyout {
+            get {
+                return ResourceManager.GetString("OffboardingInitiatedWithoutBuyout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;br&gt;Hello!&lt;/br&gt;
         ///&lt;/br&gt;
         ///A user has been granted the status &quot;Offboarding Overdue&quot;.

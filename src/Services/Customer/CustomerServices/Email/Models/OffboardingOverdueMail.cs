@@ -19,7 +19,7 @@ namespace CustomerServices.Email.Models
         /// <summary>
         /// Last working Day of the Overdued User
         /// </summary>
-        public DateTime LastWorkingDays { get; set; }
+        public string LastWorkingDays { get; set; }
         /// <summary>
         /// Customer Id of the Overdued User
         /// </summary>
