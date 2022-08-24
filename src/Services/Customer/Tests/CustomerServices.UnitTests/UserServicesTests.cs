@@ -60,10 +60,10 @@ namespace CustomerServices.UnitTests
             await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
             await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_THREE_ID, false, EMPTY_CALLER_ID);
 
-            int users = await userServices.GetUsersCountAsync(CUSTOMER_ONE_ID, null, new[] {"SystemAdmin"});
+            var users = await userServices.GetUsersCountAsync(CUSTOMER_ONE_ID, null, new[] {"SystemAdmin"});
 
             // Assert
-            Assert.Equal(1, users);
+            Assert.Equal(1, users.Count);
         }
         [Fact]
         [Trait("Category", "UnitTest")]
@@ -79,10 +79,11 @@ namespace CustomerServices.UnitTests
             var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object, _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
             // Act
-            int users = await userServices.GetUsersCountAsync(CUSTOMER_TWO_ID, null, new[] { "SystemAdmin" });
+            var users = await userServices.GetUsersCountAsync(CUSTOMER_TWO_ID, null, new[] { "SystemAdmin" });
 
             // Assert
-            Assert.Equal(1, users);
+            Assert.Equal(2, users.NotOnboarded);
+            Assert.Equal(0, users.Count);
         }
 
         [Fact]
@@ -486,6 +487,47 @@ namespace CustomerServices.UnitTests
             var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
             // Assert
             await Assert.ThrowsAsync<InvalidPhoneNumberException>(() => userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "Test Firstname", "Testlastname", "mail@testmail.com", PHONE_NUMBER_THAT_EXIST, "43435435", userPref, EMPTY_CALLER_ID,"Role"));
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task GetOrganizationUsersCountAsync_CountForSystemAdminRole()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+
+            var count = await organizationRepository.GetOrganizationUsersCountAsync(CUSTOMER_ONE_ID, null, new string[]{ "SystemAdmin" });
+
+            Assert.Equal(2, count.NotOnboarded);
+            Assert.Equal(1, count.Count);
+            Assert.Equal(CUSTOMER_ONE_ID, count.OrganizationId);
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task GetOrganizationUsersCountAsync_OnlyCountForDepartments()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+
+            var count = await organizationRepository.GetOrganizationUsersCountAsync(CUSTOMER_ONE_ID, new Guid[] { DEPARTMENT_ONE_ID, DEPARTMENT_TWO_ID }, null);
+
+            Assert.Equal(1, count.NotOnboarded);
+            Assert.Equal(1, count.Count);
+            Assert.Equal(CUSTOMER_ONE_ID, count.OrganizationId);
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task GetOrganizationUsersCountAsync_NoRoleAndNoDepartments_ShouldReturnNull()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+
+            var organizationUserCount = await organizationRepository.GetOrganizationUsersCountAsync(CUSTOMER_ONE_ID, null, null);
+
+            Assert.Null(organizationUserCount);
         }
     }
 }

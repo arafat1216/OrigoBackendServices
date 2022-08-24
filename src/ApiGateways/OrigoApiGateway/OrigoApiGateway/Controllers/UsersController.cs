@@ -35,8 +35,7 @@ namespace OrigoApiGateway.Controllers
 
         [Route("count")]
         [HttpGet]
-        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(CustomerUserCount), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<int>> GetUsersCount(Guid organizationId)
@@ -77,7 +76,7 @@ namespace OrigoApiGateway.Controllers
                 }
 
             var count = await _userServices.GetUsersCountAsync(organizationId, filterOptions);
-            return Ok(new { organizationId, count });
+            return Ok(count);
             
             }
             catch (BadHttpRequestException ex)

@@ -25,14 +25,15 @@ namespace OrigoApiGateway.Services
         private HttpClient HttpClient => _httpClientFactory.CreateClient("customerservices");
         private readonly UserConfiguration _options;
 
-        public async Task<int> GetUsersCountAsync(Guid customerId, FilterOptionsForUser filterOptions)
+        public async Task<CustomerUserCount> GetUsersCountAsync(Guid customerId, FilterOptionsForUser filterOptions)
         {
             try
             {
                 string json = JsonSerializer.Serialize(filterOptions);
-
-                return await HttpClient.GetFromJsonAsync<int>($"{_options.ApiPath}/{customerId}/users/count/?filterOptions={json}");
                 
+                return await HttpClient.GetFromJsonAsync<CustomerUserCount>($"{_options.ApiPath}/{customerId}/users/count/?filterOptions={json}");
+               
+
             }
             catch (JsonException exception)
             {

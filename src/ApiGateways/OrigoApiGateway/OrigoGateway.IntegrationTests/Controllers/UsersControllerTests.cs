@@ -65,9 +65,10 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
                     var userService = new Mock<IUserServices>();
 
-                    
-                    userService.Setup(_ => _.GetUsersCountAsync(organizationId, null))
-                        .Returns(Task.FromResult(2));
+                    var count = new CustomerUserCount {OrganizationId = organizationId, Count = 1, NotOnboarded = 1};
+
+                    userService.Setup(_ => _.GetUsersCountAsync(organizationId, It.IsAny<FilterOptionsForUser>()))
+                        .ReturnsAsync(count);
                     services.AddSingleton(userService.Object);
                 });
             }).CreateClient();
@@ -113,7 +114,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
                    FilterOptionsForUser filter = new FilterOptionsForUser { Roles = new[] { role } };
                     userService.Setup(_ => _.GetUsersCountAsync(organization_NOTreadRights, filter))
-                        .Returns(Task.FromResult(2));
+                        .Returns(Task.FromResult(new CustomerUserCount { Count = 2, NotOnboarded = 3, OrganizationId = organization_NOTreadRights }));
                     services.AddSingleton(userService.Object);
                 });
             }).CreateClient();

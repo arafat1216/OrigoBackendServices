@@ -39,9 +39,9 @@ namespace CustomerServices
             _emailService = emailService;
         }
 
-        public Task<int> GetUsersCountAsync(Guid customerId, Guid[]? assignedToDepartment, string[]? role)
+        public async Task<OrganizationUserCount?> GetUsersCountAsync(Guid customerId, Guid[]? assignedToDepartment, string[]? role)
         {
-            return _organizationRepository.GetUsersCount(customerId, assignedToDepartment, role);
+            return await _organizationRepository.GetOrganizationUsersCountAsync(customerId, assignedToDepartment, role);
         }
 
         public async Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)

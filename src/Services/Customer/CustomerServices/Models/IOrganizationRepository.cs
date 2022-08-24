@@ -15,7 +15,21 @@ namespace CustomerServices.Models
         Task SaveEntitiesAsync(CancellationToken cancellationToken = default);
 
         Task<Organization> AddAsync(Organization customer);
-        Task<IList<OrganizationUserCount>?> GetOrganizationUserCountAsync(string[]? role, Guid[]? assignedToDepartment);
+        /// <summary>
+        /// Gets the total count for users that is active and count for users that is not considered onboarded for a all organization. 
+        /// </summary>
+        /// <param name="assignedToDepartment">A list of guids with department ids, for when the user is a manager.</param>
+        /// <param name="role">The role of the caller.</param>
+        /// <returns>A list of counter objects.</returns>
+        Task<IList<OrganizationUserCount>?> GetAllOrganizationsUsersCountAsync(string[]? role, Guid[]? assignedToDepartment);
+        /// <summary>
+        /// Gets the total count for users that is active and count for users that is not considered onboarded for a spesific organization. 
+        /// </summary>
+        /// <param name="customerId">The id of the organization that the users should be counted for.</param>
+        /// <param name="assignedToDepartment">A list of guids with department ids, for when the user is a manager.</param>
+        /// <param name="role">The role of the caller.</param>
+        /// <returns>A counter object.</returns>
+        Task<OrganizationUserCount?> GetOrganizationUsersCountAsync(Guid customerId, Guid[]? assignedToDepartment, string[]? role);
 
         /// <summary>
         ///     Retrieves all organization. Optional parameters may be provided to apply additional filtering, and for enabling eager loading. <br/>
@@ -100,7 +114,6 @@ namespace CustomerServices.Models
 
         Task<User?> GetUserByUserName(string emailAddress);
         Task<User?> GetUserByMobileNumber(string mobileNumber);
-        Task<int> GetUsersCount(Guid customerId, Guid[]? assignedToDepartment,string[]? role);
         Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100);
         Task<User?> GetUserAsync(Guid customerId, Guid userId);
         Task<User?> GetUserAsync(Guid userId);
