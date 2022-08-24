@@ -18,11 +18,6 @@ namespace OrigoApiGateway
                 {
                     config.AddJsonFile("secrets/appsettings.secrets.json", optional: true);
                 })
-                .ConfigureLogging(logging =>
-                {
-                    logging.ClearProviders();
-                    logging.AddApplicationInsights();
-                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

@@ -49,7 +49,8 @@ namespace OrigoApiGateway
 
             services.AddHealthChecks();
             services.AddHealthChecksUI().AddInMemoryStorage();
-            
+            services.AddApplicationInsightsTelemetry();
+
             var blobConnectionString = Configuration.GetSection("Storage:ConnectionString").Value;
             services.AddAzureClients(builder =>
             {
@@ -144,8 +145,6 @@ namespace OrigoApiGateway
                     { securityScheme, new string[] { } }
                 });
             });
-
-            services.AddApplicationInsightsTelemetry();
         }
 
         private void AddHttpClientsToFactory(IServiceCollection services)
