@@ -225,8 +225,15 @@ public class CustomerServices : ICustomerServices
 
             if ((int)response.StatusCode == 404)
                 return null;
+            if ((int)response.StatusCode == 400) 
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                throw new BadHttpRequestException(errorMessage);
+            }
 
-            return _mapper.Map<Organization>(response);
+            var organization = await response.Content.ReadFromJsonAsync<Organization>();
+
+            return organization;
         }
         catch (Exception ex)
         {

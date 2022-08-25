@@ -467,7 +467,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
         [Fact]
-        public async Task InitiateOnbarding_NoUsersForCustomer()
+        public async Task InitiateOnbarding_NoUsersForCustomer_ExceptionGetsThrown()
         {
             //add new organization
             var requestUri = $"/api/v1/organizations";
@@ -520,11 +520,11 @@ namespace Customer.API.IntegrationTests.Controllers
 
             //Act
             var responseInit = await _httpClient.PostAsync(requestInit, null);
-            var organizationInit = await responseInit.Content.ReadFromJsonAsync<OrganizationDTO>();
+            var errorMessage = await responseInit.Content.ReadAsStringAsync();
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, responseInit.StatusCode);
-            Assert.Equal(organization.OrganizationId, organizationInit?.OrganizationId);
+            Assert.Equal(HttpStatusCode.BadRequest, responseInit.StatusCode);
+            Assert.Equal("Customers need to have at least one user imported to initiate the onboarding process.", errorMessage);
 
         }
         [Fact]

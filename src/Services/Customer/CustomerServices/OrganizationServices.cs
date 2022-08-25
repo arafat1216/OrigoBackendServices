@@ -822,14 +822,15 @@ namespace CustomerServices
             var customer = await _organizationRepository.GetOrganizationAsync(organizationId);
             
             if (customer == null) throw new CustomerNotFoundException();
+            
+            
+            var users = await _organizationRepository.GetUsersForCustomerAsync(organizationId);
+            if (users.Count == 0 && !users.Any()) throw new ArgumentException($"Customers need to have at least one user imported to initiate the onboarding process.");
 
             customer.InitiateOnboarding();
-            
-            //Get all the users to send invitation mail and change status 
-            var users = await _organizationRepository.GetUsersForCustomerAsync(organizationId);
             var customerPreferences = await _organizationRepository.GetOrganizationPreferencesAsync(organizationId);
 
-            if (users != null && users.Any()) await SendIvitationMail(users, customerPreferences != null ? customerPreferences.PrimaryLanguage : "EN");
+            if (users != null && users.Any()) await SendIvitationMail(users, customerPreferences != null ? customerPreferences.PrimaryLanguage : "en");
 
             await _organizationRepository.SaveEntitiesAsync();
 

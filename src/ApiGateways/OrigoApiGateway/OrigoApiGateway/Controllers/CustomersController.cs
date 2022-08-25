@@ -443,9 +443,10 @@ namespace OrigoApiGateway.Controllers
 
                 return Ok(customer);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest("Unknown error");
+                var errorMessage = ex.Message != null ? ex.Message : "Unknown error";
+                return BadRequest(errorMessage);
             }
         }
         [Route("webshopUrl")]
