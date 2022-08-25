@@ -81,7 +81,7 @@ namespace Asset.API
             services.AddSingleton<IFlatDictionaryProvider, FlatDictionary>();
             services.AddScoped<ErrorExceptionFilter>();
             
-            services.AddHttpClient("emailservices", c => { c.BaseAddress = new Uri("http://emailservices"); })
+            services.AddHttpClient("emailservices", c => { c.BaseAddress = new Uri("http://emailnotificationservices-dapr"); })
                 .AddHttpMessageHandler(() => new InvocationHandler());
 
             // Feature flag initialization.
