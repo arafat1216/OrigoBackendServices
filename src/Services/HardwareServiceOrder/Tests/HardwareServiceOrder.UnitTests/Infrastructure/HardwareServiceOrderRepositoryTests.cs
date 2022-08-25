@@ -166,11 +166,7 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
         public async Task AddOrUpdateApiCredential_AddNewCredential_Test()
         {
             // Arrange
-            CustomerServiceProvider customerServiceProvider = new()
-            {
-                CustomerId = Guid.NewGuid(),
-                ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo,
-            };
+            CustomerServiceProvider customerServiceProvider = new(Guid.NewGuid(), (int)ServiceProviderEnum.ConmodoNo, null);
             await _dbContext.AddAsync(customerServiceProvider);
             await _dbContext.SaveChangesAsync();
 
@@ -193,11 +189,7 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
         public async Task AddOrUpdateApiCredential_UpdateExistingCredential_Test()
         {
             // Arrange
-            CustomerServiceProvider customerServiceProvider = new()
-            {
-                CustomerId = Guid.NewGuid(),
-                ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo,
-            };
+            CustomerServiceProvider customerServiceProvider = new(Guid.NewGuid(), (int)ServiceProviderEnum.ConmodoNo, null);
             await _dbContext.AddAsync(customerServiceProvider);
             await _dbContext.SaveChangesAsync();
 
@@ -221,18 +213,14 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
         public async Task DeleteApiCredentialAsyncTest()
         {
             // Arrange
-            CustomerServiceProvider customerServiceProvider = new()
-            {
-                CustomerId = Guid.NewGuid(),
-                ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo,
-            };
+            CustomerServiceProvider customerServiceProvider = new(Guid.NewGuid(), (int)ServiceProviderEnum.ConmodoNo, null);
             await _dbContext.AddAsync(customerServiceProvider);
             await _dbContext.SaveChangesAsync();
 
             ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, (int)ServiceProviderEnum.ConmodoNo, "OldUsername", "OldPassword");
 
             // Act
-            _repository.DeleteApiCredentialAsync(apiCredential1).Wait();
+            _repository.Delete(apiCredential1).Wait();
             ApiCredential? result = await _dbContext.ApiCredentials.FindAsync(apiCredential1.Id);
 
             // Assert

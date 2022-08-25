@@ -6,7 +6,7 @@ namespace HardwareServiceOrderServices.Models
     /// <summary>
     ///     Represents a single API credential added to a <see cref="CustomerServiceProvider"/>.
     /// </summary>
-    public class ApiCredential : EntityV2
+    public class ApiCredential : EntityV2, IDbSetEntity
     {
         /// <summary>
         ///     Constructor reserved for Entity Framework.

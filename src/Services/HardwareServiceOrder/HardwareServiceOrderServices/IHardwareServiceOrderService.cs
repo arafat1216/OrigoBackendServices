@@ -1,4 +1,5 @@
 ﻿using Common.Interfaces;
+using Common.Seedwork;
 using HardwareServiceOrderServices.Exceptions;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
@@ -75,6 +76,20 @@ namespace HardwareServiceOrderServices
          * Customer Service Provider
          */
 
+
+        Task<IEnumerable<CustomerServiceProviderDto>> GetCustomerServiceProvidersAsync(Guid organizationId, bool includeApiCredentials = false);
+
+
+        /// <summary>
+        ///     Retrieves the <see cref="CustomerServiceProvider"/>-configuration that's used between a given customer and service-provider.
+        /// </summary>
+        /// <param name="organizationId"> The customers identifier. </param>
+        /// <param name="serviceProviderId"> The service-provider's identifier. </param>
+        /// <returns> A task that represents the asynchronous operation. The task result contains the matching customer-service-provider details. </returns>
+        /// <exception cref="NotFoundException"> Thrown if no matching customer-service-providers were found. </exception>
+        Task<CustomerServiceProviderDto> GetCustomerServiceProviderByIdAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials = false);
+
+
         /// <summary>
         ///     Deletes an existing API credential.
         /// </summary>
@@ -93,8 +108,6 @@ namespace HardwareServiceOrderServices
         /// <param name="apiUsername"> The API username. If it's not applicable for the service-provider, it should be <see langword="null"/>. </param>
         /// <param name="apiPassword"> The API password. If it's not applicable for the service-provider, it should be <see langword="null"/>. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        /// <exception cref="NotFoundException"> Thrown if no <see cref="CustomerServiceProvider"/> entries was found using 
-        ///     the values from <paramref name="organizationId"/> and <paramref name="serviceProviderId"/>. </exception>
         Task AddOrUpdateApiCredentialAsync(Guid organizationId, int serviceProviderId, int serviceTypeId, string? apiUsername, string? apiPassword);
 
 

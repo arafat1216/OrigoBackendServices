@@ -3,6 +3,8 @@ using Common.Interfaces;
 using Common.Seedwork;
 using HardwareServiceOrderServices.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+using System.Linq;
 
 namespace HardwareServiceOrderServices.Infrastructure
 {
@@ -14,6 +16,54 @@ namespace HardwareServiceOrderServices.Infrastructure
         public HardwareServiceOrderRepository(HardwareServiceOrderContext hardwareServiceOrderContext)
         {
             _hardwareServiceOrderContext = hardwareServiceOrderContext;
+        }
+
+
+        /// <summary>
+        ///     Applies a custom delete to entities that's registered as a <see cref="DbSet{TEntity}"/>.
+        ///     
+        ///     <para>
+        ///     This custom deletes first updates the <paramref name="entityToBeDeleted"/> with the related <see cref="Auditable"/>-properties 
+        ///     that's used for tracking deletes. Once this information is persisted, it will delete the entry from the database. </para>
+        ///     
+        ///     <para>
+        ///     This is intended to be used with temporal tables, where the entity is deleted from the main-table instead of just being
+        ///     soft-deleted. </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The entities datatype. </typeparam>
+        /// <param name="entityToBeDeleted"> The entity that should be deleted. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        public async Task Delete<TEntity>(TEntity entityToBeDeleted) where TEntity : Auditable, IDbSetEntity
+        {
+            // Fetch the private-properties we need to use reflections on
+            var deletedByProperty = typeof(Auditable).GetProperty(nameof(Auditable.DeletedBy));
+            var dateDeletedProperty = typeof(Auditable).GetProperty(nameof(Auditable.DateDeleted));
+            var isDeletedProperty = typeof(Auditable).GetProperty(nameof(Auditable.IsDeleted));
+
+            // Update the private setter values
+            deletedByProperty?.SetValue(entityToBeDeleted, _hardwareServiceOrderContext.AuthenticatedUserId);
+            dateDeletedProperty?.SetValue(entityToBeDeleted, DateTimeOffset.UtcNow);
+            isDeletedProperty?.SetValue(entityToBeDeleted, true);
+
+            // Persist the changes (a regular update needs to be done pre-delete so it's updated before it becomes a temporal entry)
+            // We need this operation to run synchronously, so don't make the next call async!
+            _hardwareServiceOrderContext.Set<TEntity>().Update(entityToBeDeleted);
+            _hardwareServiceOrderContext.SaveChanges();
+
+            // Then we can delete it (make it a deleted record in the temporal table)
+            _hardwareServiceOrderContext.Remove(entityToBeDeleted);
+            await _hardwareServiceOrderContext.SaveChangesAsync();
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<TEntity> AddAndSaveAsync<TEntity>(TEntity entityToBeAdded) where TEntity : Auditable, IDbSetEntity
+        {
+            await _hardwareServiceOrderContext.Set<TEntity>()
+                                              .AddAsync(entityToBeAdded);
+
+            await _hardwareServiceOrderContext.SaveChangesAsync();
+            return entityToBeAdded;
         }
 
 
@@ -57,7 +107,7 @@ namespace HardwareServiceOrderServices.Infrastructure
             if (serviceProvider == null)
                 throw new ArgumentException($"No service provider exists with ID {providerId}", nameof(providerId));
 
-            var existing = await GetCustomerServiceProviderAsync(customerId, providerId);
+            var existing = await GetCustomerServiceProviderAsync(customerId, providerId, false);
 
             if (existing == null)
             {
@@ -141,7 +191,7 @@ namespace HardwareServiceOrderServices.Infrastructure
         {
             var serviceType = await GetServiceTypeAsync((int)ServiceTypeEnum.SUR) ?? new ServiceType { Id = (int)ServiceTypeEnum.SUR };
             var serviceStatus = await GetServiceStatusAsync((int)ServiceStatusEnum.Registered);
-            var serviceProvider = await GetCustomerServiceProviderAsync(serviceOrder.CustomerId, (int)ServiceProviderEnum.ConmodoNo);
+            var serviceProvider = await GetCustomerServiceProviderAsync(serviceOrder.CustomerId, (int)ServiceProviderEnum.ConmodoNo, false);
 
             if (serviceProvider == null || serviceType == null || serviceStatus == null)
             {
@@ -255,14 +305,6 @@ namespace HardwareServiceOrderServices.Infrastructure
             return await _hardwareServiceOrderContext.ServiceStatuses.FirstOrDefaultAsync(m => m.Id == id);
         }
 
-
-        /// <inheritdoc/>
-        public async Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid customerId, int serviceProviderId)
-        {
-            return await _hardwareServiceOrderContext.CustomerServiceProviders
-                                                     .FirstOrDefaultAsync(m => m.CustomerId == customerId && m.ServiceProviderId == serviceProviderId);
-        }
-
         /// <inheritdoc/>
         public async Task<IEnumerable<ServiceProvider>> GetAllServiceProvidersAsync(bool includeSupportedServiceTypes,
                                                                                     bool includeOfferedServiceOrderAddons,
@@ -315,6 +357,42 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
+        public async Task<IEnumerable<CustomerServiceProvider>> GetCustomerServiceProvidersByFilterAsync(Expression<Func<CustomerServiceProvider, bool>>? filter,
+                                                                                                         bool includeApiCredentials,
+                                                                                                         bool asNoTracking)
+        {
+            IQueryable<CustomerServiceProvider> query = _hardwareServiceOrderContext.Set<CustomerServiceProvider>();
+
+            if (filter is not null)
+                query = query.Where(filter);
+
+            if (includeApiCredentials)
+                query = query.Include(entity => entity.ApiCredentials);
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            return await query.ToListAsync();
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid organizationId,
+                                                                                    int serviceProviderId,
+                                                                                    bool includeApiCredentials)
+        {
+            IQueryable<CustomerServiceProvider> query = _hardwareServiceOrderContext.Set<CustomerServiceProvider>()
+                                                                                    .Where(entity => entity.CustomerId == organizationId && entity.ServiceProviderId == serviceProviderId);
+
+            if (includeApiCredentials)
+                query = query.Include(entity => entity.ApiCredentials);
+
+            return await query.FirstOrDefaultAsync();
+        }
+
+
+
+        /// <inheritdoc/>
         public async Task<ApiCredential> AddOrUpdateApiCredentialAsync(int customerServiceProviderId, int serviceTypeId, string? apiUsername, string? apiPassword)
         {
             ApiCredential? apiCredential = await _hardwareServiceOrderContext.ApiCredentials.FirstOrDefaultAsync(entity => entity.CustomerServiceProviderId == customerServiceProviderId && entity.ServiceTypeId == serviceTypeId);
@@ -336,48 +414,12 @@ namespace HardwareServiceOrderServices.Infrastructure
             return apiCredential;
         }
 
-
+        /*
         /// <inheritdoc/>
         public async Task DeleteApiCredentialAsync(ApiCredential apiCredential)
         {
             await Delete(apiCredential);
         }
-
-
-        /// <summary>
-        ///     Applies a custom delete to entities that's registered as a <see cref="DbSet{TEntity}"/>.
-        ///     
-        ///     <para>
-        ///     This custom deletes first updates the <paramref name="entityToBeDeleted"/> with the related <see cref="Auditable"/>-properties 
-        ///     that's used for tracking deletes. Once this information is persisted, it will delete the entry from the database. </para>
-        ///     
-        ///     <para>
-        ///     This is intended to be used with temporal tables, where the entity is deleted from the main-table instead of just being
-        ///     soft-deleted. </para>
-        /// </summary>
-        /// <typeparam name="TEntity"> The entities datatype. </typeparam>
-        /// <param name="entityToBeDeleted"> The entity that should be deleted. </param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        private async Task Delete<TEntity>(TEntity entityToBeDeleted) where TEntity : Auditable
-        {
-            // Fetch the private-properties we need to use reflections on
-            var deletedByProperty = typeof(Auditable).GetProperty(nameof(Auditable.DeletedBy));
-            var dateDeletedProperty = typeof(Auditable).GetProperty(nameof(Auditable.DateDeleted));
-            var isDeletedProperty = typeof(Auditable).GetProperty(nameof(Auditable.IsDeleted));
-
-            // Update the private setter values
-            deletedByProperty?.SetValue(entityToBeDeleted, _hardwareServiceOrderContext.AuthenticatedUserId);
-            dateDeletedProperty?.SetValue(entityToBeDeleted, DateTimeOffset.UtcNow);
-            isDeletedProperty?.SetValue(entityToBeDeleted, true);
-
-            // Persist the changes (a regular update needs to be done pre-delete so it's updated before it becomes a temporal entry)
-            // We need this operation to run synchronously, so don't make the next call async!
-            _hardwareServiceOrderContext.Set<TEntity>().Update(entityToBeDeleted);
-            _hardwareServiceOrderContext.SaveChanges();
-
-            // Then we can delete it (make it a deleted record in the temporal table)
-            _hardwareServiceOrderContext.Remove(entityToBeDeleted);
-            await _hardwareServiceOrderContext.SaveChangesAsync();
-        }
+        */
     }
 }

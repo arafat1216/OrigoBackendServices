@@ -2,6 +2,46 @@
 using HardwareServiceOrderServices.ServiceModels;
 using System.Linq;
 
+namespace HardwareServiceOrder.API.Mappings.Tests
+{
+    public class CustomerServiceProviderProfileTests
+    {
+        private readonly IMapper _mapper;
+
+        public CustomerServiceProviderProfileTests()
+        {
+            _mapper = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new CustomerServiceProviderProfile());
+                mc.AddProfile(new ObscuredApiCredentialProfile());
+            }).CreateMapper();
+        }
+
+
+        [Fact()]
+        public void CustomerServiceProviderProfileTest()
+        {
+            // Arrange
+            int id = 1;
+
+            var apiCredentials = new List<ApiCredentialDTO>()
+            {
+                new(id, (int)ServiceTypeEnum.SUR, "ApiUsername", null)
+            };
+
+            CustomerServiceProviderDto customerServiceProviderDto = new(id, Guid.NewGuid(), (int)ServiceProviderEnum.ConmodoNo, apiCredentials);
+
+            // Act
+            var mapped = _mapper.Map<ViewModels.CustomerServiceProvider>(customerServiceProviderDto);
+
+            // Assert
+            Assert.True(mapped.ApiCredentials?.Count == 1);
+            Assert.Equal(customerServiceProviderDto.ServiceProviderId, mapped.ServiceProviderId);
+        }
+    }
+}
+
+
 namespace HardwareServiceOrderServices.Mappings.Tests
 {
     public class CustomerServiceProviderProfileTests

@@ -1,9 +1,16 @@
 ﻿using Common.Interfaces;
+using Common.Seedwork;
+using System.Linq.Expressions;
 
 namespace HardwareServiceOrderServices.Models
 {
     public interface IHardwareServiceOrderRepository
     {
+        Task<TEntity> AddAndSaveAsync<TEntity>(TEntity entityToBeAdded) where TEntity : Auditable, IDbSetEntity;
+
+        Task Delete<TEntity>(TEntity entityToBeDeleted) where TEntity : Auditable, IDbSetEntity;
+
+
         /// <summary>
         /// Configure customer service provider
         /// </summary>
@@ -181,11 +188,21 @@ namespace HardwareServiceOrderServices.Models
         /// <summary>
         ///     Get the customer-specific configuration for a given service provider.
         /// </summary>
-        /// <param name="customerId"> The customers identifier. </param>
+        /// <param name="organizationId"> The customers identifier. </param>
         /// <param name="serviceProviderId"> The service-provider identifier. </param>
-        /// <returns> A task that represents the asynchronous operation. The task result contains the corresponding <see cref="CustomerServiceProvider"/>
-        ///     if one was found. If no results was found, this will be <see langword="null"/>. </returns>
-        Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid customerId, int serviceProviderId);
+        /// <param name="includeApiCredentials"> If <see langword="true"/>, then the <see cref="CustomerServiceProvider.ApiCredentials"/>,
+        ///     list will be loaded and included in the result. </param>
+        /// <returns> 
+        ///     A task that represents the asynchronous operation. The task result contains the corresponding <see cref="CustomerServiceProvider"/>
+        ///     if one was found. If no results was found, this will be <see langword="null"/>. 
+        /// </returns>
+        Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials);
+
+
+        Task<IEnumerable<CustomerServiceProvider>> GetCustomerServiceProvidersByFilterAsync(Expression<Func<CustomerServiceProvider, bool>>? filter,
+                                                                                            bool includeApiCredentials,
+                                                                                            bool asNoTracking);
+
 
         /// <summary>
         ///     Updates an existing <see cref="ApiCredential"/>. If it don't exist, it is created.
@@ -202,7 +219,7 @@ namespace HardwareServiceOrderServices.Models
         /// </summary>
         /// <param name="apiCredential"> The credential to be deleted. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        Task DeleteApiCredentialAsync(ApiCredential apiCredential);
+        //Task DeleteApiCredentialAsync(ApiCredential apiCredential);
 
     }
 }

@@ -25,11 +25,12 @@ namespace HardwareServiceOrder.API.Controllers
         /// <summary>
         ///     The default constructor. This is called/handled directly by ASP.NET using DI (dependency injection).
         /// </summary>
-        /// <param name="hardwareServiceOrderService"> DI: The service-implementation that's used for all requests to the service-project. </param>
-        /// <param name="logger"></param>
-        /// <param name="mapper"> DI: A automapper instance. </param>
-        /// <param name="apiRequesterService"> DI: Records relevant information from the incoming HTTP-request, and makes this available outside the controller.
-        ///     This must always be included in the controller's constructor, even if it's not utilized. </param>
+        /// <param name="hardwareServiceOrderService"> The injected <see cref="IHardwareServiceOrderService"/> instance. </param>
+        /// <param name="logger"> The injected <see cref="ILogger"/> instance. </param>
+        /// <param name="mapper"> The injected <see cref="IMapper"/> (automapper) instance. </param>
+        /// <param name="apiRequesterService"> A injected <see cref="IApiRequesterService"/> instance. 
+        ///     This records relevant information from the incoming HTTP-request, and makes this available outside the controller.
+        ///     It must always be included in the controller's constructor, even if it's not utilized. </param>
         public OrganizationConfigurationController(IHardwareServiceOrderService hardwareServiceOrderService,
                                          ILogger<OrganizationConfigurationController> logger,
                                          IMapper mapper,
@@ -41,19 +42,33 @@ namespace HardwareServiceOrder.API.Controllers
         }
 
 
-        [Obsolete("Not implemented!")]
         [HttpGet("service-provider")]
-        public async Task<ActionResult> GetCustomerServiceProvidersForOrganizationAsync([FromRoute] Guid organizationId)
+        [SwaggerResponse(StatusCodes.Status200OK, null, typeof(IEnumerable<ViewModels.CustomerServiceProvider>))]
+        public async Task<ActionResult> GetCustomerServiceProvidersAsync([FromRoute] Guid organizationId, [FromQuery] bool includeApiCredentialIndicators = false)
         {
-            throw new NotImplementedException();
+            var dtoResult = await _hardwareServiceOrderService.GetCustomerServiceProvidersAsync(organizationId, includeApiCredentialIndicators);
+            var mappedResult = _mapper.Map<ViewModels.CustomerServiceProvider>(dtoResult);
+
+            return Ok(mappedResult);
         }
 
 
-        [Obsolete("Not implemented!")]
-        [HttpPut("service-provider/{serviceProviderId:int}")]
-        public async Task<ActionResult> GetCustomerServiceProviderById([FromRoute] Guid organizationId, [FromRoute] Guid serviceProviderId)
+        [HttpGet("service-provider/{serviceProviderId:int}")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Returned when the system failed to locate the requested <c>CustomerServiceProvider</c>.")]
+        [SwaggerResponse(StatusCodes.Status200OK, null, typeof(ViewModels.CustomerServiceProvider))]
+        public async Task<ActionResult> GetCustomerServiceProviderByIdAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromQuery] bool includeApiCredentialIndicators = false)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var dtoResults = await _hardwareServiceOrderService.GetCustomerServiceProviderByIdAsync(organizationId, serviceProviderId, includeApiCredentialIndicators);
+                var mappedResult = _mapper.Map<ViewModels.CustomerServiceProvider>(dtoResults);
+
+                return Ok(mappedResult);
+            }
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
         }
 
 

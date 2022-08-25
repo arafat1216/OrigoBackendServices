@@ -23,6 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\HardwareServiceOrder.API\HardwareServiceOrder.API.csproj" />
 		<ProjectReference Include="..\..\HardwareServiceOrderServices\HardwareServiceOrderServices.csproj" />
 	</ItemGroup>
 

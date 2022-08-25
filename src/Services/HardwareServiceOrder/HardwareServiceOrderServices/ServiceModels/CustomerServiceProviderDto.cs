@@ -32,6 +32,25 @@ namespace HardwareServiceOrderServices.ServiceModels
         }
 
 
+        /// <summary>
+        ///     Used for creating a new service-order after it's been registered in the service-provider's system.
+        /// </summary>
+        /// <remarks>
+        ///     <b>This is a reserved constructor that is only intended for use with unit-testing.</b>
+        /// </remarks>
+        /// <param name="id"></param>
+        /// <param name="organizationId"></param>
+        /// <param name="serviceProviderId"></param>
+        /// <param name="apiCredentials"></param>
+        public CustomerServiceProviderDto(int id, Guid organizationId, int serviceProviderId, ICollection<ApiCredentialDTO>? apiCredentials)
+        {
+            Id = id;
+            OrganizationId = organizationId;
+            ServiceProviderId = serviceProviderId;
+            ApiCredentials = apiCredentials;
+        }
+
+
         /// <inheritdoc cref="EntityV2.Id"/>
         [JsonIgnore]
         public int Id { get; private init; }

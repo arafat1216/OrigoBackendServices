@@ -94,7 +94,7 @@ namespace HardwareServiceOrderServices
                                     serviceOrderDTO.AssetInfo,
                                     serviceOrderDTO.ErrorDescription);
 
-            var customerProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, (int)ServiceProviderEnum.ConmodoNo);
+            var customerProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, (int)ServiceProviderEnum.ConmodoNo, false);
 
             if (customerProvider == null)
                 throw new ArgumentException($"Service provider is not configured for customer {customerId}", nameof(customerId));
@@ -262,7 +262,7 @@ namespace HardwareServiceOrderServices
         /// <inheritdoc/>
         public async Task<string?> GetServicerProvidersUsernameAsync(Guid customerId, int providerId)
         {
-            var serviceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, providerId);
+            var serviceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, providerId, false);
 
             if (string.IsNullOrEmpty(serviceProvider?.ApiUserName))
                 return serviceProvider?.ApiUserName;
@@ -288,25 +288,53 @@ namespace HardwareServiceOrderServices
         /// <inheritdoc/>
         public async Task DeleteApiCredentialAsync(Guid organizationId, int serviceProviderId, int serviceTypeId)
         {
-            var customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId);
+            var customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, true);
             ApiCredential? apiCredentialToBeRemoved = customerServiceProvider?.ApiCredentials?.FirstOrDefault(e => e.ServiceTypeId == serviceTypeId);
 
+            // If the credentials was not found (don't exist), do a return so the API considers it "deleted".
             if (apiCredentialToBeRemoved is null)
-                throw new NotFoundException("The requested CustomerServiceProvider was not found.");
+                return;
 
-            await _hardwareServiceOrderRepository.DeleteApiCredentialAsync(apiCredentialToBeRemoved);
+            await _hardwareServiceOrderRepository.Delete(apiCredentialToBeRemoved);
         }
 
 
         /// <inheritdoc/>
         public async Task AddOrUpdateApiCredentialAsync(Guid organizationId, int serviceProviderId, int serviceTypeId, string? apiUsername, string? apiPassword)
         {
-            var customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId);
+            var customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, false);
 
             if (customerServiceProvider is null)
-                throw new NotFoundException("The API credential's customer-service-provider was not found.");
+            {
+                // What do you mean it don't exist?
+                customerServiceProvider = new(organizationId, serviceProviderId, null);
+                customerServiceProvider = await _hardwareServiceOrderRepository.AddAndSaveAsync(customerServiceProvider);
+                // Ahh! So that's where I put it. I told you it existed ;)
+            }
 
             await _hardwareServiceOrderRepository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, serviceTypeId, apiUsername, apiPassword);
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<CustomerServiceProviderDto>> GetCustomerServiceProvidersAsync(Guid organizationId, bool includeApiCredentials = false)
+        {
+            var customerServiceProviders = await _hardwareServiceOrderRepository.GetCustomerServiceProvidersByFilterAsync(where => where.CustomerId == organizationId, includeApiCredentials, true);
+
+            var mapped = _mapper.Map<IEnumerable<CustomerServiceProviderDto>>(customerServiceProviders);
+            return mapped;
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<CustomerServiceProviderDto> GetCustomerServiceProviderByIdAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials = false)
+        {
+            CustomerServiceProvider? customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, includeApiCredentials);
+            if (customerServiceProvider is null)
+                throw new NotFoundException("The customer service provider was not found.");
+
+            CustomerServiceProviderDto mapped = _mapper.Map<CustomerServiceProviderDto>(customerServiceProvider);
+            return mapped;
         }
     }
 }

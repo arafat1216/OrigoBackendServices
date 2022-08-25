@@ -6,8 +6,24 @@ namespace HardwareServiceOrderServices.Models
     /// <summary>
     /// Mapping between customer and service provider
     /// </summary>
-    public class CustomerServiceProvider : EntityV2
+    public class CustomerServiceProvider : EntityV2, IDbSetEntity
     {
+        /// <summary>
+        ///     Constructor reserved for Entity Framework.
+        /// </summary>
+        public CustomerServiceProvider()
+        {
+        }
+
+
+        public CustomerServiceProvider(Guid customerId, int serviceProviderId, ICollection<ApiCredential>? apiCredentials)
+        {
+            CustomerId = customerId;
+            ServiceProviderId = serviceProviderId;
+            ApiCredentials = apiCredentials;
+        }
+
+
         /// <summary>
         ///     Customer identifier
         /// </summary>
