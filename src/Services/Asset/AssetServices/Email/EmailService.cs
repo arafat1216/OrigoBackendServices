@@ -2,6 +2,7 @@
 using AssetServices.Exceptions;
 using Common.Configuration;
 using Common.Utilities;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -21,16 +22,19 @@ namespace AssetServices.Email
         private HttpClient _httpClient => _httpClientFactory.CreateClient("emailservices");
         private readonly IFlatDictionaryProvider _flatDictionaryProvider;
         private readonly ResourceManager _resourceManager;
+        private readonly ILogger<EmailService> _logger;
 
         public EmailService(
             IOptions<EmailConfiguration> emailConfiguration,
             IFlatDictionaryProvider flatDictionaryProvider,
-            ResourceManager resourceManager, IHttpClientFactory httpClientFactory)
+            ResourceManager resourceManager, IHttpClientFactory httpClientFactory,
+            ILogger<EmailService> logger)
         {
             _emailConfiguration = emailConfiguration.Value;
             _httpClientFactory = httpClientFactory;
             _flatDictionaryProvider = flatDictionaryProvider;
             _resourceManager = resourceManager;
+            _logger = logger;
         }
 
         private async Task SendAsync(string subject, string body, IList<string> to, Dictionary<string, string> variable)
@@ -59,6 +63,7 @@ namespace AssetServices.Email
             }
             catch (Exception ex)
             {
+                _logger?.LogError("{0}", $"Email failed for AssetService. Message: {ex.Message}");
                 throw new EmailException($"Email failed for AssetService, with Sub: {subject ?? _emailConfiguration.Subject} to Recipient: {string.Join(',', to)}", Guid.Parse("5441179c-97f0-4e84-8b9c-b5bec10a7448"), ex);
             }
         }
