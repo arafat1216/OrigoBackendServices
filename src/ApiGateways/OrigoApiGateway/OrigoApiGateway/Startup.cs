@@ -1,4 +1,3 @@
-using AutoMapper;
 using Common.Utilities;
 using Dapr.Client;
 using Microsoft.AspNetCore.Authentication;
@@ -6,7 +5,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Okta.AspNetCore;
 using OrigoApiGateway.Authorization;
@@ -26,6 +24,12 @@ namespace OrigoApiGateway
         {
             Configuration = configuration;
             WebHostEnvironment = env;
+            using var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.SetMinimumLevel(LogLevel.Information);
+                builder.AddConsole();
+            });
+            _logger = loggerFactory.CreateLogger<Startup>();
         }
 
         private readonly ApiVersion _apiVersion = new(1, 0);
@@ -35,6 +39,7 @@ namespace OrigoApiGateway
         private IWebHostEnvironment WebHostEnvironment { get; set; }
 
         private readonly string swaggerBasePath = "origoapi";
+        private readonly ILogger<Startup> _logger;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -72,6 +77,7 @@ namespace OrigoApiGateway
                 OktaDomain = Configuration["Authentication:Okta:OktaDomain"],
                 Audience = Configuration["Authentication:Okta:Audience"]
             });
+            _logger.LogInformation($"Authentication:Okta:Audience: {Configuration["Authentication:Okta:Audience"]}, Authentication:Okta:OktaDomain: {Configuration["Authentication:Okta:OktaDomain"]} ");
 
             services.AddAuthorization(options =>
             {
