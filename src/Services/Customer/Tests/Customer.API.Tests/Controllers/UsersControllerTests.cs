@@ -977,16 +977,23 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(_customerId, userCount?.OrganizationId);
         }
         [Fact]
-        public async Task GetUsersCount_NotValidACustomer()
+        public async Task GetUsersCount_NotValidACustomer_ReturnsCountEmpty()
         {
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
             
             var filter = new FilterOptionsForUser { Roles = new[] { "SystemAdmin" } };
             string json = JsonSerializer.Serialize(filter);
 
-            var request = $"/api/v1/organizations/{Guid.NewGuid()}/users/count/?filterOptions={json}";
+            var NOT_VALID_CUSTOMERID = Guid.NewGuid();
+
+            var request = $"/api/v1/organizations/{NOT_VALID_CUSTOMERID}/users/count/?filterOptions={json}";
             var response = await httpClient.GetAsync(request);
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var userCount = await response.Content.ReadFromJsonAsync<CustomerServices.Models.OrganizationUserCount>();
+
+            Assert.Equal(0, userCount.Count);
+            Assert.Equal(0, userCount.NotOnboarded);
+            Assert.Equal(NOT_VALID_CUSTOMERID, userCount.OrganizationId);
         }
         [Fact]
         public async Task GetUsersCount_DepartmentFilter_OnlyCountActivatedUsers()
@@ -1011,21 +1018,32 @@ namespace Customer.API.IntegrationTests.Controllers
 
         }
         [Fact]
-        public async Task GetUsersCount_FilterNull_ReturnsZero()
+        public async Task GetUsersCount_FilterNull_ReturnsOKandCountZero()
         {
             var filter = new FilterOptionsForUser { };
             string json = JsonSerializer.Serialize(filter);
 
             var request = $"/api/v1/organizations/{_customerId}/users/count/?filterOptions={json}";
             var response = await _httpClient.GetAsync(request);
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var userCount = await response.Content.ReadFromJsonAsync<CustomerServices.Models.OrganizationUserCount>();
+
+            Assert.Equal(0, userCount.Count);
+            Assert.Equal(0, userCount.NotOnboarded);
+            Assert.Equal(_customerId, userCount.OrganizationId);
         }
         [Fact]
-        public async Task GetUsersCount_NoFilterAtAll_ReturnsZeroAndNotException()
+        public async Task GetUsersCount_NoFilterAtAll_ReturnsEmptyCountAndNotException()
         {
             var request = $"/api/v1/organizations/{_customerId}/users/count";
             var response = await _httpClient.GetAsync(request);
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var userCount = await response.Content.ReadFromJsonAsync<CustomerServices.Models.OrganizationUserCount>();
+
+            Assert.Equal(0, userCount.Count);
+            Assert.Equal(0, userCount.NotOnboarded);
+            Assert.Equal(_customerId, userCount.OrganizationId);
         }
         [Fact]
         public async Task CreateUserForCustomer_ThenDeleteUser_ShouldActivateUserSameUser()
