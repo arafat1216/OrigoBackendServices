@@ -7,9 +7,14 @@ using HardwareServiceOrderServices.Infrastructure;
 using HardwareServiceOrderServices.Mappings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Moq;
+using Moq.Protected;
 using System.Globalization;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Resources;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HardwareServiceOrder.UnitTests
@@ -43,7 +48,22 @@ namespace HardwareServiceOrder.UnitTests
                 mc.AddProfile(new EmailProfile());
             }).CreateMapper();
 
-            _emailService = new EmailService(emailOptions, flatDictionary, resourceManger, mapper, origoOptions, _hardwareServiceOrderContext);
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                    x.RequestUri != null && x.RequestUri.ToString().Contains("/notification") && x.Method == HttpMethod.Post
+                    ),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(string.Empty)
+                });
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+            _emailService = new EmailService(emailOptions, flatDictionary, resourceManger, mapper, origoOptions, _hardwareServiceOrderContext, mockFactory.Object);
         }
 
         [Fact]

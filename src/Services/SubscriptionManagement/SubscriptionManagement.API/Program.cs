@@ -1,6 +1,7 @@
 using Common.Configuration;
 using Common.Logging;
 using Common.Utilities;
+using Dapr.Client;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -82,6 +83,9 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IFlatDictionaryProvider, FlatDictionary>();
 builder.Services.AddScoped<IDateTimeProvider, DateTimeProvider>();
 builder.Services.AddMediatR(typeof(SubscriptionManagementContext));
+
+builder.Services.AddHttpClient("emailservices", c => { c.BaseAddress = new Uri("http://emailnotificationservices"); })
+                .AddHttpMessageHandler(() => new InvocationHandler());
 
 
 

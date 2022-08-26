@@ -1,6 +1,12 @@
-﻿using HardwareServiceOrderServices;
+﻿using AutoMapper;
+using Common.Configuration;
+using Common.Utilities;
+using HardwareServiceOrderServices;
+using HardwareServiceOrderServices.Configuration;
 using HardwareServiceOrderServices.Email;
+using HardwareServiceOrderServices.Email.Models;
 using HardwareServiceOrderServices.Infrastructure;
+using HardwareServiceOrderServices.Mappings;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
 using HardwareServiceOrderServices.Services;
@@ -11,11 +17,19 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Moq;
+using Moq.Protected;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Reflection;
+using System.Resources;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace HardwareServiceOrder.IntegrationTests
 {
@@ -33,9 +47,9 @@ namespace HardwareServiceOrder.IntegrationTests
             {
                 ReplaceHardwareServiceOrderDbContext<HardwareServiceOrderContext>(services);
                 var serviceProvider = services.BuildServiceProvider();
-                using var scope = serviceProvider.CreateScope();
+                var scope = serviceProvider.CreateScope();
 
-                using var hardwareServiceOrderContext = scope.ServiceProvider.GetRequiredService<HardwareServiceOrderContext>();
+                var hardwareServiceOrderContext = scope.ServiceProvider.GetRequiredService<HardwareServiceOrderContext>();
                 hardwareServiceOrderContext.Database.EnsureCreated();
 
                 var hwServiceOrder = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
@@ -69,7 +83,7 @@ namespace HardwareServiceOrder.IntegrationTests
                         "NO"
                     ),
                     3,
-                    3,
+                    11,
                     1,
                     "serviceProviderOrderId1",
                     "OrderID2",
@@ -132,10 +146,40 @@ namespace HardwareServiceOrder.IntegrationTests
                 #endregion
 
                 #region Mock/setup for IEmailService
-                var emailServiceMock = new Mock<IEmailService>();
-                emailServiceMock.Setup(m => m.SendAssetRepairEmailAsync(It.IsAny<DateTime>(), It.IsAny<int>(), "en"));
+                var resourceManger = new ResourceManager("HardwareServiceOrderServices.Resources.HardwareServiceOrder", Assembly.GetAssembly(typeof(EmailService)));
+                var emailOptions = Options.Create(new EmailConfiguration
+                {
 
-                services.AddScoped(s => emailServiceMock);
+                });
+                var origoOptions = Options.Create(new OrigoConfiguration
+                {
+                    BaseUrl = "https://origov2dev.mytos.no",
+                    OrderPath = "/my-business/{0}/hardware-repair/{1}/view"
+                });
+                var flatDictionary = new FlatDictionary();
+
+                var mapper = new MapperConfiguration(mc =>
+                {
+                    mc.AddProfile(new EmailProfile());
+                }).CreateMapper();
+
+                var mockFactory = new Mock<IHttpClientFactory>();
+                var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+                mockHttpMessageHandler.Protected()
+                    .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                        x.RequestUri != null && x.RequestUri.ToString().Contains("/notification") && x.Method == HttpMethod.Post
+                        ),
+                        ItExpr.IsAny<CancellationToken>())
+                    .ReturnsAsync(new HttpResponseMessage
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(string.Empty)
+                    });
+                var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+                mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+                var _emailService = new EmailService(emailOptions, flatDictionary, resourceManger, mapper, origoOptions, hardwareServiceOrderContext, mockFactory.Object);
+                services.AddScoped<IEmailService>(s => _emailService);
                 #endregion
 
                 #region Mock/setup for the ServiceOrderStatusHandlerService implementation

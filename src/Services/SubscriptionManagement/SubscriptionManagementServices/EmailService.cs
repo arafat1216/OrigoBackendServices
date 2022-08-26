@@ -2,6 +2,7 @@
 using Common.Configuration;
 using Common.Utilities;
 using Microsoft.Extensions.Options;
+using SubscriptionManagementServices.Exceptions;
 using System.Net.Http.Json;
 
 namespace SubscriptionManagementServices
@@ -9,15 +10,15 @@ namespace SubscriptionManagementServices
     public class EmailService : IEmailService
     {
         private readonly EmailConfiguration _emailConfiguration;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private HttpClient _httpClient => _httpClientFactory.CreateClient("emailservices");
         private readonly IFlatDictionaryProvider _flatDictionaryProvider;
 
-        public EmailService(IOptions<EmailConfiguration> emailConfiguration, IFlatDictionaryProvider flatDictionaryProvider)
+        public EmailService(IOptions<EmailConfiguration> emailConfiguration, IFlatDictionaryProvider flatDictionaryProvider, IHttpClientFactory httpClientFactory)
         {
             _emailConfiguration = emailConfiguration.Value;
 
-            if (!string.IsNullOrEmpty(_emailConfiguration.BaseUrl))
-                _httpClient = new HttpClient() { BaseAddress = new Uri(_emailConfiguration.BaseUrl) };
+            _httpClientFactory = httpClientFactory;
 
             _flatDictionaryProvider = flatDictionaryProvider;
         }
@@ -46,16 +47,14 @@ namespace SubscriptionManagementServices
 
                 response.EnsureSuccessStatusCode();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                throw new EmailException($"Email failed for SubscriptionManagementSerives, with Sub: {subject ?? _emailConfiguration.Subject} to Recipient: {string.Join(',', _emailConfiguration.Recipient)}", Guid.Parse("5441179c-97f0-4e84-8b9c-b5bec10a7448"), ex);
             }
         }
 
         public async Task SendAsync(string orderType, Guid subscriptionOrderId, object data, Dictionary<string, string> others = null)
         {
-            if (string.IsNullOrEmpty(_emailConfiguration.BaseUrl)) return;
-
             var variables = _flatDictionaryProvider.Execute(data);
 
             variables["OrderType"] = orderType;

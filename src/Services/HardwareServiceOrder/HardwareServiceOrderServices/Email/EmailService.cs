@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Common.Configuration;
-using Common.Extensions;
 using Common.Utilities;
 using HardwareServiceOrderServices.Configuration;
 using HardwareServiceOrderServices.Email.Models;
+using HardwareServiceOrderServices.Exceptions;
 using HardwareServiceOrderServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -15,7 +15,8 @@ namespace HardwareServiceOrderServices.Email
     public class EmailService : IEmailService
     {
         private readonly EmailConfiguration _emailConfiguration;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private HttpClient _httpClient => _httpClientFactory.CreateClient("emailservices");
         private readonly IFlatDictionaryProvider _flatDictionaryProvider;
         private readonly ResourceManager _resourceManager;
         private readonly IMapper _mapper;
@@ -28,12 +29,12 @@ namespace HardwareServiceOrderServices.Email
             ResourceManager resourceManager,
             IMapper mapper,
             IOptions<OrigoConfiguration> origoConfiguration,
-            HardwareServiceOrderContext hardwareServiceOrderContext)
+            HardwareServiceOrderContext hardwareServiceOrderContext,
+            IHttpClientFactory httpClientFactory)
         {
             _emailConfiguration = emailConfiguration.Value;
 
-            if (!string.IsNullOrEmpty(_emailConfiguration.BaseUrl))
-                _httpClient = new HttpClient() { BaseAddress = new Uri(_emailConfiguration.BaseUrl) };
+            _httpClientFactory = httpClientFactory;
 
             _flatDictionaryProvider = flatDictionaryProvider;
 
@@ -47,9 +48,6 @@ namespace HardwareServiceOrderServices.Email
 
         private async Task SendAsync(string subject, string body, string to, Dictionary<string, string> variable)
         {
-            if (string.IsNullOrEmpty(_emailConfiguration.BaseUrl))
-                return;
-
             try
             {
                 var request = new Dictionary<string, object>
@@ -72,9 +70,9 @@ namespace HardwareServiceOrderServices.Email
 
                 response.EnsureSuccessStatusCode();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                throw new EmailException($"Email failed for HardwareServiceOrderServices, with Sub: {subject ?? _emailConfiguration.Subject} to Recipient: {string.Join(',', to)}", Guid.Parse("5441179c-97f0-4e84-8b9c-b5bec10a7448"), ex);
             }
         }
 
@@ -88,26 +86,34 @@ namespace HardwareServiceOrderServices.Email
 
         public async Task<List<AssetRepairEmail>> SendAssetRepairEmailAsync(DateTime? olderThan, int? statusId, string languageCode = "en")
         {
-
-            var orders = _hardwareServiceOrderContext.HardwareServiceOrders.Include(m => m.Status).AsQueryable();
-
-            if (olderThan != null)
-                orders = orders.Where(m => m.DateCreated <= olderThan);
-
-            if (statusId != null)
-                orders = orders.Where(m => m.Status.Id == statusId);
-
-            var emails = _mapper.Map<List<AssetRepairEmail>>(orders);
-
-            emails.ForEach(async email =>
+            try
             {
-                email.OrderLink = string.Format($"{_origoConfiguration.BaseUrl}/{_origoConfiguration.OrderPath}", email.CustomerId, email.OrderId);
-                var template = _resourceManager.GetString(AssetRepairEmail.TemplateKeyName, CultureInfo.CreateSpecificCulture(languageCode));
-                var subject = _resourceManager.GetString(AssetRepairEmail.SubjectKeyName, CultureInfo.CreateSpecificCulture(languageCode));
-                await SendAsync(subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
-            });
+                var orders = _hardwareServiceOrderContext.HardwareServiceOrders.Include(m => m.Status).AsQueryable();
 
-            return emails;
+                if (olderThan != null)
+                    orders = orders.Where(m => m.DateCreated <= olderThan);
+
+                if (statusId != null)
+                    orders = orders.Where(m => m.Status.Id == statusId);
+
+                var emails = _mapper.Map<List<AssetRepairEmail>>(orders);
+
+                emails.ForEach(async email =>
+                {
+                    email.OrderLink = string.Format($"{_origoConfiguration.BaseUrl}/{_origoConfiguration.OrderPath}", email.CustomerId, email.OrderId);
+                    var template = _resourceManager.GetString(AssetRepairEmail.TemplateKeyName, CultureInfo.CreateSpecificCulture(languageCode));
+                    var subject = _resourceManager.GetString(AssetRepairEmail.SubjectKeyName, CultureInfo.CreateSpecificCulture(languageCode));
+                    await SendAsync(subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
+                });
+
+                return emails;
+            }
+            catch(Exception ex)
+            {
+                var asd = ex.Message;
+                throw ex;
+            }
+            
         }
 
         public async Task<List<LoanDeviceEmail>> SendLoanDeviceEmailAsync(List<int> statusIds, string languageCode = "en")

@@ -2,7 +2,6 @@
 {
     public record EmailConfiguration
     {
-        public string BaseUrl { get; set; }
         public string Partner { get; set; }
         public string Language { get; set; }
         public string Sender { get; set; }

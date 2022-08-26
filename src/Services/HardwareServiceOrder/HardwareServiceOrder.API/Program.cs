@@ -158,6 +158,10 @@ builder.Services.AddScoped<IFlatDictionaryProvider, FlatDictionary>();
 
 builder.Services.AddSingleton(s => new ResourceManager("HardwareServiceOrderServices.Resources.HardwareServiceOrder", Assembly.GetAssembly(typeof(EmailService))));
 builder.Services.AddSingleton<IAssetService>(s => new AssetService(s.GetRequiredService<IOptions<AssetConfiguration>>(), DaprClient.CreateInvokeHttpClient("assetservices")));
+
+builder.Services.AddHttpClient("emailservices", c => { c.BaseAddress = new Uri("http://emailnotificationservices"); })
+                .AddHttpMessageHandler(() => new InvocationHandler());
+
 #endregion Builder
 
 

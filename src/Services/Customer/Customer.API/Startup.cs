@@ -128,7 +128,7 @@ namespace Customer.API
             services.AddSingleton<IFlatDictionaryProvider, FlatDictionary>();
 
 
-            services.AddHttpClient("emailservices", c => { c.BaseAddress = new Uri("http://emailnotificationservices-dapr"); })
+            services.AddHttpClient("emailservices", c => { c.BaseAddress = new Uri("http://emailnotificationservices"); })
                 .AddHttpMessageHandler(() => new InvocationHandler());
 
             services.AddMediatR(typeof(Startup));
