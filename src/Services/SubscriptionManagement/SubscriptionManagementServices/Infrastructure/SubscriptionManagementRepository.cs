@@ -120,7 +120,7 @@ namespace SubscriptionManagementServices.Infrastructure
         public async Task<TransferToBusinessSubscriptionOrder> GetTransferToBusinessOrder(Guid subscriptionOrder)
         {
             var order = await _subscriptionManagementContext.TransferSubscriptionOrders
-                .Include(p => p.PrivateSubscription)
+                .Include(p => p.PrivateSubscription).ThenInclude(p => p.RealOwner)
                 .Include(b => b.BusinessSubscription)
                 .Include(a => a.SubscriptionAddOnProducts)
                 .FirstOrDefaultAsync(s => s.SubscriptionOrderId == subscriptionOrder);
