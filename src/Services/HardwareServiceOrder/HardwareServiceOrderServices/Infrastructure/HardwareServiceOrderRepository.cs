@@ -413,13 +413,5 @@ namespace HardwareServiceOrderServices.Infrastructure
             await _hardwareServiceOrderContext.SaveChangesAsync();
             return apiCredential;
         }
-
-        /*
-        /// <inheritdoc/>
-        public async Task DeleteApiCredentialAsync(ApiCredential apiCredential)
-        {
-            await Delete(apiCredential);
-        }
-        */
     }
 }

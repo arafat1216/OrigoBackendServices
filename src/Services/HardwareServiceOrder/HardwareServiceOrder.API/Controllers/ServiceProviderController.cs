@@ -43,8 +43,8 @@ namespace HardwareServiceOrder.API.Controllers
         ///     Retrieves all service-providers
         /// </summary>
         /// <remarks>
-        ///     Retrieves all service-providers. If requested, it is also possible to include additional information about the 
-        ///     service-provider's offerings and capabilities.
+        ///     Retrieves the master-list, containing all service-providers in the system. If requested, it is also possible to include 
+        ///     additional information about the service-provider's offerings and capabilities.
         /// </remarks>
         /// <param name="includeSupportedServiceTypes">
         ///     When <c><see langword="true"/></c>, the <c>SupportedServiceTypeIds</c> property is loaded/included in the retrieved data. 

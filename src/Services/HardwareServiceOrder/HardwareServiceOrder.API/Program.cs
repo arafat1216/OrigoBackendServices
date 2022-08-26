@@ -1,3 +1,4 @@
+using AutoMapper;
 using Common.Configuration;
 using Common.Utilities;
 using Dapr.Client;
@@ -64,9 +65,7 @@ builder.Services.AddDataProtection()
             ValidationAlgorithm = ValidationAlgorithm.HMACSHA256
         });
 
-builder.Services.AddAutoMapper(
-    Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(HardwareServiceOrderServices.Mappings.CustomerSettingsProfile)),
-    Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(HardwareServiceOrder.API.Mappings.HardwareServiceOrderProfile)));
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 

@@ -42,17 +42,38 @@ namespace HardwareServiceOrder.API.Controllers
         }
 
 
+        /// <summary>
+        ///     Retrieves all customer-service-provider configurations for a customer.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves all <c>CustomerServiceProvider</c> configurations for a given customer.
+        /// </remarks>
+        /// <param name="organizationId"> The organization you are retrieving the <c><see cref="CustomerServiceProvider"/></c>'s for. </param>
+        /// <param name="includeApiCredentialIndicators"> When <c><see langword="true"/></c>, the <c>ApiCredentials</c> property is
+        ///     loaded/included in the retrieved data. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet("service-provider")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(IEnumerable<ViewModels.CustomerServiceProvider>))]
         public async Task<ActionResult> GetCustomerServiceProvidersAsync([FromRoute] Guid organizationId, [FromQuery] bool includeApiCredentialIndicators = false)
         {
             var dtoResult = await _hardwareServiceOrderService.GetCustomerServiceProvidersAsync(organizationId, includeApiCredentialIndicators);
-            var mappedResult = _mapper.Map<ViewModels.CustomerServiceProvider>(dtoResult);
+            var mappedResult = _mapper.Map<IEnumerable<ViewModels.CustomerServiceProvider>>(dtoResult);
 
             return Ok(mappedResult);
         }
 
 
+        /// <summary>
+        ///     Retrieves a specific customer-service-provider configuration.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves the <c>CustomerServiceProvider</c> configuration that matches a given organization and service-provider.
+        /// </remarks>
+        /// <param name="organizationId"> The customer/organization identifier. </param>
+        /// <param name="serviceProviderId"> The <c><see cref="ServiceProvider"/></c> identifier. </param>
+        /// <param name="includeApiCredentialIndicators"> When <c><see langword="true"/></c>, the <c>ApiCredentials</c> property is
+        ///     loaded/included in the retrieved data. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet("service-provider/{serviceProviderId:int}")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Returned when the system failed to locate the requested <c>CustomerServiceProvider</c>.")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(ViewModels.CustomerServiceProvider))]
@@ -73,30 +94,24 @@ namespace HardwareServiceOrder.API.Controllers
 
 
         /// <summary>
-        ///     Add or update service-provider API credentials for a customer.
+        ///     Adds or updates API credentials for a customer-service-provider.
         /// </summary>
         /// <remarks>
-        ///     Adds or updates a single service-provider API credential for a given customer.
+        ///     Adds a new API credential to a customer's service-provider configuration (customer-service-provider).
         ///     
         ///     <para>
-        ///     If an existing credential exist (using the same unique combination of <c><paramref name="organizationId"/></c>, 
-        ///     <c><paramref name="serviceProviderId"/></c> and <c><paramref name="serviceTypeId"/></c>), then it will be overwritten
-        ///     with the new value. </para>
+        ///     If an existing credential already exist (using the same unique combination of <c><paramref name="organizationId"/></c>, 
+        ///     <c><paramref name="serviceProviderId"/></c> and <c>ServiceTypeId</c>), then it will be overwritten
+        ///     using the new values. </para>
         /// </remarks>
-        /// <param name="organizationId"> The organization the API credentials is attached to. </param>
+        /// <param name="organizationId"> The customer/organization the API credentials is attached to. </param>
         /// <param name="serviceProviderId"> The service-provider the API credentials is attached to. </param>
-        /// <param name="serviceTypeId"> 
-        ///     The service-type the API credentials can be used with.
-        ///     
-        ///     <para>
-        ///     Please note that each service-type may only have one API credential. </para>
-        /// </param>
         /// <param name="apiCredential"> The new API credentials. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpPut("service-provider/{serviceProviderId:int}/credentials")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Returned when the system failed to locate the specified API credential.")]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult> AddApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromQuery][Required] int serviceTypeId, [FromBody] NewApiCredential apiCredential)
+        public async Task<ActionResult> AddApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromBody] NewApiCredential apiCredential)
         {
             try
             {
@@ -110,19 +125,14 @@ namespace HardwareServiceOrder.API.Controllers
         }
 
         /// <summary>
-        ///     Remove a service-provider API credential from a customer.
+        ///     Removes an API credential from a customer-service-provider.
         /// </summary>
         /// <remarks>
-        ///     Removes a given service-provider API credential for a given customer.
+        ///     Removes an existing API credential from a customer's service-provider configuration (customer-service-provider).
         /// </remarks>
-        /// <param name="organizationId"> The organization the API credentials is attached to. </param>
+        /// <param name="organizationId"> The customer/organization the API credentials is attached to. </param>
         /// <param name="serviceProviderId"> The service-provider the API credentials is attached to. </param>
-        /// <param name="serviceTypeId"> 
-        ///     The service-type the API credentials can be used with.
-        ///     
-        ///     <para>
-        ///     Please note that each service-type may only have one API credential. </para>
-        /// </param>
+        /// <param name="serviceTypeId"> The service-type the API credentials is attached to. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpDelete("service-provider/{serviceProviderId:int}/credentials")]
         [SwaggerResponse(StatusCodes.Status204NoContent)]

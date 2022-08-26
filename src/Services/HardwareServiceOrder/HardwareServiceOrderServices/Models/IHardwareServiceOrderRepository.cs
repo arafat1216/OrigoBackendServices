@@ -6,8 +6,21 @@ namespace HardwareServiceOrderServices.Models
 {
     public interface IHardwareServiceOrderRepository
     {
+        /// <summary>
+        ///     Adds a new entity, and saves it to the database.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entities datatype. </typeparam>
+        /// <param name="entityToBeAdded"> The entity that should be created. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
         Task<TEntity> AddAndSaveAsync<TEntity>(TEntity entityToBeAdded) where TEntity : Auditable, IDbSetEntity;
 
+
+        /// <summary>
+        ///     Deletes an existing entity from the database.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entities datatype. </typeparam>
+        /// <param name="entityToBeDeleted"> The entity that should be deleted. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
         Task Delete<TEntity>(TEntity entityToBeDeleted) where TEntity : Auditable, IDbSetEntity;
 
 
@@ -199,6 +212,22 @@ namespace HardwareServiceOrderServices.Models
         Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials);
 
 
+        /// <summary>
+        ///     Retrieves all <see cref="CustomerServiceProvider">customer service-providers</see> that matches the provided <paramref name="filter"/> parameter.
+        /// </summary>
+        /// <param name="filter"> The filter (where condition) that is applied to the query. </param>
+        /// <param name="includeApiCredentials"> If <see langword="true"/>, then the <see cref="CustomerServiceProvider.ApiCredentials"/>,
+        ///     list will be loaded and included in the result. </param>
+        /// <param name="asNoTracking"> 
+        ///     Should the query be run using '<c>AsNoTracking</c>'?
+        ///     
+        ///     <para>
+        ///     To improve performance, this should be set to <see langword="true"/> for read-only operations.
+        ///     However, if any write operations will occur, then this should always be set to <see langword="false"/>. </para>
+        /// </param>
+        /// <returns> 
+        ///     A task that represents the asynchronous operation. The task result contains a list of all matching <see cref="CustomerServiceProvider"/> entities. 
+        /// </returns>
         Task<IEnumerable<CustomerServiceProvider>> GetCustomerServiceProvidersByFilterAsync(Expression<Func<CustomerServiceProvider, bool>>? filter,
                                                                                             bool includeApiCredentials,
                                                                                             bool asNoTracking);
@@ -213,13 +242,6 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="apiPassword"> The new API password. </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the new or updated <see cref="ApiCredential"/>. </returns>
         Task<ApiCredential> AddOrUpdateApiCredentialAsync(int customerServiceProviderId, int serviceTypeId, string? apiUsername, string? apiPassword);
-
-        /// <summary>
-        ///     Deletes an existing <see cref="ApiCredential"/>.
-        /// </summary>
-        /// <param name="apiCredential"> The credential to be deleted. </param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        //Task DeleteApiCredentialAsync(ApiCredential apiCredential);
 
     }
 }
