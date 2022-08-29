@@ -434,9 +434,6 @@ public class AssetLifecycle : Entity, IAggregateRoot
         if (_assetLifecycleType != LifecycleType.Transactional)
             throw new ReturnDeviceRequestException($"Only Assets that have Transactionl Life cycle type can make return request!!! asset Id: {ExternalId}", Guid.Parse("9ca1610a-16ba-432a-9e8a-f601933ba7a1"));
 
-        if (_assetLifecycleStatus != AssetLifecycleStatus.ExpiresSoon && _assetLifecycleStatus != AssetLifecycleStatus.PendingReturn)
-            throw new ReturnDeviceRequestException($"Asset is not Expiring Soon and does not have pending return request!!! asset Id: {ExternalId}", Guid.Parse("46d0a2b2-73a9-40b7-9ccf-3d44e6c0a35f"));
-
         if (!IsActiveState)
             throw new InvalidOperationForInactiveState($"{_assetLifecycleStatus}", ExternalId, Guid.Parse("d7f038ac-0af5-4018-a3bc-6d851772b15c"));
 

@@ -661,15 +661,16 @@ namespace OrigoApiGateway.Services
                 {
                     AssetLifeCycleId = assetLifeCycleId,
                     CallerId = callerId,
-                    ReturnLocationId = returnLocationId
+                    ReturnLocationId = returnLocationId,
+                    Role = role
                 };
-                if (existingAsset.IsPersonal && existingAsset.AssetStatus == AssetLifecycleStatus.PendingReturn)
+                if (role == PredefinedRole.EndUser.ToString() && existingAsset.IsPersonal && existingAsset.AssetStatus == AssetLifecycleStatus.PendingReturn)
                 {
                     if(role == PredefinedRole.EndUser.ToString()) throw new Exception("Return Request Already Pending!!!");
                     if(returnLocationId == Guid.Empty) throw new Exception("Must Select a Return Location to Confirm!!!");
               
                 }
-                else if(existingAsset.IsPersonal && existingAsset.AssetStatus != AssetLifecycleStatus.PendingReturn)
+                else if(role == PredefinedRole.EndUser.ToString() && existingAsset.IsPersonal && existingAsset.AssetStatus != AssetLifecycleStatus.PendingReturn)
                 {
                     if(existingAsset.AssetHolderId != callerId && role == PredefinedRole.EndUser.ToString()) throw new Exception("Only ContractHolderUser can make Return Request!!!");
                     if(existingAsset.ManagedByDepartmentId != null)
@@ -692,6 +693,16 @@ namespace OrigoApiGateway.Services
                 else if (!existingAsset.IsPersonal)
                 {
                     if (role == PredefinedRole.EndUser.ToString()) throw new Exception("Only Admin can make return request for non-personal asset!!!");
+                }
+                else if (existingAsset.IsPersonal && role != PredefinedRole.EndUser.ToString())
+                {
+                    var user = await _userServices.GetUserAsync(customerId, existingAsset.AssetHolderId!.Value);
+                    returnDTO.User = new EmailPersonAttributeDTO()
+                    {
+                        Name = user.FirstName,
+                        Email = user.Email,
+                        PreferedLanguage = user.UserPreference!.Language
+                    };
                 }
                 else
                 {

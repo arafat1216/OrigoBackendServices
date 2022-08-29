@@ -900,12 +900,13 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     [Fact]
     public async Task ReturnDeviceAsync_PersonalPendingReturn()
     {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
         var expiresData = new MakeAssetExpired { AssetLifeCycleId = _assetOne, CallerId = _callerId };
-        await _httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/{_customerId}/make-expiressoon", expiresData);
+        await httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/{_customerId}/make-expiressoon", expiresData);
         var postData = new ReturnDevice { AssetLifeCycleId = _assetOne, CallerId = _callerId };
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-device";
         _testOutputHelper.WriteLine(requestUri);
-        var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+        var responsePost = await httpClient.PostAsync(requestUri, JsonContent.Create(postData));
         var updatedAsset = await responsePost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
 
         Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
@@ -949,10 +950,11 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     [Fact]
     public async Task ReturnDeviceAsync_PersonalConfirmReturn()
     {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
         var expiresData = new MakeAssetExpired { AssetLifeCycleId = _assetOne, CallerId = _callerId };
-        await _httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/{_customerId}/make-expiressoon", expiresData);
+        await httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/{_customerId}/make-expiressoon", expiresData);
         var disposeSetting =
-            await _httpClient.GetFromJsonAsync<DisposeSetting>(
+            await httpClient.GetFromJsonAsync<DisposeSetting>(
                 $"/api/v1/Assets/customers/{_customerId}/dispose-setting");
         var postData = new ReturnDevice
         {
@@ -962,8 +964,8 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         };
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-device";
         _testOutputHelper.WriteLine(requestUri);
-        var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
-        var confirmPost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+        var responsePost = await httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+        var confirmPost = await httpClient.PostAsync(requestUri, JsonContent.Create(postData));
         var updatedAsset = await confirmPost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
 
         Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
@@ -971,6 +973,66 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.Returned);
     }
 
+    [Fact]
+    public async Task ReturnDeviceAsync_InactiveAsset()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+        var disposeSetting =
+            await httpClient.GetFromJsonAsync<DisposeSetting>(
+                $"/api/v1/Assets/customers/{_customerId}/dispose-setting");
+        var postData = new ReturnDevice
+        {
+            AssetLifeCycleId = _assetOne,
+            CallerId = _callerId,
+            ReturnLocationId = disposeSetting!.ReturnLocations.FirstOrDefault()!.Id,
+            Role = PredefinedRole.Manager.ToString()
+        };
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-device";
+        _testOutputHelper.WriteLine(requestUri);
+        var responsePost = await httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+        var confirmPost = await httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+        Assert.Equal(HttpStatusCode.BadRequest, confirmPost.StatusCode);
+    }
+    [Fact]
+    public async Task ReturnDeviceAsync_DirectReturnByManager()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+        var disposeSetting =
+            await httpClient.GetFromJsonAsync<DisposeSetting>(
+                $"/api/v1/Assets/customers/{_customerId}/dispose-setting");
+        var postData = new ReturnDevice
+        {
+            AssetLifeCycleId = _assetOne,
+            CallerId = _callerId,
+            ReturnLocationId = disposeSetting!.ReturnLocations.FirstOrDefault()!.Id,
+            Role = PredefinedRole.Manager.ToString()
+        };
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-device";
+        _testOutputHelper.WriteLine(requestUri);
+        var responsePost = await httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+        var updatedAsset = await responsePost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+        Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+        Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.Returned);
+    }
+    [Fact]
+    public async Task ReturnDeviceAsync_NoReturnLocation()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+        var postData = new ReturnDevice
+        {
+            AssetLifeCycleId = _assetOne,
+            CallerId = _callerId,
+            ReturnLocationId = Guid.NewGuid(),
+            Role = PredefinedRole.Manager.ToString()
+        };
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/return-device";
+        _testOutputHelper.WriteLine(requestUri);
+        var responsePost = await httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+
+        Assert.Equal(HttpStatusCode.BadRequest, responsePost.StatusCode);
+    }
     [Fact]
     public async Task PendigBuyoutDeviceAsync()
     {

@@ -380,7 +380,21 @@ public class AssetServices : IAssetServices
 
         var returnLocations = await GetReturnLocationsByCustomer(customerId);
         var returnLocation = returnLocations.FirstOrDefault(x => x.ExternalId == data.ReturnLocationId);
-        if (assetLifecycle.IsPersonal && assetLifecycle.AssetLifecycleStatus != AssetLifecycleStatus.PendingReturn)
+        if(!assetLifecycle.IsPersonal || data.Role != PredefinedRole.EndUser.ToString())
+        {
+            // Confirm Return
+            if (returnLocation == null)
+            {
+                throw new ReturnDeviceRequestException($"Return Location not found to confirm return!!! asset Id: {data.AssetLifeCycleId}", Guid.Parse("a8af69cc-7b17-4044-b34b-218f7ca5ff98"));
+            }
+            assetLifecycle.ConfirmReturnDevice(data.CallerId, returnLocation.Name, returnLocation.ReturnDescription);
+
+            if(assetLifecycle.IsPersonal && data.User != null)
+            {
+                // TODO: Notify User Asset Returned on his Behalf (Task in another US)
+            }
+        }
+        else if (assetLifecycle.IsPersonal && assetLifecycle.AssetLifecycleStatus != AssetLifecycleStatus.PendingReturn)
         {
             // Pending Return
             assetLifecycle.MakeReturnRequest(data.CallerId);
@@ -402,15 +416,6 @@ public class AssetServices : IAssetServices
             if(returnLocation == null)
             {
                 throw new ReturnDeviceRequestException($"Return Location not found to confirm pending return!!! asset Id: {data.AssetLifeCycleId}", Guid.Parse("78d06bfc-3897-497e-af90-8d9e3f0cc2e7"));
-            }
-            assetLifecycle.ConfirmReturnDevice(data.CallerId, returnLocation.Name, returnLocation.ReturnDescription);
-        }
-        else if (!assetLifecycle.IsPersonal)
-        {
-            // Confirm Return
-            if (returnLocation == null)
-            {
-                throw new ReturnDeviceRequestException($"Return Location not found to confirm pending return!!! asset Id: {data.AssetLifeCycleId}", Guid.Parse("a8af69cc-7b17-4044-b34b-218f7ca5ff98"));
             }
             assetLifecycle.ConfirmReturnDevice(data.CallerId, returnLocation.Name, returnLocation.ReturnDescription);
         }
