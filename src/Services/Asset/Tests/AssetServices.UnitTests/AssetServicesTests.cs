@@ -1782,10 +1782,6 @@ public class AssetServicesTests : AssetBaseTest
         await Assert.ThrowsAsync<TechstepRepositorySetupException>(async () => await assetService.FindTechstepProductsAsync(PRODUCT_SEARCH_STRING));
     }
 
-    //[Fact]
-    //[Trait("Category", "UnitTest")]
-    //public Task FindTechstep()
-
     [Fact]
     [Trait("Category", "UnitTest")]
     public async Task GetAssetLifecycleCountForCustomerAsync_ForAllAssetLifecyclesWithActiveStates()

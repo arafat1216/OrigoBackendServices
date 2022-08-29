@@ -83,6 +83,16 @@ namespace Asset.API
             
             services.AddHttpClient("emailservices", c => { c.BaseAddress = new Uri("http://emailnotificationservices"); })
                 .AddHttpMessageHandler(() => new InvocationHandler());
+            var techstepCoreConfiguration = Configuration.GetSection("TechstepCore:Products");
+            var baseUrl = techstepCoreConfiguration.GetValue(typeof(string), "BaseUrl");
+            if (baseUrl != null)
+            {
+                var baseUrlString = baseUrl.ToString();
+                if (!string.IsNullOrEmpty(baseUrlString))
+                {
+                    services.AddHttpClient("techstep-core-products", c => { c.BaseAddress = new Uri(baseUrlString); });
+                }
+            }
 
             // Feature flag initialization.
             services.Configure<FeatureFlagConfiguration>(Configuration.GetSection("FeatureFlag"));
