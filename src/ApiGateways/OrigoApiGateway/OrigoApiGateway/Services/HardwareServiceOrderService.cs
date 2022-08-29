@@ -213,11 +213,11 @@ namespace OrigoApiGateway.Services
 
 
         /// <inheritdoc/>
-        public async Task DeleteApiCredentialsAsync(Guid organizationId, int serviceProviderId, int serviceTypeId)
+        public async Task DeleteApiCredentialsAsync(Guid organizationId, int serviceProviderId, int? serviceTypeId)
         {
             var queryParameters = new Dictionary<string, string>
             {
-                { "serviceTypeId", serviceTypeId.ToString() }
+                { "serviceTypeId", serviceTypeId?.ToString() ?? string.Empty }
             };
 
             await DeleteAsync($"{_options.ConfigurationApiPath}/{organizationId}/service-provider/{serviceProviderId}/credentials", queryParameters);

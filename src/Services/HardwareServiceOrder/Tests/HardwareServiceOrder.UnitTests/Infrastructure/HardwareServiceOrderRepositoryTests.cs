@@ -193,10 +193,10 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
             await _dbContext.AddAsync(customerServiceProvider);
             await _dbContext.SaveChangesAsync();
 
-            ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, (int)ServiceProviderEnum.ConmodoNo, "OldUsername", "OldPassword");
+            ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, (int)ServiceTypeEnum.SUR, "OldUsername", "OldPassword");
+            ApiCredential apiCredential2 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, (int)ServiceTypeEnum.SUR, "NewUsername", "NewPassword");
 
             // Act
-            ApiCredential apiCredential2 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, (int)ServiceProviderEnum.ConmodoNo, "NewUsername", "NewPassword");
             var result = await _dbContext.ApiCredentials.FindAsync(apiCredential2.Id);
 
             // Assert
@@ -209,6 +209,29 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
         }
 
 
+        // Ensure the alternate-key / unique index still works (no duplicate null entries)
+        [Fact()]
+        public async Task AddOrUpdateApiCredential_UpdateExistingCredential_NullUnique_Test()
+        {
+            // Arrange
+            CustomerServiceProvider customerServiceProvider = new(Guid.NewGuid(), (int)ServiceProviderEnum.ConmodoNo, null);
+            await _dbContext.AddAsync(customerServiceProvider);
+            await _dbContext.SaveChangesAsync();
+
+            ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, null, "OldUsername", "OldPassword");
+            ApiCredential apiCredential2 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, null, "NewUsername", "NewPassword");
+
+            // Act
+            var result = await _dbContext.ApiCredentials
+                                         .Where(e => e.CustomerServiceProviderId == customerServiceProvider.Id && e.ServiceTypeId == null)
+                                         .ToListAsync();
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.Count == 1); // We should not have duplicates. The new entry should be come a update for the existing one!
+        }
+
+
         [Fact()]
         public async Task DeleteApiCredentialAsyncTest()
         {
@@ -217,7 +240,7 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
             await _dbContext.AddAsync(customerServiceProvider);
             await _dbContext.SaveChangesAsync();
 
-            ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, (int)ServiceProviderEnum.ConmodoNo, "OldUsername", "OldPassword");
+            ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, (int)ServiceTypeEnum.SUR, "OldUsername", "OldPassword");
 
             // Act
             _repository.Delete(apiCredential1).Wait();

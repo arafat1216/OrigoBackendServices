@@ -393,7 +393,7 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
-        public async Task<ApiCredential> AddOrUpdateApiCredentialAsync(int customerServiceProviderId, int serviceTypeId, string? apiUsername, string? apiPassword)
+        public async Task<ApiCredential> AddOrUpdateApiCredentialAsync(int customerServiceProviderId, int? serviceTypeId, string? apiUsername, string? apiPassword)
         {
             ApiCredential? apiCredential = await _hardwareServiceOrderContext.ApiCredentials.FirstOrDefaultAsync(entity => entity.CustomerServiceProviderId == customerServiceProviderId && entity.ServiceTypeId == serviceTypeId);
 

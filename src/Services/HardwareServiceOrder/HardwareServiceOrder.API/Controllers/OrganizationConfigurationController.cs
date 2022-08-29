@@ -3,6 +3,7 @@ using HardwareServiceOrder.API.ViewModels;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Exceptions;
 using HardwareServiceOrderServices.Infrastructure;
+using HardwareServiceOrderServices.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HardwareServiceOrder.API.Controllers
@@ -77,7 +78,7 @@ namespace HardwareServiceOrder.API.Controllers
         [HttpGet("service-provider/{serviceProviderId:int}")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Returned when the system failed to locate the requested <c>CustomerServiceProvider</c>.")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(ViewModels.CustomerServiceProvider))]
-        public async Task<ActionResult> GetCustomerServiceProviderByIdAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromQuery] bool includeApiCredentialIndicators = false)
+        public async Task<ActionResult> GetCustomerServiceProviderByIdAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromQuery] bool includeApiCredentialIndicators = false)
         {
             try
             {
@@ -110,7 +111,7 @@ namespace HardwareServiceOrder.API.Controllers
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpPut("service-provider/{serviceProviderId:int}/credentials")]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult> AddOrUpdateApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromBody] NewApiCredential apiCredential)
+        public async Task<ActionResult> AddOrUpdateApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromBody] NewApiCredential apiCredential)
         {
             try
             {
@@ -130,12 +131,12 @@ namespace HardwareServiceOrder.API.Controllers
         ///     Removes an existing API credential from a customer's service-provider configuration (customer-service-provider).
         /// </remarks>
         /// <param name="organizationId"> The customer/organization the API credentials is attached to. </param>
-        /// <param name="serviceProviderId"> The service-provider the API credentials is attached to. </param>
+        /// <param name="serviceProviderId"> The service-provider the API credentials is attached to. When omitted, the default/fallback API credential is deleted. </param>
         /// <param name="serviceTypeId"> The service-type the API credentials is attached to. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpDelete("service-provider/{serviceProviderId:int}/credentials")]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult> DeleteApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromQuery][Required] int serviceTypeId)
+        public async Task<ActionResult> DeleteApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromQuery][EnumDataType(typeof(ServiceTypeEnum))] int? serviceTypeId)
         {
             await _hardwareServiceOrderService.DeleteApiCredentialAsync(organizationId, serviceProviderId, serviceTypeId);
             return NoContent();

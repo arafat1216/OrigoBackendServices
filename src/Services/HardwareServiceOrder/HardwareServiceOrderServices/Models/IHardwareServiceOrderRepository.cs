@@ -241,7 +241,7 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="apiUsername"> The new API username. </param>
         /// <param name="apiPassword"> The new API password. </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the new or updated <see cref="ApiCredential"/>. </returns>
-        Task<ApiCredential> AddOrUpdateApiCredentialAsync(int customerServiceProviderId, int serviceTypeId, string? apiUsername, string? apiPassword);
+        Task<ApiCredential> AddOrUpdateApiCredentialAsync(int customerServiceProviderId, int? serviceTypeId, string? apiUsername, string? apiPassword);
 
     }
 }

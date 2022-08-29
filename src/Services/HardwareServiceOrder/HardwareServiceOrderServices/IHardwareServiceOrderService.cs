@@ -104,7 +104,7 @@ namespace HardwareServiceOrderServices
         /// <param name="serviceProviderId"> The service-provider the API credential is used with. </param>
         /// <param name="serviceTypeId"> The service-type the API credentials can be used with. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        Task DeleteApiCredentialAsync(Guid organizationId, int serviceProviderId, int serviceTypeId);
+        Task DeleteApiCredentialAsync(Guid organizationId, int serviceProviderId, int? serviceTypeId);
 
 
         /// <summary>
@@ -120,6 +120,6 @@ namespace HardwareServiceOrderServices
         /// <param name="apiUsername"> The API username. If it's not applicable for the service-provider, it should be <see langword="null"/>. </param>
         /// <param name="apiPassword"> The API password. If it's not applicable for the service-provider, it should be <see langword="null"/>. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        Task AddOrUpdateApiCredentialAsync(Guid organizationId, int serviceProviderId, int serviceTypeId, string? apiUsername, string? apiPassword);
+        Task AddOrUpdateApiCredentialAsync(Guid organizationId, int serviceProviderId, int? serviceTypeId, string? apiUsername, string? apiPassword);
     }
 }

@@ -28,7 +28,7 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// <param name="serviceTypeId"> The ID of the service-type this API credential is valid for. </param>
         /// <param name="apiUsername"> The API username. If it's not applicable for the service-provider, it should be <see langword="null"/>. </param>
         /// <param name="apiPassword"> The API password. If it's not applicable for the service-provider, it should be <see langword="null"/>. </param>
-        public ApiCredentialDTO(int customerServiceProviderId, int serviceTypeId, string? apiUsername, string? apiPassword)
+        public ApiCredentialDTO(int customerServiceProviderId, int? serviceTypeId, string? apiUsername, string? apiPassword)
         {
             CustomerServiceProviderId = customerServiceProviderId;
             ServiceTypeId = serviceTypeId;
@@ -53,9 +53,13 @@ namespace HardwareServiceOrderServices.ServiceModels
         ///     <para>
         ///     <c><see cref="CustomerServiceProviderId"/></c> and <c><see cref="ServiceTypeId"/></c> is a unique combination. This means that
         ///     each <see cref="CustomerServiceProvider"/> can only contain one set of API credentials per <see cref="ServiceType"/>. </para>
+        ///     
+        ///     <para>
+        ///     When the value is <c><see langword="null"/></c>, the key functions as the default/fallback API key. This value will be used for all 
+        ///     API requests where the service-type don't have it's own specific API key.
+        ///     </para>
         /// </summary>
-        [Required]
-        public int ServiceTypeId { get; init; }
+        public int? ServiceTypeId { get; init; }
 
         /// <summary>
         ///     The API username. If it's not applicable for the service-provider, it should be <see langword="null"/>.

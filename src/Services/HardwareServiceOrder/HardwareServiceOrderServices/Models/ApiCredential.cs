@@ -22,7 +22,7 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="serviceTypeId"> The <see cref="ServiceType.Id"/> this API credential is valid for.</param>
         /// <param name="apiUsername"> The API username. If it's not applicable for the service-provider, it should be <see langword="null"/>. </param>
         /// <param name="apiPassword"> The API password. If it's not applicable for the service-provider, it should be <see langword="null"/>. </param>
-        public ApiCredential(int customerServiceProviderId, int serviceTypeId, string? apiUsername, string? apiPassword)
+        public ApiCredential(int customerServiceProviderId, int? serviceTypeId, string? apiUsername, string? apiPassword)
         {
             CustomerServiceProviderId = customerServiceProviderId;
             ServiceTypeId = serviceTypeId;
@@ -42,8 +42,13 @@ namespace HardwareServiceOrderServices.Models
         ///     <para>
         ///     <see cref="CustomerServiceProviderId"/> and <see cref="ServiceTypeId"/> is a unique combination. This means that
         ///     each <see cref="CustomerServiceProvider"/> can only contain one set of API credentials per <see cref="ServiceType"/>. </para>
+        ///     
+        ///     <para>
+        ///     When the value is <see langword="null"/>, the key functions as the default/fallback API key. This value will be used for all 
+        ///     API requests where the service-type don't have it's own specific API key.
+        ///     </para>
         /// </summary>
-        public int ServiceTypeId { get; init; }
+        public int? ServiceTypeId { get; init; }
 
         /// <summary>
         ///     The API username. If it's not applicable for the service-provider, it should be <see langword="null"/>.

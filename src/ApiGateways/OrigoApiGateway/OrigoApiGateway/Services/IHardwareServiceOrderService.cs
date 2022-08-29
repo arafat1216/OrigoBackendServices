@@ -37,7 +37,7 @@ namespace OrigoApiGateway.Services
         /// <param name="serviceProviderId"> The service-provider the API credential is used with. </param>
         /// <param name="serviceTypeId"> The service-type the API credentials can be used with. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        Task DeleteApiCredentialsAsync(Guid organizationId, int serviceProviderId, int serviceTypeId);
+        Task DeleteApiCredentialsAsync(Guid organizationId, int serviceProviderId, int? serviceTypeId);
 
         /// <summary>
         ///     Adds or updates an API credential for a customer's service-provider configuration.

@@ -48,16 +48,32 @@ namespace HardwareServiceOrder.API.Controllers
         }
 
 
+        /// <summary>
+        ///     Lists every <c>CustomerServiceProvider</c> that exist in the database.
+        /// </summary>
+        /// <remarks>
+        ///     Lists every <c>CustomerServiceProvider</c> that exist in the database. 
+        ///     If requested, it's re-mapped to <c>CustomerServiceProviderDto</c>.
+        /// </remarks>
+        /// <param name="dto"> If <c><see langword="true"/></c>, it returns the remapped DTO entity. <br/>
+        ///     If <c><see langword="false"/></c> it returns the Entity Framework entity. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet("customer-service-provider")]
-        public async Task<ActionResult> GetAllCustomerServiceProvidersAsync()
+        public async Task<ActionResult> GetAllCustomerServiceProvidersAsync([FromQuery] bool dto = false)
         {
-            var results = await _context.CustomerServiceProviders
-                                       .Include(e => e.ApiCredentials)
-                                       .ToListAsync();
+            List<HardwareServiceOrderServices.Models.CustomerServiceProvider> results = await _context.CustomerServiceProviders
+                                                                                                      .Include(e => e.ApiCredentials)
+                                                                                                      .ToListAsync();
 
-            var mapped = _mapper.Map<IEnumerable<CustomerServiceProviderDto>>(results);
-
-            return Ok(mapped);
+            if (dto)
+            {
+                IEnumerable<CustomerServiceProviderDto> mapped = _mapper.Map<IEnumerable<CustomerServiceProviderDto>>(results);
+                return Ok(mapped);
+            }
+            else
+            {
+                return Accepted(results);
+            }
         }
 
 

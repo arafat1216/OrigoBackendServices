@@ -109,7 +109,7 @@ namespace OrigoApiGateway.Controllers
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpDelete("configuration/organization/{organizationId:Guid}/service-provider/{serviceProviderId:int}/credentials")]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult> DeleteApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromQuery][Required] int serviceTypeId)
+        public async Task<ActionResult> DeleteApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromQuery] int? serviceTypeId)
         {
             await _hardwareServiceOrderService.DeleteApiCredentialsAsync(organizationId, serviceProviderId, serviceTypeId);
             return NoContent();

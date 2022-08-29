@@ -1,4 +1,6 @@
 ﻿using HardwareServiceOrderServices.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
@@ -21,9 +23,27 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
              * DB table configuration (keys, constraints, indexing, etc.)
              */
 
+            builder.HasIndex(x => new { x.CustomerServiceProviderId, x.ServiceTypeId })
+                   .IsUnique(true)
+                   .HasFilter(null);
 
-            builder.HasAlternateKey(x => new { x.CustomerServiceProviderId, x.ServiceTypeId });
 
+            /*
+             * Properties
+             */
+
+            // We use it as an alternate key, so let's disallow changes to the property!
+            builder.Property(e => e.CustomerServiceProviderId)
+                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+
+            // We use it as an alternate key, so let's disallow changes to the property!
+            builder.Property(e => e.ServiceTypeId)
+                   .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+
+
+            /*
+             * Configure relationships
+             */
 
             builder.HasOne(e => e.CustomerServiceProvider)
                    .WithMany(e => e.ApiCredentials)
@@ -32,7 +52,9 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 
             builder.HasOne(e => e.ServiceType)
                    .WithMany()
-                   .HasForeignKey(e => e.ServiceTypeId);
+                   .HasForeignKey(e => e.ServiceTypeId)
+                   .IsRequired(false);
+
         }
     }
 }

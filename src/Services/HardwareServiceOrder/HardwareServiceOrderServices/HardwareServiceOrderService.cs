@@ -286,7 +286,7 @@ namespace HardwareServiceOrderServices
 
 
         /// <inheritdoc/>
-        public async Task DeleteApiCredentialAsync(Guid organizationId, int serviceProviderId, int serviceTypeId)
+        public async Task DeleteApiCredentialAsync(Guid organizationId, int serviceProviderId, int? serviceTypeId)
         {
             var customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, true);
             ApiCredential? apiCredentialToBeRemoved = customerServiceProvider?.ApiCredentials?.FirstOrDefault(e => e.ServiceTypeId == serviceTypeId);
@@ -300,7 +300,7 @@ namespace HardwareServiceOrderServices
 
 
         /// <inheritdoc/>
-        public async Task AddOrUpdateApiCredentialAsync(Guid organizationId, int serviceProviderId, int serviceTypeId, string? apiUsername, string? apiPassword)
+        public async Task AddOrUpdateApiCredentialAsync(Guid organizationId, int serviceProviderId, int? serviceTypeId, string? apiUsername, string? apiPassword)
         {
             var customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, false);
 
