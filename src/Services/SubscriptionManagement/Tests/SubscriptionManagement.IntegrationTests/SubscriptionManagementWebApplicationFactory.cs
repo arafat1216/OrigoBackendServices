@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using SubscriptionManagement.IntegrationTests.Controllers;
+using SubscriptionManagementServices;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.Types;
@@ -45,6 +47,11 @@ public class SubscriptionManagementWebApplicationFactory<TProgram> : WebApplicat
             using var scope = serviceProvider.CreateScope();
             using var subscriptionManagementContext = scope.ServiceProvider.GetRequiredService<SubscriptionManagementContext>();
             subscriptionManagementContext.Database.EnsureCreated();
+
+            var emailServiceMock = new Mock<IEmailService>();
+            emailServiceMock.Setup(m => m.SendAsync(It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<object>(), It.IsAny<Dictionary<string, string>>()));
+            services.AddScoped(s => emailServiceMock.Object);
+
             try
             {
                 var firstOperator = subscriptionManagementContext.Operators.FirstOrDefault();
