@@ -28,7 +28,7 @@ namespace CustomerServices
         private readonly IEmailService _emailService;
 
         public UserServices(ILogger<UserServices> logger, IOrganizationRepository customerRepository,
-            IOktaServices oktaServices, IMapper mapper, IUserPermissionServices userPermissionServices, 
+            IOktaServices oktaServices, IMapper mapper, IUserPermissionServices userPermissionServices,
             IEmailService emailService)
         {
             _logger = logger;
@@ -118,18 +118,18 @@ namespace CustomerServices
 
             //Activate the user if the user i soft deleted
             if (userWithEmail != null) {
-                if (userWithEmail.IsDeleted == true) 
+                if (userWithEmail.IsDeleted == true)
                 {
                     userWithEmail.SetDeleteStatus(false, callerId);
 
                     //Check if the phone number should be updated
                     if (mobileNumber != default && userWithEmail.MobileNumber?.Trim() != mobileNumber?.Trim())
-                    { 
-                    //If mobile number is used by someone else then this user
-                    if(mobileNumberInUse != null && mobileNumberInUse.UserId != userWithEmail.UserId) throw new InvalidPhoneNumberException("Phone number already in use.");
+                    {
+                        //If mobile number is used by someone else then this user
+                        if(mobileNumberInUse != null && mobileNumberInUse.UserId != userWithEmail.UserId) throw new InvalidPhoneNumberException("Phone number already in use.");
                         userWithEmail.ChangeMobileNumber(mobileNumber, callerId);
                     }
-                    
+
                     UserPermissions? currentUserPermission = null;
                     var usersRole = await _userPermissionServices.GetUserPermissionsAsync(userWithEmail.Email);
                     if (usersRole != null)
@@ -141,8 +141,8 @@ namespace CustomerServices
                     {
                         try
                         {
-                          //New role - only add the role if the user dont have the role already
-                          if (currentUserPermission == null) currentUserPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid>() { customerId }, callerId);
+                            //New role - only add the role if the user dont have the role already
+                            if (currentUserPermission == null) currentUserPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid>() { customerId }, callerId);
                         }
                         catch (InvalidRoleNameException)
                         {
@@ -224,33 +224,33 @@ namespace CustomerServices
 
             //Add user permission if role is added in the request - type of role gets checked in AssignUserPermissionAsync
             UserPermissions? userPermission;
-            
-                if (role != null)
+
+            if (role != null)
+            {
+                try
                 {
-                    try
-                    {
 
-                        userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid>() { customerId }, callerId);
-                    }
-                    catch (InvalidRoleNameException)
-                    {
-                        userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, PredefinedRole.EndUser.ToString(), new List<Guid>() { customerId }, callerId);
-
-                    }
+                    userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid>() { customerId }, callerId);
                 }
-                else
+                catch (InvalidRoleNameException)
                 {
                     userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, PredefinedRole.EndUser.ToString(), new List<Guid>() { customerId }, callerId);
-                }
 
-                if (userPermission != null)
-                {
-                   mappedNewUserDTO.Role = userPermission.Role.Name.ToString();
                 }
-                else
-                {
-                    mappedNewUserDTO.Role = null;
-                }
+            }
+            else
+            {
+                userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, PredefinedRole.EndUser.ToString(), new List<Guid>() { customerId }, callerId);
+            }
+
+            if (userPermission != null)
+            {
+                mappedNewUserDTO.Role = userPermission.Role.Name.ToString();
+            }
+            else
+            {
+                mappedNewUserDTO.Role = null;
+            }
 
 
             return mappedNewUserDTO;
@@ -295,7 +295,7 @@ namespace CustomerServices
                 else
                 {
                     //Ensure that user with no okta id is set to deactivated
-                    if (user.UserStatus == UserStatus.Activated) 
+                    if (user.UserStatus == UserStatus.Activated)
                         user.DeactivateUser();
                     throw new UserNotFoundException("User does not have Okta id and can not be activated.");
                 }
@@ -382,11 +382,11 @@ namespace CustomerServices
             }
 
             userDTO.Role = role;
-            if (user.Department != null) 
+            if (user.Department != null)
             {
                 var department = await _organizationRepository.GetDepartmentAsync(user.Customer.OrganizationId, user.Department.ExternalDepartmentId);
                 userDTO.DepartmentName = department.Name;
-            } 
+            }
 
             await _organizationRepository.SaveEntitiesAsync();
             return userDTO;
@@ -464,7 +464,7 @@ namespace CustomerServices
             var userDeletedEvent = new UserEvent
             {
                 CustomerId = customerId,
-                UserId = userId, 
+                UserId = userId,
                 DepartmentId = user.Department?.ExternalDepartmentId,
                 CreatedDate = DateTime.UtcNow
             };
@@ -506,7 +506,7 @@ namespace CustomerServices
             userDTO.DepartmentName = department.Name;
 
             await _organizationRepository.SaveEntitiesAsync();
-            await PublishEvent("customer-pub-sub", "user-assign-department", new UserChangedDepartmentEvent{CustomerId = customerId, DepartmentId = departmentId, UserId = userId, CreatedDate = DateTime.UtcNow});
+            await PublishEvent("customer-pub-sub", "user-assign-department", new UserChangedDepartmentEvent{CustomerId = customerId, DepartmentId = departmentId, UserId = userId, CreatedDate = DateTime.UtcNow });
             return userDTO;
         }
 
@@ -585,7 +585,7 @@ namespace CustomerServices
                     UserId = userId,
                     Recipient = department.Managers.Select(x => x.Email).ToList()
                 }, "EN");
-            }          
+            }
 
             var userDTO = _mapper.Map<UserDTO>(user);
             return userDTO;
@@ -630,10 +630,10 @@ namespace CustomerServices
 
             foreach (var access in accessList)
             {
-                    if (!managerPermission.AccessList.Contains(access))
-                    {
-                        managerPermission.AddAccess(access, callerId);
-                    }
+                if (!managerPermission.AccessList.Contains(access))
+                {
+                    managerPermission.AddAccess(access, callerId);
+                }
             }
 
             await _userPermissionServices.UpdatePermission(managerPermission);
@@ -714,6 +714,55 @@ namespace CustomerServices
         public async Task<UserInfo> GetUserInfoFromUserId(Guid userId)
         {
             return _mapper.Map<UserInfo>(await _organizationRepository.GetUserAsync(userId));
+        }
+        /// <inheritdoc/>
+        public async Task<ExceptionMessagesDTO> ResendOrigoInvitationMail(Guid customerId, IList<Guid> userIds, string[]? role, Guid[]? assignedToDepartment)
+        {
+            var exceptions = new ExceptionMessagesDTO();
+
+            if (userIds == null) 
+            {
+                exceptions.Exceptions.Add("No ids for user to send invitation to.");
+                return exceptions;
+            }
+
+            foreach (var userId in userIds)
+            {
+                try
+                {
+                    var user = await GetUserAsync(customerId, userId);
+                    if (user == null) throw new UserNotFoundException($"Unable to find {userId}.");
+
+                    if (role != null && (role.Any() && (role.Contains("DepartmentManager") || role.Contains("Manager"))))
+                    {
+                        if (user.Department == null) throw new ArgumentException($"User with username {user.Email} is not connected to a department.");
+
+                        if (assignedToDepartment == null || (!assignedToDepartment.Any() || (!assignedToDepartment.Contains(user.Department.ExternalDepartmentId)))) throw new ArgumentException($"Manager has no rights to make action on behalf of user {user.Email}.");
+                    }
+
+                    if (user.UserStatus != UserStatus.Invited && user.UserStatus != UserStatus.NotInvited) throw new ArgumentException($"User {user.Email} is an active user and do not need to be invited to Origo again.");
+
+                    await _emailService.InvitationEmailToUserAsync(new Email.Models.InvitationMail
+                    {
+                        FirstName = user.FirstName,
+                        Recipient = new List<string> { user.Email }
+                    }, user.UserPreference.Language ?? "en");
+
+                    if (user.UserStatus == UserStatus.NotInvited)
+                    {
+                        user.ChangeUserStatus(null, UserStatus.Invited);
+                        await _organizationRepository.SaveEntitiesAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Exceptions.Add(ex.Message);
+                    _logger.LogError(ex.Message, ex);
+                }
+
+            }
+                
+            return exceptions;
         }
     }
 }

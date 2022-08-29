@@ -146,6 +146,7 @@ namespace Customer.API.IntegrationTests.Helpers
                                 "EID:909091",
                                 new UserPreference("no", CALLER_ID),
                                 CALLER_ID);
+            userOne.AssignDepartment(headDepartment, CALLER_ID);
 
             var userTwo = new User(organization,
                                 USER_TWO_ID,

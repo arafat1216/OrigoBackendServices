@@ -679,7 +679,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.NotNull(userInfo);
             Assert.Equal(_customerId, userInfo?.OrganizationId);
             Assert.Equal(_userOneId, userInfo?.UserId);
-            Assert.Equal(Guid.Empty,userInfo?.DepartmentId);
+            Assert.Equal(_headDepartmentId,userInfo?.DepartmentId);
             Assert.Equal(_userOneEmail, userInfo?.UserName);
 
         }
@@ -698,7 +698,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.NotNull(userInfo);
             Assert.Equal(_customerId, userInfo?.OrganizationId);
             Assert.Equal(_userOneId, userInfo?.UserId);
-            Assert.Equal(Guid.Empty, userInfo?.DepartmentId);
+            Assert.Equal(_headDepartmentId, userInfo?.DepartmentId);
             Assert.Equal(_userOneEmail, userInfo?.UserName);
         }
         [Fact]
@@ -1013,7 +1013,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var userCount = await response.Content.ReadFromJsonAsync<CustomerServices.Models.OrganizationUserCount>();
 
             Assert.Equal(1, userCount?.Count);
-            Assert.Equal(0, userCount?.NotOnboarded);
+            Assert.Equal(1, userCount?.NotOnboarded);
             Assert.Equal(_customerId, userCount?.OrganizationId);
 
         }
@@ -1198,7 +1198,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var users = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(1, users?.TotalItems);
+            Assert.Equal(2, users?.TotalItems);
         }
         [Fact]
         public async Task SetUserActiveStatusAsync_UserHasNoOktaID_ShouldDe()
@@ -1373,6 +1373,146 @@ namespace Customer.API.IntegrationTests.Controllers
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+        [Fact]
+        public async Task ResendOrigoInvitationMail_DepartmentManagerResendsAInvitationForUserInDepartment_ReturnsOK()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var filter = new FilterOptionsForUser { Roles = new string[] { "Manager" }, AssignedToDepartments = new Guid[] { _headDepartmentId } };
+            string json = JsonSerializer.Serialize(filter);
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/re-send-invitation/?filterOptions={json}";
+
+            var body = new ResendInvitation
+            {
+                UserIds = new List<Guid> { _userOneId }
+            };
+
+            // Act
+            var response = await httpClient.PostAsJsonAsync(requestUri, body);
+            var error = await response.Content.ReadFromJsonAsync<ExceptionMessages>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(error);
+            Assert.Equal(0, error?.Exceptions.Count);
+
+            var requestGetUser = $"/api/v1/organizations/{_customerId}/users/{_userOneId}";
+            var responseGetUser = await _httpClient.GetAsync(requestGetUser);
+
+            var user = await responseGetUser.Content.ReadFromJsonAsync<User>();
+            Assert.Equal("Invited", user?.UserStatusName);
+        }
+
+        [Fact]
+        public async Task ResendOrigoInvitationMail_DepartmentManagerResendsInvitationForUserThatsNotInDepartment_ReturnsOkWithExceptions()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var filter = new FilterOptionsForUser { Roles = new string[] { "Manager" }, AssignedToDepartments = new Guid[] { _headDepartmentId } };
+            string json = JsonSerializer.Serialize(filter);
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/re-send-invitation/?filterOptions={json}";
+
+            var body = new ResendInvitation
+            {
+                UserIds = new List<Guid> { _userTwoId }
+            };
+            // Act
+            var response = await httpClient.PostAsJsonAsync(requestUri, body);
+            var error = await response.Content.ReadFromJsonAsync<ExceptionMessages>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(error);
+            Assert.Equal(1, error?.Exceptions.Count);
+            Assert.Collection(error?.Exceptions, error => Assert.Equal("Manager has no rights to make action on behalf of user atish@normann.no.", error));
+        }
+        [Fact]
+        public async Task ResendOrigoInvitationMail_ManagerResendsToUserNotAssignToAnyDepartment_ReturnsOkWithExceptions()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var filter = new FilterOptionsForUser { Roles = new string[] { "Manager" }, AssignedToDepartments = new Guid[] { _headDepartmentId } };
+            string json = JsonSerializer.Serialize(filter);
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/re-send-invitation/?filterOptions={json}";
+
+            var body = new ResendInvitation
+            {
+                UserIds = new List<Guid> { _userFourId }
+            };
+            // Act
+            var response = await httpClient.PostAsJsonAsync(requestUri, body);
+            var error = await response.Content.ReadFromJsonAsync<ExceptionMessages>();
+            
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(error);
+            Assert.Equal(1, error?.Exceptions.Count);
+            Assert.Collection(error?.Exceptions, error => Assert.Equal("User with username petter@pan.no is not connected to a department.", error));
+        }
+        [Fact]
+        public async Task ResendOrigoInvitationMail_UserAlreadyAnActiveUser_ReturnsOkWithExceptions()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var filter = new FilterOptionsForUser { Roles = new string[] { "Admin" } };
+            string json = JsonSerializer.Serialize(filter);
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/re-send-invitation/?filterOptions={json}";
+
+            var body = new ResendInvitation
+            {
+                UserIds = new List<Guid> { _userFourId }
+            };
+            // Act
+            var response = await httpClient.PostAsJsonAsync(requestUri, body);
+            var error = await response.Content.ReadFromJsonAsync<ExceptionMessages>();
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(error);
+            Assert.Equal(1, error?.Exceptions.Count);
+            Assert.Collection(error?.Exceptions, error => Assert.Equal("User petter@pan.no is an active user and do not need to be invited to Origo again.", error));
+        }
+
+        [Fact]
+        public async Task ResendOrigoInvitationMail_ManagerSendsToMultipleAndhOneUserNotAssignedToHisDepartment_ReturnsOkWithExceptions()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var filter = new FilterOptionsForUser { Roles = new string[] { "Manager" }, AssignedToDepartments = new Guid[] { _headDepartmentId } };
+            string json = JsonSerializer.Serialize(filter);
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/re-send-invitation/?filterOptions={json}";
+
+            var body = new ResendInvitation
+            {
+                UserIds = new List<Guid> { _userTwoId, _userOneId }
+            };
+            // Act
+            var response = await httpClient.PostAsJsonAsync(requestUri, body);
+            var error = await response.Content.ReadFromJsonAsync<ExceptionMessages>();
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(error);
+            Assert.Equal(1,error?.Exceptions.Count);
+            Assert.Collection(error?.Exceptions, error => Assert.Equal("Manager has no rights to make action on behalf of user atish@normann.no.", error));
+        
+        }
+
+        [Fact]
+        public async Task ResendOrigoInvitationMail_ManagerWithNoAssignedDepartments_ReturnsOkWithExceptions()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var filter = new FilterOptionsForUser { Roles = new string[] { "Manager" }, AssignedToDepartments = new Guid[] { } };
+            string json = JsonSerializer.Serialize(filter);
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/re-send-invitation/?filterOptions={json}";
+
+            var body = new ResendInvitation
+            {
+                UserIds = new List<Guid> { _userTwoId }
+            };
+            // Act
+            var response = await httpClient.PostAsJsonAsync(requestUri, body);
+            var error = await response.Content.ReadFromJsonAsync<ExceptionMessages>();
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(error);
+            Assert.Equal(1, error?.Exceptions.Count);
+            Assert.Collection(error?.Exceptions, error => Assert.Equal("Manager has no rights to make action on behalf of user atish@normann.no.", error));
         }
     }
 }

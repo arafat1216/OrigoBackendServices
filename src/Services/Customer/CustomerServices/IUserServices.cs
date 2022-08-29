@@ -32,5 +32,16 @@ namespace CustomerServices
         Task<UserDTO> InitiateOffboarding(Guid customerId, Guid userId, DateTime lastWorkingDay, bool buyoutAllowed, Guid callerId);
         Task<UserDTO> CancelOffboarding(Guid customerId, Guid userId, Guid callerId);
         Task<UserDTO> OverdueOffboarding(Guid customerId, Guid userId, Guid callerId);
+
+        /// <summary>
+        /// Resends the Origo invitation mail to a list of users. 
+        /// </summary>
+        /// <param name="customerId">CustomerId of the user.</param>
+        /// <param name="userIds">A list of user ids to send the Origo Invitation to.</param>
+        /// <param name="role">The roles of the user making the request. Only for partner admin, admin and managers.</param>
+        /// <param name="assignedToDepartment">The assigned departments of a manager. Will only contain guids if the role of the user making the request is a manager, otherwise the list will be null.</param>
+        /// <returns>Asynchronously task that returns a list of strings with information about exceptions.</returns>
+        /// <exception cref="Exceptions.UserNotFoundException">If user with the user id provided is not found.</exception>
+        Task<ExceptionMessagesDTO> ResendOrigoInvitationMail(Guid customerId, IList<Guid> userIds, string[]? role, Guid[]? assignedToDepartment);
     }
 }

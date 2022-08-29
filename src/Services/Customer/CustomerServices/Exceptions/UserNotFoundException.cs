@@ -3,6 +3,9 @@ using System.Runtime.Serialization;
 
 namespace CustomerServices.Exceptions
 {
+    /// <summary>
+    /// Used when a user with the id provided is not found. 
+    /// </summary>
     public class UserNotFoundException : Exception
     {
         public UserNotFoundException()

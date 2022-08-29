@@ -525,5 +525,24 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task<OrigoExceptionMessages> ResendOrigoInvitationMail(Guid customerId, InviteUsers users, FilterOptionsForUser filterOptions)
+        {
+            try
+            {
+
+               string json = JsonSerializer.Serialize(filterOptions);
+
+               var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/users/re-send-invitation/?filterOptions={json}", users);
+               var exceptionMessages = await response.Content.ReadFromJsonAsync<OrigoExceptionMessages>();
+               return exceptionMessages;
+
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "ResendOrigoInvitationMail failed with HttpRequestException.");
+                throw;
+            }
+        }
     }
 }

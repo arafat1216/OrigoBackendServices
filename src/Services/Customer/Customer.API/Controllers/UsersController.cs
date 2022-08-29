@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using AutoMapper;
 using Common.Interfaces;
+using Customer.API.Filters;
 using Customer.API.ViewModels;
 using Customer.API.WriteModels;
 using CustomerServices;
@@ -25,6 +26,7 @@ namespace Customer.API.Controllers;
 [Route("api/v{version:apiVersion}/organizations/{customerId:Guid}/[controller]")]
 [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
 [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
+[ServiceFilter(typeof(ErrorExceptionFilter))]
 public class UsersController : ControllerBase
 {
 
@@ -486,5 +488,27 @@ public class UsersController : ControllerBase
         var user = await _userServices.GetUserInfoFromUserId(userId);
         if (user == null) return NotFound();
         return Ok(_mapper.Map<UserInfo>(user));
+    }
+    /// <summary>
+    /// Resends the Origo invitation mail to a user. 
+    /// </summary>
+    /// <param name="customerId">Customer id that has the user.</param>
+    /// <param name="usersInvitations">A list of user ids to send invitation to.</param>
+    /// <param name="filterOptionsAsJsonString">Query string containing information about the role and access of the user making the call.</param>
+    /// <returns>Returns a ActionResult.The ActionResult types represent various HTTP status codes.</returns>
+    [Route("re-send-invitation")]
+    [HttpPost]
+    [ProducesResponseType(typeof(ExceptionMessages), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult<ExceptionMessages>> ResendOrigoInvitationMails(Guid customerId, [FromBody] ResendInvitation usersInvitations, [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString)
+    {
+        FilterOptionsForUser? filterOptions = null;
+        if (!string.IsNullOrEmpty(filterOptionsAsJsonString))
+        {
+            filterOptions = JsonSerializer.Deserialize<FilterOptionsForUser>(filterOptionsAsJsonString);
+        }
+
+        var errorMessages = await _userServices.ResendOrigoInvitationMail(customerId, usersInvitations.UserIds, filterOptions?.Roles, filterOptions?.AssignedToDepartments);
+        return Ok(_mapper.Map<ExceptionMessages>(errorMessages));
     }
 }

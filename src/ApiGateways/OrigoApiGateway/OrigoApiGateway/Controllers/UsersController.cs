@@ -28,10 +28,10 @@ namespace OrigoApiGateway.Controllers
         private readonly ICustomerServices _customerServices;
         private readonly IMapper _mapper;
 
-        public UsersController(ILogger<UsersController> logger, 
-            IUserServices userServices, 
+        public UsersController(ILogger<UsersController> logger,
+            IUserServices userServices,
             IAssetServices assetServices,
-            ICustomerServices customerServices, 
+            ICustomerServices customerServices,
             IMapper mapper)
         {
             _logger = logger;
@@ -48,30 +48,30 @@ namespace OrigoApiGateway.Controllers
         [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<CustomerUserCount>> GetUsersCount(Guid organizationId)
         {
-            try 
-            { 
-            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-            FilterOptionsForUser filterOptions = new FilterOptionsForUser { Roles = new string[] { role ?? null} };
-
-            if (role == PredefinedRole.EndUser.ToString())
+            try
             {
-                return Forbid();
-            }
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                FilterOptionsForUser filterOptions = new FilterOptionsForUser { Roles = new string[] { role ?? null } };
 
-                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
-
-            if (role != PredefinedRole.SystemAdmin.ToString())
-            {
-                // Check if caller has access to this organization
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
 
-                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                   filterOptions.AssignedToDepartments ??= new List<Guid>();
-                   
+                    // Check if caller has access to this organization
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+
+                    if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
+                    {
+                        filterOptions.AssignedToDepartments ??= new List<Guid>();
+
                         foreach (var departmentId in accessList)
                         {
                             if (Guid.TryParse(departmentId, out var departmentGuid))
@@ -83,9 +83,9 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-            var count = await _userServices.GetUsersCountAsync(organizationId, filterOptions);
-            return Ok(count);
-            
+                var count = await _userServices.GetUsersCountAsync(organizationId, filterOptions);
+                return Ok(count);
+
             }
             catch (BadHttpRequestException ex)
             {
@@ -128,14 +128,14 @@ namespace OrigoApiGateway.Controllers
                     {
                         if (Guid.TryParse(departmentId, out var departmentGuid))
                         {
-                              filterOptions.AssignedToDepartments.Add(departmentGuid);
-                            
+                            filterOptions.AssignedToDepartments.Add(departmentGuid);
+
                         }
                     }
                 }
 
             }
-            var users = await _userServices.GetAllUsersAsync(organizationId,filterOptions, cancellationToken, search, page, limit);
+            var users = await _userServices.GetAllUsersAsync(organizationId, filterOptions, cancellationToken, search, page, limit);
             return Ok(users);
         }
 
@@ -558,7 +558,7 @@ namespace OrigoApiGateway.Controllers
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             if (role == PredefinedRole.EndUser.ToString())
-                            return Forbid();
+                return Forbid();
 
             var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
             var department = new List<Guid>();
@@ -621,6 +621,62 @@ namespace OrigoApiGateway.Controllers
             var user = await _userServices.CancelOffboarding(organizationId, userId, role, department, callerId);
             if (user == null) return NotFound();
             return Ok(user);
+        }
+
+        /// <summary>
+        /// Resend a Origo invitation to multiple users.
+        /// </summary>
+        /// <param name="organizationId">The organization id.</param>
+        /// <param name="users">A list of user ids that should get resent the Origo invitation mail.</param>
+        /// <returns>A list of exception messages, if there are any exceptions.</returns>
+        [Route("re-send-invitation")]
+        [HttpPost]
+        [ProducesResponseType(typeof(OrigoExceptionMessages), (int)HttpStatusCode.OK)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<OrigoExceptionMessages>> ResendOrigoInvitationMail(Guid organizationId, [FromBody] InviteUsers users)
+        {
+            try
+            {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                FilterOptionsForUser filterOptions = new FilterOptionsForUser { Roles = new string[] { role ?? null } };
+
+                if (role == PredefinedRole.EndUser.ToString())
+                    return Forbid();
+
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    // Check if caller has access to this organization
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+
+                    if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
+                    {
+                        filterOptions.AssignedToDepartments ??= new List<Guid>();
+                        foreach (var departmentId in accessList)
+
+                        {
+                            if (Guid.TryParse(departmentId, out var departmentGuid))
+                            {
+                                filterOptions.AssignedToDepartments.Add(departmentGuid);
+
+                            }
+                        }
+                    }
+
+                }
+
+                var exceptionMessages = await _userServices.ResendOrigoInvitationMail(organizationId, users, filterOptions);
+                return Ok(exceptionMessages);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

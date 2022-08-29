@@ -27,7 +27,7 @@ namespace Customer.API.Filters
                 context.Result = new BadRequestObjectResult(exception.Message);
                 return;
             }
-            if (exception is CustomerNotFoundException)
+            if (exception is CustomerNotFoundException || exception is UserNotFoundException)
             {
                 context.Result = new NotFoundObjectResult(exception.Message);
                 return;
