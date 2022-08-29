@@ -533,7 +533,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             { "CustomerReferenceFields", newSubscription.CustomerReferenceFields }
         };
 
-        await _emailService.SendAsync(OrderTypes.NewSubscription.ToString(), subscriptionOrder.SubscriptionOrderId, newSubscription);
+        await _emailService.SendAsync(OrderTypes.NewSubscription.ToString(), subscriptionOrder.SubscriptionOrderId, emailVariables);
         var mapped = _mapper.Map<NewSubscriptionOrderDTO>(subscriptionOrder);
 
         if (mapped != null)
