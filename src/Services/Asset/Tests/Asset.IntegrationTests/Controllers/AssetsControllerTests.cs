@@ -2499,7 +2499,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     }
 
     [Theory]
-    [InlineData("01-23-45-67-89-AØ")] //false
+    [InlineData("01-23-45-67-89-Aï¿½")] //false
     [InlineData("01-23-45-AB")] //false
     [InlineData("0123456789ab")] //false - missing separators (hyphen (-), colon(:) or dot (.)
     public async Task UpdateAsset_InValidateMacAddress(string macAddress)

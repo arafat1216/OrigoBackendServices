@@ -44,6 +44,6 @@
         ///     be <c><see langword="null"/></c>, or an empty list. </para>
         /// </summary>
         [SwaggerSchema(ReadOnly = true)]
-        public ICollection<ViewModels.ObscuredApiCredential>? ApiCredentials { get; private init; }
+        public ICollection<ObscuredApiCredential>? ApiCredentials { get; private init; }
     }
 }

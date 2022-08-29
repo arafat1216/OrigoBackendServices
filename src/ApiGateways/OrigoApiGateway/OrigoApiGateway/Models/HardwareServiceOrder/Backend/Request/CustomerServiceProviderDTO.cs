@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request
 {
+    [Obsolete("This is used with the older HW Repair endpoints, and will soon be deprecated.")]
     public class CustomerServiceProviderDTO
     {
         /// <summary>

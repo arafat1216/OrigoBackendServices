@@ -94,7 +94,7 @@ namespace HardwareServiceOrder.API.Controllers
 
 
         /// <summary>
-        ///     Adds or updates API credentials for a customer-service-provider.
+        ///     Adds or updates an API credential for a customer's service-provider configuration.
         /// </summary>
         /// <remarks>
         ///     Adds a new API credential to a customer's service-provider configuration (customer-service-provider).
@@ -109,9 +109,8 @@ namespace HardwareServiceOrder.API.Controllers
         /// <param name="apiCredential"> The new API credentials. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpPut("service-provider/{serviceProviderId:int}/credentials")]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "Returned when the system failed to locate the specified API credential.")]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult> AddApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromBody] NewApiCredential apiCredential)
+        public async Task<ActionResult> AddOrUpdateApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromBody] NewApiCredential apiCredential)
         {
             try
             {
@@ -125,7 +124,7 @@ namespace HardwareServiceOrder.API.Controllers
         }
 
         /// <summary>
-        ///     Removes an API credential from a customer-service-provider.
+        ///     Removes an API credential from a customer's service-provider configuration.
         /// </summary>
         /// <remarks>
         ///     Removes an existing API credential from a customer's service-provider configuration (customer-service-provider).

@@ -1,4 +1,8 @@
-﻿namespace HardwareServiceOrder.API.ViewModels
+﻿using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response;
+
+#nullable enable
+
+namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request
 {
     /// <summary>
     ///     Represents a single API credential within a given <c><see cref="CustomerServiceProvider"/></c>.
@@ -18,7 +22,7 @@
         ///     The API username. If it's not applicable for the service-provider, it should be <c><see langword="null"/></c>.
         ///     
         ///     <para>
-        ///     This input is required if the given service-provider <see cref="ServiceProviderDTO.RequiresApiUsername">requires an API username</see>. </para>
+        ///     This input is required if the given service-provider <see cref="ServiceProvider.RequiresApiUsername">requires an API username</see>. </para>
         /// </summary>
         public string? ApiUsername { get; set; }
 
@@ -26,7 +30,7 @@
         ///     The API password. If it's not applicable for the service-provider, it should be <c><see langword="null"/></c>.
         ///     
         ///     <para>
-        ///     This input is required if the given service-provider <see cref="ServiceProviderDTO.RequiresApiPassword">requires an API username</see>. </para>
+        ///     This input is required if the given service-provider <see cref="ServiceProvider.RequiresApiPassword">requires an API username</see>. </para>
         /// </summary>
         public string? ApiPassword { get; set; }
 

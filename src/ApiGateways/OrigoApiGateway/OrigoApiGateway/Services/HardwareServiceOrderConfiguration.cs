@@ -12,5 +12,10 @@
         ///     The API base-path to the 'service-provider' controller.
         /// </summary>
         public string ServiceProviderApiPath { get; set; }
+
+        /// <summary>
+        ///     The API base-path to the 'configuration' controller.
+        /// </summary>
+        public string ConfigurationApiPath { get; set; }
     }
 }

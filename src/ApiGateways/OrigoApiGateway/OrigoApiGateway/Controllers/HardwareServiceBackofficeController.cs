@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
+using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response;
 using OrigoApiGateway.Services;
 using BackendModels = OrigoApiGateway.Models.HardwareServiceOrder.Backend;
 
@@ -10,7 +12,7 @@ namespace OrigoApiGateway.Controllers
     /// <summary>
     ///     Backoffice administration APIs used for handling/configuring hardware-services.
     /// </summary>
-    [Authorize]
+    [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("origoapi/v{version:apiVersion}/backoffice/hardware-service")]
@@ -49,6 +51,68 @@ namespace OrigoApiGateway.Controllers
         {
             var providers = await _hardwareServiceOrderService.GetAllServiceProvidersAsync(true, true);
             return Ok(providers);
+        }
+
+
+        /// <summary>
+        ///     Retrieves all customer-service-provider configurations for a customer.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves all <c>CustomerServiceProvider</c> configurations for a given customer.
+        /// </remarks>
+        /// <param name="organizationId"> The organization you are retrieving the <c><see cref="CustomerServiceProvider"/></c>'s for. </param>
+        /// <param name="includeApiCredentialIndicators"> When <c><see langword="true"/></c>, the <c>ApiCredentials</c> property is
+        ///     loaded/included in the retrieved data. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
+        [HttpGet("configuration/organization/{organizationId:Guid}")]
+        [SwaggerResponse(StatusCodes.Status200OK, null, typeof(IEnumerable<CustomerServiceProvider>))]
+        public async Task<ActionResult> GetCustomerServiceProvidersAsync([FromRoute] Guid organizationId, [FromQuery] bool includeApiCredentialIndicators = false)
+        {
+            var result = await _hardwareServiceOrderService.GetCustomerServiceProvidersAsync(organizationId, includeApiCredentialIndicators);
+            return Ok(result);
+        }
+
+
+        /// <summary>
+        ///     Adds or updates an API credential for a customer's service-provider configuration.
+        /// </summary>
+        /// <remarks>
+        ///     Adds a new API credential to a customer's service-provider configuration (customer-service-provider).
+        ///     
+        ///     <para>
+        ///     If an existing credential already exist (using the same unique combination of <c><paramref name="organizationId"/></c>, 
+        ///     <c><paramref name="serviceProviderId"/></c> and <c>ServiceTypeId</c>), then it will be overwritten
+        ///     using the new values. </para>
+        /// </remarks>
+        /// <param name="organizationId"> The customer/organization the API credentials is attached to. </param>
+        /// <param name="serviceProviderId"> The service-provider the API credentials is attached to. </param>
+        /// <param name="apiCredential"> The new API credentials. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
+        [HttpPut("configuration/organization/{organizationId:Guid}/service-provider/{serviceProviderId:int}/credentials")]
+        [SwaggerResponse(StatusCodes.Status204NoContent)]
+        public async Task<ActionResult> AddOrUpdateApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromBody] NewApiCredential apiCredential)
+        {
+            await _hardwareServiceOrderService.AddOrUpdateApiCredentialAsync(organizationId, serviceProviderId, apiCredential);
+            return NoContent();
+        }
+
+
+        /// <summary>
+        ///     Removes an API credential from a customer's service-provider configuration.
+        /// </summary>
+        /// <remarks>
+        ///     Removes an existing API credential from a customer's service-provider configuration (customer-service-provider).
+        /// </remarks>
+        /// <param name="organizationId"> The customer/organization the API credentials is attached to. </param>
+        /// <param name="serviceProviderId"> The service-provider the API credentials is attached to. </param>
+        /// <param name="serviceTypeId"> The service-type the API credentials is attached to. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
+        [HttpDelete("configuration/organization/{organizationId:Guid}/service-provider/{serviceProviderId:int}/credentials")]
+        [SwaggerResponse(StatusCodes.Status204NoContent)]
+        public async Task<ActionResult> DeleteApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromQuery][Required] int serviceTypeId)
+        {
+            await _hardwareServiceOrderService.DeleteApiCredentialsAsync(organizationId, serviceProviderId, serviceTypeId);
+            return NoContent();
         }
     }
 }

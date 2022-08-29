@@ -77,6 +77,12 @@ namespace HardwareServiceOrderServices
          */
 
 
+        /// <summary>
+        ///     Retrieves all <see cref="CustomerServiceProvider"/>-configurations that's used by a given customer.
+        /// </summary>
+        /// <param name="organizationId"> The customers identifier. </param>
+        /// <param name="includeApiCredentials"> Should <see cref="CustomerServiceProviderDto.ApiCredentials"/> be loaded and included in the results? </param>
+        /// <returns> A task that represents the asynchronous operation. The task result contains a list of all retrieved customer-service-provider details. </returns>
         Task<IEnumerable<CustomerServiceProviderDto>> GetCustomerServiceProvidersAsync(Guid organizationId, bool includeApiCredentials = false);
 
 
@@ -85,6 +91,7 @@ namespace HardwareServiceOrderServices
         /// </summary>
         /// <param name="organizationId"> The customers identifier. </param>
         /// <param name="serviceProviderId"> The service-provider's identifier. </param>
+        /// <param name="includeApiCredentials"> Should <see cref="CustomerServiceProviderDto.ApiCredentials"/> be loaded and included in the results? </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the matching customer-service-provider details. </returns>
         /// <exception cref="NotFoundException"> Thrown if no matching customer-service-providers were found. </exception>
         Task<CustomerServiceProviderDto> GetCustomerServiceProviderByIdAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials = false);
@@ -99,8 +106,13 @@ namespace HardwareServiceOrderServices
         /// <returns> A task that represents the asynchronous operation. </returns>
         Task DeleteApiCredentialAsync(Guid organizationId, int serviceProviderId, int serviceTypeId);
 
+
         /// <summary>
-        ///     Register a new API credential.
+        ///     Adds or updates an API credential for a customer's service-provider configuration.
+        ///     
+        ///     <para>
+        ///     If an existing credential already exist (using the same unique combination of <paramref name="organizationId"/>, 
+        ///     <paramref name="serviceProviderId"/> and <paramref name="serviceTypeId"/> ), then it will be overwritten using the new values. </para>
         /// </summary>
         /// <param name="organizationId"> The customer the API credential is attached to. </param>
         /// <param name="serviceProviderId"> The service-provider the API credential is used with. </param>
@@ -109,8 +121,5 @@ namespace HardwareServiceOrderServices
         /// <param name="apiPassword"> The API password. If it's not applicable for the service-provider, it should be <see langword="null"/>. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         Task AddOrUpdateApiCredentialAsync(Guid organizationId, int serviceProviderId, int serviceTypeId, string? apiUsername, string? apiPassword);
-
-
-
     }
 }
