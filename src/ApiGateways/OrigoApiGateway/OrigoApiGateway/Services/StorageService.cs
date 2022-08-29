@@ -30,7 +30,7 @@ namespace OrigoApiGateway.Services
         /// <param name="organizationId"></param>
         /// <param name="formFile">A file sent with HttpRequest, to be stored on Azure storage as a blob</param>
         /// <returns>void</returns>
-        /// <exception cref="ResourceNotFoundException">Throws the exception if the file dont exist</exception>
+        /// <exception cref="ResourceNotFoundException">Throws the exception if the file doesn't exist</exception>
         /// /// <exception cref="Azure.RequestFailedException">Throws the exception if Azure had any problems handling the request</exception>
         public async Task UploadAssetsFileAsync(Guid organizationId, IFormFile formFile)
         {

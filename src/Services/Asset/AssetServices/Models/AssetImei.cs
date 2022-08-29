@@ -1,5 +1,6 @@
 ﻿using Common.Seedwork;
 using System.Collections.Generic;
+using AutoMapper.Internal.Mappers;
 
 namespace AssetServices.Models
 {

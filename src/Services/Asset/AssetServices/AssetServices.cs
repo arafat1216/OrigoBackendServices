@@ -463,11 +463,24 @@ public class AssetServices : IAssetServices
             }
             if (asset.ValidateAsset())
             {
-                assetValidationResult.ValidAssets.Add(asset);
+                assetValidationResult.ValidAssets.Add(new
+                {
+                    SerialNumber = asset.SerialNumber ?? string.Empty,
+                    Brand = asset.Brand,
+                    ProductName = asset.ProductName,
+                    Imeis = string.Join(",", asset.Imeis.Select(a => a.Imei))
+                });
             }
             else
             {
-                assetValidationResult.InvalidAssets.Add(asset);
+                assetValidationResult.InvalidAssets.Add(new
+                {
+                    SerialNumber = asset.SerialNumber ?? string.Empty,
+                    Brand = asset.Brand,
+                    ProductName = asset.ProductName,
+                    Imeis = string.Join(",", asset.Imeis.Select(a => a.Imei)),
+                    Errors = asset.ErrorMsgList
+                });
             }
         }
 
