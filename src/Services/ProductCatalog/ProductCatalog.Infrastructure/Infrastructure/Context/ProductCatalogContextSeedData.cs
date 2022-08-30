@@ -252,6 +252,7 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
             {
                 entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.SubscriptionManagement, RequiresProductId = (int)ProductSeedDataValues.Entry, UpdatedBy = systemUserId });
                 entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.BookValueAndPurchasePrice, RequiresProductId = (int)ProductSeedDataValues.Entry, UpdatedBy = systemUserId });
+                entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.RecycleAndWipe, RequiresProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, UpdatedBy = systemUserId });
             });
 
 
