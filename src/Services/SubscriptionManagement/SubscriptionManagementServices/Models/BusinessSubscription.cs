@@ -9,7 +9,7 @@ namespace SubscriptionManagementServices.Models
 
         }
 
-        public BusinessSubscription(string name, string organizationNumber, string address, string postalCode, string postalPlace, string country)
+        public BusinessSubscription(string name, string organizationNumber, string address, string postalCode, string postalPlace, string country, string contactPerson)
         {
             Name = name;
             OrganizationNumber = organizationNumber;
@@ -17,6 +17,7 @@ namespace SubscriptionManagementServices.Models
             PostalCode = postalCode;
             PostalPlace = postalPlace;
             Country = country;
+            ContactPerson = contactPerson;
         }
 
         public string Name { get; set; }
@@ -25,5 +26,6 @@ namespace SubscriptionManagementServices.Models
         public string PostalCode { get; set; }
         public string PostalPlace { get; set; }
         public string Country { get; set; }
+        public string? ContactPerson { get; set; }
     }
 }

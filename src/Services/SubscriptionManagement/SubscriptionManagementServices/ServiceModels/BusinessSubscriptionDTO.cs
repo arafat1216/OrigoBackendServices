@@ -9,5 +9,6 @@
         public string? PostalPlace { get; set; }
         public string? Country { get; set; }
         public string? OperatorName { get; set; }
+        public string? ContactPerson { get; set; }
     }
 }

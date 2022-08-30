@@ -11,5 +11,6 @@ namespace SubscriptionManagementServices.ServiceModels
         public string? Country { get; set; }
         public int? OperatorId { get; set; }
         public string? OperatorName { get; set; }
+        public string? ContactPerson { get; set; }
     }
 }
