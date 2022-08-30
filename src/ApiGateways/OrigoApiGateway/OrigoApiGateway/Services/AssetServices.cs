@@ -666,13 +666,11 @@ namespace OrigoApiGateway.Services
                 };
                 if (role == PredefinedRole.EndUser.ToString() && existingAsset.IsPersonal && existingAsset.AssetStatus == AssetLifecycleStatus.PendingReturn)
                 {
-                    if(role == PredefinedRole.EndUser.ToString()) throw new Exception("Return Request Already Pending!!!");
-                    if(returnLocationId == Guid.Empty) throw new Exception("Must Select a Return Location to Confirm!!!");
-              
+                    throw new Exception("Return Request Already Pending!!!");
                 }
                 else if(role == PredefinedRole.EndUser.ToString() && existingAsset.IsPersonal && existingAsset.AssetStatus != AssetLifecycleStatus.PendingReturn)
                 {
-                    if(existingAsset.AssetHolderId != callerId && role == PredefinedRole.EndUser.ToString()) throw new Exception("Only ContractHolderUser can make Return Request!!!");
+                    if (existingAsset.AssetHolderId != callerId && role == PredefinedRole.EndUser.ToString()) throw new Exception("Only ContractHolderUser can make Return Request!!!");
                     if(existingAsset.ManagedByDepartmentId != null)
                     {
                         var department = await _departmentsServices.GetDepartmentAsync(customerId, existingAsset.ManagedByDepartmentId.Value);
@@ -696,6 +694,7 @@ namespace OrigoApiGateway.Services
                 }
                 else if (existingAsset.IsPersonal && role != PredefinedRole.EndUser.ToString())
                 {
+                    if (returnLocationId == Guid.Empty) throw new Exception("Must Select a Return Location to Confirm!!!");
                     var user = await _userServices.GetUserAsync(customerId, existingAsset.AssetHolderId!.Value);
                     returnDTO.User = new EmailPersonAttributeDTO()
                     {
