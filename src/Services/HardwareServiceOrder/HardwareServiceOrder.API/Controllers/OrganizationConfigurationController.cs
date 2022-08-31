@@ -141,5 +141,19 @@ namespace HardwareServiceOrder.API.Controllers
             await _hardwareServiceOrderService.DeleteApiCredentialAsync(organizationId, serviceProviderId, serviceTypeId);
             return NoContent();
         }
+
+
+        [HttpPatch("service-provider/{serviceProviderId:int}/addons")]
+        public async Task<ActionResult> AddServiceAddonAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        [HttpDelete("service-provider/{serviceProviderId:int}/addons")]
+        public async Task<ActionResult> RemoveServiceAddonAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using HardwareServiceOrderServices.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
@@ -35,6 +36,11 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             builder.HasOne(e => e.ServiceProvider)
                    .WithMany(e => e.CustomerServiceProviders)
                    .HasForeignKey(e => e.ServiceProviderId);
+
+
+            builder.HasMany(e => e.ServiceOrderAddons)
+                   .WithMany(e => e.CustomerServiceProviders)
+                   .UsingEntity<CustomerServiceProviderServiceOrderAddon>();
         }
     }
 }

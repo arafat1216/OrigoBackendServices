@@ -68,6 +68,34 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
+        public async Task<TEntity?> GetByIdAsync<TEntity>(int id) where TEntity : EntityV2, IDbSetEntity
+        {
+            return await _hardwareServiceOrderContext.Set<TEntity>()
+                                                     .FindAsync(id);
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<TEntity>> GetByIdAsync<TEntity>(IEnumerable<int> ids) where TEntity : EntityV2, IDbSetEntity
+        {
+            return await _hardwareServiceOrderContext.Set<TEntity>()
+                                                     .Where(e => ids.Contains(e.Id))
+                                                     .ToListAsync();
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<TEntity> UpdateAndSaveAsync<TEntity>(TEntity entityToBeUpdated) where TEntity : Auditable, IDbSetEntity
+        {
+            _hardwareServiceOrderContext.Set<TEntity>()
+                                        .Update(entityToBeUpdated);
+
+            await _hardwareServiceOrderContext.SaveChangesAsync();
+            return entityToBeUpdated;
+        }
+
+
+        /// <inheritdoc/>
         public async Task<CustomerSettings> ConfigureLoanPhoneAsync(
             Guid customerId,
             string loanPhoneNumber,
@@ -107,7 +135,7 @@ namespace HardwareServiceOrderServices.Infrastructure
             if (serviceProvider == null)
                 throw new ArgumentException($"No service provider exists with ID {providerId}", nameof(providerId));
 
-            var existing = await GetCustomerServiceProviderAsync(customerId, providerId, false);
+            var existing = await GetCustomerServiceProviderAsync(customerId, providerId, false, false);
 
             if (existing == null)
             {
@@ -191,7 +219,7 @@ namespace HardwareServiceOrderServices.Infrastructure
         {
             var serviceType = await GetServiceTypeAsync((int)ServiceTypeEnum.SUR) ?? new ServiceType { Id = (int)ServiceTypeEnum.SUR };
             var serviceStatus = await GetServiceStatusAsync((int)ServiceStatusEnum.Registered);
-            var serviceProvider = await GetCustomerServiceProviderAsync(serviceOrder.CustomerId, (int)ServiceProviderEnum.ConmodoNo, false);
+            var serviceProvider = await GetCustomerServiceProviderAsync(serviceOrder.CustomerId, (int)ServiceProviderEnum.ConmodoNo, false, false);
 
             if (serviceProvider == null || serviceType == null || serviceStatus == null)
             {
@@ -359,6 +387,7 @@ namespace HardwareServiceOrderServices.Infrastructure
         /// <inheritdoc/>
         public async Task<IEnumerable<CustomerServiceProvider>> GetCustomerServiceProvidersByFilterAsync(Expression<Func<CustomerServiceProvider, bool>>? filter,
                                                                                                          bool includeApiCredentials,
+                                                                                                         bool includeServiceOrderAddons,
                                                                                                          bool asNoTracking)
         {
             IQueryable<CustomerServiceProvider> query = _hardwareServiceOrderContext.Set<CustomerServiceProvider>();
@@ -368,6 +397,9 @@ namespace HardwareServiceOrderServices.Infrastructure
 
             if (includeApiCredentials)
                 query = query.Include(entity => entity.ApiCredentials);
+
+            if (includeServiceOrderAddons)
+                query = query.Include(entity => entity.ServiceOrderAddons);
 
             if (asNoTracking)
                 query = query.AsNoTracking();
@@ -379,13 +411,17 @@ namespace HardwareServiceOrderServices.Infrastructure
         /// <inheritdoc/>
         public async Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid organizationId,
                                                                                     int serviceProviderId,
-                                                                                    bool includeApiCredentials)
+                                                                                    bool includeApiCredentials,
+                                                                                    bool includeServiceOrderAddons)
         {
             IQueryable<CustomerServiceProvider> query = _hardwareServiceOrderContext.Set<CustomerServiceProvider>()
                                                                                     .Where(entity => entity.CustomerId == organizationId && entity.ServiceProviderId == serviceProviderId);
 
             if (includeApiCredentials)
                 query = query.Include(entity => entity.ApiCredentials);
+
+            if (includeServiceOrderAddons)
+                query = query.Include(entity => entity.ServiceOrderAddons);
 
             return await query.FirstOrDefaultAsync();
         }

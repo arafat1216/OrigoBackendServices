@@ -6,6 +6,7 @@ using HardwareServiceOrderServices.Exceptions;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HardwareServiceOrderServices
 {
@@ -94,7 +95,7 @@ namespace HardwareServiceOrderServices
                                     serviceOrderDTO.AssetInfo,
                                     serviceOrderDTO.ErrorDescription);
 
-            var customerProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, (int)ServiceProviderEnum.ConmodoNo, false);
+            var customerProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, (int)ServiceProviderEnum.ConmodoNo, false, false);
 
             if (customerProvider == null)
                 throw new ArgumentException($"Service provider is not configured for customer {customerId}", nameof(customerId));
@@ -262,7 +263,7 @@ namespace HardwareServiceOrderServices
         /// <inheritdoc/>
         public async Task<string?> GetServicerProvidersUsernameAsync(Guid customerId, int providerId)
         {
-            var serviceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, providerId, false);
+            var serviceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, providerId, false, false);
 
             if (string.IsNullOrEmpty(serviceProvider?.ApiUserName))
                 return serviceProvider?.ApiUserName;
@@ -288,7 +289,7 @@ namespace HardwareServiceOrderServices
         /// <inheritdoc/>
         public async Task DeleteApiCredentialAsync(Guid organizationId, int serviceProviderId, int? serviceTypeId)
         {
-            var customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, true);
+            var customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, true, false);
             ApiCredential? apiCredentialToBeRemoved = customerServiceProvider?.ApiCredentials?.FirstOrDefault(e => e.ServiceTypeId == serviceTypeId);
 
             // If the credentials was not found (don't exist), do a return so the API considers it "deleted".
@@ -302,12 +303,12 @@ namespace HardwareServiceOrderServices
         /// <inheritdoc/>
         public async Task AddOrUpdateApiCredentialAsync(Guid organizationId, int serviceProviderId, int? serviceTypeId, string? apiUsername, string? apiPassword)
         {
-            var customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, false);
+            var customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, false, false);
 
             if (customerServiceProvider is null)
             {
                 // What do you mean it don't exist?
-                customerServiceProvider = new(organizationId, serviceProviderId, null);
+                customerServiceProvider = new(organizationId, serviceProviderId, null, null);
                 customerServiceProvider = await _hardwareServiceOrderRepository.AddAndSaveAsync(customerServiceProvider);
                 // Ahh! So that's where I put it. I told you it existed ;)
             }
@@ -317,9 +318,9 @@ namespace HardwareServiceOrderServices
 
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<CustomerServiceProviderDto>> GetCustomerServiceProvidersAsync(Guid organizationId, bool includeApiCredentials = false)
+        public async Task<IEnumerable<CustomerServiceProviderDto>> GetCustomerServiceProvidersAsync(Guid organizationId, bool includeApiCredentials = false, bool includeServiceOrderAddons = false)
         {
-            var customerServiceProviders = await _hardwareServiceOrderRepository.GetCustomerServiceProvidersByFilterAsync(entity => entity.CustomerId == organizationId, includeApiCredentials, true);
+            var customerServiceProviders = await _hardwareServiceOrderRepository.GetCustomerServiceProvidersByFilterAsync(entity => entity.CustomerId == organizationId, includeApiCredentials, includeServiceOrderAddons, true);
 
             var mapped = _mapper.Map<IEnumerable<CustomerServiceProviderDto>>(customerServiceProviders);
             return mapped;
@@ -327,14 +328,89 @@ namespace HardwareServiceOrderServices
 
 
         /// <inheritdoc/>
-        public async Task<CustomerServiceProviderDto> GetCustomerServiceProviderByIdAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials = false)
+        public async Task<CustomerServiceProviderDto> GetCustomerServiceProviderByIdAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials = false, bool includeServiceOrderAddons = false)
         {
-            CustomerServiceProvider? customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, includeApiCredentials);
+            CustomerServiceProvider? customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, includeApiCredentials, includeServiceOrderAddons);
             if (customerServiceProvider is null)
                 throw new NotFoundException("The customer service provider was not found.");
 
             CustomerServiceProviderDto mapped = _mapper.Map<CustomerServiceProviderDto>(customerServiceProvider);
             return mapped;
+        }
+
+
+        public async Task AddServiceOrderAddonToCustomerServiceProvider(Guid organizationId, int serviceOrderAddonId)
+        {
+            ServiceOrderAddon? serviceOrderAddon = await _hardwareServiceOrderRepository.GetByIdAsync<ServiceOrderAddon>(serviceOrderAddonId);
+
+            if (serviceOrderAddon is null)
+                throw new NotFoundException("The requested service-order addon was not found.");
+
+            var customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceOrderAddon.ServiceProviderId, false, true);
+
+            // Create the 'CustomerServiceProvider' if it don't exist
+            if (customerServiceProvider is null)
+            {
+                var serviceOrderAddons = new List<ServiceOrderAddon>()
+                {
+                    serviceOrderAddon
+                };
+
+                customerServiceProvider = new(organizationId, serviceOrderAddon.ServiceProviderId, null, serviceOrderAddons);
+                await _hardwareServiceOrderRepository.AddAndSaveAsync(customerServiceProvider);
+            }
+            else
+            {
+                bool exists = customerServiceProvider.ServiceOrderAddons!.Any(entity => entity.Id == serviceOrderAddonId);
+
+                if (exists)
+                {
+                    customerServiceProvider.ServiceOrderAddons!.Add(serviceOrderAddon);
+                    await _hardwareServiceOrderRepository.UpdateAndSaveAsync(customerServiceProvider);
+                }
+
+            }
+        }
+
+
+        public async Task AddServiceOrderAddonsToCustomerServiceProvider(Guid organizationId, int serviceProviderId, ISet<int> newServiceOrderAddonIds)
+        {
+            CustomerServiceProvider? customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, false, true);
+            var serviceOrderAddons = await _hardwareServiceOrderRepository.GetByIdAsync<ServiceOrderAddon>(newServiceOrderAddonIds);
+
+            // Let's ensure the new service-order addons is actually valid for this service-provider!
+            foreach (var addon in serviceOrderAddons)
+            {
+                if (addon.ServiceProviderId != serviceProviderId)
+                    throw new ArgumentException("You are trying to add a service-order addon that don't exist, or is unavailable for this service-provider.");
+            }
+
+            if (customerServiceProvider is null)
+            {
+                // What do you mean it don't exist?
+                customerServiceProvider = new(organizationId, serviceProviderId, null, serviceOrderAddons.ToList());
+                await _hardwareServiceOrderRepository.AddAndSaveAsync(customerServiceProvider);
+                // Ahh! So that's where I put it. I told you it existed ;)
+            }
+            else
+            {
+                // Extract the missing IDs
+                var activeServiceOrderAddonIds = customerServiceProvider.ServiceOrderAddons!.Select(e => e.Id);
+                var missingServiceOrderAddonIds = newServiceOrderAddonIds.Except(activeServiceOrderAddonIds);
+
+                if (missingServiceOrderAddonIds.Any())
+                {
+                    foreach (var item in serviceOrderAddons)
+                    {
+                        // If it exist in the missing it list, add it.
+                        if (missingServiceOrderAddonIds.Any(i => item.Id == i))
+                            customerServiceProvider.ServiceOrderAddons.Add(item);
+                    }
+
+                    await _hardwareServiceOrderRepository.UpdateAndSaveAsync(customerServiceProvider);
+                }
+            }
+
         }
     }
 }

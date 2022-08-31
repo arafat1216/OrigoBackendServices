@@ -11,7 +11,7 @@ namespace HardwareServiceOrderServices.Models
         /// </summary>
         /// <typeparam name="TEntity"> The entities datatype. </typeparam>
         /// <param name="entityToBeAdded"> The entity that should be created. </param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <returns> A task that represents the asynchronous operation. The task result contains the stored entity. </returns>
         Task<TEntity> AddAndSaveAsync<TEntity>(TEntity entityToBeAdded) where TEntity : Auditable, IDbSetEntity;
 
 
@@ -23,6 +23,34 @@ namespace HardwareServiceOrderServices.Models
         /// <returns> A task that represents the asynchronous operation. </returns>
         Task Delete<TEntity>(TEntity entityToBeDeleted) where TEntity : Auditable, IDbSetEntity;
 
+        /// <summary>
+        ///     Retrieves a entity by it's primary-key.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entities datatype. </typeparam>
+        /// <param name="id"> The entities primary key. </param>
+        /// <returns> 
+        ///     A task that represents the asynchronous operation. The task result contains the retrieved entity, 
+        ///     or <see langword="null"/> if no matches was found.
+        /// </returns>
+        Task<TEntity?> GetByIdAsync<TEntity>(int id) where TEntity : EntityV2, IDbSetEntity;
+
+        /// <summary>
+        ///     Retrieves a list of entities by it's primary-key.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entities datatype. </typeparam>
+        /// <param name="ids"> A list containing the entities primary-keys. </param>
+        /// <returns> A task that represents the asynchronous operation. The task result contains a list of all retrieved entities. </returns>
+        Task<IEnumerable<TEntity>> GetByIdAsync<TEntity>(IEnumerable<int> ids) where TEntity : EntityV2, IDbSetEntity;
+
+        /// <summary>
+        ///     Updates an existing entity, and saves it to the database.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entities datatype. </typeparam>
+        /// <param name="entityToBeUpdated"> The entity that should be updated. </param>
+        /// <returns> 
+        ///     A task that represents the asynchronous operation. The task result contains the updated entity.
+        /// </returns>
+        Task<TEntity> UpdateAndSaveAsync<TEntity>(TEntity entityToBeUpdated) where TEntity : Auditable, IDbSetEntity;
 
         /// <summary>
         /// Configure customer service provider
@@ -203,13 +231,15 @@ namespace HardwareServiceOrderServices.Models
         /// </summary>
         /// <param name="organizationId"> The customers identifier. </param>
         /// <param name="serviceProviderId"> The service-provider identifier. </param>
-        /// <param name="includeApiCredentials"> If <see langword="true"/>, then the <see cref="CustomerServiceProvider.ApiCredentials"/>,
+        /// <param name="includeApiCredentials"> If <see langword="true"/>, then the <see cref="CustomerServiceProvider.ApiCredentials"/>
+        ///     list will be loaded and included in the result. </param>
+        /// <param name="includeServiceOrderAddons"> If <see langword="true"/>, then the <see cref="CustomerServiceProvider.ServiceOrderAddons"/>
         ///     list will be loaded and included in the result. </param>
         /// <returns> 
         ///     A task that represents the asynchronous operation. The task result contains the corresponding <see cref="CustomerServiceProvider"/>
         ///     if one was found. If no results was found, this will be <see langword="null"/>. 
         /// </returns>
-        Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials);
+        Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials, bool includeServiceOrderAddons);
 
 
         /// <summary>
@@ -217,7 +247,9 @@ namespace HardwareServiceOrderServices.Models
         /// </summary>
         /// <param name="filter"> The filter (where condition) that is applied to the query. </param>
         /// <param name="includeApiCredentials"> If <see langword="true"/>, then the <see cref="CustomerServiceProvider.ApiCredentials"/>,
-        ///     list will be loaded and included in the result. </param>
+        ///     list will be loaded and included in the results. </param>
+        /// <param name="includeServiceOrderAddons"> If <see langword="true"/>, then the <see cref="CustomerServiceProvider.ServiceOrderAddons"/>
+        ///     list will be loaded and included in the results. </param>
         /// <param name="asNoTracking"> 
         ///     Should the query be run using '<c>AsNoTracking</c>'?
         ///     
@@ -230,6 +262,7 @@ namespace HardwareServiceOrderServices.Models
         /// </returns>
         Task<IEnumerable<CustomerServiceProvider>> GetCustomerServiceProvidersByFilterAsync(Expression<Func<CustomerServiceProvider, bool>>? filter,
                                                                                             bool includeApiCredentials,
+                                                                                            bool includeServiceOrderAddons,
                                                                                             bool asNoTracking);
 
 

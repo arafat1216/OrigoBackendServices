@@ -166,7 +166,7 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
         public async Task AddOrUpdateApiCredential_AddNewCredential_Test()
         {
             // Arrange
-            CustomerServiceProvider customerServiceProvider = new(Guid.NewGuid(), (int)ServiceProviderEnum.ConmodoNo, null);
+            CustomerServiceProvider customerServiceProvider = new(Guid.NewGuid(), (int)ServiceProviderEnum.ConmodoNo, null, null);
             await _dbContext.AddAsync(customerServiceProvider);
             await _dbContext.SaveChangesAsync();
 
@@ -189,7 +189,7 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
         public async Task AddOrUpdateApiCredential_UpdateExistingCredential_Test()
         {
             // Arrange
-            CustomerServiceProvider customerServiceProvider = new(Guid.NewGuid(), (int)ServiceProviderEnum.ConmodoNo, null);
+            CustomerServiceProvider customerServiceProvider = new(Guid.NewGuid(), (int)ServiceProviderEnum.ConmodoNo, null, null);
             await _dbContext.AddAsync(customerServiceProvider);
             await _dbContext.SaveChangesAsync();
 
@@ -214,7 +214,7 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
         public async Task AddOrUpdateApiCredential_UpdateExistingCredential_NullUnique_Test()
         {
             // Arrange
-            CustomerServiceProvider customerServiceProvider = new(Guid.NewGuid(), (int)ServiceProviderEnum.ConmodoNo, null);
+            CustomerServiceProvider customerServiceProvider = new(Guid.NewGuid(), (int)ServiceProviderEnum.ConmodoNo, null, null);
             await _dbContext.AddAsync(customerServiceProvider);
             await _dbContext.SaveChangesAsync();
 
@@ -236,7 +236,7 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
         public async Task DeleteApiCredentialAsyncTest()
         {
             // Arrange
-            CustomerServiceProvider customerServiceProvider = new(Guid.NewGuid(), (int)ServiceProviderEnum.ConmodoNo, null);
+            CustomerServiceProvider customerServiceProvider = new(Guid.NewGuid(), (int)ServiceProviderEnum.ConmodoNo, null, null);
             await _dbContext.AddAsync(customerServiceProvider);
             await _dbContext.SaveChangesAsync();
 

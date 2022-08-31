@@ -34,7 +34,7 @@ namespace HardwareServiceOrderServices
         /// <param name="callerId"></param>
         /// <returns></returns>
         Task<CustomerSettingsDTO> ConfigureCustomerSettingsAsync(Guid customerId, Guid callerId);
-        
+
         /// <summary>
         /// Configure loan phone
         /// </summary>
@@ -81,9 +81,10 @@ namespace HardwareServiceOrderServices
         ///     Retrieves all <see cref="CustomerServiceProvider"/>-configurations that's used by a given customer.
         /// </summary>
         /// <param name="organizationId"> The customers identifier. </param>
-        /// <param name="includeApiCredentials"> Should <see cref="CustomerServiceProviderDto.ApiCredentials"/> be loaded and included in the results? </param>
+        /// <param name="includeApiCredentials"> Should <see cref="CustomerServiceProvider.ApiCredentials"/> be loaded and included in the results? </param>
+        /// <param name="includeServiceOrderAddons"> Should <see cref="CustomerServiceProvider.ServiceOrderAddons"/> be loaded and included in the results? </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains a list of all retrieved customer-service-provider details. </returns>
-        Task<IEnumerable<CustomerServiceProviderDto>> GetCustomerServiceProvidersAsync(Guid organizationId, bool includeApiCredentials = false);
+        Task<IEnumerable<CustomerServiceProviderDto>> GetCustomerServiceProvidersAsync(Guid organizationId, bool includeApiCredentials = false, bool includeServiceOrderAddons = false);
 
 
         /// <summary>
@@ -91,10 +92,11 @@ namespace HardwareServiceOrderServices
         /// </summary>
         /// <param name="organizationId"> The customers identifier. </param>
         /// <param name="serviceProviderId"> The service-provider's identifier. </param>
-        /// <param name="includeApiCredentials"> Should <see cref="CustomerServiceProviderDto.ApiCredentials"/> be loaded and included in the results? </param>
+        /// <param name="includeApiCredentials"> Should <see cref="CustomerServiceProvider.ApiCredentials"/> be loaded and included in the results? </param>
+        /// <param name="includeServiceOrderAddons"> Should <see cref="CustomerServiceProvider.ServiceOrderAddons"/> be loaded and included in the results? </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the matching customer-service-provider details. </returns>
         /// <exception cref="NotFoundException"> Thrown if no matching customer-service-providers were found. </exception>
-        Task<CustomerServiceProviderDto> GetCustomerServiceProviderByIdAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials = false);
+        Task<CustomerServiceProviderDto> GetCustomerServiceProviderByIdAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials = false, bool includeServiceOrderAddons = false);
 
 
         /// <summary>

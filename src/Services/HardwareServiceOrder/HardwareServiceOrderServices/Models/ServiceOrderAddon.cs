@@ -9,7 +9,7 @@ namespace HardwareServiceOrderServices.Models
     ///     These optional addons are products that may be included when placing service-orders in the 
     ///     service-providers external APIs or systems.
     /// </summary>
-    public class ServiceOrderAddon : EntityV2
+    public class ServiceOrderAddon : EntityV2, IDbSetEntity
     {
         /// <summary>
         ///     This is a reserved constructor that is used by Entity Framework. 
@@ -136,5 +136,8 @@ namespace HardwareServiceOrderServices.Models
         /// </remarks>
         [ForeignKey(nameof(ServiceProviderId))]
         public virtual ServiceProvider? ServiceProvider { get; set; }
+
+
+        public virtual ICollection<CustomerServiceProvider>? CustomerServiceProviders { get; set; }
     }
 }
