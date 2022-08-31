@@ -261,7 +261,7 @@ namespace CustomerServices
             var user = await GetUserAsync(customerId, userId);
             if (user == null)
                 throw new UserNotFoundException($"Unable to find {userId}");
-            user.ChangeUserStatus(oktaUserId,UserStatus.Activated);
+            user.ChangeUserStatus(oktaUserId,UserStatus.NotInvited);
             await _organizationRepository.SaveEntitiesAsync();
             return user;
         }

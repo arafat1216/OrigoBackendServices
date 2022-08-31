@@ -186,7 +186,7 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
-        public async Task AddUserForCustomer_WithAddToOkta_ShouldCallOkta()
+        public async Task AddUserForCustomer_AddNewUserWithCustomerAddToOkta_ShouldCallOktaAndUserStatusNotInvited()
         {
             // Arrange
             await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
@@ -202,6 +202,27 @@ namespace CustomerServices.UnitTests
 
             // Assert
             oktaMock.Verify(okta => okta.AddOktaUserAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Once);
+            Assert.Equal("NotInvited",newUser.UserStatusName);
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task AddUserForCustomer_ReActivatedUserWithCustomerAddToOkta_ShouldCallOktaAndGetUserstatusNotInvited()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userPermissionServices = Mock.Of<IUserPermissionServices>();
+            var oktaMock = new Mock<IOktaServices>();
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, oktaMock.Object, _mapper, userPermissionServices, Mock.Of<IEmailService>());
+
+            // Act
+            var deleteUser = await userServices.DeleteUserAsync(CUSTOMER_TWO_ID,USER_ONE_ID,EMPTY_CALLER_ID,true);
+            var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
+            var reActiveUser = await userServices.AddUserForCustomerAsync(CUSTOMER_TWO_ID, "Test Firstname", "Testlastname", deleteUser.Email, "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, "Role");
+            
+            // Assert
+            oktaMock.Verify(okta => okta.AddOktaUserAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Once);
+            Assert.Equal("NotInvited", reActiveUser.UserStatusName);
         }
 
         [Fact]
