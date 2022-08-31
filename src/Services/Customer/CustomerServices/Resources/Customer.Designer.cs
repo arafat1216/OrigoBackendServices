@@ -117,14 +117,14 @@ namespace CustomerServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;h1&gt;Welcome to Origo!&lt;/h1&gt;
+        ///   Looks up a localized string similar to ### Hello {{FirstName}}!
         ///
-        ///&lt;br&gt;Hello {{FirstName}}!&lt;/br&gt;
-        ///&lt;/br&gt;
         ///Origo is a self service portal to help you and your business to keep control of your assets.
-        ///&lt;p&gt;In order for you to start using Origo, please go through our onbaording tour:&lt;br&gt;
-        ///&lt;/br&gt;
-        ///&lt;a href=&quot;https://origov2dev.mytos.no/en/login&quot;&gt;Start Onboarding&lt;/a&gt;.
+        ///
+        ///In order for you to start using Origo, please go through our onboarding tour:
+        ///
+        ///[Start Onboarding](https://origov2dev.mytos.no/en/login)
+        ///.
         /// </summary>
         internal static string OrigoInvitation {
             get {

@@ -156,13 +156,13 @@ A user has been granted the status "Offboarding Overdue".
 &lt;a href="https://origov2dev.mytos.no/en/my-business/{{CustomerId}}/users/{{UserId}}/view"&gt;View User&lt;/a&gt;</value>
   </data>
   <data name="OrigoInvitation" xml:space="preserve">
-    <value>&lt;h1&gt;Welcome to Origo!&lt;/h1&gt;
+    <value>### Hello {{FirstName}}!
 
-&lt;br&gt;Hello {{FirstName}}!&lt;/br&gt;
-&lt;/br&gt;
 Origo is a self service portal to help you and your business to keep control of your assets.
-&lt;p&gt;In order for you to start using Origo, please go through our onbaording tour:&lt;br&gt;
-&lt;/br&gt;
-&lt;a href="https://origov2dev.mytos.no/en/login"&gt;Start Onboarding&lt;/a&gt;</value>
+
+In order for you to start using Origo, please go through our onboarding tour:
+
+[Start Onboarding](https://origov2dev.mytos.no/en/login)
+</value>
   </data>
 </root>
