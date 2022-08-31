@@ -1366,21 +1366,15 @@ namespace OrigoApiGateway.Services
 
         public string GetCurrencyByCountry(string? country = null)
         {
-            if (string.IsNullOrEmpty(country))
-                return CurrencyCode.NOK.ToString();
+            if (string.IsNullOrEmpty(country)) return CurrencyCode.NOK.ToString();
 
-            switch (country.ToUpper().Trim())
+            return country.ToUpper().Trim() switch
             {
-                case "NORWAY":
-                    return CurrencyCode.NOK.ToString();
-                case "SWEDEN":
-                    return CurrencyCode.SEK.ToString();
-                case "DENMARK":
-                    return CurrencyCode.DKK.ToString();
-                case "UNITED STATES":
-                    return CurrencyCode.USD.ToString();
-                default:
-                    return CurrencyCode.EUR.ToString();
+                "NO" => CurrencyCode.NOK.ToString(),
+                "SE" => CurrencyCode.SEK.ToString(),
+                "DK" => CurrencyCode.DKK.ToString(),
+                "US" => CurrencyCode.USD.ToString(),
+                _ => CurrencyCode.EUR.ToString()
             };
         }
         public async Task<OrigoAsset> ChangeLifecycleType(Guid customerId, Guid assetId, UpdateAssetLifecycleType data)

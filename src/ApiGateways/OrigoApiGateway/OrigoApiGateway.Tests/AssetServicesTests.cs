@@ -87,6 +87,7 @@ namespace OrigoApiGateway.Tests
 
             // Assert
             Assert.Equal(2, minBuyoutPrices.Count);
+            Assert.Equal(2, minBuyoutPrices.Count(x=>x.Currency == CurrencyCode.NOK.ToString()));
         }
         
         [Fact]
