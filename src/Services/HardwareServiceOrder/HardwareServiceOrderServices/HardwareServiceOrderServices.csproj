@@ -10,18 +10,18 @@
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="11.0.1" />
-		<PackageReference Include="Azure.Storage.Blobs" Version="12.12.0" />
-		<PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="6.0.6" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.6" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.6" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.6">
+		<PackageReference Include="Azure.Storage.Blobs" Version="12.13.1" />
+		<PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="6.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.8">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="6.0.6" />
-		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.3.1" />
+		<PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="6.0.8" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.4.0" />
 		<PackageReference Include="System.Resources.ResourceManager" Version="4.3.0" />
 
 	</ItemGroup>
