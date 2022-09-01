@@ -25,6 +25,7 @@ namespace Customer.API.IntegrationTests.Controllers
         private readonly HttpClient _httpClient;
         private readonly Guid _customerId;
         private readonly Guid _customerIdTwo;
+        private readonly Guid _customerIdThree;
         private readonly Guid _headDepartmentId;
         private readonly Guid _subDepartmentId;
         private readonly Guid _independentDepartmentId;
@@ -45,7 +46,8 @@ namespace Customer.API.IntegrationTests.Controllers
             _testOutputHelper = testOutputHelper;
             _httpClient = factory.CreateDefaultClient();
             _customerId = factory.ORGANIZATION_ID;
-            _customerIdTwo = factory.ORGANIZATION__TWO_ID;
+            _customerIdTwo = factory.ORGANIZATION_TWO_ID;
+            _customerIdThree = factory.ORGANIZATION_THREE_ID;
             _headDepartmentId = factory.HEAD_DEPARTMENT_ID;
             _subDepartmentId = factory.SUB_DEPARTMENT_ID;
             _independentDepartmentId = factory.INDEPENDENT_DEPARTMENT_ID;
@@ -1047,6 +1049,23 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(0, userCount.NotOnboarded);
             Assert.Equal(_customerId, userCount.OrganizationId);
         }
+        [Fact]
+        public async Task GetUsersCount_CustomerWithOnlyInActiveUsers_ReturnsOK()
+        {
+            var filter = new FilterOptionsForUser { Roles = new string[] { "SystemAdmin" } };
+            string json = JsonSerializer.Serialize(filter);
+
+            var request = $"/api/v1/organizations/{_customerIdThree}/users/count/?filterOptions={json}";
+            var response = await _httpClient.GetAsync(request);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var userCount = await response.Content.ReadFromJsonAsync<CustomerServices.Models.OrganizationUserCount>();
+
+            Assert.Equal(0, userCount?.Count);
+            Assert.Equal(1, userCount?.NotOnboarded);
+            Assert.Equal(_customerIdThree, userCount?.OrganizationId);
+        }
+
         [Fact]
         public async Task CreateUserForCustomer_ThenDeleteUser_ShouldActivateUserSameUser()
         {

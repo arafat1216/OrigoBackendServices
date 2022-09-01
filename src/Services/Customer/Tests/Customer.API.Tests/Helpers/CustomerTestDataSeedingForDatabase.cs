@@ -10,7 +10,9 @@ namespace Customer.API.IntegrationTests.Helpers
     {
 
         public static readonly Guid ORGANIZATION_ID = Guid.Parse("f5635deb-9b38-411c-9577-5423c9290106");
-        public static readonly Guid ORGANIZATION_TWO_ID = Guid.Parse("e454f5c8-f19c-4c76-ae9e-cc53ecefb21a");
+        public static readonly Guid ORGANIZATION_TWO_ID = Guid.Parse("e454f5c8-f19c-4c76-ae9e-cc53ecefb21a"); 
+        public static readonly Guid ORGANIZATION_THREE_ID = Guid.Parse("701d5de6-7264-41a5-9edd-f8e842edebda");
+
         public static readonly Guid HEAD_DEPARTMENT_ID = Guid.Parse("37d6d1b1-54a5-465d-a313-b6c250d66db4");
         public static readonly Guid SUB_DEPARTMENT_ID = Guid.Parse("5355134f-4852-4c36-99d1-fa9d4a1d7a61");
         public static readonly Guid INDEPENDENT_DEPARTMENT_ID = Guid.Parse("384821b4-1872-484e-af44-14cf61e16266");
@@ -21,7 +23,8 @@ namespace Customer.API.IntegrationTests.Helpers
         public static readonly Guid USER_TWO_ID = Guid.Parse("8246626C-3BDD-46E7-BCDF-10FC038C0463");
         public static readonly Guid USER_THREE_ID = Guid.Parse("9f19a9e5-a4f0-431e-9137-e8bfba285c7f");
         public static readonly Guid USER_SIX_ID = Guid.Parse("86ff1e04-97ff-4753-81e6-e69343ee30a8");
-        public static readonly Guid USER_SEVEN_ID = Guid.Parse("8d0435a3-8a71-4fa2-9f40-f011e9076b89");
+        public static readonly Guid USER_SEVEN_ID = Guid.Parse("71376607-5531-4140-9085-3b8e2b713bec");
+        public static readonly Guid USER_EIGHT_ID = Guid.Parse("8d0435a3-8a71-4fa2-9f40-f011e9076b89");
         public static readonly string USER_ONE_EMAIL = "kari@normann.no";
 
         public static readonly Guid USER_FOUR_ID = Guid.Parse("208ad639-9fe8-476d-bd89-d9b8ddcb76bf");
@@ -105,11 +108,26 @@ namespace Customer.API.IntegrationTests.Helpers
                                                 1,
                                                 ""
                                                 );
-
             organizationTWO.InitiateOnboarding();
+
+            var organizationThree = new Organization(ORGANIZATION_THREE_ID,
+                                               null,
+                                               "ORGANIZATION THREE",
+                                               "ORGNUM3333",
+                                               null,
+                                               contactPersonTWO,
+                                               organizationPreferencesTWO,
+                                               locationTWO,
+                                               null,
+                                               true,
+                                               1,
+                                               ""
+                                               );
+
 
             customerContext.Organizations.Add(organization);
             customerContext.Organizations.Add(organizationTWO);
+            customerContext.Organizations.Add(organizationThree);
 
             var headDepartment = new Department("Head department",
                                             "costCenterId",
@@ -209,11 +227,21 @@ namespace Customer.API.IntegrationTests.Helpers
                            "EID:90007",
                            new UserPreference("en", CALLER_ID),
                            CALLER_ID);
+            var userEight = new User(organizationThree,
+                           USER_SEVEN_ID,
+                           "Nasse",
+                           "Nøff",
+                           "nasse@nøff.no",
+                           "+4790680888",
+                           "EID:90008",
+                           new UserPreference("en", CALLER_ID),
+                           CALLER_ID);
 
             userFour.ChangeUserStatus("123", Common.Enums.UserStatus.Activated);
             userSix.ChangeUserStatus("123", Common.Enums.UserStatus.Activated);
+            userSeven.ChangeUserStatus("123", Common.Enums.UserStatus.OnboardInitiated);
             userThree.ChangeUserStatus(null, Common.Enums.UserStatus.OnboardInitiated);
-            userSeven.ChangeUserStatus("133", Common.Enums.UserStatus.OnboardInitiated);
+            userEight.ChangeUserStatus("133", Common.Enums.UserStatus.OnboardInitiated);
 
             customerContext.Users.Add(userOne);
             customerContext.Users.Add(userTwo);
@@ -222,6 +250,7 @@ namespace Customer.API.IntegrationTests.Helpers
             customerContext.Users.Add(userFive);
             customerContext.Users.Add(userSix);
             customerContext.Users.Add(userSeven);
+            customerContext.Users.Add(userEight);
 
 
 

@@ -65,7 +65,7 @@ public class UsersController : ControllerBase
         }
 
         var count = await _userServices.GetUsersCountAsync(customerId, filterOptions?.AssignedToDepartments, filterOptions?.Roles);
-        if (count == null || count.Count == 0)
+        if (count == null)
             return Ok(new CustomerServices.Models.OrganizationUserCount { OrganizationId = customerId});
 
         return Ok(count);

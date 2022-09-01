@@ -22,7 +22,8 @@ public class CustomerWebApplicationFactory<TProgram> : WebApplicationFactory<TPr
 
     private readonly InMemoryDatabaseRoot _dbRoot = new InMemoryDatabaseRoot();
     public Guid ORGANIZATION_ID => CustomerTestDataSeedingForDatabase.ORGANIZATION_ID;
-    public Guid ORGANIZATION__TWO_ID => CustomerTestDataSeedingForDatabase.ORGANIZATION_TWO_ID;
+    public Guid ORGANIZATION_TWO_ID => CustomerTestDataSeedingForDatabase.ORGANIZATION_TWO_ID;
+    public Guid ORGANIZATION_THREE_ID => CustomerTestDataSeedingForDatabase.ORGANIZATION_THREE_ID;
 
     public Guid HEAD_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.HEAD_DEPARTMENT_ID;
     public Guid SUB_DEPARTMENT_ID => CustomerTestDataSeedingForDatabase.SUB_DEPARTMENT_ID;

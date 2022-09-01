@@ -23,6 +23,7 @@ namespace Customer.API.IntegrationTests.Controllers
         private readonly HttpClient _httpClient;
         private readonly Guid _organizationId;
         private readonly Guid _organizationTwoId;
+        private readonly Guid _organizationIdThree;
         private readonly Guid _departmentId;
 
 
@@ -34,7 +35,8 @@ namespace Customer.API.IntegrationTests.Controllers
             _httpClient = factory.CreateDefaultClient();
             _factory = factory;
             _organizationId = factory.ORGANIZATION_ID;
-            _organizationTwoId = factory.ORGANIZATION__TWO_ID;
+            _organizationTwoId = factory.ORGANIZATION_TWO_ID;
+            _organizationIdThree = factory.ORGANIZATION_THREE_ID;
             _departmentId = factory.HEAD_DEPARTMENT_ID;
             _httpClient.DefaultRequestHeaders.Add("X-Authenticated-UserId", Guid.Empty.SystemUserId().ToString());
         }
@@ -531,18 +533,21 @@ namespace Customer.API.IntegrationTests.Controllers
         public async Task GetOrganizationUserCountAsync_ForSystemAdmin()
         {
             // Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
             FilterOptionsForUser filter = new FilterOptionsForUser { Roles = new string[] {"SystemAdmin"} };
             var json = JsonSerializer.Serialize(filter);
             var requestUri = $"/api/v1/organizations/userCount?filterOptions={json}";
 
             //Act
-            var response = await _httpClient.GetAsync(requestUri);
+            var response = await httpClient.GetAsync(requestUri);
             var organizationCount = await response.Content.ReadFromJsonAsync<IList<CustomerServices.Models.OrganizationUserCount>>();
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(2, organizationCount?.Count);
+            Assert.Equal(3, organizationCount?.Count);
             Assert.Collection(organizationCount,
+               item => Assert.Equal(0,item.Count),
                item => Assert.Equal(1,item.Count),
                item => Assert.Equal(1,item.Count)
            );
@@ -619,18 +624,22 @@ namespace Customer.API.IntegrationTests.Controllers
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(2, organizationCount?.Count);
+            Assert.Equal(3, organizationCount?.Count);
             Assert.Collection(organizationCount,
                item => Assert.Equal(1, item.Count),
+               item => Assert.Equal(0, item.Count),
                item => Assert.Equal(1, item.Count)
            );
             Assert.Collection(organizationCount,
                item => Assert.Equal(2, item.NotOnboarded),
+               item => Assert.Equal(1, item.NotOnboarded),
                item => Assert.Equal(3, item.NotOnboarded)
            );
             Assert.Collection(organizationCount,
               item => Assert.Equal(_organizationTwoId, item.OrganizationId),
+              item => Assert.Equal(_organizationIdThree, item.OrganizationId),
               item => Assert.Equal(_organizationId, item.OrganizationId)
+              
           );
 
         }
