@@ -23,6 +23,7 @@ using AssetServices.Infrastructure;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace AssetServices;
 
@@ -466,7 +467,13 @@ public class AssetServices : IAssetServices
             {
                 asset = new MobilePhone(Guid.NewGuid(), Guid.Empty, assetFromCsv.SerialNumber, assetFromCsv.Brand, assetFromCsv.ProductName, new List<AssetImei>(), assetFromCsv.MacAddress);
             }
-            if (asset.ValidateAsset())
+            var emailValidator = new EmailAddressAttribute();
+            var errors = new List<string>();
+            if (emailValidator.IsValid(assetFromCsv.UserEmail))
+            {
+                errors.Add($"Invalid e-mail : {assetFromCsv.UserEmail}");
+            }
+            if (asset.ValidateAsset() && !errors.Any())
             {
                 assetValidationResult.ValidAssets.Add(new
                 {
@@ -478,13 +485,14 @@ public class AssetServices : IAssetServices
             }
             else
             {
+                errors.AddRange(asset.ErrorMsgList);
                 assetValidationResult.InvalidAssets.Add(new
                 {
                     SerialNumber = asset.SerialNumber ?? string.Empty,
                     Brand = asset.Brand,
                     ProductName = asset.ProductName,
                     Imeis = string.Join(",", asset.Imeis.Select(a => a.Imei)),
-                    Errors = asset.ErrorMsgList
+                    Errors = errors
                 });
             }
         }

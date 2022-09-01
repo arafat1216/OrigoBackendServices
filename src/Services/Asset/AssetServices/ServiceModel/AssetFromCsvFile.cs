@@ -10,4 +10,7 @@ public record AssetFromCsvFile
     public string MacAddress { get; set; } = string.Empty;
     public string SerialNumber { get; set; } = string.Empty;
     public string Alias { get; set; } = string.Empty;
+    public string UserFirstName { get; set; } = string.Empty;
+    public string UserLastName { get; set; } = string.Empty;
+    public string UserEmail { get; set; } = string.Empty;
 }
