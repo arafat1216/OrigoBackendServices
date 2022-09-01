@@ -233,13 +233,13 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="serviceProviderId"> The service-provider identifier. </param>
         /// <param name="includeApiCredentials"> If <see langword="true"/>, then the <see cref="CustomerServiceProvider.ApiCredentials"/>
         ///     list will be loaded and included in the result. </param>
-        /// <param name="includeServiceOrderAddons"> If <see langword="true"/>, then the <see cref="CustomerServiceProvider.ServiceOrderAddons"/>
+        /// <param name="includeActiveServiceOrderAddons"> If <see langword="true"/>, then the <see cref="CustomerServiceProvider.ActiveServiceOrderAddons"/>
         ///     list will be loaded and included in the result. </param>
         /// <returns> 
         ///     A task that represents the asynchronous operation. The task result contains the corresponding <see cref="CustomerServiceProvider"/>
         ///     if one was found. If no results was found, this will be <see langword="null"/>. 
         /// </returns>
-        Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials, bool includeServiceOrderAddons);
+        Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials, bool includeActiveServiceOrderAddons);
 
 
         /// <summary>
@@ -248,7 +248,7 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="filter"> The filter (where condition) that is applied to the query. </param>
         /// <param name="includeApiCredentials"> If <see langword="true"/>, then the <see cref="CustomerServiceProvider.ApiCredentials"/>,
         ///     list will be loaded and included in the results. </param>
-        /// <param name="includeServiceOrderAddons"> If <see langword="true"/>, then the <see cref="CustomerServiceProvider.ServiceOrderAddons"/>
+        /// <param name="includeActiveServiceOrderAddons"> If <see langword="true"/>, then the <see cref="CustomerServiceProvider.ActiveServiceOrderAddons"/>
         ///     list will be loaded and included in the results. </param>
         /// <param name="asNoTracking"> 
         ///     Should the query be run using '<c>AsNoTracking</c>'?
@@ -262,7 +262,7 @@ namespace HardwareServiceOrderServices.Models
         /// </returns>
         Task<IEnumerable<CustomerServiceProvider>> GetCustomerServiceProvidersByFilterAsync(Expression<Func<CustomerServiceProvider, bool>>? filter,
                                                                                             bool includeApiCredentials,
-                                                                                            bool includeServiceOrderAddons,
+                                                                                            bool includeActiveServiceOrderAddons,
                                                                                             bool asNoTracking);
 
 

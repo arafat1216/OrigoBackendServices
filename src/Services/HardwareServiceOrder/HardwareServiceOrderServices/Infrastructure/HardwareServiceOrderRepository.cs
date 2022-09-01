@@ -387,7 +387,7 @@ namespace HardwareServiceOrderServices.Infrastructure
         /// <inheritdoc/>
         public async Task<IEnumerable<CustomerServiceProvider>> GetCustomerServiceProvidersByFilterAsync(Expression<Func<CustomerServiceProvider, bool>>? filter,
                                                                                                          bool includeApiCredentials,
-                                                                                                         bool includeServiceOrderAddons,
+                                                                                                         bool includeActiveServiceOrderAddons,
                                                                                                          bool asNoTracking)
         {
             IQueryable<CustomerServiceProvider> query = _hardwareServiceOrderContext.Set<CustomerServiceProvider>();
@@ -398,8 +398,8 @@ namespace HardwareServiceOrderServices.Infrastructure
             if (includeApiCredentials)
                 query = query.Include(entity => entity.ApiCredentials);
 
-            if (includeServiceOrderAddons)
-                query = query.Include(entity => entity.ServiceOrderAddons);
+            if (includeActiveServiceOrderAddons)
+                query = query.Include(entity => entity.ActiveServiceOrderAddons);
 
             if (asNoTracking)
                 query = query.AsNoTracking();
@@ -412,7 +412,7 @@ namespace HardwareServiceOrderServices.Infrastructure
         public async Task<CustomerServiceProvider?> GetCustomerServiceProviderAsync(Guid organizationId,
                                                                                     int serviceProviderId,
                                                                                     bool includeApiCredentials,
-                                                                                    bool includeServiceOrderAddons)
+                                                                                    bool includeActiveServiceOrderAddons)
         {
             IQueryable<CustomerServiceProvider> query = _hardwareServiceOrderContext.Set<CustomerServiceProvider>()
                                                                                     .Where(entity => entity.CustomerId == organizationId && entity.ServiceProviderId == serviceProviderId);
@@ -420,8 +420,8 @@ namespace HardwareServiceOrderServices.Infrastructure
             if (includeApiCredentials)
                 query = query.Include(entity => entity.ApiCredentials);
 
-            if (includeServiceOrderAddons)
-                query = query.Include(entity => entity.ServiceOrderAddons);
+            if (includeActiveServiceOrderAddons)
+                query = query.Include(entity => entity.ActiveServiceOrderAddons);
 
             return await query.FirstOrDefaultAsync();
         }

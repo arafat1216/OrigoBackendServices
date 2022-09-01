@@ -52,12 +52,14 @@ namespace HardwareServiceOrder.API.Controllers
         /// <param name="organizationId"> The organization you are retrieving the <c><see cref="CustomerServiceProvider"/></c>'s for. </param>
         /// <param name="includeApiCredentialIndicators"> When <c><see langword="true"/></c>, the <c>ApiCredentials</c> property is
         ///     loaded/included in the retrieved data. </param>
+        /// <param name="includeActiveServiceOrderAddons"> When <c><see langword="true"/></c>, the <c>ActiveServiceOrderAddons</c> property is
+        ///     loaded/included in the retrieved data. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet("service-provider")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(IEnumerable<ViewModels.CustomerServiceProvider>))]
-        public async Task<ActionResult> GetCustomerServiceProvidersAsync([FromRoute] Guid organizationId, [FromQuery] bool includeApiCredentialIndicators = false)
+        public async Task<ActionResult> GetCustomerServiceProvidersAsync([FromRoute] Guid organizationId, [FromQuery] bool includeApiCredentialIndicators = false, [FromQuery] bool includeActiveServiceOrderAddons = false)
         {
-            var dtoResult = await _hardwareServiceOrderService.GetCustomerServiceProvidersAsync(organizationId, includeApiCredentialIndicators);
+            var dtoResult = await _hardwareServiceOrderService.GetCustomerServiceProvidersAsync(organizationId, includeApiCredentialIndicators, includeActiveServiceOrderAddons);
             var mappedResult = _mapper.Map<IEnumerable<ViewModels.CustomerServiceProvider>>(dtoResult);
 
             return Ok(mappedResult);
@@ -74,15 +76,16 @@ namespace HardwareServiceOrder.API.Controllers
         /// <param name="serviceProviderId"> The <c><see cref="ServiceProvider"/></c> identifier. </param>
         /// <param name="includeApiCredentialIndicators"> When <c><see langword="true"/></c>, the <c>ApiCredentials</c> property is
         ///     loaded/included in the retrieved data. </param>
+        /// <param name="includeServiceOrderAddons">  </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet("service-provider/{serviceProviderId:int}")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Returned when the system failed to locate the requested <c>CustomerServiceProvider</c>.")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(ViewModels.CustomerServiceProvider))]
-        public async Task<ActionResult> GetCustomerServiceProviderByIdAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromQuery] bool includeApiCredentialIndicators = false)
+        public async Task<ActionResult> GetCustomerServiceProviderByIdAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromQuery] bool includeApiCredentialIndicators = false, [FromQuery] bool includeServiceOrderAddons = false)
         {
             try
             {
-                var dtoResults = await _hardwareServiceOrderService.GetCustomerServiceProviderByIdAsync(organizationId, serviceProviderId, includeApiCredentialIndicators);
+                var dtoResults = await _hardwareServiceOrderService.GetCustomerServiceProviderByIdAsync(organizationId, serviceProviderId, includeApiCredentialIndicators, includeServiceOrderAddons);
                 var mappedResult = _mapper.Map<ViewModels.CustomerServiceProvider>(dtoResults);
 
                 return Ok(mappedResult);
@@ -143,6 +146,19 @@ namespace HardwareServiceOrder.API.Controllers
         }
 
 
+        /// <summary>
+        ///     Add a service-order addon to a customer's service-provider configuration.
+        /// </summary>
+        /// <remarks>
+        ///     Adds new service-order addons to a customer's service-provider configuration. (customer-service-provider). Pre-existing items will not be affected.
+        ///     
+        ///     <br/><br/>
+        ///     You may only add service-order addons that is provided by the corresponding <c><paramref name="serviceProviderId"/></c>.
+        /// </remarks>
+        /// <param name="organizationId"> The customer/organization that's being configured. </param>
+        /// <param name="serviceProviderId"> The service-provider that's being configured. </param>
+        /// <param name="serviceOrderAddonIds"> A list containing the service-order IDs that should be added. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
         [HttpPatch("service-provider/{serviceProviderId:int}/addons")]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
@@ -165,10 +181,22 @@ namespace HardwareServiceOrder.API.Controllers
         }
 
 
+        /// <summary>
+        ///     Remove a service-order addon from a customer's service-provider configuration.
+        /// </summary>
+        /// <remarks>
+        ///     Removes service-order addons from a customer's service-provider configuration. (customer-service-provider).
+        /// </remarks>
+        /// <param name="organizationId"> The customer/organization that's being configured. </param>
+        /// <param name="serviceProviderId"> The service-provider that's being configured. </param>
+        /// <param name="serviceOrderAddonIds"> A list containing the service-order IDs that should be removed. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
         [HttpDelete("service-provider/{serviceProviderId:int}/addons")]
-        public async Task<ActionResult> RemoveServiceAddonAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
+        [SwaggerResponse(StatusCodes.Status204NoContent)]
+        public async Task<ActionResult> RemoveServiceOrderAddonsFromCustomerServiceProvider([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
         {
-            throw new NotImplementedException();
+            await _hardwareServiceOrderService.RemoveServiceOrderAddonsFromCustomerServiceProvider(organizationId, serviceProviderId,serviceOrderAddonIds);
+            return NoContent();
         }
     }
 }

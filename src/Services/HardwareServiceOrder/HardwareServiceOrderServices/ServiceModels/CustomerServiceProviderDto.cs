@@ -64,6 +64,9 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// <inheritdoc cref="CustomerServiceProvider.ApiCredentials"/>
         public virtual ICollection<ApiCredentialDTO>? ApiCredentials { get; private init; }
 
+        /// <inheritdoc cref="CustomerServiceProvider.ActiveServiceOrderAddons"/>
+        public virtual ICollection<ServiceOrderAddonDTO>? ActiveServiceOrderAddons { get; private init; }
+
 
         /*
          * EF navigation properties

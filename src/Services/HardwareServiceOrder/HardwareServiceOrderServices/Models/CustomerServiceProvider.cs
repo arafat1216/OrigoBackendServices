@@ -31,7 +31,7 @@ namespace HardwareServiceOrderServices.Models
             CustomerId = organizationId;
             ServiceProviderId = serviceProviderId;
             ApiCredentials = apiCredentials;
-            ServiceOrderAddons = serviceOrderAddons;
+            ActiveServiceOrderAddons = serviceOrderAddons;
         }
 
 
@@ -95,6 +95,6 @@ namespace HardwareServiceOrderServices.Models
         /// <remarks>
         ///     This is a EF navigation property, and will be <see langword="null"/> unless it's been explicitly included.
         /// </remarks>
-        public virtual ICollection<ServiceOrderAddon>? ServiceOrderAddons { get; init; }
+        public virtual ICollection<ServiceOrderAddon>? ActiveServiceOrderAddons { get; init; }
     }
 }

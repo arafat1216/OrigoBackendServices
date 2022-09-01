@@ -66,9 +66,9 @@ namespace OrigoApiGateway.Controllers
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet("configuration/organization/{organizationId:Guid}")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(IEnumerable<CustomerServiceProvider>))]
-        public async Task<ActionResult> GetCustomerServiceProvidersAsync([FromRoute] Guid organizationId, [FromQuery] bool includeApiCredentialIndicators = false)
+        public async Task<ActionResult> GetCustomerServiceProvidersAsync([FromRoute] Guid organizationId, [FromQuery] bool includeApiCredentialIndicators = false, [FromQuery] bool includeActiveServiceOrderAddons = false)
         {
-            var result = await _hardwareServiceOrderService.GetCustomerServiceProvidersAsync(organizationId, includeApiCredentialIndicators);
+            var result = await _hardwareServiceOrderService.GetCustomerServiceProvidersAsync(organizationId, includeApiCredentialIndicators, includeActiveServiceOrderAddons);
             return Ok(result);
         }
 
@@ -112,6 +112,47 @@ namespace OrigoApiGateway.Controllers
         public async Task<ActionResult> DeleteApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromQuery] int? serviceTypeId)
         {
             await _hardwareServiceOrderService.DeleteApiCredentialsAsync(organizationId, serviceProviderId, serviceTypeId);
+            return NoContent();
+        }
+
+
+        /// <summary>
+        ///     Add a service-order addon to a customer's service-provider configuration.
+        /// </summary>
+        /// <remarks>
+        ///     Adds new service-order addons to a customer's service-provider configuration. (customer-service-provider). Pre-existing items will not be affected.
+        ///     
+        ///     <br/><br/>
+        ///     You may only add service-order addons that is provided by the corresponding <c><paramref name="serviceProviderId"/></c>.
+        /// </remarks>
+        /// <param name="organizationId"> The customer/organization that's being configured. </param>
+        /// <param name="serviceProviderId"> The service-provider that's being configured. </param>
+        /// <param name="serviceOrderAddonIds"> A list containing the service-order IDs that should be added. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
+        [HttpPatch("configuration/organization/{organizationId:Guid}/service-provider/{serviceProviderId:int}/addons")]
+        [SwaggerResponse(StatusCodes.Status204NoContent)]
+        public async Task<ActionResult> AddServiceAddonAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
+        {
+            await _hardwareServiceOrderService.AddServiceAddonFromBackofficeAsync(organizationId, serviceProviderId, serviceOrderAddonIds);
+            return NoContent();
+        }
+
+
+        /// <summary>
+        ///     Remove a service-order addon from a customer's service-provider configuration.
+        /// </summary>
+        /// <remarks>
+        ///     Removes service-order addons from a customer's service-provider configuration. (customer-service-provider).
+        /// </remarks>
+        /// <param name="organizationId"> The customer/organization that's being configured. </param>
+        /// <param name="serviceProviderId"> The service-provider that's being configured. </param>
+        /// <param name="serviceOrderAddonIds"> A list containing the service-order IDs that should be removed. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
+        [HttpDelete("configuration/organization/{organizationId:Guid}/service-provider/{serviceProviderId:int}/addons")]
+        [SwaggerResponse(StatusCodes.Status204NoContent)]
+        public async Task<ActionResult> RemoveServiceAddonAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
+        {
+            await _hardwareServiceOrderService.RemoveServiceAddonFromBackofficeAsync(organizationId, serviceProviderId, serviceOrderAddonIds);
             return NoContent();
         }
     }

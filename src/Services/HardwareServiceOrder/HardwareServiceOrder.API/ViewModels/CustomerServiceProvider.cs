@@ -45,5 +45,14 @@
         /// </summary>
         [SwaggerSchema(ReadOnly = true)]
         public ICollection<ObscuredApiCredential>? ApiCredentials { get; private init; }
+
+        /// <summary>
+        ///     A list containing all service-order addons that's currently active for this <c>CustomerServiceProvider</c>.
+        ///     
+        ///     <para>
+        ///     This property is only included/loaded if it's been explicitly requested. If it's not requested, the value will either
+        ///     be <c><see langword="null"/></c>, or an empty list. </para>
+        /// </summary>
+        public virtual ICollection<ServiceOrderAddonDTO>? ActiveServiceOrderAddons { get; private init; }
     }
 }

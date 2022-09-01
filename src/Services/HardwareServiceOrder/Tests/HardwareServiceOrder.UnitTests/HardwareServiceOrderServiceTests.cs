@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Xunit;
+using AutoMapper;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Email;
 using HardwareServiceOrderServices.Infrastructure;
@@ -191,6 +192,7 @@ namespace HardwareServiceOrder.UnitTests
 
 
         [Theory()]
+        [InlineData(0)]
         [InlineData(2, 500, 501)] // Two plain entries
         [InlineData(2, 500, 501, 501)] // Duplicates should not be added.
         public async Task AddServiceOrderAddonsToCustomerServiceProviderTest(int expectedAddonItems, params int[] addonIds)
@@ -210,21 +212,21 @@ namespace HardwareServiceOrder.UnitTests
             await _dbContext.SaveChangesAsync();
 
             // Act
-            _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProvider(CUSTOMER_ONE_ID, (int)ServiceProviderEnum.ConmodoNo, addonIds.ToHashSet());
+            await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProvider(CUSTOMER_ONE_ID, (int)ServiceProviderEnum.ConmodoNo, addonIds.ToHashSet());
 
             CustomerServiceProvider? customerServiceProvider = await _dbContext.CustomerServiceProviders
-                                                                               .Include(e => e.ServiceOrderAddons)
+                                                                               .Include(e => e.ActiveServiceOrderAddons)
                                                                                .FirstOrDefaultAsync(e => e.CustomerId == CUSTOMER_ONE_ID && e.ServiceProviderId == (int)ServiceProviderEnum.ConmodoNo);
 
             // Assert
             Assert.NotNull(customerServiceProvider);
-            Assert.Equal(expectedAddonItems, customerServiceProvider!.ServiceOrderAddons!.Count);
+            Assert.Equal(expectedAddonItems, customerServiceProvider!.ActiveServiceOrderAddons!.Count);
         }
 
         [Theory()]
         [InlineData(500, 504)] // 504 belongs to another service-provider, and should not be allowed
         [InlineData(500, 501, 999)] // One of the IDs don't exist, and should not be allowed
-        public async Task AddServiceOrderAddonsToCustomerServiceProvider_Exception_Test(params int[] addonIds)
+        public async Task AddServiceOrderAddonsToCustomerServiceProvider_Exceptions_Test(params int[] addonIds)
         {
             /*
              * Arrange
@@ -255,6 +257,46 @@ namespace HardwareServiceOrder.UnitTests
 
             // Assert
             Assert.ThrowsAny<Exception>(_hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProvider(CUSTOMER_ONE_ID, (int)ServiceProviderEnum.ConmodoNo, addonIds.ToHashSet()).Wait);
+        }
+
+        [Theory()]
+        [InlineData(2, 500, 501)]
+        [InlineData(3, 500, 501, 502)]
+        [InlineData(1, 500, 504)] // 504 is not valid, and should not be removed.
+        public async Task RemoveServiceOrderAddonsFromCustomerServiceProviderTest(int expectedItemsToBeRemoved, params int[] addonIds)
+        {
+            // Arrange
+
+            // Add new service-order addons to existing providers
+            ServiceOrderAddon serviceOrderAddon1 = new(500, (int)ServiceProviderEnum.ConmodoNo, "", true, true, Guid.Empty, DateTimeOffset.UtcNow);
+            _dbContext.Add(serviceOrderAddon1);
+            ServiceOrderAddon serviceOrderAddon2 = new(501, (int)ServiceProviderEnum.ConmodoNo, "", true, true, Guid.Empty, DateTimeOffset.UtcNow);
+            _dbContext.Add(serviceOrderAddon2);
+            ServiceOrderAddon serviceOrderAddon3 = new(502, (int)ServiceProviderEnum.ConmodoNo, "", true, true, Guid.Empty, DateTimeOffset.UtcNow);
+            _dbContext.Add(serviceOrderAddon3);
+            ServiceOrderAddon serviceOrderAddon4 = new(503, (int)ServiceProviderEnum.ConmodoNo, "", true, true, Guid.Empty, DateTimeOffset.UtcNow);
+            _dbContext.Add(serviceOrderAddon4);
+
+            await _dbContext.SaveChangesAsync();
+            await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProvider(CUSTOMER_ONE_ID, (int)ServiceProviderEnum.ConmodoNo, new HashSet<int>() { 500, 501, 502, 503 });
+
+            CustomerServiceProvider? customerServiceProviderPreRemoval = await _dbContext.CustomerServiceProviders
+                                                                                         .Include(e => e.ActiveServiceOrderAddons)
+                                                                                         .FirstOrDefaultAsync(e => e.CustomerId == CUSTOMER_ONE_ID && e.ServiceProviderId == (int)ServiceProviderEnum.ConmodoNo);
+
+            int originalNumberOfAddons = customerServiceProviderPreRemoval!.ActiveServiceOrderAddons!.Count;
+
+            // Act
+
+            await _hardwareServiceOrderService.RemoveServiceOrderAddonsFromCustomerServiceProvider(CUSTOMER_ONE_ID, (int)ServiceProviderEnum.ConmodoNo, addonIds.ToHashSet());
+
+            CustomerServiceProvider? customerServiceProviderPostRemoval = await _dbContext.CustomerServiceProviders
+                                                                                          .Include(e => e.ActiveServiceOrderAddons)
+                                                                                          .FirstOrDefaultAsync(e => e.CustomerId == CUSTOMER_ONE_ID && e.ServiceProviderId == (int)ServiceProviderEnum.ConmodoNo);
+
+
+            // Assert
+            Assert.Equal((originalNumberOfAddons - expectedItemsToBeRemoved), customerServiceProviderPostRemoval!.ActiveServiceOrderAddons!.Count);
         }
 
     }

@@ -318,9 +318,9 @@ namespace HardwareServiceOrderServices
 
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<CustomerServiceProviderDto>> GetCustomerServiceProvidersAsync(Guid organizationId, bool includeApiCredentials = false, bool includeServiceOrderAddons = false)
+        public async Task<IEnumerable<CustomerServiceProviderDto>> GetCustomerServiceProvidersAsync(Guid organizationId, bool includeApiCredentials = false, bool includeActiveServiceOrderAddons = false)
         {
-            var customerServiceProviders = await _hardwareServiceOrderRepository.GetCustomerServiceProvidersByFilterAsync(entity => entity.CustomerId == organizationId, includeApiCredentials, includeServiceOrderAddons, true);
+            var customerServiceProviders = await _hardwareServiceOrderRepository.GetCustomerServiceProvidersByFilterAsync(entity => entity.CustomerId == organizationId, includeApiCredentials, includeActiveServiceOrderAddons, true);
 
             var mapped = _mapper.Map<IEnumerable<CustomerServiceProviderDto>>(customerServiceProviders);
             return mapped;
@@ -328,9 +328,9 @@ namespace HardwareServiceOrderServices
 
 
         /// <inheritdoc/>
-        public async Task<CustomerServiceProviderDto> GetCustomerServiceProviderByIdAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials = false, bool includeServiceOrderAddons = false)
+        public async Task<CustomerServiceProviderDto> GetCustomerServiceProviderByIdAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials = false, bool includeActiveServiceOrderAddons = false)
         {
-            CustomerServiceProvider? customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, includeApiCredentials, includeServiceOrderAddons);
+            CustomerServiceProvider? customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, includeApiCredentials, includeActiveServiceOrderAddons);
             if (customerServiceProvider is null)
                 throw new NotFoundException("The customer service provider was not found.");
 
@@ -366,7 +366,7 @@ namespace HardwareServiceOrderServices
             else
             {
                 // Extract the missing IDs
-                var activeServiceOrderAddonIds = customerServiceProvider.ServiceOrderAddons!.Select(e => e.Id);
+                var activeServiceOrderAddonIds = customerServiceProvider.ActiveServiceOrderAddons!.Select(e => e.Id);
                 var missingServiceOrderAddonIds = newServiceOrderAddonIds.Except(activeServiceOrderAddonIds);
 
                 if (missingServiceOrderAddonIds.Any())
@@ -375,7 +375,7 @@ namespace HardwareServiceOrderServices
                     {
                         // If it exist in the missing it list, add it.
                         if (missingServiceOrderAddonIds.Any(i => currentAddon.Id == i))
-                            customerServiceProvider.ServiceOrderAddons!.Add(currentAddon);
+                            customerServiceProvider.ActiveServiceOrderAddons!.Add(currentAddon);
                     }
 
                     await _hardwareServiceOrderRepository.UpdateAndSaveAsync(customerServiceProvider);
@@ -384,6 +384,7 @@ namespace HardwareServiceOrderServices
         }
 
 
+        /// <inheritdoc/>
         public async Task RemoveServiceOrderAddonsFromCustomerServiceProvider(Guid organizationId, int serviceProviderId, ISet<int> removedServiceOrderAddonIds)
         {
             CustomerServiceProvider? customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, false, true);
@@ -392,10 +393,10 @@ namespace HardwareServiceOrderServices
             if (customerServiceProvider is null)
                 return;
 
-            foreach (var currentAddon in customerServiceProvider.ServiceOrderAddons!)
+            foreach (var currentAddon in customerServiceProvider.ActiveServiceOrderAddons!)
             {
                 if (removedServiceOrderAddonIds.Any(i => currentAddon.Id == i))
-                    customerServiceProvider.ServiceOrderAddons.Remove(currentAddon);
+                    customerServiceProvider.ActiveServiceOrderAddons.Remove(currentAddon);
             }
 
             await _hardwareServiceOrderRepository.UpdateAndSaveAsync(customerServiceProvider);

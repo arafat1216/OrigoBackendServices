@@ -27,8 +27,9 @@ namespace OrigoApiGateway.Services
         /// </summary>
         /// <param name="organizationId"> The customers identifier. </param>
         /// <param name="includeApiCredentialIndicators"> Should <see cref="CustomerServiceProvider.ApiCredentials"/> be loaded and included in the results? </param>
+        /// <param name="includeActiveServiceOrderAddons"> Should <see cref="CustomerServiceProvider.ActiveServiceOrderAddons"/> be loaded and included in the results? </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains a list of all retrieved customer-service-provider details. </returns>
-        Task<IEnumerable<CustomerServiceProvider>> GetCustomerServiceProvidersAsync(Guid organizationId, bool includeApiCredentialIndicators);
+        Task<IEnumerable<CustomerServiceProvider>> GetCustomerServiceProvidersAsync(Guid organizationId, bool includeApiCredentialIndicators, bool includeActiveServiceOrderAddons);
 
         /// <summary>
         ///     Deletes an existing API credential.
@@ -51,5 +52,26 @@ namespace OrigoApiGateway.Services
         /// <param name="apiCredential"> The API credential details to add or update. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         Task AddOrUpdateApiCredentialAsync(Guid organizationId, int serviceProviderId, NewApiCredential apiCredential);
+
+        /// <summary>
+        ///     Removes service-order addons from a customer's service-provider configuration. (<see cref="CustomerServiceProvider"/>).
+        /// </summary>
+        /// <param name="organizationId"> The customer/organization that's being configured. </param>
+        /// <param name="serviceProviderId"> The service-provider that's being configured. </param>
+        /// <param name="serviceOrderAddonIds"> A list containing the service-order IDs that should be removed. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        Task RemoveServiceAddonFromBackofficeAsync(Guid organizationId, int serviceProviderId, ISet<int> serviceOrderAddonIds);
+
+        /// <summary>
+        ///     Adds new service-order addons to a customer's service-provider configuration. (<see cref="CustomerServiceProvider"/>). Pre-existing items will not be affected.
+        ///     
+        ///     <para>
+        ///     You may only add service-order addons that is provided by the corresponding <paramref name="serviceProviderId"/>. </para>
+        /// </summary>
+        /// <param name="organizationId"> The customer/organization that's being configured. </param>
+        /// <param name="serviceProviderId"> The service-provider that's being configured. </param>
+        /// <param name="serviceOrderAddonIds"> A list containing the service-order IDs that should be added. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        Task AddServiceAddonFromBackofficeAsync(Guid organizationId, int serviceProviderId, ISet<int> serviceOrderAddonIds);
     }
 }

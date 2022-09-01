@@ -83,6 +83,74 @@ namespace OrigoApiGateway.Services
         }
 
 
+        /// <summary>
+        ///     Send a HTTP-request to specified URL as an asynchronous operation.
+        ///     
+        ///     <para>
+        ///     The request will be automatically configured to include required headers, and will process the query parameters before
+        ///     appending them to the URL. </para>
+        /// </summary>
+        /// <param name="httpMethod"> The HTTP-method to use for the request. </param>
+        /// <param name="requestUri"> The request URL. </param>
+        /// <param name="queryParameters"> The dictionary containing all query names and values. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="HttpRequestException"> Thrown if the HTTP request resulted in an error-code. </exception>
+        private async Task SendRequestAsync(HttpMethod httpMethod, string requestUri, Dictionary<string, string>? queryParameters)
+        {
+            HttpResponseMessage response;
+
+            string constructedRequestUrl = await BuildRequestUrl(requestUri, queryParameters);
+            using var request = new HttpRequestMessage(httpMethod, constructedRequestUrl);
+            request.Headers.Add("X-Authenticated-UserId", GetUserId());
+
+            response = await HttpClient.SendAsync(request);
+
+#if DEBUG
+#pragma warning disable S1481 // Unused local variables should be removed
+            string? bodyAsString = await response.Content.ReadAsStringAsync();
+#pragma warning restore S1481 // Unused local variables should be removed
+#endif
+
+            response.EnsureSuccessStatusCode();
+        }
+
+
+        /// <summary>
+        ///     Serializes the provided data, and send a HTTP-request to specified URL as an asynchronous operation.
+        ///     
+        ///     <para>
+        ///     The request will be automatically configured to include required headers, and will process the query parameters before
+        ///     appending them to the URL. </para>
+        /// </summary>
+        /// <typeparam name="TInput"> The target type that should be serialized from. </typeparam>
+        /// <param name="httpMethod"> The HTTP-method to use for the request. </param>
+        /// <param name="requestUri"> The request URL. </param>
+        /// <param name="queryParameters"> The dictionary containing all query names and values. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <param name="inputValue"> The item that should be serialized and to the HTTP-request. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="HttpRequestException"> Thrown if the HTTP request resulted in an error-code. </exception>
+        private async Task SendRequestAsync<TInput>(HttpMethod httpMethod, string requestUri, Dictionary<string, string>? queryParameters, TInput inputValue) where TInput : notnull
+        {
+            HttpResponseMessage response;
+
+            string constructedRequestUrl = await BuildRequestUrl(requestUri, queryParameters);
+            using var request = new HttpRequestMessage(httpMethod, constructedRequestUrl);
+            request.Headers.Add("X-Authenticated-UserId", GetUserId());
+            request.Content = JsonContent.Create(inputValue);
+
+            response = await HttpClient.SendAsync(request);
+
+#if DEBUG
+#pragma warning disable S1481 // Unused local variables should be removed
+            string? bodyAsString = await response.Content.ReadAsStringAsync();
+#pragma warning restore S1481 // Unused local variables should be removed
+#endif
+
+            response.EnsureSuccessStatusCode();
+        }
+
+
         /// <inheritdoc cref="HttpClient.GetAsync(string?)"/>
         /// <typeparam name="TOutput"> The target type to deserialize to. </typeparam>
         /// <param name="requestUri"> The URI the request is sent to. </param>
@@ -101,81 +169,6 @@ namespace OrigoApiGateway.Services
         }
 
 
-        /// <inheritdoc cref="HttpClient.PutAsync(string?, HttpContent?)"/>
-        /// <param name="requestUri"> The URI the request is sent to. </param>
-        /// <param name="queryParameters"> A dictionary containing all query parameters. </param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        /// <exception cref="HttpRequestException"> Thrown if the HTTP request resulted in an error-code. </exception>
-        private async Task PutAsync(string requestUri, Dictionary<string, string>? queryParameters)
-        {
-            string constructedRequestUrl = await BuildRequestUrl(requestUri, queryParameters);
-            using var request = new HttpRequestMessage(HttpMethod.Put, constructedRequestUrl);
-            request.Headers.Add("X-Authenticated-UserId", GetUserId());
-
-            var response = await HttpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-        }
-
-
-        /// <inheritdoc cref="HttpClient.PutAsync(string?, HttpContent?)"/>
-        /// <typeparam name="TInput"> The target type to deserialize to. </typeparam>
-        /// <param name="requestUri"> The URI the request is sent to. </param>
-        /// <param name="queryParameters"> A dictionary containing all query parameters. </param>
-        /// <param name="inputValue"> The value that should be serialized. </param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        /// <exception cref="HttpRequestException"> Thrown if the HTTP request resulted in an error-code. </exception>
-        private async Task PutAsync<TInput>(string requestUri, Dictionary<string, string>? queryParameters, TInput inputValue) where TInput : notnull
-        {
-            string constructedRequestUrl = await BuildRequestUrl(requestUri, queryParameters);
-            var content = JsonContent.Create(inputValue);
-            content.Headers.Add("X-Authenticated-UserId", GetUserId());
-
-            var response = await HttpClient.PutAsync(constructedRequestUrl, content);
-            response.EnsureSuccessStatusCode();
-        }
-
-
-        /// <inheritdoc cref="HttpClient.PutAsync(string?, HttpContent?)"/>
-        /// <typeparam name="TInput"> The target type to deserialize to. </typeparam>
-        /// <typeparam name="TOutput"> The target type to de-serialize to. </typeparam>
-        /// <param name="requestUri"> The URI the request is sent to. </param>
-        /// <param name="queryParameters"> A dictionary containing all query parameters. </param>
-        /// <param name="inputValue"> The value that should be serialized. </param>
-        /// <returns> A task that represents the asynchronous operation. The task result contains the de-serialized object. 
-        ///     The value will be <see langword="null"/> for empty responses, or if we were unable to map the de-serialized item to the entity. </returns>
-        /// <exception cref="HttpRequestException"> Thrown if the HTTP request resulted in an error-code. </exception>
-        private async Task<TOutput?> PutAsync<TInput, TOutput>(string requestUri, Dictionary<string, string>? queryParameters, TInput inputValue) where TInput : notnull
-                                                                                                                                                  where TOutput : notnull
-        {
-            string constructedRequestUrl = await BuildRequestUrl(requestUri, queryParameters);
-            var content = JsonContent.Create(inputValue);
-            content.Headers.Add("X-Authenticated-UserId", GetUserId());
-
-            var response = await HttpClient.PutAsync(constructedRequestUrl, content);
-            response.EnsureSuccessStatusCode();
-
-            TOutput? deserialized = await response.Content.ReadFromJsonAsync<TOutput?>();
-            return deserialized;
-        }
-
-
-        /// <inheritdoc cref="HttpClient.DeleteAsync(string?)"/>
-        /// <param name="requestUri"> The URI the request is sent to. </param>
-        /// <param name="queryParameters"> A dictionary containing all query parameters. </param>
-        /// <returns> A task that represents the asynchronous operation. The task result contains the de-serialized object. 
-        ///     The value will be <see langword="null"/> for empty responses, or if we were unable to map the de-serialized item to the entity. </returns>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        private async Task DeleteAsync(string requestUri, Dictionary<string, string>? queryParameters)
-        {
-            string constructedRequestUrl = await BuildRequestUrl(requestUri, queryParameters);
-            using var request = new HttpRequestMessage(HttpMethod.Delete, constructedRequestUrl);
-            request.Headers.Add("X-Authenticated-UserId", GetUserId());
-
-            var response = await HttpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-        }
-
-
         /// <inheritdoc/>
         public async Task<IEnumerable<Models.HardwareServiceOrder.Backend.ServiceProvider>> GetAllServiceProvidersAsync(bool includeSupportedServiceTypes, bool includeOfferedServiceOrderAddons)
         {
@@ -184,7 +177,6 @@ namespace OrigoApiGateway.Services
                 { "includeSupportedServiceTypes", includeSupportedServiceTypes.ToString() },
                 { "includeOfferedServiceOrderAddons", includeOfferedServiceOrderAddons.ToString()}
             };
-
 
             var result = await GetAsync<IEnumerable<Models.HardwareServiceOrder.Backend.ServiceProvider>>($"{_options.ServiceProviderApiPath}", queryParameters);
 
@@ -196,11 +188,12 @@ namespace OrigoApiGateway.Services
 
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<CustomerServiceProvider>> GetCustomerServiceProvidersAsync(Guid organizationId, bool includeApiCredentialIndicators)
+        public async Task<IEnumerable<CustomerServiceProvider>> GetCustomerServiceProvidersAsync(Guid organizationId, bool includeApiCredentialIndicators, bool includeActiveServiceOrderAddons)
         {
             var queryParameters = new Dictionary<string, string>
             {
-                { "includeApiCredentialIndicators", includeApiCredentialIndicators.ToString() }
+                { "includeApiCredentialIndicators", includeApiCredentialIndicators.ToString() },
+                { "includeActiveServiceOrderAddons", includeApiCredentialIndicators.ToString() }
             };
 
             var result = await GetAsync<IEnumerable<CustomerServiceProvider>>($"{_options.ConfigurationApiPath}/{organizationId}/service-provider", queryParameters);
@@ -220,14 +213,28 @@ namespace OrigoApiGateway.Services
                 { "serviceTypeId", serviceTypeId?.ToString() ?? string.Empty }
             };
 
-            await DeleteAsync($"{_options.ConfigurationApiPath}/{organizationId}/service-provider/{serviceProviderId}/credentials", queryParameters);
+            await SendRequestAsync(HttpMethod.Delete, $"{_options.ConfigurationApiPath}/{organizationId}/service-provider/{serviceProviderId}/credentials", queryParameters);
         }
 
 
         /// <inheritdoc/>
         public async Task AddOrUpdateApiCredentialAsync(Guid organizationId, int serviceProviderId, NewApiCredential apiCredential)
         {
-            await PutAsync($"{_options.ConfigurationApiPath}/{organizationId}/service-provider/{serviceProviderId}/credentials", null, apiCredential);
+            await SendRequestAsync(HttpMethod.Put, $"{_options.ConfigurationApiPath}/{organizationId}/service-provider/{serviceProviderId}/credentials", null, apiCredential);
+        }
+
+
+        /// <inheritdoc/>
+        public async Task RemoveServiceAddonFromBackofficeAsync(Guid organizationId, int serviceProviderId, ISet<int> serviceOrderAddonIds)
+        {
+            await SendRequestAsync(HttpMethod.Delete, $"{_options.ConfigurationApiPath}/{organizationId}/service-provider/{serviceProviderId}/addons", null, serviceOrderAddonIds);
+        }
+
+
+        /// <inheritdoc/>
+        public async Task AddServiceAddonFromBackofficeAsync(Guid organizationId, int serviceProviderId, ISet<int> serviceOrderAddonIds)
+        {
+            await SendRequestAsync(HttpMethod.Patch, $"{_options.ConfigurationApiPath}/{organizationId}/service-provider/{serviceProviderId}/addons", null, serviceOrderAddonIds);
         }
     }
 }

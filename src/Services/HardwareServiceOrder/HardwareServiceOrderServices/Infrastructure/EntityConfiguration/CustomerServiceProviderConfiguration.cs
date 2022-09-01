@@ -38,7 +38,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
                    .HasForeignKey(e => e.ServiceProviderId);
 
 
-            builder.HasMany(e => e.ServiceOrderAddons)
+            builder.HasMany(e => e.ActiveServiceOrderAddons)
                    .WithMany(e => e.CustomerServiceProviders)
                    .UsingEntity<CustomerServiceProviderServiceOrderAddon>();
         }
