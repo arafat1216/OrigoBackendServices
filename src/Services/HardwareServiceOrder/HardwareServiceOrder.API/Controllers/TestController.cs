@@ -27,14 +27,16 @@ namespace HardwareServiceOrder.API.Controllers
         private readonly HardwareServiceOrderContext _context;
         private readonly IMapper _mapper;
         private readonly IApiRequesterService _apiRequesterService;
+        private readonly IHardwareServiceOrderService _hardwareServiceOrderService;
 
 
-        public TestController(IProviderFactory providerFactory, HardwareServiceOrderContext dbContext, IMapper mapper, IApiRequesterService apiRequesterService)
+        public TestController(IProviderFactory providerFactory, HardwareServiceOrderContext dbContext, IMapper mapper, IApiRequesterService apiRequesterService, IHardwareServiceOrderService hardwareServiceOrderService)
         {
             _providerFactory = providerFactory;
             _context = dbContext;
             _mapper = mapper;
             _apiRequesterService = apiRequesterService;
+            _hardwareServiceOrderService = hardwareServiceOrderService;
         }
 
 
@@ -74,6 +76,22 @@ namespace HardwareServiceOrder.API.Controllers
             {
                 return Accepted(results);
             }
+        }
+
+
+
+
+        [HttpPut]
+        public async Task<ActionResult> Test()
+        {
+            HashSet<int> addonIds = new()
+            {
+                1,2,3,0
+            };
+
+            await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProvider(Guid.Empty, 1, addonIds);
+
+            return Ok();
         }
 
 

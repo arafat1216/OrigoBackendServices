@@ -123,5 +123,24 @@ namespace HardwareServiceOrderServices
         /// <param name="apiPassword"> The API password. If it's not applicable for the service-provider, it should be <see langword="null"/>. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         Task AddOrUpdateApiCredentialAsync(Guid organizationId, int serviceProviderId, int? serviceTypeId, string? apiUsername, string? apiPassword);
+
+
+        /// <summary>
+        ///     Adds new <see cref="ServiceOrderAddon"/> to a <see cref="CustomerServiceProvider"/>.
+        /// </summary>
+        /// <param name="organizationId"> The customer identifier. </param>
+        /// <param name="serviceProviderId"> The service-provider identifier. </param>
+        /// <param name="newServiceOrderAddonIds"> A list of containing the identifiers for all <see cref="ServiceOrderAddon"/> 
+        ///     items that should be added. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="NotFoundException"> Thrown if one or more of the new service-order addons don't exist. </exception>
+        /// <exception cref="ArgumentException"> 
+        ///     Thrown if one or more of the values is invalid. For example when trying to
+        ///     add a <see cref="ServiceOrderAddon"/> that belongs to another <see cref="ServiceProvider"/>. 
+        /// </exception>
+        Task AddServiceOrderAddonsToCustomerServiceProvider(Guid organizationId, int serviceProviderId, ISet<int> newServiceOrderAddonIds);
+
+
+        Task RemoveServiceOrderAddonsFromCustomerServiceProvider(Guid organizationId, int serviceProviderId, ISet<int> removedServiceOrderAddonIds);
     }
 }

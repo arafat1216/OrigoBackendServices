@@ -144,9 +144,24 @@ namespace HardwareServiceOrder.API.Controllers
 
 
         [HttpPatch("service-provider/{serviceProviderId:int}/addons")]
+        [SwaggerResponse(StatusCodes.Status204NoContent)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> AddServiceAddonAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProvider(organizationId, serviceProviderId, serviceOrderAddonIds);
+                return NoContent();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
 
