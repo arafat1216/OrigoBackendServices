@@ -678,5 +678,46 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest(ex.Message);
             }
         }
+       /// <summary>
+       /// Changes user status of the caller to Activated, after onboarding is completed.
+       /// </summary>
+       /// <param name="organizationId">Organization id.</param>
+       /// <returns>User objekt that is made activated. Or exception when required comditions is not met.</returns>
+        [Route("onboarding-completed")]
+        [HttpPost]
+        [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<OrigoUser>> CompleteOnboarding(Guid organizationId)
+        {
+            try
+            {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    // Check if caller has access to this organization
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+
+                }
+
+                //This is for when user him/her self has completed the onboarding process - find the user id from the token
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                _ = Guid.TryParse(actor, out Guid callerId);
+
+                var user = await _userServices.CompleteOnboardingAsync(organizationId, callerId);
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

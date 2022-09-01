@@ -625,7 +625,7 @@ namespace Customer.API.IntegrationTests.Controllers
                item => Assert.Equal(1, item.Count)
            );
             Assert.Collection(organizationCount,
-               item => Assert.Equal(1, item.NotOnboarded),
+               item => Assert.Equal(2, item.NotOnboarded),
                item => Assert.Equal(3, item.NotOnboarded)
            );
             Assert.Collection(organizationCount,

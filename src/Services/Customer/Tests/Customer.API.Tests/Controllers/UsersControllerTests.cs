@@ -34,6 +34,7 @@ namespace Customer.API.IntegrationTests.Controllers
         private readonly Guid _userThreeId;
         private readonly Guid _callerId;
         private readonly Guid _userFourId;
+        private readonly Guid _userSevenId;
 
         private readonly CustomerWebApplicationFactory<Startup> _factory;
 
@@ -53,6 +54,7 @@ namespace Customer.API.IntegrationTests.Controllers
             _userThreeId = factory.USER_THREE_ID;
             _userOneEmail = factory.USER_ONE_EMAIL;
             _userFourId = factory.USER_FOUR_ID;
+            _userSevenId = factory.USER_SEVEN_ID;
             _callerId = Guid.NewGuid();
             _factory = factory;
             _httpClient.DefaultRequestHeaders.Add("X-Authenticated-UserId", Guid.Empty.SystemUserId().ToString());
@@ -1513,6 +1515,70 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.NotNull(error);
             Assert.Equal(1, error?.Exceptions.Count);
             Assert.Collection(error?.Exceptions, error => Assert.Equal("Manager has no rights to make action on behalf of user atish@normann.no.", error));
+        }
+        [Fact]
+        public async Task CompleteOnboarding_UUserDontHaveOnboardingInitiated_ReturnsBadRequest()
+        {
+            //Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/onboarding-completed";
+
+            //Act
+            var response = await httpClient.PostAsync(requestUri, null);
+            var error = await response.Content.ReadAsStringAsync();
+
+            //Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal("User has not onboarding initiated, and can not get activated. User has current status: NotInvited.",error);
+
+            //check the user if the status is the same as before
+
+            //Act
+            var requestGetUser = $"/api/v1/organizations/{_customerId}/users/{_userOneId}";
+            var responseGetUser = await _httpClient.GetAsync(requestGetUser);
+            //Assert
+            var user = await responseGetUser.Content.ReadFromJsonAsync<User>();
+            Assert.Equal("NotInvited", user?.UserStatusName);
+        }
+        [Fact]
+        public async Task CompleteOnboarding_UserDontHaveOktaId_ReturnsBadRequest()
+        {
+            //Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userThreeId}/onboarding-completed";   
+
+            //Act
+            var response = await httpClient.PostAsync(requestUri, null);
+            var error = await response.Content.ReadAsStringAsync();
+
+            //Assert  
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal("User does not exist in Okta.", error);
+
+            //Check the user if the status is the same as before
+
+            //Act
+            var requestGetUser = $"/api/v1/organizations/{_customerId}/users/{_userThreeId}";
+            var responseGetUser = await _httpClient.GetAsync(requestGetUser);
+            //Assert
+            var user = await responseGetUser.Content.ReadFromJsonAsync<User>();
+            Assert.Equal("OnboardInitiated", user?.UserStatusName);
+        }
+        [Fact]
+        public async Task CompleteOnboarding_ReturnsOK()
+        {
+            //Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations/{_customerIdTwo}/users/{_userSevenId}/onboarding-completed";
+
+            //Act
+            var response = await httpClient.PostAsync(requestUri, null);
+            var user = await response.Content.ReadFromJsonAsync<User>();
+
+            //Assert  
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("Activated", user?.UserStatusName);
+            Assert.Equal(0, user?.UserStatus);
         }
     }
 }

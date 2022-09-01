@@ -544,5 +544,30 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task<OrigoUser> CompleteOnboardingAsync(Guid customerId, Guid userId)
+        {
+            try
+            {
+
+                var response = await HttpClient.PostAsync($"{_options.ApiPath}/{customerId}/users/{userId}/onboarding-completed", null);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    var exception = new BadHttpRequestException(error, (int)response.StatusCode);
+                    _logger.LogError(exception, error);
+                    throw exception;
+                }
+
+                var user = await response.Content.ReadFromJsonAsync<UserDTO>();
+                return _mapper.Map<OrigoUser>(user);
+
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "ActivateOnboardedUser failed with HttpRequestException.");
+                throw;
+            }
+        }
     }
 }

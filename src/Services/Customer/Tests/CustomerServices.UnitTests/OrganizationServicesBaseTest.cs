@@ -26,6 +26,7 @@ namespace CustomerServices.UnitTests
         protected readonly Guid USER_FOUR_ID = new Guid("a0c3ee8d-b543-4dc9-88b5-958c54b9d270");
         protected readonly Guid USER_FIVE_ID = new Guid("07c8ce13-a6a1-4a80-b029-619098a76bb5"); 
         protected readonly Guid USER_SIX_ID = new Guid("cee1e91f-e6d0-44ef-866a-23b032f3a214"); 
+        protected readonly Guid USER_SEVEN_ID = new Guid("c43a8c1e-8ded-42ab-a0d1-0e4c2ce92cdc"); 
 
         protected readonly Guid LOCATION_ONE_ID = new("8080A5F0-57C6-4D72-B164-82D54A94C776");
         private readonly Guid LOCATION_TWO_ID = new("DDF4FDB7-B1B9-4F03-B343-2B2F38AC6138");
@@ -111,6 +112,9 @@ namespace CustomerServices.UnitTests
             userThree.ChangeUserStatus("123", Common.Enums.UserStatus.Invited);
             var userSix = new User(customerTwo, USER_SIX_ID, "Elvis", "Presley", "the@king.com", "+4790000000", "X", userPreferences3, EMPTY_CALLER_ID);
 
+            var userSeven = new User(customerTwo, USER_SEVEN_ID, "Lisa Marie", "Presley", "the@princess.com", "+4790000001", "X", userPreferences3, EMPTY_CALLER_ID);
+            userSeven.ChangeUserStatus("123",Common.Enums.UserStatus.OnboardInitiated);
+
 
             var role1 = new Role("admin");
             var managerRole = new Role("Manager");
@@ -124,7 +128,7 @@ namespace CustomerServices.UnitTests
 
             context.AddRange(role1,managerRole);
             context.AddRange(userPersmission, managerPersmission, managerPersmissionTwo);
-            context.AddRange(userOne, userTwo, userThree, userFour, userFive, userSix);
+            context.AddRange(userOne, userTwo, userThree, userFour, userFive, userSix, userSeven);
 
             context.SaveChanges();
         }

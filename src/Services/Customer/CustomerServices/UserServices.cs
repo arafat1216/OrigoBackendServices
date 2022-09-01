@@ -764,5 +764,21 @@ namespace CustomerServices
                 
             return exceptions;
         }
+        /// <inheritdoc/>
+        public async Task<UserDTO> CompleteOnboardingAsync(Guid customerId, Guid userId)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            if (user == null)
+                throw new UserNotFoundException($"Unable to find {userId}");
+
+            if (user.UserStatus != UserStatus.OnboardInitiated) throw new ArgumentException($"User has not onboarding initiated, and can not get activated. User has current status: {user.UserStatus}.");
+            
+            if (string.IsNullOrWhiteSpace(user.OktaUserId)) throw new ArgumentException("User does not exist in Okta."); 
+
+            user.ChangeUserStatus(null, UserStatus.Activated); 
+            await _organizationRepository.SaveEntitiesAsync();
+            
+            return _mapper.Map<UserDTO>(user);
+        }
     }
 }

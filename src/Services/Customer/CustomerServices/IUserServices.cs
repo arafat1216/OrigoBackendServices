@@ -32,6 +32,13 @@ namespace CustomerServices
         Task<UserDTO> InitiateOffboarding(Guid customerId, Guid userId, DateTime lastWorkingDay, bool buyoutAllowed, Guid callerId);
         Task<UserDTO> CancelOffboarding(Guid customerId, Guid userId, Guid callerId);
         Task<UserDTO> OverdueOffboarding(Guid customerId, Guid userId, Guid callerId);
+        /// <summary>
+        /// Activates a user after onboarding wizzard is completed.
+        /// </summary>
+        /// <param name="customerId">Users connected organization.</param>
+        /// <param name="userId">User to be activated.</param>
+        /// <returns>A user dto.</returns>
+        Task<UserDTO> CompleteOnboardingAsync(Guid customerId, Guid userId);
 
         /// <summary>
         /// Resends the Origo invitation mail to a list of users. 

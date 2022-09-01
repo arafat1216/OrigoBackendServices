@@ -82,8 +82,8 @@ namespace CustomerServices.UnitTests
             var users = await userServices.GetUsersCountAsync(CUSTOMER_TWO_ID, null, new[] { "SystemAdmin" });
 
             // Assert
-            Assert.Equal(2, users.NotOnboarded);
-            Assert.Equal(0, users.Count);
+            Assert.Equal(3, users?.NotOnboarded);
+            Assert.Equal(0, users?.Count);
         }
 
         [Fact]
@@ -549,6 +549,23 @@ namespace CustomerServices.UnitTests
             var organizationUserCount = await organizationRepository.GetOrganizationUsersCountAsync(CUSTOMER_ONE_ID, null, null);
 
             Assert.Null(organizationUserCount);
+        }
+        //
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task CompleteOnboardingAsync()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var userPermissionServices = Mock.Of<IUserPermissionServices>();
+            var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
+
+            // Act
+            var user = await userServices.CompleteOnboardingAsync(CUSTOMER_TWO_ID,USER_SEVEN_ID);
+
+            // Assert
+            Assert.Equal(0,user.UserStatus);
         }
     }
 }

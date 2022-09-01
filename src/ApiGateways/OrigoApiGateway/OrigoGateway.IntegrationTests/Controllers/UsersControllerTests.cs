@@ -272,5 +272,50 @@ namespace OrigoGateway.IntegrationTests.Controllers
             var response = await client.GetAsync($"/origoapi/v1.0/customers/{organizationId}/users");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
+        [Fact]
+        public async Task CompleteOnboardingAsync_CallerIdIsUserId()
+        {
+            var organizationId = Guid.NewGuid();
+            var callerId = Guid.NewGuid();
+
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, callerId.ToString()));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), "mail@mail.com", CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = "mail@mail.com"; });
+
+                    var usersService = new Mock<IUserServices>();
+
+                    var user = new OrigoUser
+                    {
+                        Id = callerId
+                    };
+
+                    usersService.Setup(_ => _.CompleteOnboardingAsync(organizationId, callerId))
+                        .ReturnsAsync(user);
+
+                    services.AddSingleton(usersService.Object);
+                });
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.PostAsync($"/origoapi/v1.0/customers/{organizationId}/users/onboarding-completed", null);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
     }
 }

@@ -511,4 +511,22 @@ public class UsersController : ControllerBase
         var errorMessages = await _userServices.ResendOrigoInvitationMail(customerId, usersInvitations.UserIds, filterOptions?.Roles, filterOptions?.AssignedToDepartments);
         return Ok(_mapper.Map<ExceptionMessages>(errorMessages));
     }
+    /// <summary>
+    /// Completes the onbaording process and changes user status to Activated if conditions are met.
+    /// </summary>
+    /// <param name="customerId">Users connected organization.</param>
+    /// <param name="userId">User to be activated.</param>
+    /// <returns>Returns a ActionResult with User object.The ActionResult types represent various HTTP status codes.</returns>
+    [Route("{userId:Guid}/onboarding-completed")]
+    [HttpPost]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    public async Task<ActionResult<User>> CompleteOnboarding(Guid customerId, Guid userId)
+    {
+
+        var user = await _userServices.CompleteOnboardingAsync(customerId,userId);
+
+        return Ok(_mapper.Map<User>(user));
+
+    }
 }
