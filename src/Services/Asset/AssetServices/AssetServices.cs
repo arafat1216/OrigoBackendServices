@@ -458,46 +458,51 @@ public class AssetServices : IAssetServices
         var assetValidationResult = new AssetValidationResult();
         foreach (var assetFromCsv in assetsFromFileRecords)
         {
-            MobilePhone asset;
-            if (long.TryParse(assetFromCsv.Imei, out var imei))
-            {
-                asset = new MobilePhone(Guid.NewGuid(), Guid.Empty, assetFromCsv.SerialNumber, assetFromCsv.Brand, assetFromCsv.ProductName, new List<AssetImei> { new(imei) }, assetFromCsv.MacAddress);
-            }
-            else
-            {
-                asset = new MobilePhone(Guid.NewGuid(), Guid.Empty, assetFromCsv.SerialNumber, assetFromCsv.Brand, assetFromCsv.ProductName, new List<AssetImei>(), assetFromCsv.MacAddress);
-            }
+            var asset = long.TryParse(assetFromCsv.Imei, out var imei)
+                ? new MobilePhone(Guid.NewGuid(), Guid.Empty, assetFromCsv.SerialNumber, assetFromCsv.Brand,
+                    assetFromCsv.ProductName, new List<AssetImei> { new(imei) }, assetFromCsv.MacAddress)
+                : new MobilePhone(Guid.NewGuid(), Guid.Empty, assetFromCsv.SerialNumber, assetFromCsv.Brand,
+                    assetFromCsv.ProductName, new List<AssetImei>(), assetFromCsv.MacAddress);
             var emailValidator = new EmailAddressAttribute();
             var errors = new List<string>();
-            if (emailValidator.IsValid(assetFromCsv.UserEmail))
+            if (!string.IsNullOrEmpty(assetFromCsv.UserEmail) && !emailValidator.IsValid(assetFromCsv.UserEmail))
             {
-                errors.Add($"Invalid e-mail : {assetFromCsv.UserEmail}");
+                errors.Add($"Invalid e-mail: {assetFromCsv.UserEmail}");
             }
             if (asset.ValidateAsset() && !errors.Any())
             {
-                assetValidationResult.ValidAssets.Add(new
-                {
-                    SerialNumber = asset.SerialNumber ?? string.Empty,
-                    Brand = asset.Brand,
-                    ProductName = asset.ProductName,
-                    Imeis = string.Join(",", asset.Imeis.Select(a => a.Imei))
-                });
+                var importedAsset = CreateImportedAsset(asset, assetFromCsv, true); 
+                assetValidationResult.ValidAssets.Add(importedAsset);
             }
             else
             {
                 errors.AddRange(asset.ErrorMsgList);
-                assetValidationResult.InvalidAssets.Add(new
-                {
-                    SerialNumber = asset.SerialNumber ?? string.Empty,
-                    Brand = asset.Brand,
-                    ProductName = asset.ProductName,
-                    Imeis = string.Join(",", asset.Imeis.Select(a => a.Imei)),
-                    Errors = errors
-                });
+                var importedAsset = CreateImportedAsset(asset, assetFromCsv, false) as InvalidImportedAsset;
+                importedAsset!.Errors = errors;
+                assetValidationResult.InvalidAssets.Add(importedAsset);
             }
         }
 
         return assetValidationResult;
+    }
+
+    private ImportedAsset CreateImportedAsset(HardwareAsset asset, AssetFromCsvFile assetFromCsv, bool isValid)
+    {
+        var importedAsset = isValid ? new ImportedAsset() : new InvalidImportedAsset();
+
+        importedAsset.SerialNumber = asset.SerialNumber ?? string.Empty;
+        importedAsset.Brand = asset.Brand;
+        importedAsset.ProductName = asset.ProductName;
+        importedAsset.Imeis = string.Join(",", asset.Imeis.Select(a => a.Imei));
+        importedAsset.ImportedUser = new ImportedUser
+        {
+            FirstName = assetFromCsv.UserFirstName,
+            LastName = assetFromCsv.UserLastName,
+            Email = assetFromCsv.UserEmail,
+            PhoneNumber = assetFromCsv.PhoneNumber
+        };
+        
+        return importedAsset;
     }
 
     public async Task<AssetLifecycleDTO> BuyoutDeviceAsync(Guid customerId, BuyoutDeviceDTO data)

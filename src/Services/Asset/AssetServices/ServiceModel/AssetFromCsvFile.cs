@@ -1,8 +1,11 @@
 ﻿namespace AssetServices.ServiceModel;
 
+// ReSharper disable once ClassNeverInstantiated.Global
+/// <summary>
+/// Fields in csv file used to import assets.
+/// </summary>
 public record AssetFromCsvFile
 {
-    public string Category { get; set; } = string.Empty;
     public string Brand { get; set; } = string.Empty;
     public string ProductName { get; set; } = string.Empty;
     public string PurchaseDate { get; set; } = string.Empty;
@@ -13,4 +16,5 @@ public record AssetFromCsvFile
     public string UserFirstName { get; set; } = string.Empty;
     public string UserLastName { get; set; } = string.Empty;
     public string UserEmail { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
 }

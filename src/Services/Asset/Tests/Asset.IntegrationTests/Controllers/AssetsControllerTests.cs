@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -178,8 +179,15 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
 
         // Assert
         Assert.True(importResponse.IsSuccessStatusCode);
-        Assert.Equal(5, assetValidationResult!.ValidAssets.Count);
-        Assert.Equal(1, assetValidationResult!.InvalidAssets.Count);
+        Assert.Equal(4, assetValidationResult!.ValidAssets.Count);
+        Assert.Equal(2, assetValidationResult.InvalidAssets.Count);
+        Assert.Equal("John", assetValidationResult.ValidAssets[0].ImportedUser.FirstName);
+        Assert.Equal("Doe", assetValidationResult.ValidAssets[0].ImportedUser.LastName);
+        Assert.Equal("john@doe.com", assetValidationResult.ValidAssets[0].ImportedUser.Email);
+        Assert.Equal("+4799999999", assetValidationResult.ValidAssets[0].ImportedUser.PhoneNumber);
+
+        Assert.Equal("Invalid e-mail: mail@", assetValidationResult.InvalidAssets[0].Errors[0]);
+        Assert.Equal("Invalid Imei(s) 13311006051722 for mobile phone", assetValidationResult.InvalidAssets[1].Errors[0]);
     }
 
     [Fact]

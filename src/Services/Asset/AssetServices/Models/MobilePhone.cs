@@ -63,12 +63,10 @@ namespace AssetServices.Models
         public override bool ValidateAsset()
         {
             var validAsset = base.ValidateAsset();
-            if (!AssetValidatorUtility.ValidateImeis(string.Join(',', Imeis.Select(i => i.Imei))))
-            {
-                ErrorMsgList.Add("Invalid Imei for mobile phone");
-                validAsset = false;
-            }
-
+            var imeis = string.Join(',', Imeis.Select(i => i.Imei));
+            if (AssetValidatorUtility.ValidateImeis(imeis)) return validAsset;
+            ErrorMsgList.Add($"Invalid Imei(s) {imeis} for mobile phone");
+            validAsset = false;
             return validAsset;
         }
     }
