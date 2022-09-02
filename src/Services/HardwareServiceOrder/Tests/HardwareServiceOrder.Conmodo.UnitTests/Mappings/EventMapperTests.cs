@@ -116,7 +116,7 @@ namespace HardwareServiceOrder.Conmodo.UnitTests.Mappings
         ///     Provides the test-data (data-carrier) for the <see cref="FromConmodo(bool?, IEnumerable{Event}, int)"/> test.
         /// </summary>
         /// <returns> The testing data to be used by the caller. </returns>
-        private static IEnumerable<object[]> FromConmodo_Data()
+        public static IEnumerable<object[]> FromConmodo_Data()
         {
             // All test-items must have three parameters: 
             //      1) bool? replacementDeviceAdded
@@ -212,7 +212,7 @@ namespace HardwareServiceOrder.Conmodo.UnitTests.Mappings
         ///     Provides the test-data (data-carrier) for the <see cref="ContainsAnyCompletedEvents(bool?, IEnumerable{Event}, int)"/> test.
         /// </summary>
         /// <returns> The testing data to be used by the caller. </returns>
-        private static IEnumerable<object[]> ContainsAnyCompletedEvents1_Data()
+        public static IEnumerable<object[]> ContainsAnyCompletedEvents1_Data()
         {
             // All test-items must have three parameters: 
             //      1) IEnumerable<Event> historicalEvents
@@ -243,7 +243,7 @@ namespace HardwareServiceOrder.Conmodo.UnitTests.Mappings
         ///     Provides the test-data (data-carrier) for the <see cref="ContainsAnyCompletedEvents1(ExternalServiceEventDTO, bool)"/> test.
         /// </summary>
         /// <returns> The testing data to be used by the caller. </returns>
-        private static IEnumerable<object[]> ContainsAnyCompletedEvents2_Data()
+        public static IEnumerable<object[]> ContainsAnyCompletedEvents2_Data()
         {
             // All test-items must have three parameters: 
             //      1) IEnumerable<ExternalServiceEventDTO> historicalEvents
@@ -285,7 +285,7 @@ namespace HardwareServiceOrder.Conmodo.UnitTests.Mappings
         ///     Provides the test-data (data-carrier) for the <see cref="GetCompletedStatusFromEventHistory(bool?, IEnumerable{Event})"/> test.
         /// </summary>
         /// <returns> The testing data to be used by the caller. </returns>
-        private static IEnumerable<object[]> GetCompletedStatusFromEventHistory_Data()
+        public static IEnumerable<object[]> GetCompletedStatusFromEventHistory_Data()
         {
             // All test-items must have three parameters: 
             //      1) bool? replacementDeviceAdded
