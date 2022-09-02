@@ -76,7 +76,8 @@ namespace HardwareServiceOrder.API.Controllers
         /// <param name="serviceProviderId"> The <c><see cref="ServiceProvider"/></c> identifier. </param>
         /// <param name="includeApiCredentialIndicators"> When <c><see langword="true"/></c>, the <c>ApiCredentials</c> property is
         ///     loaded/included in the retrieved data. </param>
-        /// <param name="includeServiceOrderAddons">  </param>
+        /// <param name="includeServiceOrderAddons"> When <c><see langword="true"/></c>, the <c>ActiveServiceOrderAddons</c> property is
+        ///     loaded/included in the retrieved data. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet("service-provider/{serviceProviderId:int}")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Returned when the system failed to locate the requested <c>CustomerServiceProvider</c>.")]
