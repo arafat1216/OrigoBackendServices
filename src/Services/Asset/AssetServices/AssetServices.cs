@@ -432,9 +432,25 @@ public class AssetServices : IAssetServices
 
         assetLifecycle.RequestPendingBuyout(data.LasWorkingDay, data.CallerId);
 
-        //TODO: Email to User
-
         await _assetLifecycleRepository.SaveEntitiesAsync();
+
+        // Email to User
+        if (string.IsNullOrEmpty(data.Role) && data.Role != PredefinedRole.EndUser.ToString() && data.User != null)
+        {
+            var emailData = new Email.Model.ManagerOnBehalfBuyoutNotification()
+            {
+                FirstName = data.User.Name,
+                ManagerName = data.ManagerName,
+                AssetName = $"{assetLifecycle.Asset!.Brand} {assetLifecycle.Asset!.ProductName}",
+                AssetId = assetLifecycle.ExternalId.ToString(),
+                BuyoutDate = data.LasWorkingDay.ToShortDateString(),
+                BuyoutPrice = assetLifecycle.OffboardBuyoutPrice.ToString(),
+                Currency = data.Currency,
+                Recipient = data.User.Email
+            };
+            await _emailService.ManagerBuyoutEmailAsync(emailData, string.IsNullOrEmpty(data.User.PreferedLanguage) ? "en" : data.User.PreferedLanguage);
+        }
+
         return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
     }
 

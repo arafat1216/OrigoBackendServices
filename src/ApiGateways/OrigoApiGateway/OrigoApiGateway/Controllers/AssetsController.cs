@@ -1012,7 +1012,8 @@ namespace OrigoApiGateway.Controllers
                 if (data.AssetId == Guid.Empty)
                     return BadRequest("No asset selected.");
 
-                var updatedAssets = await _assetServices.PendingBuyoutDeviceAsync(organizationId, data.AssetId, role, department, callerId);
+                var currency = await _customerServices.GetCurrencyByCustomer(organizationId);
+                var updatedAssets = await _assetServices.PendingBuyoutDeviceAsync(organizationId, data.AssetId, role, department, currency, callerId);
                 if (updatedAssets == null)
                 {
                     return NotFound();

@@ -788,7 +788,7 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
-        public async Task<OrigoAsset> PendingBuyoutDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, List<Guid?> accessList, Guid callerId)
+        public async Task<OrigoAsset> PendingBuyoutDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, List<Guid?> accessList, string currency, Guid callerId)
         {
             try
             {
@@ -802,7 +802,9 @@ namespace OrigoApiGateway.Services
                 var buyoutDTO = new PendingBuyoutDeviceDTO()
                 {
                     AssetLifeCycleId = assetLifeCycleId,
-                    CallerId = callerId
+                    CallerId = callerId,
+                    Role = role,
+                    Currency = currency,
                 };
 
                 if(existingAsset.AssetHolderId == null)
@@ -825,6 +827,15 @@ namespace OrigoApiGateway.Services
                         throw new Exception("User does not have LastWorkingDay set!!!");
 
                     buyoutDTO.LasWorkingDay = user.LastWorkingDay.Value;
+                }
+
+                if(role != PredefinedRole.EndUser.ToString() && callerId != Guid.Empty)
+                {
+                    var manager = await _userServices.GetUserAsync(callerId);
+                    if (manager != null)
+                    {
+                        buyoutDTO.ManagerName = $"{manager.FirstName} {manager.LastName}";
+                    }
                 }
 
                 var requestUri = $"{_options.ApiPath}/customers/{customerId}/pending-buyout";

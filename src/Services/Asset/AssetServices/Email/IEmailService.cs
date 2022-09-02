@@ -47,6 +47,13 @@ namespace AssetServices.Email
         /// <param name="languageCode">Code of the language to be used for sending email.</param>
         /// <returns></returns>
         Task AssetBuyoutEmailAsync(AssetBuyoutNotification emailData, string languageCode);
+        /// <summary>
+        /// Asset Buyout Email when manager execute on behalf of the user
+        /// </summary>
+        /// <param name="emailData">Information that will be dynamically inserted into the email.</param>
+        /// <param name="languageCode">Code of the language to be used for sending email.</param>
+        /// <returns></returns>
+        Task ManagerBuyoutEmailAsync(ManagerOnBehalfBuyoutNotification emailData, string languageCode);
 
     }
 }

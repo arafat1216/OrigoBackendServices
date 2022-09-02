@@ -103,6 +103,11 @@ namespace AssetServices.Email
             var variables = _flatDictionaryProvider.Execute(emailData);
             await SendAsync(emailData.Subject, template, new List<string>() { emailData.Recipient }, variables);
         }
-
+        public async Task ManagerBuyoutEmailAsync(ManagerOnBehalfBuyoutNotification emailData, string languageCode)
+        {
+            var template = _resourceManager.GetString(ManagerOnBehalfBuyoutNotification.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var variables = _flatDictionaryProvider.Execute(emailData);
+            await SendAsync(emailData.Subject, template, new List<string>() { emailData.Recipient }, variables);
+        }
     }
 }

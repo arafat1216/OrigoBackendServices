@@ -1054,7 +1054,31 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.PendingBuyout);
         Assert.True(updatedAsset!.OffboardBuyoutPrice == 1510.41m);
     }
+    [Fact]
+    public async Task PendigBuyoutDeviceAsync_ManagerPerforming()
+    {
+        var postData = new PendingBuyoutDeviceDTO 
+        { 
+            AssetLifeCycleId = _ = _assetOne, 
+            LasWorkingDay = DateTime.UtcNow.AddMonths(-6), 
+            User = new EmailPersonAttributeDTO()
+            {
+                Email = "test@techstep.no",
+                Name = "System",
+                PreferedLanguage = "NO"
+            }, 
+            CallerId = _callerId,
+            Role = PredefinedRole.Manager.ToString()
+        };
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/pending-buyout";
+        _testOutputHelper.WriteLine(requestUri);
+        var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+        var updatedAsset = await responsePost.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
 
+        Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
+        Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.PendingBuyout);
+        Assert.True(updatedAsset!.OffboardBuyoutPrice == 1510.41m);
+    }
     [Fact]
     public async Task ConfirmBuyoutDeviceAsync()
     {
