@@ -222,12 +222,11 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 {
                     throw new InvalidPhoneNumberException(subscriptionOrder.MobileNumber, @operator?.Country ?? string.Empty, Guid.Parse("4945485a-a30b-11ec-b5fc-00155d8454bd"));
                 }
-
+                subscriptionOrder.NewSubscription = $"{subscriptionOrder.NewSubscription} ({privateStandardProduct.StandardPrivateSubscriptionProduct?.DataPackage})";
             }
             else
             {
                 throw new CustomerSettingsException($"Customer does not have private standard subscription product {subscriptionOrder.NewSubscription} for operator {subscriptionOrder.OperatorName}.", Guid.Parse("0e1fe424-a30b-11ec-acf0-00155d8454bd"));
-
             }
         }
         else
@@ -238,8 +237,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         if (!DateValidator.ValidDateForAction(DateOnly.FromDateTime(subscriptionOrder.OrderExecutionDate), DateOnly.FromDateTime(_today.GetNow()), _transferSubscriptionDateConfiguration.MinDaysForCurrentOperator))
             throw new ArgumentException(
                 $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workdays ahead or more is allowed.");
-
-
+                
         var order = _mapper.Map<TransferToPrivateSubscriptionOrder>(subscriptionOrder);
         order.OrganizationId = organizationId;
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(order);
