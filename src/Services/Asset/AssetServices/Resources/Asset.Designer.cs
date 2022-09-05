@@ -77,25 +77,34 @@ namespace AssetServices.Resources {
         
         /// <summary>
         ///   Looks up a localized string similar to Hello {{FirstName}}!
-        ///&lt;/br&gt;
+        ///
         ///In regards of your offboarding, {{ManagerName}} has chosen buyout on the following asset:
-        ///&lt;/br&gt;
+        ///
         ///### Asset:
         ///{{AssetName}} ({{AssetId})
-        ///&lt;/br&gt;
+        ///
         ///### Buyout Date:
         ///{{BuyoutDate}}
-        ///&lt;/br&gt;
+        ///
         ///### Buyout Price:
         ///{{BuyoutPrice}} {{Currency}}
-        ///&lt;/br&gt;
+        ///
         ///This means you will get a salary deduction of {{BuyoutPrice}} {{Currency}}, and the asset will be of your ownership.
-        ///&lt;/br&gt;
+        ///
         ///Important! Please remember to delete all company files on your last working day..
         /// </summary>
         internal static string ManagerOnBehalfBuyout {
             get {
                 return ResourceManager.GetString("ManagerOnBehalfBuyout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Asset Buyout.
+        /// </summary>
+        internal static string ManagerOnBehalfBuyout_Subject {
+            get {
+                return ResourceManager.GetString("ManagerOnBehalfBuyout_Subject", resourceCulture);
             }
         }
         

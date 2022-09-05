@@ -64,6 +64,13 @@ namespace AssetServices
         Task<AssetLifecycleDTO> MakeAssetExpiredAsync(Guid customerId, Guid assetId, Guid callerId);
         Task<AssetLifecycleDTO> MakeAssetExpiresSoonAsync(Guid customerId, Guid assetId, Guid callerId);
         Task SyncDepartmentForUserToAssetLifecycleAsync(Guid customerId, Guid userId, Guid? departmentId, Guid callerId);
+
+        /// <summary>
+        /// Making buyout request for Offboarding User on last working day.
+        /// </summary>
+        /// <param name="customerId">The id of the organization queried</param>
+        /// <param name="data">Asset details</param>
+        /// <returns>Asset</returns>
         Task<AssetLifecycleDTO> PendingBuyoutDeviceAsync(Guid customerId, PendingBuyoutDeviceDTO data);
         Task CancelUserOffboarding(Guid customerId, Guid userId, Guid callerId);
         AssetValidationResult ImportAssetsFromFile(Guid customerId, IFormFile file, bool validateOnly);

@@ -979,6 +979,12 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        /// <summary>
+        /// Requesting buyout to perform on last working day
+        /// </summary>
+        /// <param name="organizationId">Customer Identifier</param>
+        /// <param name="data">Buyout device details</param>
+        /// <returns>Updated Asset Details</returns>
         [Route("customers/{organizationId:guid}/pending-buyout")]
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]

@@ -43,7 +43,7 @@ namespace AssetServices.Email.Model
         /// <summary>
         /// Subject of the email
         /// </summary>
-        public string Subject { get; set; } = "Asset Buyout";
+        public const string Subject = "ManagerOnBehalfBuyout_Subject";
         public const string TemplateName = "ManagerOnBehalfBuyout";
     }
 }
