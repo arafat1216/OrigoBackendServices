@@ -66,7 +66,9 @@ namespace AssetServices
         Task SyncDepartmentForUserToAssetLifecycleAsync(Guid customerId, Guid userId, Guid? departmentId, Guid callerId);
 
         /// <summary>
-        /// Making buyout request for Offboarding User on last working day.
+        /// This method will be called only for users with Offboard status
+        /// Making a request to make an asset status 'pending-buyout' also notify user/managers
+        /// The buyout price is calculated based on the Last Working Day of the user when the buyout will be processed via background job
         /// </summary>
         /// <param name="customerId">The id of the organization queried</param>
         /// <param name="data">Asset details</param>

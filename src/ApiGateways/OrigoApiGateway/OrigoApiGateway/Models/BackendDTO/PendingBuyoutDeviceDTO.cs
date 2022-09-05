@@ -1,5 +1,8 @@
 ﻿namespace OrigoApiGateway.Models.BackendDTO
 {
+    /// <summary>
+    /// Asset Data when making pending-buyout request
+    /// </summary>
     public class PendingBuyoutDeviceDTO
     {
         /// <summary>

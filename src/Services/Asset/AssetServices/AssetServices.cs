@@ -425,12 +425,7 @@ public class AssetServices : IAssetServices
         return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
     }
 
-    /// <summary>
-    /// Making buyout request for Offboarding User on last working day.
-    /// </summary>
-    /// <param name="customerId">The id of the organization queried</param>
-    /// <param name="data">Asset details</param>
-    /// <returns>Asset</returns>
+    /// <inheritdoc/>
     public async Task<AssetLifecycleDTO> PendingBuyoutDeviceAsync(Guid customerId, PendingBuyoutDeviceDTO data)
     {
         var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null);

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace AssetServices.Email.Model
 {
+    /// <summary>
+    /// Email Data to notify User when Manager perform buyout on behalf
+    /// </summary>
     public class ManagerOnBehalfBuyoutNotification
     {
         /// <summary>
@@ -41,9 +44,12 @@ namespace AssetServices.Email.Model
         /// </summary>
         public string Recipient { get; set; }
         /// <summary>
-        /// Subject of the email
+        /// Name of the subject template in resource
         /// </summary>
-        public const string Subject = "ManagerOnBehalfBuyout_Subject";
+        public const string SubjectTemplatename = "ManagerOnBehalfBuyout_Subject";
+        /// <summary>
+        /// Name of the email body template in resource
+        /// </summary>
         public const string TemplateName = "ManagerOnBehalfBuyout";
     }
 }

@@ -103,16 +103,12 @@ namespace AssetServices.Email
             var variables = _flatDictionaryProvider.Execute(emailData);
             await SendAsync(emailData.Subject, template, new List<string>() { emailData.Recipient }, variables);
         }
-        /// <summary>
-        /// Notifying User that manager/admin performed buyout request on behalf of the user.
-        /// </summary>
-        /// <param name="emailData">Email Data that will be sent</param>
-        /// <param name="languageCode">Language of the user</param>
+        /// <inheritdoc/>
         public async Task ManagerBuyoutEmailAsync(ManagerOnBehalfBuyoutNotification emailData, string languageCode)
         {
             var template = _resourceManager.GetString(ManagerOnBehalfBuyoutNotification.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(emailData);
-            var subject = _resourceManager.GetString(ManagerOnBehalfBuyoutNotification.Subject, CultureInfo.CreateSpecificCulture(languageCode));
+            var subject = _resourceManager.GetString(ManagerOnBehalfBuyoutNotification.SubjectTemplatename, CultureInfo.CreateSpecificCulture(languageCode));
             await SendAsync(subject, template, new List<string>() { emailData.Recipient }, variables);
         }
     }
