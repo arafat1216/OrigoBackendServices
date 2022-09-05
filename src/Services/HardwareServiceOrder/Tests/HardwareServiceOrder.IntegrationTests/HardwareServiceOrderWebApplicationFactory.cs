@@ -4,7 +4,6 @@ using Common.Utilities;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Configuration;
 using HardwareServiceOrderServices.Email;
-using HardwareServiceOrderServices.Email.Models;
 using HardwareServiceOrderServices.Infrastructure;
 using HardwareServiceOrderServices.Mappings;
 using HardwareServiceOrderServices.Models;
@@ -20,8 +19,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Net;
@@ -52,7 +49,7 @@ namespace HardwareServiceOrder.IntegrationTests
                 var hardwareServiceOrderContext = scope.ServiceProvider.GetRequiredService<HardwareServiceOrderContext>();
                 hardwareServiceOrderContext.Database.EnsureCreated();
 
-                var hwServiceOrder = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
+                HardwareServiceOrderServices.Models.HardwareServiceOrder hwServiceOrder = new(
                     Guid.NewGuid(),
                     CUSTOMER_ONE_ID,
                     Guid.NewGuid(),
@@ -82,9 +79,9 @@ namespace HardwareServiceOrder.IntegrationTests
                         "city",
                         "NO"
                     ),
-                    3,
+                    (int)ServiceTypeEnum.SUR,
                     11,
-                    1,
+                    (int)ServiceProviderEnum.ConmodoNo,
                     "serviceProviderOrderId1",
                     "OrderID2",
                     "OrderExternalLink",
@@ -93,27 +90,41 @@ namespace HardwareServiceOrder.IntegrationTests
 
                 var dataProtector1 = scope.ServiceProvider.GetRequiredService<IDataProtectionProvider>().CreateProtector($"{CUSTOMER_ONE_ID}");
                 var dataProtector2 = scope.ServiceProvider.GetRequiredService<IDataProtectionProvider>().CreateProtector($"{CUSTOMER_TWO_ID}");
-                
+
                 var cmServiceProvider1 = new CustomerServiceProvider
                 {
                     CustomerId = CUSTOMER_ONE_ID,
                     ApiPassword = dataProtector1.Protect("52079706"),
                     ApiUserName = dataProtector1.Protect("d723hjdfhdfnsl23sdf"),
-                    ServiceProviderId = 1,
+                    ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo,
                     LastUpdateFetched = DateTime.Today,
+                    ApiCredentials = new List<ApiCredential>(),
+                    ActiveServiceOrderAddons = new List<ServiceOrderAddon>()
                 };
                 var cmServiceProvider2 = new CustomerServiceProvider
                 {
                     CustomerId = CUSTOMER_TWO_ID,
                     ApiPassword = dataProtector2.Protect("52079706"),
                     ApiUserName = dataProtector2.Protect("d723hjdfhdfnsl23sdf"),
-                    ServiceProviderId = 1,
+                    ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo,
                     LastUpdateFetched = DateTime.Today.AddDays(-1),
+                    ApiCredentials = new List<ApiCredential>(),
+                    ActiveServiceOrderAddons = new List<ServiceOrderAddon>()
                 };
 
                 hardwareServiceOrderContext.Add(hwServiceOrder);
                 hardwareServiceOrderContext.AddRange(cmServiceProvider1, cmServiceProvider2);
                 hardwareServiceOrderContext.SaveChanges();
+
+                ApiCredential apiCredential1 = new(cmServiceProvider1.Id, null, "Username", "Password");
+                ApiCredential apiCredential2 = new(cmServiceProvider1.Id, (int)ServiceTypeEnum.SUR, "Username", "Password");
+                ServiceOrderAddon? serviceOrderAddon1 = hardwareServiceOrderContext.ServiceOrderAddons.Find(1);
+
+                cmServiceProvider1.ApiCredentials.Add(apiCredential1);
+                cmServiceProvider1.ApiCredentials.Add(apiCredential2);
+                cmServiceProvider1.ActiveServiceOrderAddons.Add(serviceOrderAddon1);
+                hardwareServiceOrderContext.SaveChanges();
+
 
                 #region Mock/setup for IRepairProvider
                 // Conmodo
@@ -191,7 +202,7 @@ namespace HardwareServiceOrder.IntegrationTests
                     .Returns(serviceOrderStatusHandlerServiceMock.Object);
 
                 serviceOrderStatusHandlerServiceMock
-                    .Setup(m => 
+                    .Setup(m =>
                         m.HandleServiceOrderStatusAsync(It.IsAny<HardwareServiceOrderServices.Models.HardwareServiceOrder>(), It.IsAny<ExternalRepairOrderDTO>()));
 
                 services.AddScoped(s => statusHandlerFactoryMock.Object);

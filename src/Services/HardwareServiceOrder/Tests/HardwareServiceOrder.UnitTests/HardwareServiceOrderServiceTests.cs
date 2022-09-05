@@ -212,7 +212,7 @@ namespace HardwareServiceOrder.UnitTests
             await _dbContext.SaveChangesAsync();
 
             // Act
-            await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProvider(CUSTOMER_ONE_ID, (int)ServiceProviderEnum.ConmodoNo, addonIds.ToHashSet());
+            await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProviderAsync(CUSTOMER_ONE_ID, (int)ServiceProviderEnum.ConmodoNo, addonIds.ToHashSet());
 
             CustomerServiceProvider? customerServiceProvider = await _dbContext.CustomerServiceProviders
                                                                                .Include(e => e.ActiveServiceOrderAddons)
@@ -256,7 +256,7 @@ namespace HardwareServiceOrder.UnitTests
 
 
             // Assert
-            Assert.ThrowsAny<Exception>(_hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProvider(CUSTOMER_ONE_ID, (int)ServiceProviderEnum.ConmodoNo, addonIds.ToHashSet()).Wait);
+            Assert.ThrowsAny<Exception>(_hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProviderAsync(CUSTOMER_ONE_ID, (int)ServiceProviderEnum.ConmodoNo, addonIds.ToHashSet()).Wait);
         }
 
         [Theory()]
@@ -278,7 +278,7 @@ namespace HardwareServiceOrder.UnitTests
             _dbContext.Add(serviceOrderAddon4);
 
             await _dbContext.SaveChangesAsync();
-            await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProvider(CUSTOMER_ONE_ID, (int)ServiceProviderEnum.ConmodoNo, new HashSet<int>() { 500, 501, 502, 503 });
+            await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProviderAsync(CUSTOMER_ONE_ID, (int)ServiceProviderEnum.ConmodoNo, new HashSet<int>() { 500, 501, 502, 503 });
 
             CustomerServiceProvider? customerServiceProviderPreRemoval = await _dbContext.CustomerServiceProviders
                                                                                          .Include(e => e.ActiveServiceOrderAddons)
@@ -288,7 +288,7 @@ namespace HardwareServiceOrder.UnitTests
 
             // Act
 
-            await _hardwareServiceOrderService.RemoveServiceOrderAddonsFromCustomerServiceProvider(CUSTOMER_ONE_ID, (int)ServiceProviderEnum.ConmodoNo, addonIds.ToHashSet());
+            await _hardwareServiceOrderService.RemoveServiceOrderAddonsFromCustomerServiceProviderAsync(CUSTOMER_ONE_ID, (int)ServiceProviderEnum.ConmodoNo, addonIds.ToHashSet());
 
             CustomerServiceProvider? customerServiceProviderPostRemoval = await _dbContext.CustomerServiceProviders
                                                                                           .Include(e => e.ActiveServiceOrderAddons)

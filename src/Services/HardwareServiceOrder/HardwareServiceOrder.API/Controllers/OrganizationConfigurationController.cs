@@ -80,8 +80,9 @@ namespace HardwareServiceOrder.API.Controllers
         ///     loaded/included in the retrieved data. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet("service-provider/{serviceProviderId:int}")]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "Returned when the system failed to locate the requested <c>CustomerServiceProvider</c>.")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(ViewModels.CustomerServiceProvider))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Returned when the system failed to locate the requested <c>CustomerServiceProvider</c>.")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, null, typeof(ViewModels.CustomerServiceProvider))]
         public async Task<ActionResult> GetCustomerServiceProviderByIdAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromQuery] bool includeApiCredentialIndicators = false, [FromQuery] bool includeServiceOrderAddons = false)
         {
             try
@@ -115,6 +116,7 @@ namespace HardwareServiceOrder.API.Controllers
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpPut("service-provider/{serviceProviderId:int}/credentials")]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> AddOrUpdateApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromBody] NewApiCredential apiCredential)
         {
             try
@@ -162,13 +164,13 @@ namespace HardwareServiceOrder.API.Controllers
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpPatch("service-provider/{serviceProviderId:int}/addons")]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
-        [SwaggerResponse(StatusCodes.Status404NotFound)]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> AddServiceAddonAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> AddServiceOrderAddonsToCustomerServiceProviderAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
         {
             try
             {
-                await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProvider(organizationId, serviceProviderId, serviceOrderAddonIds);
+                await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProviderAsync(organizationId, serviceProviderId, serviceOrderAddonIds);
                 return NoContent();
             }
             catch (NotFoundException ex)
@@ -194,9 +196,10 @@ namespace HardwareServiceOrder.API.Controllers
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpDelete("service-provider/{serviceProviderId:int}/addons")]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult> RemoveServiceOrderAddonsFromCustomerServiceProvider([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> RemoveServiceOrderAddonsFromCustomerServiceProviderAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
         {
-            await _hardwareServiceOrderService.RemoveServiceOrderAddonsFromCustomerServiceProvider(organizationId, serviceProviderId,serviceOrderAddonIds);
+            await _hardwareServiceOrderService.RemoveServiceOrderAddonsFromCustomerServiceProviderAsync(organizationId, serviceProviderId,serviceOrderAddonIds);
             return NoContent();
         }
     }

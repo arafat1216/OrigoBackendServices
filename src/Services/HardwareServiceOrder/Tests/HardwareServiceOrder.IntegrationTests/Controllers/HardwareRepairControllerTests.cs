@@ -1,16 +1,13 @@
-﻿using Common.Interfaces;
+﻿using Common.Extensions;
+using Common.Interfaces;
 using HardwareServiceOrder.API.Controllers;
 using HardwareServiceOrder.API.ViewModels;
-using System;
+using HardwareServiceOrderServices.Models;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Xunit;
 using Xunit.Abstractions;
-using Common.Extensions;
-using System.Collections.Generic;
-using HardwareServiceOrderServices.Models;
 
 namespace HardwareServiceOrder.IntegrationTests.Controllers
 {

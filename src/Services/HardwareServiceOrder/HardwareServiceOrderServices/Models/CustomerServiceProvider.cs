@@ -30,8 +30,8 @@ namespace HardwareServiceOrderServices.Models
         {
             CustomerId = organizationId;
             ServiceProviderId = serviceProviderId;
-            ApiCredentials = apiCredentials;
-            ActiveServiceOrderAddons = serviceOrderAddons;
+            ApiCredentials = apiCredentials ?? new List<ApiCredential>();
+            ActiveServiceOrderAddons = serviceOrderAddons ?? new List<ServiceOrderAddon>();
         }
 
 
@@ -48,20 +48,20 @@ namespace HardwareServiceOrderServices.Models
         /// <summary>
         ///     Username for accessing providers APIs
         /// </summary>
-        [Obsolete]
+        [Obsolete("This is replaced with 'ApiCredentials' and will soon be removed.")]
         public string? ApiUserName { get; set; }
 
         /// <summary>
         ///     Password for accessing providers APIs
         /// </summary>
-        [Obsolete]
+        [Obsolete("This is replaced with 'ApiCredentials' and will soon be removed.")]
         public string? ApiPassword { get; set; }
 
 
         /// <summary>
         ///     Retrieve updates that has been made after this timestamp. 
         /// </summary>
-        [Obsolete]
+        [Obsolete("This is replaced with 'ApiCredentials' and will soon be removed.")]
         public DateTimeOffset LastUpdateFetched { get; set; }
 
 

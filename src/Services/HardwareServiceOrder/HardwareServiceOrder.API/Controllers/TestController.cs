@@ -89,7 +89,7 @@ namespace HardwareServiceOrder.API.Controllers
                 1,2,3,0
             };
 
-            await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProvider(Guid.Empty, 1, addonIds);
+            await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProviderAsync(Guid.Empty, 1, addonIds);
 
             return Ok();
         }

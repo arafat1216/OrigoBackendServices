@@ -126,7 +126,7 @@ namespace HardwareServiceOrderServices
 
 
         /// <summary>
-        ///     Adds new <see cref="ServiceOrderAddon"/> to a <see cref="CustomerServiceProvider"/>.
+        ///     Adds new <see cref="ServiceOrderAddon"/>s to a <see cref="CustomerServiceProvider"/>.
         /// </summary>
         /// <param name="organizationId"> The customer identifier. </param>
         /// <param name="serviceProviderId"> The service-provider identifier. </param>
@@ -138,9 +138,16 @@ namespace HardwareServiceOrderServices
         ///     Thrown if one or more of the values is invalid. For example when trying to
         ///     add a <see cref="ServiceOrderAddon"/> that belongs to another <see cref="ServiceProvider"/>. 
         /// </exception>
-        Task AddServiceOrderAddonsToCustomerServiceProvider(Guid organizationId, int serviceProviderId, ISet<int> newServiceOrderAddonIds);
+        Task AddServiceOrderAddonsToCustomerServiceProviderAsync(Guid organizationId, int serviceProviderId, ISet<int> newServiceOrderAddonIds);
 
-
-        Task RemoveServiceOrderAddonsFromCustomerServiceProvider(Guid organizationId, int serviceProviderId, ISet<int> removedServiceOrderAddonIds);
+        /// <summary>
+        ///     Removes <see cref="ServiceOrderAddon"/>s from a <see cref="CustomerServiceProvider"/>.
+        /// </summary>
+        /// <param name="organizationId"> The customer identifier. </param>
+        /// <param name="serviceProviderId"> The service-provider identifier. </param>
+        /// <param name="removedServiceOrderAddonIds"> A list of containing the identifiers for all <see cref="ServiceOrderAddon"/> 
+        ///     items that should be removed. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        Task RemoveServiceOrderAddonsFromCustomerServiceProviderAsync(Guid organizationId, int serviceProviderId, ISet<int> removedServiceOrderAddonIds);
     }
 }

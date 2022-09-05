@@ -340,7 +340,7 @@ namespace HardwareServiceOrderServices
 
 
         /// <inheritdoc/>
-        public async Task AddServiceOrderAddonsToCustomerServiceProvider(Guid organizationId, int serviceProviderId, ISet<int> newServiceOrderAddonIds)
+        public async Task AddServiceOrderAddonsToCustomerServiceProviderAsync(Guid organizationId, int serviceProviderId, ISet<int> newServiceOrderAddonIds)
         {
             CustomerServiceProvider? customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, false, true);
             var retrievedServiceOrderAddons = await _hardwareServiceOrderRepository.GetByIdAsync<ServiceOrderAddon>(newServiceOrderAddonIds);
@@ -385,7 +385,7 @@ namespace HardwareServiceOrderServices
 
 
         /// <inheritdoc/>
-        public async Task RemoveServiceOrderAddonsFromCustomerServiceProvider(Guid organizationId, int serviceProviderId, ISet<int> removedServiceOrderAddonIds)
+        public async Task RemoveServiceOrderAddonsFromCustomerServiceProviderAsync(Guid organizationId, int serviceProviderId, ISet<int> removedServiceOrderAddonIds)
         {
             CustomerServiceProvider? customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, false, true);
 

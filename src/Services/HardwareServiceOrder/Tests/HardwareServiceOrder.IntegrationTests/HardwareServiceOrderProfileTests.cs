@@ -3,9 +3,6 @@ using HardwareServiceOrder.API.Mappings;
 using HardwareServiceOrder.API.ViewModels;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
-using System;
-using System.Collections.Generic;
-using Xunit;
 
 namespace HardwareServiceOrder.IntegrationTests
 {
