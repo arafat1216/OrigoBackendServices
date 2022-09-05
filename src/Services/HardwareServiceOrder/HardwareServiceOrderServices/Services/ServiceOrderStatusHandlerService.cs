@@ -1,5 +1,9 @@
-﻿using HardwareServiceOrderServices.Models;
+﻿using System.Text.Json;
+using HardwareServiceOrderServices.Configuration;
+using HardwareServiceOrderServices.Email;
+using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
+using Microsoft.Extensions.Options;
 
 namespace HardwareServiceOrderServices.Services
 {
@@ -9,19 +13,40 @@ namespace HardwareServiceOrderServices.Services
     public abstract class ServiceOrderStatusHandlerService
     {
         /// <summary>
-        /// Repository for managing hardware service order.
+        /// Repository for managing hardware service order. <see cref="IHardwareServiceOrderRepository"/>
         /// </summary>
         protected readonly IHardwareServiceOrderRepository _hardwareServiceOrderRepository;
-
         /// <summary>
-        /// This constructor must be overridden by child classes
+        /// This Service is used to connect to Asset-microservice <see cref="IAssetService"/> which updates the status of an Asset.
         /// </summary>
-        /// <param name="hardwareServiceOrderRepository"></param>
-        protected ServiceOrderStatusHandlerService(IHardwareServiceOrderRepository hardwareServiceOrderRepository)
+        protected readonly IAssetService _assetService;
+        /// <summary>
+        /// Application configuration
+        /// </summary>
+        protected readonly OrigoConfiguration _origoConfiguration;
+        /// <summary>
+        /// Service to manage Email related functionalities <see cref="IEmailService"/>
+        /// </summary>
+        protected readonly IEmailService _emailService;
+ 
+        /// <summary>
+        ///     Initializes a new <see cref="StatusHandlerFactory"/> class utilizing injections.
+        /// </summary>
+        /// <param name="options"> The injected <see cref="IOptions{TOptions}"/> interface. </param>
+        /// <param name="hardwareServiceOrderRepository"> The injected <see cref="IHardwareServiceOrderRepository"/> interface. </param>
+        /// <param name="assetService"> The injected <see cref="IAssetService"/> interface. </param>
+        /// <param name="emailService"> The injected <see cref="IEmailService"/> interface. </param>
+        protected ServiceOrderStatusHandlerService(IOptions<OrigoConfiguration> options,
+            IHardwareServiceOrderRepository hardwareServiceOrderRepository,
+            IAssetService assetService,
+            IEmailService emailService)
         {
+            _origoConfiguration = options.Value;
             _hardwareServiceOrderRepository = hardwareServiceOrderRepository;
+            _assetService = assetService;
+            _emailService = emailService;
         }
-
+        
         /// <summary>
         /// Constructor when child does not need <see cref="_hardwareServiceOrderRepository"/>
         /// </summary>
@@ -132,6 +157,18 @@ namespace HardwareServiceOrderServices.Services
         /// <param name="newImeis"> If the device is replaced, a list containing the new asset's IMEI numbers. </param>
         /// <param name="newSerialNumber"> If the device is replaced, the asset's new serial-number. </param>
         /// <returns> The awaitable task. </returns>
-        protected abstract Task HandleServiceOrderUnknownStatusAsync(Guid orderId, ServiceStatusEnum newStatus, ISet<string>? newImeis, string? newSerialNumber);
+        protected virtual async Task HandleServiceOrderUnknownStatusAsync(Guid orderId, ServiceStatusEnum newStatus, ISet<string> newImeis, string? newSerialNumber)
+        {
+            var order = await _hardwareServiceOrderRepository.UpdateServiceOrderStatusAsync(orderId, ServiceStatusEnum.Unknown);
+
+            // Handle email sending
+            var parameters = new Dictionary<string, string>
+            {
+                { "Order", JsonSerializer.Serialize(order) },
+                { "OrderLink", string.Format($"{_origoConfiguration.BaseUrl}/{_origoConfiguration.OrderPath}", order.CustomerId, order.ExternalId) }
+            };
+
+            await _emailService.SendEmailAsync(_origoConfiguration.DeveloperEmail, $"{ServiceStatusEnum.Unknown}_Subject", $"{ServiceStatusEnum.Unknown}_Body", parameters);
+        }
     }
 }

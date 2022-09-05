@@ -449,5 +449,15 @@ namespace HardwareServiceOrderServices.Infrastructure
             await _hardwareServiceOrderContext.SaveChangesAsync();
             return apiCredential;
         }
+        
+        /// <inheritdoc/>
+        public async Task UpdateApiCredentialLastUpdateFetchedAsync(ApiCredential apiCredential, DateTimeOffset lastUpdateFetched)
+        {
+            apiCredential.LastUpdateFetched = lastUpdateFetched;
+
+            _hardwareServiceOrderContext.Update(apiCredential);
+
+            await _hardwareServiceOrderContext.SaveChangesAsync();
+        }
     }
 }

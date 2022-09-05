@@ -28,16 +28,12 @@ namespace HardwareServiceOrderServices.Services
 
 
         /// <inheritdoc/>
-        public async Task UpdateAssetLifeCycleStatusAsync(Guid assetLifecycleId, ServiceStatusEnum newServiceStatus, ISet<string>? newImeis, string? newSerialNumber)
+        public async Task UpdateAssetLifeCycleStatusForSURAsync(Guid assetLifecycleId, ServiceStatusEnum newServiceStatus, ISet<string>? newImeis, string? newSerialNumber)
         {
             HttpResponseMessage? result = null;
 
             switch (newServiceStatus)
             {
-                // No assigned value: Throw an error!
-                case ServiceStatusEnum.Null:
-                    throw new ArgumentNullException(nameof(newServiceStatus), "The service status was not provided.");
-
                 // Service created/updated
                 case ServiceStatusEnum.Registered:
                 case ServiceStatusEnum.RegisteredInTransit:
@@ -69,8 +65,39 @@ namespace HardwareServiceOrderServices.Services
                     result = await _httpClient.PutAsJsonAsync($"{_config.ApiPath}/{assetLifecycleId}/repair-completed", new { CallerId = Guid.Empty.SystemUserId(), Discarded = true });
                     break;
 
+                // No assigned value: Throw an error!
+                case ServiceStatusEnum.Null:
+                    throw new ArgumentNullException(nameof(newServiceStatus), "The service status was not provided.");
+
                 // Default & misc. unsupported actions: Throws an error!
                 case ServiceStatusEnum.CompletedCredited:
+                default:
+                    throw new NotImplementedException("This is currently not supported.");
+            }
+
+            if (result is not null && !result.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException("The external API-request returned a error-code. The asset lifecycle-status was not updated!");
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task UpdateAssetLifeCycleStatusForRemarketingAsync(Guid assetLifecycleId, ServiceStatusEnum newServiceStatus, ISet<string>? newImeis, string? newSerialNumber)
+        {
+            HttpResponseMessage? result = null;
+
+            switch (newServiceStatus)
+            {
+                case ServiceStatusEnum.Canceled:
+                    result = await _httpClient.PutAsJsonAsync($"{_config.ApiPath}/{assetLifecycleId}/cancel-return", new { CallerId = Guid.Empty.SystemUserId() });
+                    break;
+
+                case ServiceStatusEnum.CompletedDiscarded:
+                    result = await _httpClient.PutAsJsonAsync($"{_config.ApiPath}/{assetLifecycleId}/recycle", new { CallerId = Guid.Empty.SystemUserId(), AssetLifecycleStatus = AssetLifecycleStatus.Recycled });
+                    break;
+
+                case ServiceStatusEnum.Null:
+                    throw new ArgumentNullException(nameof(newServiceStatus), "The service status was not provided.");
                 default:
                     throw new NotImplementedException("This is currently not supported.");
             }

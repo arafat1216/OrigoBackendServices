@@ -67,12 +67,30 @@ namespace HardwareServiceOrder.UnitTests
                 ServiceProviderId = 1,
                 LastUpdateFetched = DateTime.Today.AddDays(-1),
             };
+            
+            var cmServiceProvider3 = new CustomerServiceProvider
+            {
+                CustomerId = CUSTOMER_THREE_ID,
+                ApiPassword = "",
+                ApiUserName = "",
+                ServiceProviderId = 1,
+                LastUpdateFetched = DateTime.Today.AddDays(-1),
+            };
 
             context.Add(order1);
             context.Add(order2);
             context.Add(order3);
             context.Add(order4);
-            context.AddRange(cmServiceProvider1, cmServiceProvider2);
+            context.AddRange(cmServiceProvider1, cmServiceProvider2, cmServiceProvider3);
+
+            context.SaveChanges();
+
+            var apiCredentials1 = new ApiCredential(cmServiceProvider1.Id, (int)ServiceTypeEnum.SUR, "", "");
+            var apiCredentials2 = new ApiCredential(cmServiceProvider1.Id, (int)ServiceTypeEnum.Remarketing, "", "");
+            var apiCredentials3 = new ApiCredential(cmServiceProvider2.Id, (int)ServiceTypeEnum.SUR, "", "");
+            var apiCredentials4 = new ApiCredential(cmServiceProvider2.Id, (int)ServiceTypeEnum.Remarketing, "", "");
+            
+            context.AddRange(apiCredentials1, apiCredentials2, apiCredentials3, apiCredentials4);
 
             context.SaveChanges();
         }

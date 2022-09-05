@@ -14,14 +14,11 @@ using Xunit;
 
 namespace HardwareServiceOrder.UnitTests
 {
-    /// <summary>
-    /// Testing all the service-order status handler related functionalities for service-type "SUR". <see cref="ServiceOrderStatusHandlerServiceForSUR"/> 
-    /// </summary>
-    public class ServiceOrderStatusHandlerServiceForSURTests
+    public class ServiceOrderStatusHandlerServiceForRemarketingTests
     {
         private readonly IOptions<OrigoConfiguration> _options;
-
-        public ServiceOrderStatusHandlerServiceForSURTests()
+        
+        public ServiceOrderStatusHandlerServiceForRemarketingTests()
         {
             _options = Options.Create(new OrigoConfiguration
             {
@@ -30,7 +27,7 @@ namespace HardwareServiceOrder.UnitTests
                 OrderPath = "my-business/{0}/hardware-repair/{1}/view"
             });
         }
-
+        
         private HardwareServiceOrderServices.Models.HardwareServiceOrder CreateHardwareServiceOrder(ServiceStatusEnum statusEnum)
         {
             var hardwareServiceOrder = new HardwareServiceOrderServices.Models.HardwareServiceOrder(
@@ -62,7 +59,7 @@ namespace HardwareServiceOrder.UnitTests
                     postalCode: "[PostalCode]",
                     city: "[City]",
                     country: "[Country]"),
-                serviceTypeId: (int)ServiceTypeEnum.SUR,
+                serviceTypeId: (int)ServiceTypeEnum.Remarketing,
                 statusId: (int)statusEnum,
                 serviceProviderId: 1,
                 serviceProviderOrderId1: "[ServiceProviderOrderId1]",
@@ -72,7 +69,7 @@ namespace HardwareServiceOrder.UnitTests
             );
             return hardwareServiceOrder;
         }
-
+        
         private ExternalRepairOrderDTO CreateExternalRepairOrderDTO(ServiceStatusEnum statusEnum)
         {
             var externalRepairOrderDto = new ExternalRepairOrderDTO(
@@ -100,20 +97,10 @@ namespace HardwareServiceOrder.UnitTests
             );
             return externalRepairOrderDto;
         }
-
+        
         [Theory]
         [InlineData(ServiceStatusEnum.Registered, ServiceStatusEnum.Canceled)]
-        [InlineData(ServiceStatusEnum.Registered, ServiceStatusEnum.CompletedNotRepaired)]
-        [InlineData(ServiceStatusEnum.Registered, ServiceStatusEnum.CompletedRepaired)]
-        [InlineData(ServiceStatusEnum.Registered, ServiceStatusEnum.CompletedRepairedOnWarranty)]
-        [InlineData(ServiceStatusEnum.Registered, ServiceStatusEnum.CompletedCredited)]
         [InlineData(ServiceStatusEnum.Registered, ServiceStatusEnum.CompletedDiscarded)]
-        [InlineData(ServiceStatusEnum.Registered, ServiceStatusEnum.Ongoing)]
-        [InlineData(ServiceStatusEnum.Registered, ServiceStatusEnum.OngoingUserActionNeeded)]
-        [InlineData(ServiceStatusEnum.Registered, ServiceStatusEnum.OngoingInTransit)]
-        [InlineData(ServiceStatusEnum.Registered, ServiceStatusEnum.OngoingReadyForPickup)]
-        [InlineData(ServiceStatusEnum.Registered, ServiceStatusEnum.RegisteredInTransit)]
-        [InlineData(ServiceStatusEnum.Registered, ServiceStatusEnum.RegisteredUserActionNeeded)]
         public async Task UpdateOrderStatus_WHEN_VALID_STATUS_UPDATED(ServiceStatusEnum currentStatus, ServiceStatusEnum newStatus)
         {
             //Arrange
@@ -127,7 +114,7 @@ namespace HardwareServiceOrder.UnitTests
 
             var assetMock = new Mock<IAssetService>();
             assetMock.Setup(m => 
-                m.UpdateAssetLifeCycleStatusForSURAsync(
+                m.UpdateAssetLifeCycleStatusForRemarketingAsync(
                     hardwareServiceOrder.AssetLifecycleId, 
                     newStatus, 
                     new HashSet<string>() { externalRepairOrder.ReturnedAsset.Imei }, 
@@ -147,7 +134,7 @@ namespace HardwareServiceOrder.UnitTests
                 { "OrderLink", string.Format($"{_options.Value.BaseUrl}/{_options.Value.OrderPath}", hardwareServiceOrder.CustomerId, hardwareServiceOrder.ExternalId) }
             };
 
-            var sut = new ServiceOrderStatusHandlerServiceForSUR(options: _options, hwRepositoryMock.Object, assetMock.Object, emailMock.Object);
+            var sut = new ServiceOrderStatusHandlerServiceForRemarketing(options: _options, hwRepositoryMock.Object, assetMock.Object, emailMock.Object);
 
             // ACT
             await sut.HandleServiceOrderStatusAsync(hardwareServiceOrder, externalRepairOrder);
@@ -158,7 +145,7 @@ namespace HardwareServiceOrder.UnitTests
                 Times.Once);
 
             assetMock.Verify(m => 
-                    m.UpdateAssetLifeCycleStatusForSURAsync(
+                    m.UpdateAssetLifeCycleStatusForRemarketingAsync(
                         hardwareServiceOrder.AssetLifecycleId, 
                         newStatus,
                         new HashSet<string>() { externalRepairOrder.ReturnedAsset.Imei }, 
@@ -176,8 +163,7 @@ namespace HardwareServiceOrder.UnitTests
         }
 
         [Theory]
-        [InlineData(ServiceStatusEnum.Registered, ServiceStatusEnum.Registered)]
-        [InlineData(ServiceStatusEnum.Ongoing, ServiceStatusEnum.Ongoing)]
+        [InlineData(ServiceStatusEnum.CompletedDiscarded, ServiceStatusEnum.CompletedDiscarded)]
         [InlineData(ServiceStatusEnum.Canceled, ServiceStatusEnum.Canceled)]
         public async Task UpdateOrderStatus_WHEN_VALID_STATUS_NOT_UPDATED(ServiceStatusEnum currentStatus, ServiceStatusEnum newStatus)
         {
@@ -192,7 +178,7 @@ namespace HardwareServiceOrder.UnitTests
 
             var assetMock = new Mock<IAssetService>();
             assetMock.Setup(m => 
-                m.UpdateAssetLifeCycleStatusForSURAsync(
+                m.UpdateAssetLifeCycleStatusForRemarketingAsync(
                     hardwareServiceOrder.AssetLifecycleId, 
                     newStatus, 
                     new HashSet<string>() { externalRepairOrder.ReturnedAsset.Imei }, 
@@ -212,7 +198,7 @@ namespace HardwareServiceOrder.UnitTests
                 { "OrderLink", string.Format($"{_options.Value.BaseUrl}/{_options.Value.OrderPath}", hardwareServiceOrder.CustomerId, hardwareServiceOrder.ExternalId) }
             };
 
-            var sut = new ServiceOrderStatusHandlerServiceForSUR(options: _options, hwRepositoryMock.Object, assetMock.Object, emailMock.Object);
+            var sut = new ServiceOrderStatusHandlerServiceForRemarketing(options: _options, hwRepositoryMock.Object, assetMock.Object, emailMock.Object);
 
             // ACT
             await sut.HandleServiceOrderStatusAsync(hardwareServiceOrder, externalRepairOrder);
@@ -223,7 +209,7 @@ namespace HardwareServiceOrder.UnitTests
                 Times.Never);
 
             assetMock.Verify(m => 
-                    m.UpdateAssetLifeCycleStatusForSURAsync(
+                    m.UpdateAssetLifeCycleStatusForRemarketingAsync(
                         hardwareServiceOrder.AssetLifecycleId, 
                         newStatus,
                         new HashSet<string>() { externalRepairOrder.ReturnedAsset.Imei }, 
@@ -241,7 +227,7 @@ namespace HardwareServiceOrder.UnitTests
         }
 
         [Theory]
-        [InlineData(ServiceStatusEnum.Registered, ServiceStatusEnum.Unknown)]
+        [InlineData(ServiceStatusEnum.Canceled, ServiceStatusEnum.Unknown)]
         public async Task UpdateOrderStatus_FOR_UNKNOWN_STATUS(ServiceStatusEnum currentStatus, ServiceStatusEnum newStatus)
         {
             //Arrange
@@ -255,7 +241,7 @@ namespace HardwareServiceOrder.UnitTests
 
             var assetMock = new Mock<IAssetService>();
             assetMock.Setup(m => 
-                m.UpdateAssetLifeCycleStatusForSURAsync(
+                m.UpdateAssetLifeCycleStatusForRemarketingAsync(
                     hardwareServiceOrder.AssetLifecycleId, 
                     newStatus, 
                     new HashSet<string>() { externalRepairOrder.ReturnedAsset.Imei }, 
@@ -275,7 +261,7 @@ namespace HardwareServiceOrder.UnitTests
                 { "OrderLink", string.Format($"{_options.Value.BaseUrl}/{_options.Value.OrderPath}", hardwareServiceOrder.CustomerId, hardwareServiceOrder.ExternalId) }
             };
 
-            var sut = new ServiceOrderStatusHandlerServiceForSUR(options: _options, hwRepositoryMock.Object, assetMock.Object, emailMock.Object);
+            var sut = new ServiceOrderStatusHandlerServiceForRemarketing(options: _options, hwRepositoryMock.Object, assetMock.Object, emailMock.Object);
 
             // ACT
             await sut.HandleServiceOrderStatusAsync(hardwareServiceOrder, externalRepairOrder);
@@ -286,7 +272,7 @@ namespace HardwareServiceOrder.UnitTests
                 Times.Once);
 
             assetMock.Verify(m => 
-                    m.UpdateAssetLifeCycleStatusForSURAsync(
+                    m.UpdateAssetLifeCycleStatusForRemarketingAsync(
                         hardwareServiceOrder.AssetLifecycleId, 
                         newStatus,
                         new HashSet<string>() { externalRepairOrder.ReturnedAsset.Imei }, 
@@ -304,8 +290,8 @@ namespace HardwareServiceOrder.UnitTests
         }
         
         [Theory]
-        [InlineData(ServiceStatusEnum.Registered, ServiceStatusEnum.Null)]
-        [InlineData(ServiceStatusEnum.Registered, (ServiceStatusEnum)100)]
+        [InlineData(ServiceStatusEnum.CompletedDiscarded, ServiceStatusEnum.Null)]
+        [InlineData(ServiceStatusEnum.CompletedDiscarded, (ServiceStatusEnum)100)]
         public async Task UpdateOrderStatus_FOR_INVALID_STATUS(ServiceStatusEnum currentStatus, ServiceStatusEnum newStatus)
         {
             //Arrange
@@ -319,7 +305,7 @@ namespace HardwareServiceOrder.UnitTests
 
             var assetMock = new Mock<IAssetService>();
             assetMock.Setup(m => 
-                m.UpdateAssetLifeCycleStatusForSURAsync(
+                m.UpdateAssetLifeCycleStatusForRemarketingAsync(
                     hardwareServiceOrder.AssetLifecycleId, 
                     newStatus, 
                     new HashSet<string>() { externalRepairOrder.ReturnedAsset.Imei }, 
@@ -334,7 +320,7 @@ namespace HardwareServiceOrder.UnitTests
                     It.IsAny<Dictionary<string, string>>(), 
                     It.IsAny<string>()));
 
-            var sut = new ServiceOrderStatusHandlerServiceForSUR(options: _options, hwRepositoryMock.Object, assetMock.Object, emailMock.Object);
+            var sut = new ServiceOrderStatusHandlerServiceForRemarketing(options: _options, hwRepositoryMock.Object, assetMock.Object, emailMock.Object);
             
             // ACT
             Func<Task> act = () => sut.HandleServiceOrderStatusAsync(hardwareServiceOrder, externalRepairOrder);
@@ -342,6 +328,5 @@ namespace HardwareServiceOrder.UnitTests
             // ASSERT
             await Assert.ThrowsAsync<ArgumentException>(act);
         }
-
     }
 }

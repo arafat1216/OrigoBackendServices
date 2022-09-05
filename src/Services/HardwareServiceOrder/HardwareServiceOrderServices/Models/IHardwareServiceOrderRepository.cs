@@ -275,6 +275,14 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="apiPassword"> The new API password. </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the new or updated <see cref="ApiCredential"/>. </returns>
         Task<ApiCredential> AddOrUpdateApiCredentialAsync(int customerServiceProviderId, int? serviceTypeId, string? apiUsername, string? apiPassword);
+        
+        /// <summary>
+        ///     Update <see cref="Models.ApiCredential"/>'s LastUpdateFetched property.
+        /// </summary>
+        /// <param name="apiCredential">Existing ApiCredentials <see cref="Models.ApiCredential"/></param>
+        /// <param name="lastUpdateFetched"> Last time the orders fetched from the third party service provider</param>
+        /// <returns> A task that represents the asynchronous operation. The task result contains the new or updated <see cref="ApiCredential"/>. </returns>
+        Task UpdateApiCredentialLastUpdateFetchedAsync(ApiCredential apiCredential, DateTimeOffset lastUpdateFetched);
 
     }
 }

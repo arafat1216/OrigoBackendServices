@@ -207,41 +207,49 @@ namespace HardwareServiceOrderServices
         /// <inheritdoc/>
         public async Task UpdateOrderStatusAsync()
         {
-            var customerProviders = await _hardwareServiceOrderRepository.GetAllCustomerProvidersAsync();
+            var customerServiceProviders = await _hardwareServiceOrderRepository.GetCustomerServiceProvidersByFilterAsync(null, true, false, true);
 
-            foreach (var customerProvider in customerProviders)
+            foreach (var customerServiceProvider in customerServiceProviders)
             {
-                string? decryptedApiUserName = await GetServicerProvidersUsernameAsync(customerProvider.CustomerId, customerProvider.ServiceProviderId);
-                var provider = await _providerFactory.GetRepairProviderAsync(customerProvider.ServiceProviderId, decryptedApiUserName, customerProvider.ApiPassword);
-
-                var updateStarted = DateTimeOffset.UtcNow;
-
-                var updatedOrders = await provider.GetUpdatedRepairOrdersAsync(customerProvider.LastUpdateFetched);
-
-                foreach (var order in updatedOrders)
+                var apiCredentials = customerServiceProvider?.ApiCredentials;
+                if (apiCredentials is null || apiCredentials.Count == 0)
+                    continue;
+                foreach (var apiCredential in apiCredentials)
                 {
-                    if (!order.ExternalServiceEvents.Any())
-                        continue;
+                    var decryptedApiUserName = DecryptUsername(customerServiceProvider.CustomerId, apiCredential?.ApiUsername);
+                    var provider = await _providerFactory.GetRepairProviderAsync(customerServiceProvider.ServiceProviderId, decryptedApiUserName, apiCredential?.ApiPassword);
 
-                    var lastOrderStatus = order.ExternalServiceEvents.OrderByDescending(m => m.Timestamp).FirstOrDefault()?.ServiceStatusId;
+                    var updateStarted = DateTimeOffset.UtcNow;
 
-                    var origoOrder = await _hardwareServiceOrderRepository.GetOrderByServiceProviderOrderIdAsync(order.ServiceProviderOrderId1);
+                    // Todo: Need to think about a default "apiCredential.LastUpdateFetched"
+                    var updatedExternalOrders = await provider.GetUpdatedRepairOrdersAsync(apiCredential?.LastUpdateFetched ?? updateStarted);
+                    
+                    foreach (var externalOrder in updatedExternalOrders)
+                    {
+                        if (!externalOrder.ExternalServiceEvents.Any())
+                            continue;
 
-                    if (origoOrder == null || origoOrder.StatusId == lastOrderStatus)
-                        continue;
+                        var lastOrderStatus = externalOrder.ExternalServiceEvents.OrderByDescending(m => m.Timestamp).FirstOrDefault()?.ServiceStatusId;
 
-                    // TODO: Fix the new imei list in the DTO
-                    var statusHandler = _statusHandlerFactory.GetStatusHandler(ServiceTypeEnum.SUR);
-                    await statusHandler.HandleServiceOrderStatusAsync(origoOrder, order);
+                        // Todo: GetOrderByServiceProviderOrderIdAsync will be replaced by which method
+                        var origoOrder = await _hardwareServiceOrderRepository.GetOrderByServiceProviderOrderIdAsync(externalOrder.ServiceProviderOrderId1);
 
-                    //Add events in the log
-                    var serviceEvents = _mapper.Map<IEnumerable<ServiceEvent>>(order.ExternalServiceEvents);
+                        if (origoOrder == null || origoOrder.StatusId == lastOrderStatus)
+                            continue;
 
-                    await _hardwareServiceOrderRepository.UpdateServiceEventsAsync(origoOrder, serviceEvents);
+                        // TODO: Fix the new imei list in the DTO
+                        var statusHandler = _statusHandlerFactory.GetStatusHandler((ServiceTypeEnum)origoOrder.ServiceTypeId);
+                        await statusHandler.HandleServiceOrderStatusAsync(origoOrder, externalOrder);
+
+                        //Add events in the log
+                        var serviceEvents = _mapper.Map<IEnumerable<ServiceEvent>>(externalOrder.ExternalServiceEvents);
+
+                        await _hardwareServiceOrderRepository.UpdateServiceEventsAsync(origoOrder, serviceEvents);
+                    }
+                    
+                    await _hardwareServiceOrderRepository.UpdateApiCredentialLastUpdateFetchedAsync(apiCredential!, updateStarted);
                 }
-
-                await _hardwareServiceOrderRepository.UpdateCustomerProviderLastUpdateFetchedAsync(customerProvider, updateStarted);
-            }
+            } 
         }
 
 
@@ -400,6 +408,18 @@ namespace HardwareServiceOrderServices
             }
 
             await _hardwareServiceOrderRepository.UpdateAndSaveAsync(customerServiceProvider);
+        }
+        
+        private string DecryptUsername(Guid customerId, string apiUserName)
+        {
+            if (string.IsNullOrEmpty(apiUserName))
+                return apiUserName;
+
+            var protector = _dataProtectionProvider.CreateProtector($"{customerId}");
+
+            var decryptedApiUserName = protector.Unprotect(apiUserName);
+
+            return decryptedApiUserName;
         }
     }
 }

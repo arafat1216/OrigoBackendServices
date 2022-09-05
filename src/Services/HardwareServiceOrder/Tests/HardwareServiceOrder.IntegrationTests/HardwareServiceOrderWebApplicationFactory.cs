@@ -116,8 +116,8 @@ namespace HardwareServiceOrder.IntegrationTests
                 hardwareServiceOrderContext.AddRange(cmServiceProvider1, cmServiceProvider2);
                 hardwareServiceOrderContext.SaveChanges();
 
-                ApiCredential apiCredential1 = new(cmServiceProvider1.Id, null, "Username", "Password");
-                ApiCredential apiCredential2 = new(cmServiceProvider1.Id, (int)ServiceTypeEnum.SUR, "Username", "Password");
+                ApiCredential apiCredential1 = new(cmServiceProvider1.Id, null, dataProtector1.Protect("Username"), dataProtector1.Protect("Password"));
+                ApiCredential apiCredential2 = new(cmServiceProvider1.Id, (int)ServiceTypeEnum.SUR, dataProtector1.Protect("Username"), dataProtector1.Protect("Password"));
                 ServiceOrderAddon? serviceOrderAddon1 = hardwareServiceOrderContext.ServiceOrderAddons.Find(1);
 
                 cmServiceProvider1.ApiCredentials.Add(apiCredential1);

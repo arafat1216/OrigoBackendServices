@@ -18,6 +18,7 @@ namespace HardwareServiceOrder.UnitTests
     {
         private readonly IMapper? _mapper;
         private readonly IHardwareServiceOrderService _hardwareServiceOrderService;
+        private readonly IHardwareServiceOrderRepository _hardwareServiceOrderRepository;
         private readonly HardwareServiceOrderContext _dbContext;
         public HardwareServiceOrderServiceTests() :
             base(new DbContextOptionsBuilder<HardwareServiceOrderContext>()
@@ -34,7 +35,7 @@ namespace HardwareServiceOrder.UnitTests
 
             _dbContext = new HardwareServiceOrderContext(ContextOptions);
 
-            var hardwareServiceRepository = new HardwareServiceOrderRepository(_dbContext);
+            _hardwareServiceOrderRepository = new HardwareServiceOrderRepository(_dbContext);
 
             //Email service mock
             var emailService = new Mock<IEmailService>();
@@ -76,7 +77,7 @@ namespace HardwareServiceOrder.UnitTests
                 .Setup(m =>
                     m.HandleServiceOrderStatusAsync(It.IsAny<HardwareServiceOrderServices.Models.HardwareServiceOrder>(), It.IsAny<ExternalRepairOrderDTO>()));
 
-            _hardwareServiceOrderService = new HardwareServiceOrderService(hardwareServiceRepository, _mapper, providerFactoryMock.Object, statusHandlerFactoryMock.Object, emailService.Object, new EphemeralDataProtectionProvider());
+            _hardwareServiceOrderService = new HardwareServiceOrderService(_hardwareServiceOrderRepository, _mapper, providerFactoryMock.Object, statusHandlerFactoryMock.Object, emailService.Object, new EphemeralDataProtectionProvider());
 
         }
 
@@ -170,11 +171,17 @@ namespace HardwareServiceOrder.UnitTests
         [Fact]
         public async Task UpdateOrderStatus()
         {
+            var customerServiceProviders = await _hardwareServiceOrderRepository.GetCustomerServiceProvidersByFilterAsync(null, true, false, true);
+
             await _hardwareServiceOrderService.UpdateOrderStatusAsync();
+
+            var updatedCustomerServiceProviders = await _hardwareServiceOrderRepository.GetCustomerServiceProvidersByFilterAsync(null, true, false, true);
 
             var orders = _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(CUSTOMER_ONE_ID, null, false, new System.Threading.CancellationToken()).Result.Items;
 
             Assert.NotNull(orders);
+            Assert.Null(customerServiceProviders?.FirstOrDefault()?.ApiCredentials?.FirstOrDefault()?.LastUpdateFetched);
+            Assert.NotNull(updatedCustomerServiceProviders?.FirstOrDefault()?.ApiCredentials?.FirstOrDefault()?.LastUpdateFetched);
 
             Assert.Equal(2, orders[0].ServiceEvents.ElementAt(0).ServiceStatusId);
         }

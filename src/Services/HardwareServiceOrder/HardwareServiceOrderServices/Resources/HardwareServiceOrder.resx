@@ -233,4 +233,58 @@ The following order has received unknown status from the service provider. Pleas
   <data name="OrderCancellationEmail_Subject" xml:space="preserve">
     <value>Canceled Repair Order</value>
   </data>
+  <data name="RemarketingNoPackaging_Body" xml:space="preserve">
+    <value>Hello {{ FirstName }}!
+&amp;nbsp;
+&amp;nbsp;
+### Return details:
+Asset: {{ AssetName }} {{ AssetId }}
+Date: {{ OrderDate }}
+
+### Next steps:
+1. Transfer all data from the old asset to the new asset
+2. Factory reset/delete all data from the old asset
+3. (if iPhone) Deactivate Find my iPhone
+4. Remove the SIM card/memory card
+5. Package and send asset
+
+If step 1 to 4 is not done properly the recycle cannot be completed
+
+### How to package and send the asset:
+Please package your device securely so that it arrives undamaged. You will need to print the return package slip and use transparent tape to attach the slip on the outside of the package.
+
+### Get Return Shipping Label
+
+PS: The provider may contact you directly about the return.</value>
+  </data>
+  <data name="RemarketingNoPackaging_Subject" xml:space="preserve">
+    <value>Repair Order</value>
+  </data>
+  <data name="RemarketingPackaging_Body" xml:space="preserve">
+    <value>Hello {{ FirstName }}!
+&amp;nbsp;
+&amp;nbsp;
+### Return details:
+Asset: {{ AssetName }} {{ AssetId }}
+Date: {{ OrderDate }}
+
+### Would you like to receive packaging?
+Yes
+Address: {{ Address }}
+
+### Next steps:
+1. Receive return packaging and shipping label
+2. Transfer all data from the old asset to the new asset
+3. Factory reset/delete all data from the old asset
+4. (if iPhone) Deactivate Find my iPhone
+5. Remove the SIM card/memory card
+6. Ship the asset using the return package
+
+If step 2 to 5 is not done properly the recycle cannot be completed
+
+PS: The provider may contact you directly about the return.</value>
+  </data>
+  <data name="RemarketingPackaging_Subject" xml:space="preserve">
+    <value>Repair Order (Included Packaging Service)</value>
+  </data>
 </root>
