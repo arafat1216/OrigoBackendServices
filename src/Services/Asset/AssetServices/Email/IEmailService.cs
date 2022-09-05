@@ -54,6 +54,11 @@ namespace AssetServices.Email
         /// <param name="languageCode">Code of the language to be used for sending email.</param>
         /// <returns></returns>
         Task ManagerBuyoutEmailAsync(ManagerOnBehalfBuyoutNotification emailData, string languageCode);
+        /// Notifying User that manager/admin performed Return on behalf of the user.
+        /// </summary>
+        /// <param name="emailData">Email Data that will be sent</param>
+        /// <param name="languageCode">Language of the user</param>
+        Task ManagerReturnEmailAsync(ManagerOnBehalfReturnNotification emailData, string languageCode);
 
     }
 }

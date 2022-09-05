@@ -392,7 +392,17 @@ public class AssetServices : IAssetServices
 
             if(assetLifecycle.IsPersonal && data.User != null)
             {
-                // TODO: Notify User Asset Returned on his Behalf (Task in another US)
+                // Email To User thath Asset Returned on his Behalf
+                var emailData = new Email.Model.ManagerOnBehalfReturnNotification()
+                {
+                    FirstName = data.User.Name,
+                    AssetName = $"{assetLifecycle.Asset!.Brand} {assetLifecycle.Asset!.ProductName}",
+                    AssetId = assetLifecycle.ExternalId.ToString(),
+                    ReturnDate = DateTime.UtcNow.ToShortDateString(),
+                    Recipient = data.User.Email
+                };
+                await _emailService.ManagerReturnEmailAsync(emailData, string.IsNullOrEmpty(data.User.PreferedLanguage) ? "en" : data.User.PreferedLanguage);
+
             }
         }
         else if (assetLifecycle.IsPersonal && assetLifecycle.AssetLifecycleStatus != AssetLifecycleStatus.PendingReturn)

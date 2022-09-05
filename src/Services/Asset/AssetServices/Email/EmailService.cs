@@ -111,5 +111,14 @@ namespace AssetServices.Email
             var subject = _resourceManager.GetString(ManagerOnBehalfBuyoutNotification.SubjectTemplatename, CultureInfo.CreateSpecificCulture(languageCode));
             await SendAsync(subject, template, new List<string>() { emailData.Recipient }, variables);
         }
+        /// <inheritdoc/>
+        public async Task ManagerReturnEmailAsync(ManagerOnBehalfReturnNotification emailData, string languageCode)
+        {
+            var template = _resourceManager.GetString(ManagerOnBehalfReturnNotification.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var variables = _flatDictionaryProvider.Execute(emailData);
+            var subject = _resourceManager.GetString(ManagerOnBehalfReturnNotification.Subject, CultureInfo.CreateSpecificCulture(languageCode));
+            await SendAsync(subject, template, new List<string>() { emailData.Recipient }, variables);
+        }
+
     }
 }

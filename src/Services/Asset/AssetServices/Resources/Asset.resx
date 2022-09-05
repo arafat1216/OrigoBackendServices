@@ -147,6 +147,19 @@ Important! Please remember to delete all company files on your last working day.
   <data name="ManagerOnBehalfBuyout_Subject" xml:space="preserve">
     <value>Asset Buyout</value>
   </data>
+  <data name="ManagerOnBehalfReturn" xml:space="preserve">
+    <value>Hello {{FirstName}}!  
+
+Your Manager has chosen Return on the following asset:  
+
+### Asset: {{AssetName}} ({{AssetId})  
+###Date: {{ReturnDate}}  
+
+Important! Please remember to delete all company files from your device.</value>
+  </data>
+  <data name="ManagerOnBehalfReturn_Subject" xml:space="preserve">
+    <value>Asset Return</value>
+  </data>
   <data name="PendingReturn" xml:space="preserve">
     <value>Hello {{FirstName}}!
 &lt;/br&gt;

@@ -76,6 +76,31 @@ namespace AssetServices.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Hello {{FirstName}}!  
+        ///
+        ///Your Manager has chosen Return on the following asset:  
+        ///
+        ///### Asset: {{AssetName}} ({{AssetId})  
+        ///###Date: {{ReturnDate}}  
+        ///
+        ///Important! Please remember to delete all company files from your device..
+        /// </summary>
+        internal static string ManagerOnBehalfReturn {
+            get {
+                return ResourceManager.GetString("ManagerOnBehalfReturn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Asset Return.
+        /// </summary>
+        internal static string ManagerOnBehalfReturn_Subject {
+            get {
+                return ResourceManager.GetString("ManagerOnBehalfReturn_Subject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hello {{FirstName}}!
         ///
         ///In regards of your offboarding, {{ManagerName}} has chosen buyout on the following asset:
