@@ -498,5 +498,10 @@ namespace CustomerServices.Infrastructure
                                          .Include(e => e.Organization)
                                          .ToListAsync();
         }
+
+        public async Task<Organization?> GetOrganizationByTechstepCustomerIdAsync(long techstepCustomerId)
+        {
+            return await _customerContext.Organizations.FirstOrDefaultAsync(a => a.TechstepCustomerId == techstepCustomerId);
+        }
     }
 }

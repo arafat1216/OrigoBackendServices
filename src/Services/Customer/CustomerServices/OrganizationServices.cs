@@ -477,6 +477,55 @@ namespace CustomerServices
                 throw;
             }
         }
+        public async Task UpdateOrganizationTechstepCoreAsync(TechstepCoreCustomerUpdateDTO updateTechstepCore)
+        {
+            foreach (var updatedOrganization in updateTechstepCore.Data) 
+            {
+                var organization = await _organizationRepository.GetOrganizationByTechstepCustomerIdAsync(updatedOrganization.TechstepCustomerId);
+                if (organization == null) throw new CustomerNotFoundException($"Organization with techstep core id {updatedOrganization.TechstepCustomerId} is not found.");
+                
+                //update organization name
+                if (!string.IsNullOrWhiteSpace(updatedOrganization.Name) && (updatedOrganization.Name != organization.Name))
+                {
+                    organization.UpdateOrganizationName(updatedOrganization.Name);
+                }
+                
+                //update organization organization number
+                if (!string.IsNullOrWhiteSpace(updatedOrganization.OrgNumber) && (updatedOrganization.OrgNumber != organization.OrganizationNumber))
+                {
+                    organization.UpdateOrganizationNumber(updatedOrganization.OrgNumber);
+                }
+
+                //update organization country code
+                if (!string.IsNullOrWhiteSpace(updatedOrganization.CountryCode)) 
+                {
+                    var organizationPreferences = await _organizationRepository.GetOrganizationPreferencesAsync(organization.OrganizationId);
+
+                    if (organizationPreferences == null)
+                    {
+                        //create default preferences
+                        organization.Preferences = new OrganizationPreferences(organization.OrganizationId, Guid.Empty, null, null, null, false, updatedOrganization.CountryCode.ToLower(), 0); //caller id by Techstep core
+                    }
+                    else if (organizationPreferences.PrimaryLanguage != null && (updatedOrganization.CountryCode.ToLower() != organizationPreferences.PrimaryLanguage))
+                    {
+                       
+                        var newPreferences = new OrganizationPreferences(organization.OrganizationId,Guid.Empty, 
+                            organizationPreferences.WebPage ?? null, organizationPreferences.LogoUrl ?? null, organizationPreferences.OrganizationNotes ?? null,
+                            organizationPreferences.EnforceTwoFactorAuth,updatedOrganization.CountryCode.ToLower(),organizationPreferences.DefaultDepartmentClassification);
+                        
+                        organizationPreferences.UpdatePreferences(newPreferences);
+                    }
+                }
+                 
+                //update organizations account owner
+                if (!string.IsNullOrWhiteSpace(updatedOrganization.AccountOwner) && (updatedOrganization.AccountOwner != organization.TechstepAccountOwner))
+                {
+                   organization.UpdateTechstepAccountOwner(updatedOrganization.AccountOwner);
+                }
+            }
+            await _organizationRepository.SaveEntitiesAsync();
+
+        }
 
         public async Task<Organization> DeleteOrganizationAsync(Guid organizationId, Guid callerId, bool hardDelete = false)
         {

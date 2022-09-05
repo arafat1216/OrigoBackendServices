@@ -643,6 +643,84 @@ namespace Customer.API.IntegrationTests.Controllers
           );
 
         }
-       
+        [Fact]
+        public async Task UpdateOrganizationTechstepCore_UpdateToNewChanges()
+        {
+            // Arrange
+            var newName = "ORGANIZATION 3";
+            var newCountryCode = "EN";
+            var newOrganizationNumber = "91111111222";
+
+            var techstepInfo = new TechstepCoreCustomerUpdate
+            {
+                Data = new List<TechstepCoreData>
+                {
+                    new TechstepCoreData
+                    {
+                        AccountOwner = "Petter Sprett",
+                        Name = newName,
+                        TechstepCustomerId = 123456789,
+                        ChainCode = null,
+                        CountryCode = newCountryCode,
+                        OrgNumber = newOrganizationNumber
+                    }
+                }
+            };
+            var requestUri = $"/api/v1/organizations/techstep-core-update";
+
+            //Act
+            var response = await _httpClient.PostAsJsonAsync(requestUri, techstepInfo);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            //Get the customer and check if values is changed
+
+            var getRequestUri = $"/api/v1/organizations/{_organizationIdThree}/true";
+            var organization = await _httpClient.GetFromJsonAsync<OrganizationDTO>(getRequestUri);
+            Assert.Equal(newName, organization?.Name);
+            Assert.Equal(newCountryCode.ToLower(), organization?.Preferences.PrimaryLanguage);
+            Assert.Equal(newOrganizationNumber, organization?.OrganizationNumber);
+        }
+        [Fact]
+        public async Task UpdateOrganizationTechstepCore_DontUpdateSameValues()
+        {
+            // Arrange
+            var newName = "ORGANIZATION THREE";
+            var oldCountryCode = "NO";
+            var oldOrganizationNumber = "ORGNUM3333";
+
+            var techstepInfo = new TechstepCoreCustomerUpdate
+            {
+                Data = new List<TechstepCoreData>
+                {
+                    new TechstepCoreData
+                    {
+                        AccountOwner = "Petter Sprett",
+                        Name = newName,
+                        TechstepCustomerId = 123456789,
+                        ChainCode = null,
+                        CountryCode = oldCountryCode,
+                        OrgNumber = oldOrganizationNumber
+                    }
+                }
+            };
+            var requestUri = $"/api/v1/organizations/techstep-core-update";
+
+            //Act
+            var response = await _httpClient.PostAsJsonAsync(requestUri, techstepInfo);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            //Get the customer and check if values is changed
+
+            var getRequestUri = $"/api/v1/organizations/{_organizationIdThree}/true";
+            var organization = await _httpClient.GetFromJsonAsync<OrganizationDTO>(getRequestUri);
+            Assert.Equal(newName, organization?.Name);
+            Assert.Equal(oldCountryCode.ToLower(), organization?.Preferences.PrimaryLanguage);
+            Assert.Equal(oldOrganizationNumber, organization?.OrganizationNumber);
+        }
+
     }
 }

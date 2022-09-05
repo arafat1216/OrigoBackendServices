@@ -6,6 +6,7 @@ using Common.Exceptions;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
+using OrigoApiGateway.Models.TechstepCoreWebhook;
 
 namespace OrigoApiGateway.Services;
 
@@ -485,5 +486,24 @@ public class CustomerServices : ICustomerServices
             "US" => CurrencyCode.USD.ToString(),
             _ => CurrencyCode.EUR.ToString()
         };
+    }
+
+    public async Task UpdateCustomerFromTechstepCore(TechstepCoreCustomerUpdate techstepCoreUpdate)
+    {
+        try
+        {
+            var response = await HttpClient.PostAsync($"{_options.ApiPath}/techstep-core-update", JsonContent.Create(techstepCoreUpdate));
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                _logger.LogError(error);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "UpdateCustomerFromTechstepCore error.");
+            throw;
+        }
     }
 }

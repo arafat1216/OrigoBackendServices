@@ -19,6 +19,7 @@ namespace CustomerServices.UnitTests
         protected readonly Guid CUSTOMER_TWO_ID = new("f1530515-fe2e-4e2f-84c2-c60da5875e22");
         private readonly Guid CUSTOMER_THREE_ID = new("6fb371c9-da3e-4ce4-b4e4-bc7f020eebf9");
         protected readonly Guid CUSTOMER_FOUR_ID = new("2C005777-ED56-43D9-9B1E-2B8112E67D10");
+        protected readonly Guid CUSTOMER_FIVE_ID = new("94e47c5b-9486-4017-8bab-252422b1262a");
 
         protected readonly Guid USER_ONE_ID = new Guid("42803f8e-5608-4beb-a3e6-029b8e229d91");
         private readonly Guid USER_TWO_ID = new Guid("39349c24-6e47-4a5e-9bab-7b65f438fac5");
@@ -80,9 +81,16 @@ namespace CustomerServices.UnitTests
                 null, true, 1, "",true);
             customerFour.InitiateOnboarding();
 
-            //context.AddRange(customerOne, customerTwo, customerThree);
+            var customerFive = new Organization(CUSTOMER_FIVE_ID, null, "COMPANY FIVE", "999555555",
+               new Address("My Way 5", "1111", "My City", "NO"),
+               new ContactPerson("Donald", "Duck", "donald.duck@example.com", "99999995"),
+               new OrganizationPreferences(CUSTOMER_FIVE_ID, USER_ONE_ID, "webPage 5", "logoUrl 5", "organizationNotes 5", true, "nb", 0),
+               new Location("name", "description", "My Way 5A", "My Way 5B", "0585", "Oslo", "NO"),
+               null, true, 1, "");
+            customerFive.AddTechstepCustomerId(123456789);
 
-            context.AddRange(customerOne, customerTwo, customerThree, customerFour);
+
+            context.AddRange(customerOne, customerTwo, customerThree, customerFour, customerFive);
             context.OrganizationPreferences.AddRange(customerOne.Preferences, customerTwo.Preferences, customerThree.Preferences, customerFour.Preferences);
             context.Locations.AddRange(customerOne.PrimaryLocation!, customerTwo.PrimaryLocation!, customerThree.PrimaryLocation!, customerFour.PrimaryLocation!);
             var departmentOneForCustomerOne = new Department("Cust1Dept1", "1123", "Department one for customer one", customerOne, DEPARTMENT_ONE_ID, Guid.Empty);

@@ -78,6 +78,14 @@ namespace CustomerServices.Models
         ///     Email where notification will ben sent for payroll information.
         /// </summary>
         public string PayrollContactEmail { get; protected set; } = string.Empty;
+        /// <summary>
+        /// Customers Techstep id.
+        /// </summary>
+        public long? TechstepCustomerId { get; protected set; }
+        /// <summary>
+        /// Responsible owner of the customer in the techstep system.
+        /// </summary>
+        public string TechstepAccountOwner { get; protected set; } = string.Empty;
 
         public Address Address { get; protected set; }
 
@@ -349,6 +357,39 @@ namespace CustomerServices.Models
         {
             _customerStatus = CustomerStatus.StartedOnboarding;
             AddDomainEvent(new CustomerStartedOnboardingDomainEvent(this));
+        }
+        /// <summary>
+        /// If customer has Techstep as partner, then all customer information should not be allowed to be changed directly through Origo. 
+        /// It needs to come from Techstep core's master date, so that there is a single point of truth. 
+        /// This will be the customer id used accross all techstep applications 
+        /// </summary>
+        public void AddTechstepCustomerId(long techstepCusomerId)
+        {
+            TechstepCustomerId = techstepCusomerId;
+            AddDomainEvent(new CustomerAddedTechstepCustomerIdDomainEvent(this));
+        }
+        public void AddTechstepAccountOwner(long techstepCusomerId)
+        {
+            TechstepCustomerId = techstepCusomerId;
+            AddDomainEvent(new CustomerAddedTechstepAccountOwnerDomainEvent(this));
+        }
+        public void UpdateOrganizationName(string name)
+        {
+            var oldName = Name;
+            Name = name;
+            AddDomainEvent(new CustomerNameChangedDomainEvent(this,oldName));
+        }
+        public void UpdateOrganizationNumber(string organizationNumber)
+        {
+            var oldOrganizationNumber = OrganizationNumber;
+            OrganizationNumber = organizationNumber;
+            AddDomainEvent(new OrganizationNumberChangedDomainEvent(this, oldOrganizationNumber));
+        }
+        public void UpdateTechstepAccountOwner(string accountOwner)
+        {
+            var oldAccountOwner = TechstepAccountOwner;
+            TechstepAccountOwner = accountOwner;
+            AddDomainEvent(new OrganizationUpdateTechstepAccountOwner(this, oldAccountOwner));
         }
     }
 }

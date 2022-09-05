@@ -14,6 +14,7 @@ using Common.Infrastructure;
 using Xunit;
 using CustomerServices.Email;
 using CustomerServices.Email.Models;
+//using System.Collections.Generic;
 
 namespace CustomerServices.UnitTests
 {
@@ -307,8 +308,17 @@ namespace CustomerServices.UnitTests
             var organization = await organizationServices.InitiateOnboardingAsync(CUSTOMER_ONE_ID);
             // Arrange
             _emailServiceMock.Verify(email => email.InvitationEmailToUserAsync(It.IsAny<InvitationMail>(), It.IsAny<string>()), Times.Exactly(2));
-
-
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task GetOrganizationByTechstepCustomerIdAsync_ReturnsCustomer()
+        {
+            // Act
+            var context = new CustomerContext(ContextOptions, null);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+            var organization = await organizationRepository.GetOrganizationByTechstepCustomerIdAsync(123456789);
+            // Assert
+            Assert.Equal(CUSTOMER_FIVE_ID,organization?.OrganizationId);
         }
     }
 }

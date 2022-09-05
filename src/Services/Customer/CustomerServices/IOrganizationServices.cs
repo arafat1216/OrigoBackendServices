@@ -46,6 +46,7 @@ namespace CustomerServices
         Task<LocationDTO> AddLocationInOrganization(NewLocationDTO location, Guid customerId, Guid callerId);
         Task<IList<LocationDTO>> GetAllLocationInOrganization(Guid customerId);
         Task<Organization?> InitiateOnboardingAsync(Guid organizationId);
+        Task UpdateOrganizationTechstepCoreAsync(TechstepCoreCustomerUpdateDTO updateTechstepCore);
 
     }
 }

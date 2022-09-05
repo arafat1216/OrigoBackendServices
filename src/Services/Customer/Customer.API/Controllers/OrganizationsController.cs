@@ -275,6 +275,23 @@ namespace Customer.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+        [Route("techstep-core-update")]
+        [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<ActionResult> UpdateOrganizationTechstepCore([FromBody] TechstepCoreCustomerUpdate updatedTechstepData)
+        {
+            try
+            {
+                var mappedOrganization = _mapper.Map<TechstepCoreCustomerUpdateDTO>(updatedTechstepData);
+                await _organizationServices.UpdateOrganizationTechstepCoreAsync(mappedOrganization);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("UpdateOrganizationTechstepCore: failed to update: " + ex.Message);
+                return StatusCode(StatusCodes.Status400BadRequest, ex.Message);                         //Maybe not return notting else but OK? Does it have an effekt
+            }
+        }
 
         [Route("{organizationId:Guid}")]
         [HttpDelete]

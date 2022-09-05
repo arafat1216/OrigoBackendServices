@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
 using Microsoft.OpenApi.Models;
 using Okta.AspNetCore;
+//using OrigoApiGateway.Attributes;
 using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Extensions;
@@ -187,6 +188,7 @@ namespace OrigoApiGateway
             services.Configure<HardwareServiceOrderConfiguration>(Configuration.GetSection("HardwareServiceOrder"));
             services.Configure<WebshopConfiguration>(Configuration.GetSection("Webshop"));
             services.Configure<FeatureFlagConfiguration>(Configuration.GetSection("FeatureFlag"));
+            services.Configure<TechstepCoreWebhookConfiguration>(Configuration.GetSection("TechstepCoreWebhook"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -211,9 +213,10 @@ namespace OrigoApiGateway
                         context.User.AddIdentity(userPermissionIdentity);
                     }
                 }
-
                 await next();
             });
+
+           
 
             app.UseAuthorization();
 
@@ -236,6 +239,7 @@ namespace OrigoApiGateway
                 endpoints.MapControllers();
                 endpoints.MapHealthChecks("/healthz");
             });
+
         }
     }
 }

@@ -58,9 +58,18 @@ namespace Customer.API.IntegrationTests.Helpers
                                                                         true,
                                                                         "NO",
                                                                         1);
+            var organizationPreferencesTHREE = new OrganizationPreferences(ORGANIZATION_THREE_ID,
+                                                                    CALLER_ID,
+                                                                      null,
+                                                                      null,
+                                                                      null,
+                                                                      true,
+                                                                      "NO",
+                                                                      1);
 
             customerContext.OrganizationPreferences.Add(organizationPreferences);
             customerContext.OrganizationPreferences.Add(organizationPreferencesTWO);
+            customerContext.OrganizationPreferences.Add(organizationPreferencesTHREE);
 
             var location = new Location("Location1",
                                         "Description",
@@ -116,13 +125,14 @@ namespace Customer.API.IntegrationTests.Helpers
                                                "ORGNUM3333",
                                                null,
                                                contactPersonTWO,
-                                               organizationPreferencesTWO,
+                                               organizationPreferencesTHREE,
                                                locationTWO,
                                                null,
                                                true,
                                                1,
                                                ""
                                                );
+            organizationThree.AddTechstepCustomerId(123456789);
 
 
             customerContext.Organizations.Add(organization);
