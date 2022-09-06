@@ -218,7 +218,6 @@ namespace CustomerServices
                 }, userPreference.Language ?? "EN");
 
                 newUser.ChangeUserStatus(null, UserStatus.Invited);
-                //await _organizationRepository.SaveEntitiesAsync();
             }
 
             var mappedNewUserDTO = _mapper.Map<UserDTO>(newUser);
