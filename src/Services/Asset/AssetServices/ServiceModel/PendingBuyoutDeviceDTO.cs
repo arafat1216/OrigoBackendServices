@@ -18,7 +18,7 @@ namespace AssetServices.ServiceModel
         /// <summary>
         /// Currency of the Customer
         /// </summary>
-        public string Currency { get; set; } = CurrencyCode.NOK.ToString();
+        public string Currency { get; set; }
         /// <summary>
         /// Name of the user making request if its not an end user.
         /// </summary>

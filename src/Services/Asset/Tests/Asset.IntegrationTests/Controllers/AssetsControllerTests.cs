@@ -1044,7 +1044,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     [Fact]
     public async Task PendigBuyoutDeviceAsync()
     {
-        var postData = new PendingBuyoutDeviceDTO { AssetLifeCycleId = _ = _assetOne, LasWorkingDay = DateTime.UtcNow.AddMonths(-6), User = null, CallerId = _callerId };
+        var postData = new PendingBuyoutDeviceDTO { AssetLifeCycleId = _ = _assetOne, LasWorkingDay = DateTime.UtcNow.AddMonths(-6), User = null, Currency = CurrencyCode.NOK.ToString(), CallerId = _callerId };
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/pending-buyout";
         _testOutputHelper.WriteLine(requestUri);
         var responsePost = await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
@@ -1068,6 +1068,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
                 PreferedLanguage = "NO"
             }, 
             CallerId = _callerId,
+            Currency = CurrencyCode.NOK.ToString(),
             Role = PredefinedRole.Manager.ToString()
         };
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/pending-buyout";
@@ -1083,7 +1084,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     public async Task ConfirmBuyoutDeviceAsync()
     {
         // Arrange
-        var postData = new PendingBuyoutDeviceDTO { AssetLifeCycleId = _assetOne, LasWorkingDay = DateTime.UtcNow.AddMonths(-6), User = null, CallerId = _callerId };
+        var postData = new PendingBuyoutDeviceDTO { AssetLifeCycleId = _assetOne, LasWorkingDay = DateTime.UtcNow.AddMonths(-6), Currency = CurrencyCode.NOK.ToString(),  User = null, CallerId = _callerId };
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/pending-buyout";
         _testOutputHelper.WriteLine(requestUri);
         await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
