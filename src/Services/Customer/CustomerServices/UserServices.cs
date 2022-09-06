@@ -108,8 +108,8 @@ namespace CustomerServices
             if (userPreference == null || userPreference.Language == null)
             {
                 // Set a default language setting - try to add organizations primary language 
-                if (customerPreferences != null) userPreference = new UserPreference(customerPreferences.PrimaryLanguage ?? "EN", callerId);
-                else userPreference = new UserPreference("EN", callerId);
+                if (customerPreferences != null) userPreference = new UserPreference(customerPreferences.PrimaryLanguage ?? "en", callerId);
+                else userPreference = new UserPreference("en", callerId);
             }
 
             // Check if email address is used by another user
@@ -200,24 +200,25 @@ namespace CustomerServices
             var newUser = new User(customer, Guid.NewGuid(), firstName, lastName, email, mobileNumber, employeeId,
                 userPreference, callerId);
 
-            //Only send invitation mail if the customer has started their onbaording 
+            newUser = await _organizationRepository.AddUserAsync(newUser);
+
+            if (customer.AddUsersToOkta)
+            {
+                var oktaUserId = await _oktaServices.AddOktaUserAsync(newUser.UserId, newUser.FirstName, newUser.LastName,
+                    newUser.Email, newUser.MobileNumber, true);
+                newUser = await AssignOktaUserIdAsync(newUser.Customer.OrganizationId, newUser.UserId, oktaUserId, callerId);
+            }
+            //Only send invitation mail if the customer has started their onboarding 
             if (customer.CustomerStatus == CustomerStatus.StartedOnboarding)
             {
                 await _emailService.InvitationEmailToUserAsync(new Email.Models.InvitationMail
                 {
                     FirstName = firstName,
                     Recipient = new List<string> { email }
-                },userPreference.Language ?? "EN");
+                }, userPreference.Language ?? "EN");
 
                 newUser.ChangeUserStatus(null, UserStatus.Invited);
-            }
-
-            newUser = await _organizationRepository.AddUserAsync(newUser);
-            if (customer.AddUsersToOkta)
-            {
-                var oktaUserId = await _oktaServices.AddOktaUserAsync(newUser.UserId, newUser.FirstName, newUser.LastName,
-                    newUser.Email, newUser.MobileNumber, true);
-                newUser = await AssignOktaUserIdAsync(newUser.Customer.OrganizationId, newUser.UserId, oktaUserId, callerId);
+                //await _organizationRepository.SaveEntitiesAsync();
             }
 
             var mappedNewUserDTO = _mapper.Map<UserDTO>(newUser);
