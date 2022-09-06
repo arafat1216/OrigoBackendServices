@@ -163,7 +163,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     }
 
     [Fact]
-    public async Task ReadAssetFile()
+    public async Task ReadAssetFile_ValidateResponse()
     {
         // Arrange
         var fullFilename = Path.Combine(@"TestData", "demo_fileimport.csv");
@@ -179,15 +179,41 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
 
         // Assert
         Assert.True(importResponse.IsSuccessStatusCode);
-        Assert.Equal(4, assetValidationResult!.ValidAssets.Count);
-        Assert.Equal(2, assetValidationResult.InvalidAssets.Count);
+        Assert.Equal(3, assetValidationResult!.ValidAssets.Count);
+        Assert.Equal(3, assetValidationResult.InvalidAssets.Count);
         Assert.Equal("John", assetValidationResult.ValidAssets[0].ImportedUser.FirstName);
         Assert.Equal("Doe", assetValidationResult.ValidAssets[0].ImportedUser.LastName);
         Assert.Equal("john@doe.com", assetValidationResult.ValidAssets[0].ImportedUser.Email);
         Assert.Equal("+4799999999", assetValidationResult.ValidAssets[0].ImportedUser.PhoneNumber);
+        Assert.Equal("2021-12-01", assetValidationResult.ValidAssets[0].PurchaseDate.ToString("yyyy-MM-dd"));
+        Assert.Equal("Backoffice phone", assetValidationResult.ValidAssets[0].Label);
+        Assert.Equal("Meny Roa Backoffice", assetValidationResult.ValidAssets[0].Alias);
 
         Assert.Equal("Invalid e-mail: mail@", assetValidationResult.InvalidAssets[0].Errors[0]);
-        Assert.Equal("Invalid Imei(s) 13311006051722 for mobile phone", assetValidationResult.InvalidAssets[1].Errors[0]);
+        Assert.Equal("Invalid Imei(s) 13311006051722 for mobile phone", assetValidationResult.InvalidAssets[2].Errors[0]);
+        Assert.Equal("Invalid purchase date - expected format yyyy-MM-dd (2022-03-21): 05.10.2021", assetValidationResult.InvalidAssets[1].Errors[0]);
+    }
+
+    [Fact]
+    public async Task ReadAssetFile_CheckSavedAsset()
+    {
+        //// Arrange
+        //var fullFilename = Path.Combine(@"TestData", "demo_fileimport.csv");
+        //var assetImportFileBytes = await File.ReadAllBytesAsync(fullFilename);
+        //var assetFileByteContent = new ByteArrayContent(assetImportFileBytes);
+        //using var content = new MultipartFormDataContent();
+        //content.Add(assetFileByteContent, "assetImportFile", "demo_fileimport.csv");
+        //var requestUri = $"/api/v1/Assets/customers/{_customerId}/import?ValidateOnly=false";
+
+        //// Act
+        //var importResponse = await _httpClient.PostAsync(requestUri, content);
+        //var requestAssetUri = $"/api/v1/Assets/customers/{_customerId}?q=99999999";
+        //var pagedAssetList = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestAssetUri);
+
+        //// Assert
+        //Assert.Equal(1, pagedAssetList!.Items.Count);
+        //Assert.Equal(DateTime.UtcNow.Date, pagedAssetList.Items[0].CreatedDate.Date);
+        //Assert.Equal("2021-12-01", pagedAssetList.Items[0].PurchaseDate.ToString("yyyy-MM-dd"));
     }
 
     [Fact]
@@ -2936,7 +2962,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var responseGetAssetLifeCycle = await _httpClient.GetAsync(requestGetAssetLifeCycle);
         Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
         var assetLifecycleRecycled = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
-        Assert.Equal(DateTime.Now.Date, assetLifecycleRecycled?.EndPeriod.GetValueOrDefault().Date);
+        Assert.Equal(DateTime.UtcNow.Date, assetLifecycleRecycled?.EndPeriod.GetValueOrDefault().Date);
         Assert.Equal(AssetLifecycleStatus.Recycled, assetLifecycleRecycled?.AssetStatus);
 
         //Cancel the recycle
@@ -2948,7 +2974,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var responseGetAssetLifeCycleAfter = await _httpClient.GetAsync(requestGetAssetLifeCycle);
         Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycleAfter.StatusCode);
         var assetLifecycleRecycledAfter = await responseGetAssetLifeCycleAfter.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
-        Assert.Equal(DateTime.Now.Date, assetLifecycleRecycledAfter?.EndPeriod.GetValueOrDefault().Date);
+        Assert.Equal(DateTime.UtcNow.Date, assetLifecycleRecycledAfter?.EndPeriod.GetValueOrDefault().Date);
         Assert.Equal(AssetLifecycleStatus.Expired, assetLifecycleRecycledAfter?.AssetStatus);
     }
     [Fact]

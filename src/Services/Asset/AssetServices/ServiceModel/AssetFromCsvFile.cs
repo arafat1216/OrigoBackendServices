@@ -17,4 +17,5 @@ public record AssetFromCsvFile
     public string UserLastName { get; set; } = string.Empty;
     public string UserEmail { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
+    public string Label { get; set; } = string.Empty;
 }

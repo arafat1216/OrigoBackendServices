@@ -1831,6 +1831,48 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        [Route("customers/{organizationId:guid}/import")]
+        [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer, Permission.CanCreateAsset)]
+        public async Task<ActionResult> ImportAssetFile(Guid organizationId, IFormFile file, bool validateOnly = true)
+        {
+            try
+            {
+                // Only admin or manager roles are allowed to import assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
+                {
+                    return Forbid();
+                }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                return Ok(await _assetServices.ImportAssetsFileAsync(organizationId, file, validateOnly));
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Azure.RequestFailedException ex)
+            {
+                return BadRequest("RequestFailedException: Could not import file: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Exception: Could not import file due to unknown error: " + ex.Message);
+            }
+        }
+
         [Route("customers/{organizationId:guid}/download")]
         [HttpGet]
         [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]

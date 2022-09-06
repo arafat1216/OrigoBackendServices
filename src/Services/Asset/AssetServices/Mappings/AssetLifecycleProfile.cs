@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using AssetServices.Models;
 using AssetServices.ServiceModel;
 using AutoMapper;
@@ -12,11 +13,11 @@ public class AssetLifecycleProfile : Profile
     {
         CreateMap<AssetLifecycle, MobilePhone>();
         CreateMap<User, UserDTO>();
-        CreateMap<Models.Asset, AssetDTO>();
+        CreateMap<Asset, AssetDTO>();
         CreateMap<HardwareAsset, AssetDTO>();
-        CreateMap<MobilePhone, AssetDTO>().IncludeBase<HardwareAsset, AssetDTO>().IncludeBase<Models.Asset, AssetDTO>()
+        CreateMap<MobilePhone, AssetDTO>().IncludeBase<HardwareAsset, AssetDTO>().IncludeBase<Asset, AssetDTO>()
             .ForMember(dest => dest.Imeis, opts => opts.MapFrom(src => src.Imeis.Select(i => i.Imei).ToList()));
-        CreateMap<Tablet, AssetDTO>().IncludeBase<HardwareAsset, AssetDTO>().IncludeBase<Models.Asset, AssetDTO>()
+        CreateMap<Tablet, AssetDTO>().IncludeBase<HardwareAsset, AssetDTO>().IncludeBase<Asset, AssetDTO>()
             .ForMember(dest => dest.Imeis, opts => opts.MapFrom(src => src.Imeis.Select(i => i.Imei).ToList()));
         CreateMap<CustomerLabel, LabelDTO>()
             .ForMember(dest => dest.ExternalId, opts => opts.MapFrom(src => src.ExternalId))
@@ -27,12 +28,22 @@ public class AssetLifecycleProfile : Profile
         CreateMap<ReturnLocation, ReturnLocationDTO>();
         CreateMap<AssetLifecycle, AssetLifecycleDTO>()
             .ForMember(dest => dest.ContractHolderUserId,
-            opts => opts.MapFrom(src => src.ContractHolderUser!.ExternalId))
-            .ForMember(dest=> dest.Labels, opts => opts.MapFrom(src => src.Labels))
-            .ForMember(dest => dest.Source, opts => opts.MapFrom(src => src.Source.ToString()));
+                opts => opts.MapFrom(src => src.ContractHolderUser!.ExternalId))
+            .ForMember(dest => dest.Labels, opts => opts.MapFrom(src => src.Labels)).ForMember(dest => dest.Source,
+                opts => opts.MapFrom(src => src.Source.ToString()));
         CreateMap<PagedModel<AssetLifecycle>, PagedModel<AssetLifecycleDTO>>();
-        CreateMap<NewAssetDTO, CreateAssetLifecycleDTO>()
-            .ForMember(dest => dest.Source, opts => opts.Ignore())
+        CreateMap<NewAssetDTO, CreateAssetLifecycleDTO>().ForMember(dest => dest.Source, opts => opts.Ignore())
             .ForMember(dest => dest.Runtime, opts => opts.Ignore());
+        CreateMap<ImportedAsset, NewAssetDTO>()
+            .ForMember(dest => dest.UserEmail, opts => opts.MapFrom(src => src.ImportedUser.Email))
+            .ForMember(dest => dest.UserLastName, opts => opts.MapFrom(src => src.ImportedUser.LastName))
+            .ForMember(dest => dest.UserFirstName, opts => opts.MapFrom(src => src.ImportedUser.FirstName))
+            .ForMember(dest => dest.UserPhoneNumber, opts => opts.MapFrom(src => src.ImportedUser.PhoneNumber))
+            .ForMember(dest => dest.Description, opts => opts.MapFrom(src => string.Empty))
+            .ForMember(dest => dest.Note, opts => opts.MapFrom(src => string.Empty))
+            .ForMember(dest => dest.Source, opts => opts.MapFrom(src => "FileImport"))
+            .ForMember(dest => dest.Imei,
+                opts => opts.MapFrom(src =>
+                    src.Imeis.Split(",", StringSplitOptions.TrimEntries).Select(long.Parse).ToList()));
     }
 }

@@ -10,6 +10,7 @@ using OrigoApiGateway.Models.BackendDTO;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Security.Policy;
 
 namespace OrigoApiGateway.Services
 {
@@ -429,6 +430,17 @@ namespace OrigoApiGateway.Services
                 _logger.LogError(exception, "Unable to Delete ReturnLocation.");
                 throw;
             }
+        }
+
+        public async Task<HttpResponseMessage> ImportAssetsFileAsync(Guid organizationId, IFormFile file, bool validateOnly)
+        {
+            if (validateOnly)
+            {
+                string url = $"{_options.ApiPath}/customers/{organizationId}/import";
+                return await HttpClient.PostAsJsonAsync<object>(url, file);
+            }
+
+            return null;
         }
 
         public async Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId, FilterOptionsForAsset? filterOptions)

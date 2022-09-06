@@ -456,7 +456,7 @@ public class AssetServices : IAssetServices
         return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
     }
 
-    public AssetValidationResult ImportAssetsFromFile(Guid customerId, IFormFile file, bool validateOnly)
+    public async Task<AssetValidationResult> ImportAssetsFromFile(Guid customerId, IFormFile file, bool validateOnly)
     {
         IList<AssetFromCsvFile> assetsFromFileRecords;
         var csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -487,24 +487,39 @@ public class AssetServices : IAssetServices
             {
                 errors.Add($"Invalid e-mail: {assetFromCsv.UserEmail}");
             }
+
+            if (!DateTime.TryParseExact(assetFromCsv.PurchaseDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var purchaseDate))
+            {
+                errors.Add($"Invalid purchase date - expected format yyyy-MM-dd (2022-03-21): {assetFromCsv.PurchaseDate}");
+            }
             if (asset.ValidateAsset() && !errors.Any())
             {
-                var importedAsset = CreateImportedAsset(asset, assetFromCsv, true); 
+                var importedAsset = CreateImportedAsset(asset, assetFromCsv, purchaseDate, true); 
                 assetValidationResult.ValidAssets.Add(importedAsset);
             }
             else
             {
                 errors.AddRange(asset.ErrorMsgList);
-                var importedAsset = CreateImportedAsset(asset, assetFromCsv, false) as InvalidImportedAsset;
+                var importedAsset = CreateImportedAsset(asset, assetFromCsv, purchaseDate, false) as InvalidImportedAsset;
                 importedAsset!.Errors = errors;
                 assetValidationResult.InvalidAssets.Add(importedAsset);
             }
         }
 
+        if (validateOnly)
+        {
+            return assetValidationResult;
+        }
+
+        foreach (var validAsset in assetValidationResult.ValidAssets)
+        {
+            var newAssetDto = _mapper.Map<NewAssetDTO>(validAsset);
+            await AddAssetLifecycleForCustomerAsync(customerId, newAssetDto);
+        }
         return assetValidationResult;
     }
 
-    private ImportedAsset CreateImportedAsset(HardwareAsset asset, AssetFromCsvFile assetFromCsv, bool isValid)
+    private ImportedAsset CreateImportedAsset(HardwareAsset asset, AssetFromCsvFile assetFromCsv, DateTime purchaseDate, bool isValid)
     {
         var importedAsset = isValid ? new ImportedAsset() : new InvalidImportedAsset();
 
@@ -519,7 +534,9 @@ public class AssetServices : IAssetServices
             Email = assetFromCsv.UserEmail,
             PhoneNumber = assetFromCsv.PhoneNumber
         };
-        
+        importedAsset.PurchaseDate = purchaseDate;
+        importedAsset.Label = assetFromCsv.Label;
+        importedAsset.Alias = assetFromCsv.Alias;
         return importedAsset;
     }
 

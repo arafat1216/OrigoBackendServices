@@ -75,7 +75,7 @@ namespace AssetServices
         /// <returns>Asset</returns>
         Task<AssetLifecycleDTO> PendingBuyoutDeviceAsync(Guid customerId, PendingBuyoutDeviceDTO data);
         Task CancelUserOffboarding(Guid customerId, Guid userId, Guid callerId);
-        AssetValidationResult ImportAssetsFromFile(Guid customerId, IFormFile file, bool validateOnly);
+        Task <AssetValidationResult> ImportAssetsFromFile(Guid customerId, IFormFile file, bool validateOnly);
         Task<AssetLifecycleDTO> ConfirmBuyoutDeviceAsync(Guid customerId, BuyoutDeviceDTO data);
         /// <summary>
         /// Updates the asset lifecycle to an active state when a order to cancel a return is made.
