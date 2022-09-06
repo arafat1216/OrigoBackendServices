@@ -295,6 +295,19 @@ namespace HardwareServiceOrderServices
 
 
         /// <inheritdoc/>
+        public async Task<ServiceProviderDTO> GetServiceProviderById(int id, bool includeSupportedServiceTypes, bool includeOfferedServiceOrderAddons)
+        {
+            ServiceProvider? serviceProvider = await _hardwareServiceOrderRepository.GetServiceProviderByIdAsync(id, includeSupportedServiceTypes, includeOfferedServiceOrderAddons, true);
+
+            if (serviceProvider is null)
+                throw new NotFoundException();
+
+            var serviceProviderDTO = _mapper.Map<ServiceProviderDTO>(serviceProvider);
+            return serviceProviderDTO;
+        }
+
+
+        /// <inheritdoc/>
         public async Task DeleteApiCredentialAsync(Guid organizationId, int serviceProviderId, int? serviceTypeId)
         {
             var customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, true, false);

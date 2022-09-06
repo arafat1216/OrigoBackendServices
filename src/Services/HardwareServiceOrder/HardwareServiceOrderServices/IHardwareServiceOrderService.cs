@@ -71,11 +71,20 @@ namespace HardwareServiceOrderServices
         /// <returns> A task that represents the asynchronous operation. The task result contains a list of all service-providers in the database. </returns>
         Task<IEnumerable<ServiceProviderDTO>> GetAllServiceProvidersAsync(bool includeSupportedServiceTypes, bool includeOfferedServiceOrderAddons);
 
+        /// <summary>
+        ///     Returns a service-provider using it's ID.
+        /// </summary>
+        /// <param name="id"> The ID of the service-provider that should be retrieved. </param>
+        /// <param name="includeSupportedServiceTypes"> Should <see cref="ServiceProviderDTO.SupportedServiceTypes"/> be loaded and included in the result? </param>
+        /// <param name="includeOfferedServiceOrderAddons"> Should <see cref="ServiceProviderDTO.OfferedServiceOrderAddons"/> be loaded and included in the result? </param>
+        /// <returns> A task that represents the asynchronous operation. The task result contains the retrieved <see cref="ServiceProviderDTO"/>. </returns>
+        /// <exception cref="NotFoundException"> Thrown if the provided <paramref name="id"/> don't result in any matches. </exception>
+        Task<ServiceProviderDTO> GetServiceProviderById(int id, bool includeSupportedServiceTypes, bool includeOfferedServiceOrderAddons);
+
 
         /*
          * Customer Service Provider
          */
-
 
         /// <summary>
         ///     Retrieves all <see cref="CustomerServiceProvider"/>-configurations that's used by a given customer.

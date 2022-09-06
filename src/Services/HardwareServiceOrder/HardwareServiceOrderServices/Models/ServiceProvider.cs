@@ -5,7 +5,7 @@ namespace HardwareServiceOrderServices.Models
     /// <summary>
     ///     Represents a single service-provider.
     /// </summary>
-    public class ServiceProvider : EntityV2, IAggregateRoot
+    public class ServiceProvider : EntityV2, IAggregateRoot, IDbSetEntity
     {
         /// <summary>
         ///     This is a reserved constructor that is used by Entity Framework. 

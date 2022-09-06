@@ -1,17 +1,14 @@
-using System;
+using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Moq.Protected;
+using OrigoApiGateway.Mappings;
+using OrigoApiGateway.Services;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Moq;
-using Moq.Protected;
-using OrigoApiGateway.Mappings;
-using OrigoApiGateway.Services;
-using Xunit;
 
 namespace OrigoApiGateway.Tests
 {
@@ -112,7 +109,7 @@ namespace OrigoApiGateway.Tests
             optionsMock.Setup(o => o.Value).Returns(options);
 
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper);
-            var updateUser = new Models.OrigoUpdateUser { FirstName = null, LastName = null, Email = null, EmployeeId = null,  MobileNumber = null, UserPreference = null };
+            var updateUser = new Models.OrigoUpdateUser { FirstName = null, LastName = null, Email = null, EmployeeId = null, MobileNumber = null, UserPreference = null };
             // Act
             var user = await userService.PutUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), updateUser, EMPTY_CALLER_ID);
 

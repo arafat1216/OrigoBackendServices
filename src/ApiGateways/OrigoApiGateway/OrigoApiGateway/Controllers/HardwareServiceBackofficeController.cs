@@ -44,12 +44,16 @@ namespace OrigoApiGateway.Controllers
         /// <remarks>
         ///     Retrieves every service-providers that exist in the system, including lists containing their supported/offered service-types and service-addons.
         /// </remarks>
+        /// <param name="includeSupportedServiceTypes"> When <c><see langword="true"/></c>, the <c>SupportedServiceTypeIds</c> property is
+        ///     loaded/included in the retrieved data. </param>
+        /// <param name="includeOfferedServiceOrderAddons"> When <c><see langword="true"/></c>, the <c>OfferedServiceOrderAddons</c> property is
+        ///     loaded/included in the retrieved data. </param>
         /// <returns> An <see cref="ActionResult"/> containing the HTTP-response. </returns>
         [HttpGet("service-provider")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returned when the request was successful.", typeof(IEnumerable<BackendModels.ServiceProvider>))]
-        public async Task<ActionResult<IEnumerable<BackendModels.ServiceProvider>>> GetAllProvidersAsync()
+        public async Task<ActionResult<IEnumerable<BackendModels.ServiceProvider>>> GetAllProvidersAsync([FromQuery] bool includeSupportedServiceTypes = false, [FromQuery] bool includeOfferedServiceOrderAddons = false)
         {
-            var providers = await _hardwareServiceOrderService.GetAllServiceProvidersAsync(true, true);
+            var providers = await _hardwareServiceOrderService.GetAllServiceProvidersAsync(includeSupportedServiceTypes, includeOfferedServiceOrderAddons);
             return Ok(providers);
         }
 
@@ -60,8 +64,10 @@ namespace OrigoApiGateway.Controllers
         /// <remarks>
         ///     Retrieves all <c>CustomerServiceProvider</c> configurations for a given customer.
         /// </remarks>
-        /// <param name="organizationId"> The organization you are retrieving the <c><see cref="CustomerServiceProvider"/></c>'s for. </param>
+        /// <param name="organizationId"> The organization you are retrieving the <c>CustomerServiceProvider</c>'s for. </param>
         /// <param name="includeApiCredentialIndicators"> When <c><see langword="true"/></c>, the <c>ApiCredentials</c> property is
+        ///     loaded/included in the retrieved data. </param>
+        /// <param name="includeActiveServiceOrderAddons"> When <c><see langword="true"/></c>, the <c>ActiveServiceOrderAddons</c> property is
         ///     loaded/included in the retrieved data. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet("configuration/organization/{organizationId:Guid}")]

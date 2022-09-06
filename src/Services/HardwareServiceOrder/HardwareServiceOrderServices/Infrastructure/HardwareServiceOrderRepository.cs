@@ -333,6 +333,7 @@ namespace HardwareServiceOrderServices.Infrastructure
             return await _hardwareServiceOrderContext.ServiceStatuses.FirstOrDefaultAsync(m => m.Id == id);
         }
 
+
         /// <inheritdoc/>
         public async Task<IEnumerable<ServiceProvider>> GetAllServiceProvidersAsync(bool includeSupportedServiceTypes,
                                                                                     bool includeOfferedServiceOrderAddons,
@@ -350,6 +351,27 @@ namespace HardwareServiceOrderServices.Infrastructure
                 query = query.AsNoTracking();
 
             return await query.ToListAsync();
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<ServiceProvider?> GetServiceProviderByIdAsync(int id, 
+                                                                        bool includeSupportedServiceTypes, 
+                                                                        bool includeOfferedServiceOrderAddons,
+                                                                        bool asNoTracking = false)
+        {
+            IQueryable<ServiceProvider> query = _hardwareServiceOrderContext.ServiceProviders;
+
+            if (includeSupportedServiceTypes)
+                query = query.Include(serviceProvider => serviceProvider.SupportedServiceTypes);
+
+            if (includeOfferedServiceOrderAddons)
+                query = query.Include(serviceProvider => serviceProvider.OfferedServiceOrderAddons);
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            return await query.FirstOrDefaultAsync(e => e.Id == id);
         }
 
 

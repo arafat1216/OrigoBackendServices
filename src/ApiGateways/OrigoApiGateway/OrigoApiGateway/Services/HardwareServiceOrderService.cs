@@ -1,7 +1,11 @@
-﻿using Microsoft.Extensions.Options;
+﻿using AutoMapper;
+using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response;
+using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
+using System.Collections.Generic;
 using System.Security.Claims;
+using ServiceProvider = OrigoApiGateway.Models.HardwareServiceOrder.Backend.ServiceProvider;
 
 #nullable enable
 
@@ -10,34 +14,50 @@ namespace OrigoApiGateway.Services
     public class HardwareServiceOrderService : IHardwareServiceOrderService
     {
         private readonly ILogger<HardwareServiceOrderService> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMapper _mapper;
         private readonly HardwareServiceOrderConfiguration _options;
         private readonly IAssetServices _assetServices;
         private readonly IUserServices _userServices;
         private readonly ICustomerServices _customerServices;
         private readonly IPartnerServices _partnerServices;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IHttpClientFactory _httpClientFactory;
 
         private HttpClient HttpClient => _httpClientFactory.CreateClient("hardwareserviceorderservices");
 
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="HardwareServiceOrderService"/>-class using dependency-injection.
+        /// </summary>
+        /// <param name="logger"> A dependency-injected implementation of the <see cref="ILogger{TCategoryName}"/> interface. </param>
+        /// <param name="httpClientFactory"> A dependency-injected implementation of the <see cref="IHttpClientFactory"/> interface. </param>
+        /// <param name="httpContextAccessor"> A dependency-injected implementation of the <see cref="IHttpContextAccessor"/> interface. </param>
+        /// <param name="mapper"> A dependency-injected implementation of the <see cref="IMapper"/> interface. </param>
+        /// <param name="options"> A dependency-injected implementation of the <see cref="IOptions{TOptions}"/> interface. </param>
+        /// <param name="assetServices"> A dependency-injected implementation of the <see cref="IAssetServices"/> interface. </param>
+        /// <param name="userServices"> A dependency-injected implementation of the <see cref="IUserServices"/> interface. </param>
+        /// <param name="customerServices"> A dependency-injected implementation of the <see cref="ICustomerServices"/> interface. </param>
+        /// <param name="partnerServices"> A dependency-injected implementation of the <see cref="IPartnerServices"/> interface. </param>
         public HardwareServiceOrderService(
             ILogger<HardwareServiceOrderService> logger,
             IHttpClientFactory httpClientFactory,
+            IHttpContextAccessor httpContextAccessor,
+            IMapper mapper,
             IOptions<HardwareServiceOrderConfiguration> options,
             IAssetServices assetServices,
             IUserServices userServices,
             ICustomerServices customerServices,
-            IPartnerServices partnerServices,
-            IHttpContextAccessor httpContextAccessor)
+            IPartnerServices partnerServices)
         {
             _logger = logger;
+            _httpClientFactory = httpClientFactory;
+            _httpContextAccessor = httpContextAccessor;
+            _mapper = mapper;
             _options = options.Value;
             _assetServices = assetServices;
             _userServices = userServices;
             _customerServices = customerServices;
             _partnerServices = partnerServices;
-            _httpContextAccessor = httpContextAccessor;
-            _httpClientFactory = httpClientFactory;
         }
 
 
@@ -107,7 +127,7 @@ namespace OrigoApiGateway.Services
 
 #if DEBUG
 #pragma warning disable S1481 // Unused local variables should be removed
-            string? bodyAsString = await response.Content.ReadAsStringAsync();
+            string? responseBodyAsString = await response.Content.ReadAsStringAsync();
 #pragma warning restore S1481 // Unused local variables should be removed
 #endif
 
@@ -122,7 +142,7 @@ namespace OrigoApiGateway.Services
         ///     The request will be automatically configured to include required headers, and will process the query parameters before
         ///     appending them to the URL. </para>
         /// </summary>
-        /// <typeparam name="TInput"> The target type that should be serialized from. </typeparam>
+        /// <typeparam name="TInput"> The target type the request should be serialized from. </typeparam>
         /// <param name="httpMethod"> The HTTP-method to use for the request. </param>
         /// <param name="requestUri"> The request URL. </param>
         /// <param name="queryParameters"> The dictionary containing all query names and values. </param>
@@ -143,11 +163,53 @@ namespace OrigoApiGateway.Services
 
 #if DEBUG
 #pragma warning disable S1481 // Unused local variables should be removed
-            string? bodyAsString = await response.Content.ReadAsStringAsync();
+            string? responseBodyAsString = await response.Content.ReadAsStringAsync();
 #pragma warning restore S1481 // Unused local variables should be removed
 #endif
 
             response.EnsureSuccessStatusCode();
+        }
+
+        /// <summary>
+        ///     Serializes the provided data, and send a HTTP-request to specified URL as an asynchronous operation.
+        ///     
+        ///     <para>
+        ///     The request will be automatically configured to include required headers, and will process the query parameters before
+        ///     appending them to the URL. </para>
+        /// </summary>
+        /// <typeparam name="TInput"> The target type the request should be serialized from. </typeparam>
+        /// <typeparam name="TOutput"> The target type the response should be serialized to. </typeparam>
+        /// <param name="httpMethod"> The HTTP-method to use for the request. </param>
+        /// <param name="requestUri"> The request URL. </param>
+        /// <param name="queryParameters"> The dictionary containing all query names and values. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <param name="inputValue"> The item that should be serialized and to the HTTP-request. </param>
+        /// <returns> 
+        ///     A task that represents the asynchronous operation. The task results contains the de-serialized object, or <see langword="null"/>
+        ///     if the body was empty, or the de-serialization failed. 
+        /// </returns>
+        /// <exception cref="HttpRequestException"> Thrown if the HTTP request resulted in an error-code. </exception>
+        private async Task<TOutput?> SendRequestAsync<TInput, TOutput>(HttpMethod httpMethod, string requestUri, Dictionary<string, string>? queryParameters, TInput inputValue) where TInput : notnull
+        {
+            HttpResponseMessage response;
+
+            string constructedRequestUrl = await BuildRequestUrl(requestUri, queryParameters);
+            using var request = new HttpRequestMessage(httpMethod, constructedRequestUrl);
+            request.Headers.Add("X-Authenticated-UserId", GetUserId());
+            request.Content = JsonContent.Create(inputValue);
+
+            response = await HttpClient.SendAsync(request);
+
+#if DEBUG
+#pragma warning disable S1481 // Unused local variables should be removed
+            string? responseBodyAsString = await response.Content.ReadAsStringAsync();
+#pragma warning restore S1481 // Unused local variables should be removed
+#endif
+
+            response.EnsureSuccessStatusCode();
+
+            TOutput? deserialized = await response.Content.ReadFromJsonAsync<TOutput>();
+            return deserialized;
         }
 
 
@@ -162,6 +224,13 @@ namespace OrigoApiGateway.Services
         {
             string constructedRequestUrl = await BuildRequestUrl(requestUri, queryParameters);
             var response = await HttpClient.GetAsync(constructedRequestUrl);
+
+#if DEBUG
+#pragma warning disable S1481 // Unused local variables should be removed
+            string? responseBodyAsString = await response.Content.ReadAsStringAsync();
+#pragma warning restore S1481 // Unused local variables should be removed
+#endif
+
             response.EnsureSuccessStatusCode();
 
             TOutput? deserialized = await response.Content.ReadFromJsonAsync<TOutput>();
@@ -188,12 +257,22 @@ namespace OrigoApiGateway.Services
 
 
         /// <inheritdoc/>
+        public async Task<IEnumerable<CustomerPortalServiceProvider>> CustomerPortalGetAllServiceProvidersAsync(bool includeSupportedServiceTypes, bool includeOfferedServiceOrderAddons)
+        {
+            var unmapped = await GetAllServiceProvidersAsync(includeSupportedServiceTypes, includeOfferedServiceOrderAddons);
+            var mapped = _mapper.Map<IEnumerable<CustomerPortalServiceProvider>>(unmapped);
+
+            return mapped;
+        }
+
+
+        /// <inheritdoc/>
         public async Task<IEnumerable<CustomerServiceProvider>> GetCustomerServiceProvidersAsync(Guid organizationId, bool includeApiCredentialIndicators, bool includeActiveServiceOrderAddons)
         {
             var queryParameters = new Dictionary<string, string>
             {
                 { "includeApiCredentialIndicators", includeApiCredentialIndicators.ToString() },
-                { "includeActiveServiceOrderAddons", includeApiCredentialIndicators.ToString() }
+                { "includeActiveServiceOrderAddons", includeActiveServiceOrderAddons.ToString() }
             };
 
             var result = await GetAsync<IEnumerable<CustomerServiceProvider>>($"{_options.ConfigurationApiPath}/{organizationId}/service-provider", queryParameters);
@@ -203,6 +282,27 @@ namespace OrigoApiGateway.Services
             else
                 return result;
         }
+
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<CustomerPortalCustomerServiceProvider>> CustomerPortalGetCustomerServiceProvidersAsync(Guid organizationId, bool includeActiveServiceOrderAddons)
+        {
+            var unmapped = await GetCustomerServiceProvidersAsync(organizationId, false, includeActiveServiceOrderAddons);
+            var mapped = _mapper.Map<IEnumerable<CustomerPortalCustomerServiceProvider>>(unmapped);
+
+            return mapped;
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<UserPortalCustomerServiceProvider>> UserPortalGetCustomerServiceProvidersAsync(Guid organizationId, bool includeActiveServiceOrderAddons)
+        {
+            var unmapped = await GetCustomerServiceProvidersAsync(organizationId, false, includeActiveServiceOrderAddons);
+            var mapped = _mapper.Map<IEnumerable<UserPortalCustomerServiceProvider>>(unmapped);
+
+            return mapped;
+        }
+
 
 
         /// <inheritdoc/>
@@ -225,16 +325,78 @@ namespace OrigoApiGateway.Services
 
 
         /// <inheritdoc/>
-        public async Task RemoveServiceAddonFromBackofficeAsync(Guid organizationId, int serviceProviderId, ISet<int> serviceOrderAddonIds)
+        public async Task AddServiceAddonFromBackofficeAsync(Guid organizationId, int serviceProviderId, ISet<int> newServiceOrderAddonIds)
         {
-            await SendRequestAsync(HttpMethod.Delete, $"{_options.ConfigurationApiPath}/{organizationId}/service-provider/{serviceProviderId}/addons", null, serviceOrderAddonIds);
+            await SendRequestAsync(HttpMethod.Patch, $"{_options.ConfigurationApiPath}/{organizationId}/service-provider/{serviceProviderId}/addons", null, newServiceOrderAddonIds);
+        }
+
+        /// <inheritdoc/>
+        public async Task AddServiceAddonFromCustomerPortalAsync(Guid organizationId, int serviceProviderId, ISet<int> newServiceOrderAddonIds)
+        {
+            var queryParameters = new Dictionary<string, string>
+            {
+                { "includeOfferedServiceOrderAddons", true.ToString() }
+            };
+
+            ServiceProvider? serviceProvider = await SendRequestAsync<ISet<int>, ServiceProvider>(HttpMethod.Get, $"{_options.ServiceProviderApiPath}/{serviceProviderId}", queryParameters, newServiceOrderAddonIds);
+            
+            if (serviceProvider is null)
+                throw new ArgumentException("The service-provider was not found.", nameof(serviceProviderId));
+
+            var validAddonIds = serviceProvider.OfferedServiceOrderAddons!
+                                               .Where(e => e.IsCustomerTogglable)
+                                               .Select(e => e.Id);
+
+            // We need to ensure the new IDs belongs to the given service-provider, and that the customer is actually allowed to add the ID!
+            foreach (var newAddonId in newServiceOrderAddonIds)
+            {
+                bool isValid = validAddonIds.Any(i => i == newAddonId);
+
+                if (!isValid)
+                    throw new ArgumentException("The service-addon ID list contains invalid values.", nameof(newServiceOrderAddonIds));
+            }
+
+            // Place the "order" (we can use the backoffice version from here, since we have made the required checks)
+            await AddServiceAddonFromBackofficeAsync(organizationId, serviceProviderId, newServiceOrderAddonIds);
         }
 
 
         /// <inheritdoc/>
-        public async Task AddServiceAddonFromBackofficeAsync(Guid organizationId, int serviceProviderId, ISet<int> serviceOrderAddonIds)
+        public async Task RemoveServiceAddonFromBackofficeAsync(Guid organizationId, int serviceProviderId, ISet<int> removedServiceOrderAddonIds)
         {
-            await SendRequestAsync(HttpMethod.Patch, $"{_options.ConfigurationApiPath}/{organizationId}/service-provider/{serviceProviderId}/addons", null, serviceOrderAddonIds);
+            await SendRequestAsync(HttpMethod.Delete, $"{_options.ConfigurationApiPath}/{organizationId}/service-provider/{serviceProviderId}/addons", null, removedServiceOrderAddonIds);
         }
+
+
+        /// <inheritdoc/>
+        public async Task RemoveServiceAddonFromCustomerPortalAsync(Guid organizationId, int serviceProviderId, ISet<int> removedServiceOrderAddonIds)
+        {
+            var queryParameters = new Dictionary<string, string>
+            {
+                { "includeOfferedServiceOrderAddons", true.ToString() }
+            };
+
+            ServiceProvider? serviceProvider = await SendRequestAsync<ISet<int>, ServiceProvider>(HttpMethod.Get, $"{_options.ServiceProviderApiPath}/{serviceProviderId}", queryParameters, removedServiceOrderAddonIds);
+
+            if (serviceProvider is null)
+                throw new ArgumentException("The service-provider was not found.", nameof(serviceProviderId));
+
+            var validAddonIds = serviceProvider.OfferedServiceOrderAddons!
+                                               .Where(e => e.IsCustomerTogglable)
+                                               .Select(e => e.Id);
+
+            // We need to ensure the new IDs belongs to the given service-provider, and that the customer is actually allowed to add the ID!
+            foreach (var removedAddonId in removedServiceOrderAddonIds)
+            {
+                bool isValid = validAddonIds.Any(i => i == removedAddonId);
+
+                if (!isValid)
+                    throw new ArgumentException("The service-addon ID list contains invalid values.", nameof(removedServiceOrderAddonIds));
+            }
+
+            // Place the "order" (we can use the backoffice version from here, since we have made the required checks)
+            await RemoveServiceAddonFromBackofficeAsync(organizationId, serviceProviderId, removedServiceOrderAddonIds);
+        }
+
     }
 }

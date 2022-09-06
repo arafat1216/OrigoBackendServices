@@ -1,5 +1,7 @@
-﻿using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
+﻿using OrigoApiGateway.Models.HardwareServiceOrder.Backend;
+using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response;
+using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
 
 #nullable enable
 
@@ -21,6 +23,11 @@ namespace OrigoApiGateway.Services
         /// <returns> A collection that contains all service-providers that exists in the solution. </returns>
         Task<IEnumerable<Models.HardwareServiceOrder.Backend.ServiceProvider>> GetAllServiceProvidersAsync(bool includeSupportedServiceTypes, bool includeOfferedServiceOrderAddons);
 
+        /// <inheritdoc cref="GetAllServiceProvidersAsync(bool, bool)"/>
+        /// <remarks>
+        ///     The results is filtered to only include the data that's relevant for the customer-portals configuration pages.
+        /// </remarks>
+        Task<IEnumerable<CustomerPortalServiceProvider>> CustomerPortalGetAllServiceProvidersAsync(bool includeSupportedServiceTypes, bool includeOfferedServiceOrderAddons);
 
         /// <summary>
         ///     Retrieves all <see cref="CustomerServiceProvider"/>-configurations that's used by a given customer.
@@ -30,6 +37,18 @@ namespace OrigoApiGateway.Services
         /// <param name="includeActiveServiceOrderAddons"> Should <see cref="CustomerServiceProvider.ActiveServiceOrderAddons"/> be loaded and included in the results? </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains a list of all retrieved customer-service-provider details. </returns>
         Task<IEnumerable<CustomerServiceProvider>> GetCustomerServiceProvidersAsync(Guid organizationId, bool includeApiCredentialIndicators, bool includeActiveServiceOrderAddons);
+
+        /// <inheritdoc cref="GetCustomerServiceProvidersAsync(Guid, bool, bool)"/>
+        /// <remarks>
+        ///     The results is filtered to only include the data that's relevant for the customer-portals configuration pages.
+        /// </remarks>
+        Task<IEnumerable<CustomerPortalCustomerServiceProvider>> CustomerPortalGetCustomerServiceProvidersAsync(Guid organizationId, bool includeActiveServiceOrderAddons);
+
+        /// <inheritdoc cref="GetCustomerServiceProvidersAsync(Guid, bool, bool)"/>
+        /// <remarks>
+        ///     The results is filtered to only include the data that's relevant for the user-portal/order forms.
+        /// </remarks>
+        Task<IEnumerable<UserPortalCustomerServiceProvider>> UserPortalGetCustomerServiceProvidersAsync(Guid organizationId, bool includeActiveServiceOrderAddons);
 
         /// <summary>
         ///     Deletes an existing API credential.
@@ -54,15 +73,6 @@ namespace OrigoApiGateway.Services
         Task AddOrUpdateApiCredentialAsync(Guid organizationId, int serviceProviderId, NewApiCredential apiCredential);
 
         /// <summary>
-        ///     Removes service-order addons from a customer's service-provider configuration. (<see cref="CustomerServiceProvider"/>).
-        /// </summary>
-        /// <param name="organizationId"> The customer/organization that's being configured. </param>
-        /// <param name="serviceProviderId"> The service-provider that's being configured. </param>
-        /// <param name="serviceOrderAddonIds"> A list containing the service-order IDs that should be removed. </param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        Task RemoveServiceAddonFromBackofficeAsync(Guid organizationId, int serviceProviderId, ISet<int> serviceOrderAddonIds);
-
-        /// <summary>
         ///     Adds new service-order addons to a customer's service-provider configuration. (<see cref="CustomerServiceProvider"/>). Pre-existing items will not be affected.
         ///     
         ///     <para>
@@ -70,8 +80,33 @@ namespace OrigoApiGateway.Services
         /// </summary>
         /// <param name="organizationId"> The customer/organization that's being configured. </param>
         /// <param name="serviceProviderId"> The service-provider that's being configured. </param>
-        /// <param name="serviceOrderAddonIds"> A list containing the service-order IDs that should be added. </param>
+        /// <param name="newServiceOrderAddonIds"> A list containing the service-order IDs that should be added. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        Task AddServiceAddonFromBackofficeAsync(Guid organizationId, int serviceProviderId, ISet<int> serviceOrderAddonIds);
+        Task AddServiceAddonFromBackofficeAsync(Guid organizationId, int serviceProviderId, ISet<int> newServiceOrderAddonIds);
+
+        /// <inheritdoc cref="AddServiceAddonFromBackofficeAsync(Guid, int, ISet{int})"/>
+        /// <remarks>
+        ///     It is only possible to add new <paramref name="newServiceOrderAddonIds"/> where 
+        ///     "<c><see cref="ServiceOrderAddon.IsCustomerTogglable"/> == <see langword="true"/></c>.
+        /// </remarks>
+        /// <exception cref="ArgumentException"> Thrown when one or more of the inputs is invalid. </exception>
+        Task AddServiceAddonFromCustomerPortalAsync(Guid organizationId, int serviceProviderId, ISet<int> newServiceOrderAddonIds);
+
+        /// <summary>
+        ///     Removes service-order addons from a customer's service-provider configuration. (<see cref="CustomerServiceProvider"/>).
+        /// </summary>
+        /// <param name="organizationId"> The customer/organization that's being configured. </param>
+        /// <param name="serviceProviderId"> The service-provider that's being configured. </param>
+        /// <param name="removedServiceOrderAddonIds"> A list containing the service-order IDs that should be removed. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        Task RemoveServiceAddonFromBackofficeAsync(Guid organizationId, int serviceProviderId, ISet<int> removedServiceOrderAddonIds);
+
+        /// <inheritdoc cref="RemoveServiceAddonFromBackofficeAsync(Guid, int, ISet{int})"/>
+        /// <remarks>
+        ///     It is only possible to add new <paramref name="removedServiceOrderAddonIds"/> where 
+        ///     "<c><see cref="ServiceOrderAddon.IsCustomerTogglable"/> == <see langword="true"/></c>.
+        /// </remarks>
+        /// <exception cref="ArgumentException"> Thrown when one or more of the inputs is invalid. </exception>
+        Task RemoveServiceAddonFromCustomerPortalAsync(Guid organizationId, int serviceProviderId, ISet<int> removedServiceOrderAddonIds);
     }
 }

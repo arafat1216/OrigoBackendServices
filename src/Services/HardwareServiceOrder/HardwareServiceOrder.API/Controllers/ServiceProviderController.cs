@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using HardwareServiceOrderServices;
+using HardwareServiceOrderServices.Exceptions;
 using HardwareServiceOrderServices.Infrastructure;
+using HardwareServiceOrderServices.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HardwareServiceOrder.API.Controllers
@@ -58,13 +60,54 @@ namespace HardwareServiceOrder.API.Controllers
         ///     <para>
         ///     This property contains all the service-addons that exist for this service-provider. </para>
         /// </param>
-        /// <returns></returns>
+        /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<ServiceProviderDTO>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<ServiceProviderDTO>>> GetAllServiceProvidersAsync([FromQuery] bool includeSupportedServiceTypes = false, [FromQuery] bool includeOfferedServiceOrderAddons = false)
+        [SwaggerResponse(StatusCodes.Status200OK, null, typeof(IEnumerable<ServiceProviderDTO>))]
+        public async Task<ActionResult> GetAllServiceProvidersAsync([FromQuery] bool includeSupportedServiceTypes = false, [FromQuery] bool includeOfferedServiceOrderAddons = false)
         {
             var serviceProviders = await _hardwareServiceOrderService.GetAllServiceProvidersAsync(includeSupportedServiceTypes, includeOfferedServiceOrderAddons);
             return Ok(serviceProviders);
         }
+
+
+        /// <summary>
+        ///     Retrieves a service-provider by it's ID.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves a service-provider by it's ID. If requested, it is also possible to include 
+        ///     additional information about the service-provider's offerings and capabilities.
+        /// </remarks>
+        /// <param name="serviceProviderId"> The service-provider's ID. </param>
+        /// <param name="includeSupportedServiceTypes">
+        ///     When <c><see langword="true"/></c>, the <c>SupportedServiceTypeIds</c> property is loaded/included in the retrieved data. 
+        ///     
+        ///     <para>
+        ///     This property details what kinds of service-types that can be created using this service-provider. </para>
+        /// </param>
+        /// <param name="includeOfferedServiceOrderAddons">
+        ///     When <c><see langword="true"/></c>, the <c>OfferedServiceOrderAddons</c> property is loaded/included in the retrieved data. 
+        ///     
+        ///     <para>
+        ///     This property contains all the service-addons that exist for this service-provider. </para>
+        /// </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
+        [HttpGet("{serviceProviderId:int}")]
+        [SwaggerResponse(StatusCodes.Status200OK, null, typeof(ServiceProviderDTO))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> GetServiceProvidersByIdAsync([FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromQuery] bool includeSupportedServiceTypes = false, [FromQuery] bool includeOfferedServiceOrderAddons = false)
+        {
+            try
+            {
+                var serviceProvider = await _hardwareServiceOrderService.GetServiceProviderById(serviceProviderId, includeSupportedServiceTypes, includeOfferedServiceOrderAddons);
+                return Ok(serviceProvider);
+            }
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
+
     }
 }

@@ -1,23 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using AutoMapper;
 using Common.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Moq;
 using Moq.Protected;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Mappings;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
 using OrigoApiGateway.Services;
-using Xunit;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Tests
 {
@@ -87,9 +83,9 @@ namespace OrigoApiGateway.Tests
 
             // Assert
             Assert.Equal(2, minBuyoutPrices.Count);
-            Assert.Equal(2, minBuyoutPrices.Count(x=>x.Currency == CurrencyCode.NOK.ToString()));
+            Assert.Equal(2, minBuyoutPrices.Count(x => x.Currency == CurrencyCode.NOK.ToString()));
         }
-        
+
         [Fact]
         [Trait("Category", "UnitTest")]
         public async Task GetAssetsForUser_ForUserOne_CheckCount()
@@ -129,7 +125,7 @@ namespace OrigoApiGateway.Tests
                         }, {
                             ""assetId"": ""ef8710e8-ca5c-4832-ae27-139100d1ae63"",
                             ""organizationId"": ""20ef7dbd-a0d1-44c3-b855-19799cceb347"",
-                            ""alias"": ""Ro ro ro din båt"",
+                            ""alias"": ""Ro ro ro din bï¿½t"",
                             ""note"": ""Order screen protective."",
                             ""description"": ""This device will be used to order new vares."",
                             ""assetTag"": ""Company owned"",
@@ -199,7 +195,7 @@ namespace OrigoApiGateway.Tests
 
             var mockUser = new Mock<OrigoUser>();
             var mockUserService = new Mock<IUserServices>();
-            mockUserService.Setup(p => p.GetUserAsync(Guid.Empty,Guid.Empty).Result).Returns(mockUser.Object);
+            mockUserService.Setup(p => p.GetUserAsync(Guid.Empty, Guid.Empty).Result).Returns(mockUser.Object);
 
             var mockDepartment = new Mock<OrigoDepartment>();
             var mockDepartmentService = new Mock<IDepartmentsServices>();
@@ -258,7 +254,7 @@ namespace OrigoApiGateway.Tests
                         }, {
                             ""assetId"": ""ef8710e8-ca5c-4832-ae27-139100d1ae63"",
                             ""organizationId"": ""20ef7dbd-a0d1-44c3-b855-19799cceb347"",
-                            ""alias"": ""Ro ro ro din båt"",
+                            ""alias"": ""Ro ro ro din bï¿½t"",
                             ""note"": ""Order screen protective."",
                             ""description"": ""This device will be used to order new vares."",
                             ""assetTag"": ""Company owned"",
@@ -300,7 +296,7 @@ namespace OrigoApiGateway.Tests
             var data = new UpdateAssetsStatus
             {
                 AssetGuidList = assetGuidList,
-                AssetStatus =  1
+                AssetStatus = 1
             };
 
             // Act
@@ -380,7 +376,7 @@ namespace OrigoApiGateway.Tests
             // Assert
             Assert.Equal(3, createdLabels.Count);
             Assert.Equal("Manager", createdLabels[0].Text);
-            Assert.Equal(3,  (int) createdLabels[1].Color);
+            Assert.Equal(3, (int)createdLabels[1].Color);
             Assert.Equal("Gray", createdLabels[2].ColorName);
         }
 
@@ -420,7 +416,7 @@ namespace OrigoApiGateway.Tests
 
             var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
             var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object, _mapper);
-            
+
 
 
 
@@ -456,7 +452,7 @@ namespace OrigoApiGateway.Tests
         {
             // Arrange
             const string CUSTOMER_ID = "cab4bb77-3471-4ab3-ae5e-2d4fce450f36";
-            
+
 
             var mockFactory = new Mock<IHttpClientFactory>();
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -616,12 +612,12 @@ namespace OrigoApiGateway.Tests
                 Id = userId,
                 Email = "kari@normann.no",
                 FirstName = "Kari",
-                UserPreference = new UserPreference() { Language = "en"},
-                
+                UserPreference = new UserPreference() { Language = "en" },
+
             };
             userService.Setup(o => o.GetUserAsync(userId))
                 .ReturnsAsync(user);
-  
+
 
 
             var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
@@ -637,7 +633,7 @@ namespace OrigoApiGateway.Tests
             };
 
             // Act
-            
+
             var asset = await assetService.MakeAssetAvailableAsync(new Guid(CUSTOMER_ID), postData, Guid.Empty);
 
             // Assert
@@ -712,7 +708,7 @@ namespace OrigoApiGateway.Tests
             var mockFactory = new Mock<IHttpClientFactory>();
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x=>
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
                     x.RequestUri != null && x.RequestUri.ToString().Contains("/lifecycle-setting") && x.Method == HttpMethod.Get
                     ),
                     ItExpr.IsAny<CancellationToken>())
@@ -734,7 +730,7 @@ namespace OrigoApiGateway.Tests
                 });
 
             mockHttpMessageHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x=>
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
                     x.RequestUri != null && x.RequestUri.ToString().Contains("/lifecycle-setting") && x.Method == HttpMethod.Put
                     ),
                     ItExpr.IsAny<CancellationToken>())
@@ -980,7 +976,7 @@ namespace OrigoApiGateway.Tests
             await Assert.ThrowsAsync<ResourceNotFoundException>(() =>
                 assetService.ReturnDeviceAsync(new Guid(CUSTOMER_ID), new Guid(ASSET_ID), PredefinedRole.EndUser.ToString(), new List<Guid?>(), Guid.Empty, Guid.Empty));
         }
-         
+
         [Fact]
         [Trait("Category", "UnitTest")]
         public async Task ReportDeviceAsync_AssetDoesNotExist()

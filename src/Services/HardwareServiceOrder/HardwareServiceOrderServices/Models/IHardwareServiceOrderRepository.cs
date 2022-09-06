@@ -200,6 +200,29 @@ namespace HardwareServiceOrderServices.Models
 
 
         /// <summary>
+        ///     Retrieves a service-provider by it's ID.
+        /// </summary>
+        /// <param name="id"> The ID that should be retrieved. </param>
+        /// <param name="includeSupportedServiceTypes"> Should <see cref="ServiceProvider.SupportedServiceTypes"/> be loaded and included in the result? </param>
+        /// <param name="includeOfferedServiceOrderAddons"> Should <see cref="ServiceProvider.OfferedServiceOrderAddons"/> be loaded and included in the result? </param>
+        /// <param name="asNoTracking"> 
+        ///     Should the query be run using '<c>AsNoTracking</c>'? 
+        ///     
+        ///     <para>
+        ///     To improve performance, this should be set to <see langword="true"/> for read-only operations.
+        ///     However, if any write operations will occur, then this should always be set to <see langword="false"/>. </para>
+        /// </param>
+        /// <returns> 
+        ///     A task that represents the asynchronous operation. The task result contains the retrieved <see cref="ServiceProvider"/>,
+        ///     or <see langword="null"/> if no matches were found.
+        /// </returns>
+        Task<ServiceProvider?> GetServiceProviderByIdAsync(int id,
+                                                           bool includeSupportedServiceTypes,
+                                                           bool includeOfferedServiceOrderAddons,
+                                                           bool asNoTracking = false);
+
+
+        /// <summary>
         ///     Retrieves all service-providers that exist in the system, and applies a conditional include for their offered service-addons.
         /// </summary>
         /// <param name="onlyCustomerTogglable"> If <see langword="true"/>, the <see cref="ServiceProvider.OfferedServiceOrderAddons"/> list will be filtered to
