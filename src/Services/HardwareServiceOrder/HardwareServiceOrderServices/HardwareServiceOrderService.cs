@@ -79,7 +79,7 @@ namespace HardwareServiceOrderServices
             if (customerSetting == null)
                 throw new ArgumentException("Customer settings does not exist");
 
-            var newExternalOrder = new NewExternalRepairOrderDTO(
+            var newExternalOrder = new NewExternalRepairServiceOrderDTO(
                                     serviceOrderDTO.OrderedBy.UserId,
                                     serviceOrderDTO.OrderedBy.FirstName,
                                     serviceOrderDTO.OrderedBy.LastName,

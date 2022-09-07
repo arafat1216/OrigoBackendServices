@@ -17,7 +17,7 @@ namespace HardwareServiceOrderServices
         /// <param name="serviceOrderId"> If supported by the provider, the ID we want to associate with the service order. 
         ///     For some providers this may function as an alternate key/identifier, or can be used for reference purposes. </param>
         /// <returns> The registered repair order. </returns>
-        Task<NewExternalServiceOrderResponseDTO> CreateRepairOrderAsync(NewExternalRepairOrderDTO newRepairOrder, int serviceTypeId, string serviceOrderId);
+        Task<NewExternalServiceOrderResponseDTO> CreateRepairOrderAsync(NewExternalRepairServiceOrderDTO newRepairOrder, int serviceTypeId, string serviceOrderId);
 
         /// <summary>
         ///     Retrieve a specific repair order using it's ID(s). Based on the service-provider, one or several keys may be required.
@@ -29,13 +29,13 @@ namespace HardwareServiceOrderServices
         ///     Typically this is used for alternate IDs, but some providers requires composite-keys (2 identifiers) 
         ///     for retrieving service-orders. </para></param>
         /// <returns></returns>
-        Task<ExternalRepairOrderDTO> GetRepairOrderAsync(string serviceProviderOrderId1, string? serviceProviderOrderId2);
+        Task<ExternalRepairServiceOrderDTO> GetRepairOrderAsync(string serviceProviderOrderId1, string? serviceProviderOrderId2);
 
         /// <summary>
         ///     Checks for updated repair orders, and returns a list of all orders that has been updated after the provided date.
         /// </summary>
         /// <param name="since"> Only retrieve updates that has been made after this timestamp. </param>
         /// <returns> All repair orders that contains updates. </returns>
-        Task<IEnumerable<ExternalRepairOrderDTO>> GetUpdatedRepairOrdersAsync(DateTimeOffset since);
+        Task<IEnumerable<ExternalRepairServiceOrderDTO>> GetUpdatedRepairOrdersAsync(DateTimeOffset since);
     }
 }

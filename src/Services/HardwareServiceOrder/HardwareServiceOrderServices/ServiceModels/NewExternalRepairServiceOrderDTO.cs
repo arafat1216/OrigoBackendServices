@@ -3,19 +3,19 @@
     /// <summary>
     ///     Contains the information required for registering a new repair-order with an external service-provider.
     /// </summary>
-    public class NewExternalRepairOrderDTO : NewExternalServiceOrderDTO
+    public class NewExternalRepairServiceOrderDTO : NewExternalServiceOrderDTO
     {
         /// <summary>
         ///     Reserved JSON (de-)serializer constructor.
         /// </summary>
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public NewExternalRepairOrderDTO() : base()
+        public NewExternalRepairServiceOrderDTO() : base()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
 
         }
 
-        public NewExternalRepairOrderDTO(Guid userId,
+        public NewExternalRepairServiceOrderDTO(Guid userId,
                                          string firstName,
                                          string lastName,
                                          string? phoneNumber,

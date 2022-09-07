@@ -44,12 +44,12 @@ namespace HardwareServiceOrder.UnitTests
             //Repair provider mock
             var repairProviderMock = new Mock<IRepairProvider>();
 
-            repairProviderMock.Setup(m => m.CreateRepairOrderAsync(It.IsAny<NewExternalRepairOrderDTO>(), It.IsAny<int>(), It.IsAny<string>()))
+            repairProviderMock.Setup(m => m.CreateRepairOrderAsync(It.IsAny<NewExternalRepairServiceOrderDTO>(), It.IsAny<int>(), It.IsAny<string>()))
                 .ReturnsAsync(new NewExternalServiceOrderResponseDTO(serviceProviderOrderId1: "serviceProviderOrderId1", serviceProviderOrderId2: "serviceProviderOrderId2", externalServiceManagementLink: "externalServiceManagementLink"));
 
             repairProviderMock.Setup(m => m.GetUpdatedRepairOrdersAsync(It.IsAny<DateTimeOffset>()))
-                .ReturnsAsync(new List<ExternalRepairOrderDTO> {
-                    new ExternalRepairOrderDTO
+                .ReturnsAsync(new List<ExternalRepairServiceOrderDTO> {
+                    new ExternalRepairServiceOrderDTO
                     {
                         AssetIsReplaced = false,
                         ExternalServiceEvents = new List<ExternalServiceEventDTO>{ new ExternalServiceEventDTO {  ServiceStatusId = 2, Timestamp = DateTimeOffset.UtcNow} },
@@ -75,7 +75,7 @@ namespace HardwareServiceOrder.UnitTests
 
             serviceOrderStatusHandlerServiceMock
                 .Setup(m =>
-                    m.HandleServiceOrderStatusAsync(It.IsAny<HardwareServiceOrderServices.Models.HardwareServiceOrder>(), It.IsAny<ExternalRepairOrderDTO>()));
+                    m.HandleServiceOrderStatusAsync(It.IsAny<HardwareServiceOrderServices.Models.HardwareServiceOrder>(), It.IsAny<ExternalRepairServiceOrderDTO>()));
 
             _hardwareServiceOrderService = new HardwareServiceOrderService(_hardwareServiceOrderRepository, _mapper, providerFactoryMock.Object, statusHandlerFactoryMock.Object, emailService.Object, new EphemeralDataProtectionProvider());
 

@@ -3,20 +3,20 @@
     /// <summary>
     ///     Represents the repair-order details that is retrieved from the external service-provider.
     /// </summary>
-    public class ExternalRepairOrderDTO : ExternalServiceOrderDTO
+    public class ExternalRepairServiceOrderDTO : ExternalServiceOrderDTO
     {
         /// <summary>
         ///     Restricted constructor reserved for JSON serializers.
         /// </summary>
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public ExternalRepairOrderDTO() : base()
+        public ExternalRepairServiceOrderDTO() : base()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             
         }
 
 
-        public ExternalRepairOrderDTO(string serviceProviderOrderId1,
+        public ExternalRepairServiceOrderDTO(string serviceProviderOrderId1,
                                       string? serviceProviderOrderId2,
                                       IEnumerable<ExternalServiceEventDTO>? externalServiceEvents,
                                       AssetInfoDTO? providedAsset)
@@ -25,7 +25,7 @@
 
         }
 
-        public ExternalRepairOrderDTO(string serviceProviderOrderId1,
+        public ExternalRepairServiceOrderDTO(string serviceProviderOrderId1,
                                       string? serviceProviderOrderId2,
                                       IEnumerable<ExternalServiceEventDTO>? externalServiceEvents,
                                       AssetInfoDTO? providedAsset,

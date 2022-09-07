@@ -34,7 +34,7 @@ namespace HardwareServiceOrderServices.Conmodo
 
 
         /// <inheritdoc/>
-        public async Task<NewExternalServiceOrderResponseDTO> CreateRepairOrderAsync(NewExternalRepairOrderDTO newRepairOrder, int serviceTypeId, string serviceOrderId)
+        public async Task<NewExternalServiceOrderResponseDTO> CreateRepairOrderAsync(NewExternalRepairServiceOrderDTO newRepairOrder, int serviceTypeId, string serviceOrderId)
         {
             if (string.IsNullOrEmpty(newRepairOrder.AssetInfo.Brand))
                 throw new ArgumentException("The asset's brand name is missing.", nameof(newRepairOrder));
@@ -94,7 +94,7 @@ namespace HardwareServiceOrderServices.Conmodo
         ///     Handles the parameter validation.
         /// </remarks>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S4457:Parameter validation in \"async\"/\"await\" methods should be wrapped", Justification = "It already does this...")]
-        public async Task<ExternalRepairOrderDTO> GetRepairOrderAsync(string serviceProviderOrderId1, string? serviceProviderOrderId2)
+        public async Task<ExternalRepairServiceOrderDTO> GetRepairOrderAsync(string serviceProviderOrderId1, string? serviceProviderOrderId2)
         {
             // Make sure the generic string-IDs matches Conmodo's corresponding datatype (to verify the data/format).
             bool id1Validated = Guid.TryParse(serviceProviderOrderId1, out Guid commId);
@@ -130,7 +130,7 @@ namespace HardwareServiceOrderServices.Conmodo
         /// </remarks>
         /// <param name="commId"> Our custom identifier that was provided to Conmodo when we created the service-order. </param>
         /// <param name="orderNo"> Conmodo's order-number. In some parts of Conmodo's documentation this is referred to as <c>claimNumber</c>. </param>
-        private async Task<ExternalRepairOrderDTO> GetRepairOrderPostValidationAsync(string commId, int? orderNo)
+        private async Task<ExternalRepairServiceOrderDTO> GetRepairOrderPostValidationAsync(string commId, int? orderNo)
         {
             OrderResponse? response = await ApiRequests.GetOrderAsync(commId);
             AssetInfoDTO? deliveredAsset = null;
@@ -167,7 +167,7 @@ namespace HardwareServiceOrderServices.Conmodo
             bool? isAssetReplaced = CheckForAssetReplacement(deliveredAsset, returnedAsset, response.Events);
             var externalEventList = eventMapper.FromConmodo(response.Events, isAssetReplaced);
 
-            ExternalRepairOrderDTO repairOrder = new(commId, orderNo.ToString(), externalEventList, deliveredAsset, returnedAsset, isAssetReplaced);
+            ExternalRepairServiceOrderDTO repairOrder = new(commId, orderNo.ToString(), externalEventList, deliveredAsset, returnedAsset, isAssetReplaced);
             return repairOrder;
         }
 
@@ -208,15 +208,15 @@ namespace HardwareServiceOrderServices.Conmodo
 
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<ExternalRepairOrderDTO>> GetUpdatedRepairOrdersAsync(DateTimeOffset since)
+        public async Task<IEnumerable<ExternalRepairServiceOrderDTO>> GetUpdatedRepairOrdersAsync(DateTimeOffset since)
         {
             var ordersWithUpdates = await ApiRequests.GetUpdatedOrdersAsync(since);
 
             if (ordersWithUpdates is null || ordersWithUpdates.Order is null || !ordersWithUpdates.Order.Any())
-                return new List<ExternalRepairOrderDTO>();
+                return new List<ExternalRepairServiceOrderDTO>();
 
             // A list that will contain all async tasks added in the foreach loop
-            List<Task<ExternalRepairOrderDTO>> listOfTasks = new();
+            List<Task<ExternalRepairServiceOrderDTO>> listOfTasks = new();
 
             // Add the task itself to the list. DO NOT await anything inside the loop, as this defeats the purpose of starting all external requests in parallel!
             foreach (var updatedOrder in ordersWithUpdates.Order)
