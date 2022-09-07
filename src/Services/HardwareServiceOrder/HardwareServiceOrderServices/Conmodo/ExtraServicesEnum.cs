@@ -1,5 +1,8 @@
 ﻿namespace HardwareServiceOrderServices.Conmodo
 {
+    /// <summary>
+    ///     Contains a list of service-order-addons that exists for Conmodo
+    /// </summary>
     internal enum ExtraServicesEnum
     {
         /*
@@ -27,10 +30,22 @@
         ReturnToRetailerOrAccountAddress_NO = 312,
 
         /// <summary>
-        ///     When added
+        ///     When added, Conmodo will send out emails containing the shipping-label.
         /// </summary>
         /// <remarks> This service can only be used in Norway. </remarks>
-        EmailShippingLabelToCustomerOrUser_NO = 219,
+        EmailShippingLabelToCustomerOrUser_NO = 319,
+
+        /// <summary>
+        ///     When added, Conmodo will provide the customer/user with packaging material. The shipped package also contains a physical 
+        ///     shipping-label.
+        /// </summary>
+        /// <remarks> 
+        ///     This service can only be used in Norway.
+        ///     
+        ///     <para>
+        ///     Note: This can NOT be combined with <see cref="EmailShippingLabelToCustomerOrUser_NO"/>! </para>
+        /// </remarks>
+        SendPackagingAndShippingLabelToCustomerOrUser_NO = 368,
 
         /// <summary>
         ///     Add preswap to the service-order.
@@ -59,6 +74,15 @@
         /// <remarks> This service can only be used in Sweden. </remarks>
         /// <inheritdoc cref="EmailShippingLabelToCustomerOrUser_NO"/>
         EmailShippingLabelToCustomerOrUser_SE = 320,
+
+        /// <remarks> 
+        ///     This service can only be used in Sweden.
+        ///     
+        ///     <para>
+        ///     Note: This can NOT be combined with <see cref="EmailShippingLabelToCustomerOrUser_SE"/>! </para>
+        /// </remarks>
+        /// <inheritdoc cref="EmailShippingLabelToCustomerOrUser_NO"/>
+        SendPackagingAndShippingLabelToCustomerOrUser_SE = 321,
 
         /// <remarks> This service can only be used in Sweden. </remarks>
         /// <inheritdoc cref="Preswap_NO"/>
