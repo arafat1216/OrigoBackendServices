@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
 using OrigoGateway.IntegrationTests.Helpers;
 using System;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
 using System.Threading;
@@ -141,6 +143,69 @@ namespace OrigoGateway.IntegrationTests.Controllers
             var response = await client.GetAsync($"/origoapi/v1.0/customers/userCount");
 
             Assert.Equal(expected, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task UpdateOrganization_WithoutPayrollContactEmail()
+        {
+            var organizationId = Guid.NewGuid();
+            var email = "test@techstep.no";
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "CustomerAdmin"));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+
+                    var customerService = new Mock<ICustomerServices>();
+
+                    customerService.Setup(_ => _.UpdateOrganizationAsync(It.IsAny<UpdateOrganizationDTO>())).ReturnsAsync(new Organization());
+                    services.AddSingleton(customerService.Object);
+                });
+
+
+            }).CreateClient();
+
+            var postData = new UpdateOrganization()
+            {
+                OrganizationId = organizationId,
+                Name = "TestName",
+                OrganizationNumber = "919724617",
+                ContactPerson = new OrigoContactPerson()
+                {
+                    FirstName = "Test",
+                    LastName = "Test",
+                    Email = "test@techstep.no",
+                    PhoneNumber = "+4790909090",
+                },
+                Address = new Address
+                {
+                    City = "OSLO",
+                    Country = "NO",
+                    Postcode = "0554",
+                    Street = "Markveien 32F"
+                },
+            };
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.PutAsJsonAsync($"/origoapi/v1.0/customers", postData);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
     }
 }
