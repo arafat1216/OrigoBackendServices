@@ -591,6 +591,25 @@ namespace CustomerServices
             return userDTO;
         }
 
+        /// <inheritdoc/>
+        public async Task<UserDTO> CompleteOffboarding(Guid customerId, Guid userId, Guid callerId)
+        {
+            var user = await GetUserAsync(customerId, userId);
+            if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
+            if (user.UserStatus != UserStatus.OffboardInitiated && user.UserStatus != UserStatus.OffboardOverdue) throw new UserNotFoundException($"Offboarding not initiated for User: {userId}");
+
+            user.OffboardingCompleted(callerId);
+            await _organizationRepository.SaveEntitiesAsync();
+
+            if (!string.IsNullOrEmpty(user.OktaUserId))
+            {
+                await _oktaServices.RemoveUserFromGroupAsync(user.OktaUserId);
+            }
+
+            var userDTO = _mapper.Map<UserDTO>(user);
+            return userDTO;
+        }
+
         public async Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
             var customer = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);

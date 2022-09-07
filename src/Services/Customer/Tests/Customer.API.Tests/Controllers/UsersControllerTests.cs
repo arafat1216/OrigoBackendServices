@@ -1396,6 +1396,63 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
         [Fact]
+        public async Task CompleteOffboarding_WithOkta()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userFourId}/complete-offboarding";
+
+            // Act
+            var response = await httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+        [Fact]
+        public async Task CompleteOffboarding_WithoutOkta()
+        {
+            // Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            // Act
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userTwoId}/complete-offboarding";
+            var response = await httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
+            var user = await response.Content.ReadFromJsonAsync<User>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal((int)UserStatus.OffboardCompleted, user!.UserStatus);
+            Assert.NotNull(user!.LastWorkingDay);
+        }
+
+        [Fact]
+        public async Task CompleteOffboarding_UserNotExist()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{Guid.NewGuid()}/complete-offboarding";
+
+            // Act
+            var response = await httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task CompleteOffboarding_OffboardNotInitiated()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/complete-offboarding";
+
+            // Act
+            var response = await httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+        [Fact]
         public async Task ResendOrigoInvitationMail_DepartmentManagerResendsAInvitationForUserInDepartment_ReturnsOK()
         {
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);

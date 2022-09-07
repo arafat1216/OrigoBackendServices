@@ -162,6 +162,17 @@ namespace CustomerServices.Models
             AddDomainEvent(new OffboardingOverduedDomainEvent(this, callerId));
             LastUpdatedDate = DateTime.UtcNow;
         }
+
+        /// <summary>
+        /// Completing offboarding and updating user status to 'OffboardingCompleted'
+        /// </summary>
+        public void OffboardingCompleted(Guid callerId)
+        {
+            UpdatedBy = callerId;
+            ChangeUserStatus(null, UserStatus.OffboardCompleted);
+            AddDomainEvent(new OffboardingCompletedDomainEvent(this, callerId));
+            LastUpdatedDate = DateTime.UtcNow;
+        }
         public void AssignDepartment(Department department, Guid callerId)
         {
             UpdatedBy = callerId;

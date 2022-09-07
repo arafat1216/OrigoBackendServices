@@ -458,6 +458,40 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
+    /// Mostly will be used by the scheduler. It is called when Offboarding is completed for an employee after its last working day
+    /// </summary>
+    /// <param name="customerId">CustomerId of the user/param>
+    /// <param name="userId">ID of the user that is overdued</param>
+    /// <param name="callerId">ID of the caller/param>
+    /// <returns></returns>
+    [Route("{userId:Guid}/complete-offboarding")]
+    [HttpPost]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult<User>> CompleteOffboarding(Guid customerId, Guid userId, [FromBody] Guid callerId)
+    {
+        try
+        {
+            var user = await _userServices.CompleteOffboarding(customerId, userId, callerId);
+            return Ok(_mapper.Map<User>(user));
+        }
+        catch (UserNotFoundException exception)
+        {
+
+            return BadRequest(exception.Message);
+        }
+        catch (DepartmentNotFoundException exception)
+        {
+
+            return BadRequest(exception.Message);
+        }
+        catch (Exception)
+        {
+            return BadRequest();
+        }
+    }
+
+    /// <summary>
     /// Only used by userpermission gateway to get info about user to be made a claim for
     /// Either userName or userId
     /// </summary>

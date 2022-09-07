@@ -39,6 +39,16 @@ namespace CustomerServices
         /// <param name="userId">User to be activated.</param>
         /// <returns>A user dto.</returns>
         Task<UserDTO> CompleteOnboardingAsync(Guid customerId, Guid userId);
+        /// <summary>
+        /// Completing offboarding and updating user status to 'OffboardingCompleted'
+        /// Removing access of this user from Okta
+        /// </summary>
+        /// <param name="customerId">Users connected organization.</param>
+        /// <param name="userId">User to be Completing offboarding.</param>
+        /// <param name="callerId">ID of the user making request.</param>
+        /// <returns>offboard completed user dto.</returns>
+        Task<UserDTO> CompleteOffboarding(Guid customerId, Guid userId, Guid callerId);
+
 
         /// <summary>
         /// Resends the Origo invitation mail to a list of users. 
