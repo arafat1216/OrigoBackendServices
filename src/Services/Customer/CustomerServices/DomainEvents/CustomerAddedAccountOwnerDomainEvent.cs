@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace CustomerServices.DomainEvents
 {
-    public class CustomerAddedTechstepAccountOwnerDomainEvent : BaseEvent
+    public class CustomerAddedAccountOwnerDomainEvent : BaseEvent
     {
-        public CustomerAddedTechstepAccountOwnerDomainEvent(Organization organization)
+        public CustomerAddedAccountOwnerDomainEvent(Organization organization)
         {
             Organization = organization;
         }
@@ -19,7 +19,7 @@ namespace CustomerServices.DomainEvents
 
         public override string EventMessage()
         {
-            return $"{Organization.TechstepAccountOwner} was added as account owner.";
+            return $"{Organization.AccountOwner} was added as account owner.";
 
         }
     }

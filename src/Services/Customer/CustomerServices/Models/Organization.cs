@@ -85,7 +85,7 @@ namespace CustomerServices.Models
         /// <summary>
         /// Responsible owner of the customer in the techstep system.
         /// </summary>
-        public string TechstepAccountOwner { get; protected set; } = string.Empty;
+        public string AccountOwner { get; protected set; } = string.Empty;
 
         public Address Address { get; protected set; }
 
@@ -371,7 +371,7 @@ namespace CustomerServices.Models
         public void AddTechstepAccountOwner(long techstepCusomerId)
         {
             TechstepCustomerId = techstepCusomerId;
-            AddDomainEvent(new CustomerAddedTechstepAccountOwnerDomainEvent(this));
+            AddDomainEvent(new CustomerAddedAccountOwnerDomainEvent(this));
         }
         public void UpdateOrganizationName(string name)
         {
@@ -387,9 +387,9 @@ namespace CustomerServices.Models
         }
         public void UpdateTechstepAccountOwner(string accountOwner)
         {
-            var oldAccountOwner = TechstepAccountOwner;
-            TechstepAccountOwner = accountOwner;
-            AddDomainEvent(new OrganizationUpdateTechstepAccountOwner(this, oldAccountOwner));
+            var oldAccountOwner = AccountOwner;
+            AccountOwner = accountOwner;
+            AddDomainEvent(new OrganizationUpdateAccountOwner(this, oldAccountOwner));
         }
     }
 }

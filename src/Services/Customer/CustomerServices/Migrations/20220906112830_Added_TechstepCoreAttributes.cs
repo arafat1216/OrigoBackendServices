@@ -4,15 +4,16 @@
 
 namespace CustomerServices.Migrations
 {
-    public partial class Added_TechstepAttributes : Migration
+    public partial class Added_TechstepCoreAttributes : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "TechstepAccountOwner",
+                name: "AccountOwner",
                 table: "Organization",
                 type: "nvarchar(max)",
-                nullable: true);
+                nullable: false,
+                defaultValue: "");
 
             migrationBuilder.AddColumn<long>(
                 name: "TechstepCustomerId",
@@ -24,7 +25,7 @@ namespace CustomerServices.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "TechstepAccountOwner",
+                name: "AccountOwner",
                 table: "Organization");
 
             migrationBuilder.DropColumn(

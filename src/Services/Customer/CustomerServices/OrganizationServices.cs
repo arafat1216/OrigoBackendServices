@@ -518,7 +518,7 @@ namespace CustomerServices
                 }
                  
                 //update organizations account owner
-                if (!string.IsNullOrWhiteSpace(updatedOrganization.AccountOwner) && (updatedOrganization.AccountOwner != organization.TechstepAccountOwner))
+                if (!string.IsNullOrWhiteSpace(updatedOrganization.AccountOwner) && (updatedOrganization.AccountOwner != organization.AccountOwner))
                 {
                    organization.UpdateTechstepAccountOwner(updatedOrganization.AccountOwner);
                 }

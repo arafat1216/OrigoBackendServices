@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace CustomerServices.DomainEvents
 {
-    public class OrganizationUpdateTechstepAccountOwner : BaseEvent
+    public class OrganizationUpdateAccountOwner : BaseEvent
     {
-        public OrganizationUpdateTechstepAccountOwner(Organization organization, string oldOrganizationOwner)
+        public OrganizationUpdateAccountOwner(Organization organization, string oldOrganizationOwner)
         {
             this.organization = organization;
             OldOrganizationOwner = oldOrganizationOwner;
@@ -21,7 +21,7 @@ namespace CustomerServices.DomainEvents
 
         public override string EventMessage()
         {
-            return $"Customer techstep account owner changed from {OldOrganizationOwner} to {organization.TechstepAccountOwner}.";
+            return $"Customers account owner changed from {OldOrganizationOwner} to {organization.AccountOwner}.";
         }
     }
 }
