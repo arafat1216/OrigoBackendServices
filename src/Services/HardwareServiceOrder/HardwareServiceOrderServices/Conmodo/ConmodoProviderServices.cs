@@ -41,13 +41,24 @@ namespace HardwareServiceOrderServices.Conmodo
             if (string.IsNullOrEmpty(newRepairOrder.AssetInfo.Model))
                 throw new ArgumentException("The asset's model name is missing.", nameof(newRepairOrder));
 
-            // TODO: This list-implementation is a quick-fix. Once we add in support for pre-swap or Swedish customers, this needs to be replaced.
-            // Registers extra services
+            // Register the system-wide 'always included' extra services
             HashSet<int> extraServices = new()
             {
                 (int)ExtraServicesEnum.SentInByCustomerOrUser_NO,
                 (int)ExtraServicesEnum.ReturnToCustomerOrUser_NO
             };
+
+            foreach (string addonId in newRepairOrder.IncludedExternalAddonIds)
+            {
+                if (int.TryParse(addonId, out int result))
+                {
+                    extraServices.Add(result);
+                }
+                else
+                {
+                    throw new ArgumentException("One or more of the provided service-order-addons is not a valid datatype (expected int).", nameof(newRepairOrder));
+                }
+            }
 
             string? category = new CategoryMapper().ToConmodo(newRepairOrder.AssetInfo.AssetCategoryId);
             StartStatus startStatus = new StartStatusMapper().FromServiceType(serviceTypeId);

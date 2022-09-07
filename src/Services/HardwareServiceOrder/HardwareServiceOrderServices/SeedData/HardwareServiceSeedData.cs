@@ -81,7 +81,8 @@ namespace HardwareServiceOrderServices.SeedData
         {
             builder.Entity<ServiceOrderAddon>(entity =>
             {
-                entity.HasData(new { Id = 1, ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo, ThirdPartyId = "", IsUserSelectable = true, IsCustomerTogglable = true, CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
+                // Packaging and shipping-label
+                entity.HasData(new { Id = 1, ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo, ThirdPartyId = 268.ToString(), IsUserSelectable = true, IsCustomerTogglable = true, CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
             });
         }
     }
