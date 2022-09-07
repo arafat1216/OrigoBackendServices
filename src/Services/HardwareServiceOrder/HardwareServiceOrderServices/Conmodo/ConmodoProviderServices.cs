@@ -8,7 +8,7 @@ namespace HardwareServiceOrderServices.Conmodo
     /// <summary>
     ///     The point-of-entry service-class that implements the provider-interfaces for Conmodo.
     /// </summary>
-    public class ConmodoProviderServices : IRepairProvider, IAftermarketProvider
+    public class ConmodoProviderServices : IRepairProvider
     {
         private IApiRequests ApiRequests { get; }
 
@@ -34,7 +34,7 @@ namespace HardwareServiceOrderServices.Conmodo
 
 
         /// <inheritdoc/>
-        public async Task<NewExternalRepairOrderResponseDTO> CreateRepairOrderAsync(NewExternalRepairOrderDTO newRepairOrder, int serviceTypeId, string serviceOrderId)
+        public async Task<NewExternalServiceOrderResponseDTO> CreateRepairOrderAsync(NewExternalRepairOrderDTO newRepairOrder, int serviceTypeId, string serviceOrderId)
         {
             if (string.IsNullOrEmpty(newRepairOrder.AssetInfo.Brand))
                 throw new ArgumentException("The asset's brand name is missing.", nameof(newRepairOrder));
@@ -72,7 +72,7 @@ namespace HardwareServiceOrderServices.Conmodo
             var response = await ApiRequests.CreateServiceOrderAsync(orderRequest);
 
             // Create the return object
-            NewExternalRepairOrderResponseDTO repairOrderResponse = new(serviceOrderId, response.OrderNumber.ToString(), response.DirectCustomerLink);
+            NewExternalServiceOrderResponseDTO repairOrderResponse = new(serviceOrderId, response.OrderNumber.ToString(), response.DirectCustomerLink);
             return repairOrderResponse;
         }
 

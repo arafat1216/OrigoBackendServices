@@ -93,7 +93,8 @@ namespace HardwareServiceOrderServices
                                     serviceOrderDTO.OrderedBy.PartnerOrganizationNumber,
                                     serviceOrderDTO.DeliveryAddress,
                                     serviceOrderDTO.AssetInfo,
-                                    serviceOrderDTO.ErrorDescription);
+                                    serviceOrderDTO.ErrorDescription,
+                                    null);
 
             var customerProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, (int)ServiceProviderEnum.ConmodoNo, false, false);
 

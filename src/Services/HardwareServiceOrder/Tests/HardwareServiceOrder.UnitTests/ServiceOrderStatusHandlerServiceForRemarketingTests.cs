@@ -75,7 +75,7 @@ namespace HardwareServiceOrder.UnitTests
             var externalRepairOrderDto = new ExternalRepairOrderDTO(
                 serviceProviderOrderId1: "[ServiceProviderOrderId1]",
                 serviceProviderOrderId2: "[ServiceProviderOrderId2]",
-                externalEvents: new List<ExternalServiceEventDTO>()
+                externalServiceEvents: new List<ExternalServiceEventDTO>()
                 {
                     new (serviceStatusId: statusEnum, timestamp: DateTimeOffset.Now)
                 },
