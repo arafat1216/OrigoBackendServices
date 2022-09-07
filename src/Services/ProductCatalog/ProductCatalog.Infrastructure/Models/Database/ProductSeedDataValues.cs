@@ -9,7 +9,7 @@ namespace ProductCatalog.Infrastructure.Models.Database
     internal enum ProductSeedDataValues
     {
         SubscriptionManagement = 1,
-        Entry = 2,
+        Implement = 2,
         TransactionalDeviceLifecycleManagement = 3,
         BookValueAndPurchasePrice = 4,
         RecycleAndWipe = 5,

@@ -182,12 +182,12 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                     new ProductTranslation { ProductId = 1, Language = "nb", Name = "Abonnement-håndtering", Description = "Ett partner spesifikk abonnement-håndtering produkt", UpdatedBy = systemUserId },
                 });
 
-                // Entry
+                // Implement
                 entity.HasData(new Product { Id = 2, PartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C"), ProductTypeId = (int)ProductTypeSeedDataValue.Module, UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new List<ProductTranslation>()
                 {
-                    new ProductTranslation { ProductId = 2, Language = "en", Name = "Entry", Description = "Simple Asset Management for units purchased transactionally in Techstep's own WebShop.", UpdatedBy = systemUserId },
-                    new ProductTranslation { ProductId = 2, Language = "nb", Name = "Entry", Description = "Enkel Asset Management for enheter kjøpt transaksjonelt i Techstep egen nettbutikk.", UpdatedBy = systemUserId },
+                    new ProductTranslation { ProductId = 2, Language = "en", Name = "Implement", Description = "Simple Asset Management for units purchased transactionally in Techstep's own WebShop.", UpdatedBy = systemUserId },
+                    new ProductTranslation { ProductId = 2, Language = "nb", Name = "Implement", Description = "Enkel Asset Management for enheter kjøpt transaksjonelt i Techstep egen nettbutikk.", UpdatedBy = systemUserId },
                 });
 
                 // Transactional Device Lifecycle
@@ -224,9 +224,9 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                 // Add features to: Subscription management
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.SubscriptionManagement, FeatureId = (int)FeatureSeedDataValues.BasicSubscriptionManagement, UpdatedBy = systemUserId });
 
-                // Add features to: Entry
-                entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.Entry, FeatureId = (int)FeatureSeedDataValues.BasicUserManagement, UpdatedBy = systemUserId });
-                entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.Entry, FeatureId = (int)FeatureSeedDataValues.BasicAssetManagement, UpdatedBy = systemUserId });
+                // Add features to: Implement
+                entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.Implement, FeatureId = (int)FeatureSeedDataValues.BasicUserManagement, UpdatedBy = systemUserId });
+                entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.Implement, FeatureId = (int)FeatureSeedDataValues.BasicAssetManagement, UpdatedBy = systemUserId });
 
                 // Add features to: Transactional Device Lifecycle
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, FeatureId = (int)FeatureSeedDataValues.BasicUserManagement, UpdatedBy = systemUserId });
@@ -250,8 +250,8 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
              */
             modelBuilder.Entity<ProductRequiresOne>(entity =>
             {
-                entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.SubscriptionManagement, RequiresProductId = (int)ProductSeedDataValues.Entry, UpdatedBy = systemUserId });
-                entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.BookValueAndPurchasePrice, RequiresProductId = (int)ProductSeedDataValues.Entry, UpdatedBy = systemUserId });
+                entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.SubscriptionManagement, RequiresProductId = (int)ProductSeedDataValues.Implement, UpdatedBy = systemUserId });
+                entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.BookValueAndPurchasePrice, RequiresProductId = (int)ProductSeedDataValues.Implement, UpdatedBy = systemUserId });
                 entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.RecycleAndWipe, RequiresProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, UpdatedBy = systemUserId });
             });
 
@@ -261,8 +261,8 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
              */
             modelBuilder.Entity<ProductExcludes>(entity =>
             {
-                entity.HasData(new ProductExcludes { ProductId = (int)ProductSeedDataValues.Entry, ExcludesProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, UpdatedBy = systemUserId }); // Entry module is exclusive of Transactional Module
-                entity.HasData(new ProductExcludes { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, ExcludesProductId = (int)ProductSeedDataValues.Entry, UpdatedBy = systemUserId }); // Transactional module is exclusive of Entry module
+                entity.HasData(new ProductExcludes { ProductId = (int)ProductSeedDataValues.Implement, ExcludesProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, UpdatedBy = systemUserId }); // Implement module is exclusive of Transactional Module
+                entity.HasData(new ProductExcludes { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, ExcludesProductId = (int)ProductSeedDataValues.Implement, UpdatedBy = systemUserId }); // Transactional module is exclusive of Implement module
             });
 
             #endregion Products
