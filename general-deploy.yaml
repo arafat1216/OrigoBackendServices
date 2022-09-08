@@ -230,6 +230,7 @@ jobs:
                  gitname: 
                  gitemail: 
                  localpath: $(System.DefaultWorkingDirectory)\repo
+                 useAgentToken: true
 
         - task: HelmInstaller@0
           displayName: Install Helm
