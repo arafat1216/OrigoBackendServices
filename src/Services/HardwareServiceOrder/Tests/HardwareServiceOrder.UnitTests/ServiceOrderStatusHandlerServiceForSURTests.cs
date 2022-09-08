@@ -73,9 +73,9 @@ namespace HardwareServiceOrder.UnitTests
             return hardwareServiceOrder;
         }
 
-        private ExternalRepairServiceOrderDTO CreateExternalRepairOrderDTO(ServiceStatusEnum statusEnum)
+        private ExternalServiceOrderDTO CreateExternalRepairOrderDTO(ServiceStatusEnum statusEnum)
         {
-            var externalRepairOrderDto = new ExternalRepairServiceOrderDTO(
+            var externalRepairOrderDto = new ExternalServiceOrderDTO(
                 serviceProviderOrderId1: "[ServiceProviderOrderId1]",
                 serviceProviderOrderId2: "[ServiceProviderOrderId2]",
                 externalServiceEvents: new List<ExternalServiceEventDTO>()

@@ -65,7 +65,7 @@ namespace HardwareServiceOrderServices.Services
         /// <returns> The awaitable task. </returns>
         /// <exception cref="ArgumentException">Thrown if the latest status extracted from <paramref name="repairOrderDto"/>
         /// is invalid/unsupported.</exception>
-        public virtual async Task HandleServiceOrderStatusAsync(HardwareServiceOrder hardwareServiceOrder, ExternalRepairServiceOrderDTO repairOrderDto)
+        public virtual async Task HandleServiceOrderStatusAsync(HardwareServiceOrder hardwareServiceOrder, ExternalServiceOrderDTO repairOrderDto)
         {
             var lastOrderStatus = repairOrderDto.ExternalServiceEvents.OrderByDescending(m => m.Timestamp).FirstOrDefault()?.ServiceStatusId;
             lastOrderStatus = lastOrderStatus ?? 0;

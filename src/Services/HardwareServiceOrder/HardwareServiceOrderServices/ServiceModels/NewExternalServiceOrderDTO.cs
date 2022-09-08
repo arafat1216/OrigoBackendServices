@@ -3,20 +3,20 @@
     /// <summary>
     ///     Contains the information required for registering a new repair-order with an external service-provider.
     /// </summary>
-    public abstract class NewExternalServiceOrderDTO
+    public class NewExternalServiceOrderDTO
     {
         /// <summary>
         ///     Reserved JSON (de-)serializer constructor.
         /// </summary>
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        protected NewExternalServiceOrderDTO()
+        public NewExternalServiceOrderDTO()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             IncludedExternalAddonIds ??= new HashSet<string>();
         }
 
 
-        protected NewExternalServiceOrderDTO(Guid userId, string firstName, string lastName, string? phoneNumber, string email, Guid organizationId, string organizationName, string? organizationNumber, Guid partnerId, string partnerName, string partnerOrganizationNumber, AssetInfoDTO assetInfo, ISet<string>? includedExternalAddonIds)
+        public NewExternalServiceOrderDTO(Guid userId, string firstName, string lastName, string? phoneNumber, string email, Guid organizationId, string organizationName, string? organizationNumber, Guid partnerId, string partnerName, string partnerOrganizationNumber, DeliveryAddressDTO deliveryAddress, AssetInfoDTO assetInfo, string errorDescription, ISet<string>? includedExternalAddonIds)
         {
             UserId = userId;
             FirstName = firstName;
@@ -29,7 +29,9 @@
             PartnerId = partnerId;
             PartnerName = partnerName;
             PartnerOrganizationNumber = partnerOrganizationNumber;
+            DeliveryAddress = deliveryAddress;
             AssetInfo = assetInfo;
+            ErrorDescription = errorDescription;
             IncludedExternalAddonIds = includedExternalAddonIds ?? new HashSet<string>();
         }
 
@@ -110,10 +112,23 @@
         public string PartnerOrganizationNumber { get; set; }
 
         /// <summary>
+        ///     The address that the asset should be shipped to once the service is complete.
+        /// </summary>
+        [Required]
+        public DeliveryAddressDTO DeliveryAddress { get; set; }
+
+        /// <summary>
         ///     Information about the product.
         /// </summary>
         [Required]
         public AssetInfoDTO AssetInfo { get; set; }
+
+        /// <summary>
+        ///     The user's description of what's wrong with the device.
+        /// </summary>
+        /// <example> I dropped the device, and now it has a broken screen and has problems charging. </example>
+        [Required]
+        public string ErrorDescription { get; set; }
 
         /// <summary>
         ///     A list containing a list of the service-providers IDs (<see cref="ServiceOrderAddonDTO.ServiceProviderId"/>), detailing
