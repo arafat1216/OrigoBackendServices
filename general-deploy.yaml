@@ -227,7 +227,7 @@ jobs:
                  replaceFile: false
                  appendToFile: True
                  contents:
-                 message: 
+                 message: "automatically generated release document"
                  gitname: 
                  gitemail: 
                  localpath: $(System.DefaultWorkingDirectory)\repo
