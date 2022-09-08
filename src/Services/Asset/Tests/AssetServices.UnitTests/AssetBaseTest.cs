@@ -124,14 +124,14 @@ namespace AssetServices.UnitTests
             var assetLifecycleNine = new AssetLifecycle(ASSETLIFECYCLE_EIGHT_ID) { CustomerId = COMPANY_ID, Alias = "alias_8", AssetLifecycleStatus = AssetLifecycleStatus.InUse, AssetLifecycleType = LifecycleType.Transactional };
             assetLifecycleNine.AssignAsset(assetSeven, CALLER_ID);
             assetLifecycleNine.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
-            assetLifecycleNine.SetPendingRecycledStatus(CALLER_ID);
+            assetLifecycleNine.PendingRecycle(CALLER_ID);
 
             //Recycled 
             var assetLifecycleTen = new AssetLifecycle(ASSETLIFECYCLE_NINE_ID) { CustomerId = COMPANY_ID, Alias = "alias_9", AssetLifecycleStatus = AssetLifecycleStatus.InUse, AssetLifecycleType = LifecycleType.Transactional };
             assetLifecycleTen.AssignAsset(assetSeven, CALLER_ID);
             assetLifecycleTen.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
-            assetLifecycleTen.SetPendingRecycledStatus(CALLER_ID);
-            assetLifecycleTen.SetRecycledStatus(CALLER_ID);
+            assetLifecycleTen.PendingRecycle(CALLER_ID);
+            assetLifecycleTen.Recycle(CALLER_ID);
 
             //Expired soon
             var assetLifecycleEleven = new AssetLifecycle(ASSETLIFECYCLE_TEN_ID) { CustomerId = COMPANY_ID, Alias = "alias_10", AssetLifecycleStatus = AssetLifecycleStatus.InUse, AssetLifecycleType = LifecycleType.Transactional };

@@ -216,7 +216,7 @@ internal static class AssetTestDataSeedingForDatabase
         };
         assetLifecycleThirteen.AssignAsset(assetTwo, CALLER_ID);
         assetLifecycleThirteen.AssignAssetLifecycleHolder(null, DEPARTMENT_ID, CALLER_ID);
-        assetLifecycleThirteen.SetPendingRecycledStatus(CALLER_ID);
+        assetLifecycleThirteen.PendingRecycle(CALLER_ID);
         //PendingReturn
         var assetLifecycleFourteen = new AssetLifecycle(ASSETLIFECYCLE_FOURTEEN_ID)
         {

@@ -760,7 +760,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// Sets the asset lifecycle to asset status recycled. 
     /// </summary>
     /// <param name="callerId">The id of the user making the request.</param>
-    public void SetRecycledStatus(Guid callerId)
+    public void Recycle(Guid callerId)
     {
         //Change status and add a domain event only if the status is changed
         if (_assetLifecycleStatus != AssetLifecycleStatus.Recycled)
@@ -781,7 +781,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// Sets the asset lifecycle to asset status pending recycle.
     /// </summary>
     /// <param name="callerId">The id of the user making the request.</param>
-    public void SetPendingRecycledStatus(Guid callerId)
+    public void PendingRecycle(Guid callerId)
     {
         if (_assetLifecycleStatus != AssetLifecycleStatus.PendingRecycle)
         {

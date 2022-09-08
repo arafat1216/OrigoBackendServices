@@ -1228,12 +1228,12 @@ public class AssetServices : IAssetServices
         var changed = false;
         if ((AssetLifecycleStatus)assetLifecycleStatus == AssetLifecycleStatus.Recycled)
         {
-            assetLifeCycle.SetRecycledStatus(callerId);
+            assetLifeCycle.Recycle(callerId);
             changed = true;
         }
         else if ((AssetLifecycleStatus)assetLifecycleStatus == AssetLifecycleStatus.PendingRecycle)
         { 
-            assetLifeCycle.SetPendingRecycledStatus(callerId);
+            assetLifeCycle.PendingRecycle(callerId);
             changed = true;
         }
 

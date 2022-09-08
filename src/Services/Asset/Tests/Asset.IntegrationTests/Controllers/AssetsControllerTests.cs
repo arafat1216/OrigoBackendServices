@@ -2993,7 +2993,6 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var responseGetAssetLifeCycle = await _httpClient.GetAsync(requestGetAssetLifeCycle);
         Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
         var assetLifecycleRecycled = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
-        Assert.Equal(DateTime.UtcNow.AddMonths(2).Date, assetLifecycleRecycled?.EndPeriod.GetValueOrDefault().Date);
         Assert.Equal(AssetLifecycleStatus.Recycled, assetLifecycleRecycled?.AssetStatus);
 
         //Cancel the recycle

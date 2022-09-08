@@ -1717,7 +1717,7 @@ public class AssetServicesTests : AssetBaseTest
         //Act
         var asset = await context.AssetLifeCycles.FirstOrDefaultAsync(a => a.ExternalId == ASSETLIFECYCLE_TWO_ID);
         Assert.Equal(AssetLifecycleStatus.InUse, asset!.AssetLifecycleStatus);
-        asset.SetPendingRecycledStatus(CALLER_ID);
+        asset.PendingRecycle(CALLER_ID);
 
         //Assert
         Assert.Equal(AssetLifecycleStatus.PendingRecycle, asset.AssetLifecycleStatus);
@@ -1734,7 +1734,7 @@ public class AssetServicesTests : AssetBaseTest
 
         //Assert
         Assert.Equal(AssetLifecycleStatus.Active, asset!.AssetLifecycleStatus);
-        Assert.Throws<InvalidAssetDataException>(() => asset.SetPendingRecycledStatus(CALLER_ID));
+        Assert.Throws<InvalidAssetDataException>(() => asset.PendingRecycle(CALLER_ID));
     }
     [Fact]
     [Trait("Category", "UnitTest")]
@@ -1748,7 +1748,7 @@ public class AssetServicesTests : AssetBaseTest
 
         //Assert
         Assert.Equal(AssetLifecycleStatus.Repair, asset!.AssetLifecycleStatus);
-        Assert.Throws<InvalidAssetDataException>(() => asset.SetRecycledStatus(CALLER_ID));
+        Assert.Throws<InvalidAssetDataException>(() => asset.Recycle(CALLER_ID));
     }
 
     [Fact]
