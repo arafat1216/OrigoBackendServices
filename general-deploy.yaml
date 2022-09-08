@@ -220,7 +220,7 @@ jobs:
             - task: WikiUpdaterTask@1
               inputs:
                  # Required arguments
-                 repo: https://mytos@dev.azure.com/mytos/OrigoV2/_git/OrigoV2.wiki
+                 repo: dev.azure.com/mytos/OrigoV2/_git/OrigoV2.wiki
                  filename: $(System.DefaultWorkingDirectory)\releasenotes.md
                  replaceFile: false
                  appendToFile: True
