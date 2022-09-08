@@ -102,7 +102,7 @@ namespace CustomerServices
 
         public async Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
             string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId,
-            string role, bool newUserNeedsOnboarding = false)
+            string role, bool newUserNeedsOnboarding = false, bool newUserNotToBeAddedToOkta = false)
         {
             var customer = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
             var customerPreferences = await _organizationRepository.GetOrganizationPreferencesAsync(customerId);
@@ -163,7 +163,7 @@ namespace CustomerServices
                         userWithEmail.ChangeUserPreferences(userPreference, callerId);
 
                     //Okta
-                    if (customer.AddUsersToOkta)
+                    if (customer.AddUsersToOkta && !newUserNotToBeAddedToOkta)
                     {
                         var userExistInOkta = await _oktaServices.UserExistsInOktaAsync(userWithEmail.OktaUserId);
                         if (userExistInOkta)
@@ -183,7 +183,7 @@ namespace CustomerServices
                     var activatedUserMapped = _mapper.Map<UserDTO>(userWithEmail);
                     if (currentUserPermission != null)
                     {
-                        activatedUserMapped.Role = currentUserPermission.Role.Name.ToString();
+                        activatedUserMapped.Role = currentUserPermission.Role.Name;
                     }
                     else
                     {
@@ -204,7 +204,7 @@ namespace CustomerServices
 
             newUser = await _organizationRepository.AddUserAsync(newUser);
 
-            if (customer.AddUsersToOkta)
+            if (customer.AddUsersToOkta && !newUserNotToBeAddedToOkta)
             {
                 var oktaUserId = await _oktaServices.AddOktaUserAsync(newUser.UserId, newUser.FirstName, newUser.LastName,
                     newUser.Email, newUser.MobileNumber, true);

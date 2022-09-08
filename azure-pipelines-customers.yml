@@ -68,7 +68,6 @@ stages:
       pipelineWorkspace: $(Pipeline.Workspace)
       helmOverrideDeployValues: ',pubsub.host=amqp://rabbitmq.develop.svc.cluster.local:5672'
       generateReleaseNotes: true
-      releaseDocName: 'Release_$(Build.BuildNumber).md'
 
 - stage: DeployTest
   displayName: Deploy to Test
@@ -88,7 +87,6 @@ stages:
       pipelineWorkspace: $(Pipeline.Workspace)
       helmOverrideDeployValues: ',pubsub.host=amqp://rabbitmq.test.svc.cluster.local:5672'
       generateReleaseNotes: true
-      releaseDocName: 'Release_$(Build.BuildNumber).md'
 
 - stage: DeployProd
   displayName: Deploy to Prod
@@ -108,4 +106,3 @@ stages:
       pipelineWorkspace: $(Pipeline.Workspace)
       helmOverrideDeployValues: ',pubsub.host=amqp://rabbitmq.prod.svc.cluster.local:5672'
       generateReleaseNotes: true
-      releaseDocName: 'Release_$(Build.BuildNumber).md'

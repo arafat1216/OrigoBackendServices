@@ -136,7 +136,7 @@ public class UsersController : ControllerBase
         {
             var updatedUser = await _userServices.AddUserForCustomerAsync(customerId, newUser.FirstName,
                 newUser.LastName, newUser.Email, newUser.MobileNumber, newUser.EmployeeId, new CustomerServices.Models.UserPreference(newUser.UserPreference?.Language
-                , newUser.CallerId), newUser.CallerId, newUser.Role, newUser.NeedsOnboarding);
+                , newUser.CallerId), newUser.CallerId, newUser.Role, newUser.NeedsOnboarding, newUser.SkipAddingUserToOkta);
             var updatedUserView = _mapper.Map<User>(updatedUser);
 
             return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUserView.Id }, updatedUserView);

@@ -100,7 +100,7 @@ jobs:
                     *  **{{this.pullRequestId}}** {{this.title}}
                     {{/forEach}}
 
-                    # Builds with associated WI/CS ({{builds.length}})
+                    # Builds with associated Work Items ({{builds.length}})
                     {{#forEach builds}}
                     {{#if isFirst}}## Builds {{/if}}
                     -  Build {{this.build.buildNumber}}
@@ -119,42 +119,17 @@ jobs:
                     {{/forEach}} 
                     {{/forEach}}
 
-                    # Global list of WI ({{workItems.length}})
+                    # Global list of Work Items ({{workItems.length}})
                     {{#forEach workItems}}
-                    {{#if isFirst}}## Associated Work Items (only shown if  WI) {{/if}}
+                    {{#if isFirst}}## Associated Work Items {{/if}}
                     *  **{{this.id}}**  {{lookup this.fields 'System.Title'}}
                        - **Work Item Type** {{lookup this.fields 'System.WorkItemType'}} 
                        - **Tags** {{lookup this.fields 'System.Tags'}}
                        - **Assigned** {{#with (lookup this.fields 'System.AssignedTo')}} {{displayName}} {{/with}}
+                       - **Link** https://dev.azure.com/mytos/OrigoV2/_workitems/edit/{{this.id}}
                     {{/forEach}}
 
-                    # Global list of WI with parents and children
-                    {{#forEach this.workItems}}
-                    {{#if isFirst}}### WorkItems {{/if}}
-                    *  **{{this.id}}**  {{lookup this.fields 'System.Title'}}
-                       - **Work Item Type** {{lookup this.fields 'System.WorkItemType'}} 
-                       - **Tags** {{lookup this.fields 'System.Tags'}}
-                       - **Assigned** {{#with (lookup this.fields 'System.AssignedTo')}} {{displayName}} {{/with}}
-                       - **Description** {{{lookup this.fields 'System.Description'}}}
-                       - **Parents**
-                    {{#forEach this.relations}}
-                    {{#if (contains this.attributes.name 'Parent')}}
-                    {{#with (lookup_a_work_item ../../relatedWorkItems  this.url)}}
-                          - {{this.id}} - {{lookup this.fields 'System.Title'}} 
-                    {{/with}}
-                    {{/if}}
-                    {{/forEach}} 
-                       - **Children**
-                    {{#forEach this.relations}}
-                    {{#if (contains this.attributes.name 'Child')}}
-                    {{#with (lookup_a_work_item ../../relatedWorkItems  this.url)}}
-                          - {{this.id}} - {{lookup this.fields 'System.Title'}} 
-                    {{/with}}
-                    {{/if}}
-                    {{/forEach}} 
-                    {{/forEach}} 
-
-                    # Global list of CS ({{commits.length}})
+                    # Global list of Commits ({{commits.length}})
                     {{#forEach commits}}
                     {{#if isFirst}}### Associated commits{{/if}}
                     * ** ID{{this.id}}** 
@@ -165,14 +140,6 @@ jobs:
                           -  **File path:** {{this.item.path}}
                     {{/forEach}}
                     {{/forEach}}
-
-                    ** All values **
-                    compareBuildDetails:
-                    {{json compareBuildDetails}}
-                    buildDetails:
-                    {{json buildDetails}}
-                    currentStage:
-                    {{json currentStage}}
                     
                  dumpPayloadToConsole: true
                  dumpPayloadToFile: false

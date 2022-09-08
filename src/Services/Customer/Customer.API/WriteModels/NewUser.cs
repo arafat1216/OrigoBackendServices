@@ -33,5 +33,10 @@ namespace Customer.API.WriteModels
         /// If this user can only be activated if the customer is activated
         /// </summary>
         public bool NeedsOnboarding { get; set; } = false;
+
+        /// <summary>
+        /// Don't add the user to Okta even though the customer has AddToOkta
+        /// </summary>
+        public bool SkipAddingUserToOkta { get; set; } = false;
     }
 }

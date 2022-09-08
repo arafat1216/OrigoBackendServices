@@ -17,7 +17,7 @@ namespace CustomerServices
         Task<UserDTO> GetUserWithRoleAsync(Guid userId);
         Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName, string email,
             string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId, string role,
-            bool newUserNeedsOnboarding);
+            bool newUserNeedsOnboarding, bool newUserNotToBeAddedToOkta);
         Task<UserDTO> UpdateUserPutAsync(Guid customerId, Guid userId, string firstName, string lastName,
             string email, string employeeId, string mobileNumber, UserPreference userPreference, Guid callerId);
         Task<UserDTO> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,
