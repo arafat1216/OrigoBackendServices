@@ -65,6 +65,8 @@ stages:
       pipelineWorkspace: $(Pipeline.Workspace)
       helmOverrideDeployValues: ',ingress.hosts[0].host=origov2dev.mytos.no,ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=origov2dev.mytos.no,ingress.tls[0].secretName=letsencrypt-origov2dev'
       runMigration: false
+      generateReleaseNotes: true
+      releaseDocName: 'Release_$(Build.BuildNumber).md'
 
 - stage: DeployTest
   displayName: Deploy to Test
@@ -83,6 +85,8 @@ stages:
       pipelineWorkspace: $(Pipeline.Workspace)
       helmOverrideDeployValues: ',ingress.hosts[0].host=origov2test.mytos.no,ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=origov2test.mytos.no,ingress.tls[0].secretName=letsencrypt-origov2dev'
       runMigration: false
+      generateReleaseNotes: true
+      releaseDocName: 'Release_$(Build.BuildNumber).md'
 
 - stage: DeployProd
   displayName: Deploy to Prod
@@ -101,3 +105,5 @@ stages:
       pipelineWorkspace: $(Pipeline.Workspace)
       helmOverrideDeployValues: ',ingress.hosts[0].host=smart.techstep.io,ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=smart.techstep.io,ingress.tls[0].secretName=letsencrypt-smart-techstepio'
       runMigration: false
+      generateReleaseNotes: true
+      releaseDocName: 'Release_$(Build.BuildNumber).md'

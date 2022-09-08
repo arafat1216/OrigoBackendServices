@@ -90,8 +90,9 @@ jobs:
                  templatefile: 
                  inlinetemplate: |
                     # Notes for release  {{releaseDetails.releaseDefinition.name}}    
-                    **Release name**: {{buildDetails.name}}
-                    **Compared Release Number**  : {{compareBuildDetails.name}}    
+                    **Release name**: {{buildDetails.buildNumber}}
+                    **Compared Release Number**  : {{compareBuildDetails.buildNumber}}
+                    **Environment**  : ${{ parameters.namespace }}
 
                     # Associated Pull Requests ({{pullRequests.length}})
                     {{#forEach pullRequests}}
@@ -220,7 +221,7 @@ jobs:
               inputs:
                  # Required arguments
                  repo: dev.azure.com/mytos/OrigoV2/_git/OrigoV2.wiki
-                 filename: Releases/${{ parameters.releaseName }}-${{ parameters.releaseDocName }}
+                 filename: Releases/${{ parameters.namespace }}/${{ parameters.releaseName }}-${{ parameters.releaseDocName }}
                  sourceFile: $(System.DefaultWorkingDirectory)\${{ parameters.releaseDocName }}
                  dataIsFile: true
                  replaceFile: false
