@@ -1258,7 +1258,8 @@ namespace Customer.API.IntegrationTests.Controllers
                 EmployeeId = "123",
                 MobileNumber = "+479898645",
                 Role = "EndUser",
-                UserPreference = new UserPreference { Language = "en" }
+                UserPreference = new UserPreference { Language = "en" },
+                NeedsOnboarding = true
             };
             var request = $"/api/v1/organizations/{_customerIdTwo}/users";
 
@@ -1284,7 +1285,8 @@ namespace Customer.API.IntegrationTests.Controllers
                 LastName = "user",
                 EmployeeId = "123",
                 MobileNumber = "+479898645",
-                Role = "EndUser"
+                Role = "EndUser",
+                NeedsOnboarding = true
             };
             var request = $"/api/v1/organizations/{_customerId}/users";
 

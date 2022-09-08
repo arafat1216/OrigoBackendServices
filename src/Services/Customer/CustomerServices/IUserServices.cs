@@ -15,8 +15,9 @@ namespace CustomerServices
         Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100);
         Task<UserDTO> GetUserWithRoleAsync(Guid customerId, Guid userId);
         Task<UserDTO> GetUserWithRoleAsync(Guid userId);
-        Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
-            string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId, string role);
+        Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName, string email,
+            string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId, string role,
+            bool newUserNeedsOnboarding);
         Task<UserDTO> UpdateUserPutAsync(Guid customerId, Guid userId, string firstName, string lastName,
             string email, string employeeId, string mobileNumber, UserPreference userPreference, Guid callerId);
         Task<UserDTO> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,

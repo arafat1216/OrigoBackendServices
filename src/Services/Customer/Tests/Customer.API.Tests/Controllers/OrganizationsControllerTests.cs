@@ -598,7 +598,8 @@ namespace Customer.API.IntegrationTests.Controllers
                 LastName = "user",
                 EmployeeId = "123",
                 MobileNumber = "+479898645",
-                Role = "EndUser"
+                Role = "EndUser",
+                NeedsOnboarding = true
             };
             var request = $"/api/v1/organizations/{_organizationTwoId}/users";
 

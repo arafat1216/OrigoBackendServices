@@ -67,6 +67,7 @@ stages:
       tag: '$(Build.BuildId)'
       pipelineWorkspace: $(Pipeline.Workspace)
       generateReleaseNotes: true
+      releaseDocName: 'Release_$(Build.BuildId)'
 
 - stage: DeployTest
   displayName: Deploy to Test

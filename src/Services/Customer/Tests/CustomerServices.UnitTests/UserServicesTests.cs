@@ -157,7 +157,7 @@ namespace CustomerServices.UnitTests
             // Act
             const string EMAIL_TEST_TEST = "email@test.test";
             var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
-            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_FOUR_ID, "Test Firstname", "Testlastname", EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, null);
+            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_FOUR_ID, "Test Firstname", "Testlastname", EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, null, true);
 
             // Assert
             emailMock.Verify(email => email.InvitationEmailToUserAsync(It.IsAny<Email.Models.InvitationMail>(), It.IsAny<string>()), Times.Once);
@@ -176,7 +176,7 @@ namespace CustomerServices.UnitTests
 
             // Act
             var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
-            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_FOUR_ID, "Test Firstname", "Testlastname", "email@test.test", "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, null);
+            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_FOUR_ID, "Test Firstname", "Testlastname", "email@test.test", "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, null, true);
 
             // Assert
             Assert.Equal(2,newUser.UserStatus);
@@ -197,7 +197,7 @@ namespace CustomerServices.UnitTests
 
             // Act
             var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
-            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_FOUR_ID, "Test Firstname", "Testlastname", "email@test.test", "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, "Admin");
+            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_FOUR_ID, "Test Firstname", "Testlastname", "email@test.test", "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, "Admin", true);
 
             // Assert
             Assert.Equal(2, newUser.UserStatus);
@@ -224,7 +224,7 @@ namespace CustomerServices.UnitTests
             // Act
             const string EMAIL_TEST_TEST = "email@test.test";
             var userPref = new Models.UserPreference("NO", EMPTY_CALLER_ID);
-            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_TWO_ID, "Test Firstname", "Testlastname", EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, "Role");
+            var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_TWO_ID, "Test Firstname", "Testlastname", EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, "Role", true);
 
             // Assert
             oktaMock.Verify(okta => okta.AddOktaUserAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Once);

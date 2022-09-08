@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Common.Model.EventModels;
 using Dapr.Client;
 using CustomerServices.Email;
+using CustomerServices.Email.Models;
 
 namespace CustomerServices
 {
@@ -100,7 +101,8 @@ namespace CustomerServices
         }
 
         public async Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName,
-            string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId, string role)
+            string email, string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId,
+            string role, bool newUserNeedsOnboarding = false)
         {
             var customer = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
             var customerPreferences = await _organizationRepository.GetOrganizationPreferencesAsync(customerId);
@@ -208,16 +210,19 @@ namespace CustomerServices
                     newUser.Email, newUser.MobileNumber, true);
                 newUser = await AssignOktaUserIdAsync(newUser.Customer.OrganizationId, newUser.UserId, oktaUserId, callerId);
             }
-            //Only send invitation mail if the customer has started their onboarding 
-            if (customer.CustomerStatus == CustomerStatus.StartedOnboarding)
+
+            if (customer.CustomerStatus == CustomerStatus.StartedOnboarding && newUserNeedsOnboarding)
             {
-                await _emailService.InvitationEmailToUserAsync(new Email.Models.InvitationMail
-                {
-                    FirstName = firstName,
-                    Recipient = new List<string> { email }
-                }, userPreference.Language ?? "EN");
+                //Only send invitation mail if the customer has started their onboarding 
+                await _emailService.InvitationEmailToUserAsync(
+                    new InvitationMail { FirstName = firstName, Recipient = new List<string> { email } },
+                    userPreference.Language ?? "EN");
 
                 newUser.ChangeUserStatus(null, UserStatus.Invited);
+            }
+            else if (!newUserNeedsOnboarding)
+            {
+                newUser.ChangeUserStatus(null, UserStatus.Activated);
             }
 
             var mappedNewUserDTO = _mapper.Map<UserDTO>(newUser);

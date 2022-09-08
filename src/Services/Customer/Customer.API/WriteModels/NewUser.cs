@@ -28,5 +28,10 @@ namespace Customer.API.WriteModels
         public Guid CallerId { get; set; }
 
         public string Role { get; set; }
+
+        /// <summary>
+        /// If this user can only be activated if the customer is activated
+        /// </summary>
+        public bool NeedsOnboarding { get; set; } = false;
     }
 }

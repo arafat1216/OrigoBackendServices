@@ -28,7 +28,8 @@ parameters:
 - name: generateReleaseNotes
   type: boolean
   default: false
-
+- name: releaseDocName
+  default: ''
 
 jobs:
 - ${{ if eq(parameters.runMigration, true) }}:
@@ -84,14 +85,13 @@ jobs:
               displayName: 'Generate release notes'
               inputs: 
                  # Required arguments
-                 outputfile: $(System.DefaultWorkingDirectory)\releasenotes.md
+                 outputfile: $(System.DefaultWorkingDirectory)\${{ parameters.releaseDocName }}
                  templateLocation: InLine
                  templatefile: 
                  inlinetemplate: |
                     # Notes for release  {{releaseDetails.releaseDefinition.name}}    
-                    **Build Number**: {{buildDetails.id}}
-                    **Compared Release Number**  : {{compareReleaseDetails.name}}    
-                    **Build Trigger PR Number**: {{lookup buildDetails.triggerInfo 'pr.number'}} 
+                    **Release name**: {{buildDetails.name}}
+                    **Compared Release Number**  : {{compareBuildDetails.name}}    
 
                     # Associated Pull Requests ({{pullRequests.length}})
                     {{#forEach pullRequests}}
@@ -122,7 +122,7 @@ jobs:
                     {{#forEach workItems}}
                     {{#if isFirst}}## Associated Work Items (only shown if  WI) {{/if}}
                     *  **{{this.id}}**  {{lookup this.fields 'System.Title'}}
-                       - **WIT** {{lookup this.fields 'System.WorkItemType'}} 
+                       - **Work Item Type** {{lookup this.fields 'System.WorkItemType'}} 
                        - **Tags** {{lookup this.fields 'System.Tags'}}
                        - **Assigned** {{#with (lookup this.fields 'System.AssignedTo')}} {{displayName}} {{/with}}
                     {{/forEach}}
@@ -131,7 +131,7 @@ jobs:
                     {{#forEach this.workItems}}
                     {{#if isFirst}}### WorkItems {{/if}}
                     *  **{{this.id}}**  {{lookup this.fields 'System.Title'}}
-                       - **WIT** {{lookup this.fields 'System.WorkItemType'}} 
+                       - **Work Item Type** {{lookup this.fields 'System.WorkItemType'}} 
                        - **Tags** {{lookup this.fields 'System.Tags'}}
                        - **Assigned** {{#with (lookup this.fields 'System.AssignedTo')}} {{displayName}} {{/with}}
                        - **Description** {{{lookup this.fields 'System.Description'}}}
@@ -153,35 +153,35 @@ jobs:
                     {{/forEach}} 
                     {{/forEach}} 
 
-                    # WI with 'Tag 1'
-                    {{#forEach this.workItems}}
-                    {{#if isFirst}}### WorkItems with 'Tag 1'{{/if}}
-                    {{#if (contains (lookup this.fields 'System.Tags') 'Tag 1')}}
-                    *  **{{this.id}}**  {{lookup this.fields 'System.Title'}}
-                       - **WIT** {{lookup this.fields 'System.WorkItemType'}} 
-                       - **Tags** {{lookup this.fields 'System.Tags'}}
-                    {{/if}}
-                    {{/forEach}} 
+                    ## WI with 'Tag 1'
+                    #{{#forEach this.workItems}}
+                    #{{#if isFirst}}### WorkItems with 'Tag 1'{{/if}}
+                    #{{#if (contains (lookup this.fields 'System.Tags') 'Tag 1')}}
+                    #*  **{{this.id}}**  {{lookup this.fields 'System.Title'}}
+                    #   - **WIT** {{lookup this.fields 'System.WorkItemType'}} 
+                    #   - **Tags** {{lookup this.fields 'System.Tags'}}
+                    #{{/if}}
+                    #{{/forEach}} 
 
-                    # WI with 'Tag 1' or 'TAG1'
-                    {{#forEach this.workItems}}
-                    {{#if isFirst}}### WorkItems with 'Tag 1' or 'TAG2'{{/if}}
-                    {{#if (or (contains (lookup this.fields 'System.Tags') 'Tag 1') (contains (lookup this.fields 'System.Tags') 'TAG2'))}}
-                    *  **{{this.id}}**  {{lookup this.fields 'System.Title'}}
-                       - **WIT** {{lookup this.fields 'System.WorkItemType'}} 
-                       - **Tags** {{lookup this.fields 'System.Tags'}}
-                    {{/if}}
-                    {{/forEach}} 
+                    ## WI with 'Tag 1' or 'TAG1'
+                    #{{#forEach this.workItems}}
+                    #{{#if isFirst}}### WorkItems with 'Tag 1' or 'TAG2'{{/if}}
+                    #{{#if (or (contains (lookup this.fields 'System.Tags') 'Tag 1') (contains (lookup this.fields 'System.Tags') 'TAG2'))}}
+                    #*  **{{this.id}}**  {{lookup this.fields 'System.Title'}}
+                    #   - **WIT** {{lookup this.fields 'System.WorkItemType'}} 
+                    #   - **Tags** {{lookup this.fields 'System.Tags'}}
+                    #{{/if}}
+                    #{{/forEach}} 
 
-                    # WI with 'Tag 1' and 'TAG1'
-                    {{#forEach this.workItems}}
-                    {{#if isFirst}}### WorkItems with 'Tag 1' and 'TAG2'{{/if}}
-                    {{#if (and (contains (lookup this.fields 'System.Tags') 'Tag 1') (contains (lookup this.fields 'System.Tags') 'TAG2'))}}
-                    *  **{{this.id}}**  {{lookup this.fields 'System.Title'}}
-                       - **WIT** {{lookup this.fields 'System.WorkItemType'}} 
-                       - **Tags** {{lookup this.fields 'System.Tags'}}
-                    {{/if}}
-                    {{/forEach}} 
+                    ## WI with 'Tag 1' and 'TAG1'
+                    #{{#forEach this.workItems}}
+                    #{{#if isFirst}}### WorkItems with 'Tag 1' and 'TAG2'{{/if}}
+                    #{{#if (and (contains (lookup this.fields 'System.Tags') 'Tag 1') (contains (lookup this.fields 'System.Tags') 'TAG2'))}}
+                    #*  **{{this.id}}**  {{lookup this.fields 'System.Title'}}
+                    #   - **WIT** {{lookup this.fields 'System.WorkItemType'}} 
+                    #   - **Tags** {{lookup this.fields 'System.Tags'}}
+                    #{{/if}}
+                    #{{/forEach}} 
 
                     # Global list of CS ({{commits.length}})
                     {{#forEach commits}}
@@ -191,18 +191,17 @@ jobs:
                        -  **Commited by:** {{this.author.displayName}} 
                        -  **FileCount:** {{this.changes.length}} 
                     {{#forEach this.changes}}
-                          -  **File path (TFVC or TfsGit):** {{this.item.path}}  
-                          -  **File filename (GitHub):** {{this.filename}}  
+                          -  **File path:** {{this.item.path}}
                     {{/forEach}}
                     {{/forEach}}
 
-                    # Global list of test ({{tests.length}})
-                    {{#forEach tests}}
-                    {{#if isFirst}}### Tests {{/if}}
-                    * ** ID{{this.id}}** 
-                       -  Name: {{this.testCase.name}}
-                       -  Outcome: {{this.outcome}}
-                    {{/forEach}}
+                    ## Global list of test ({{tests.length}})
+                    #{{#forEach tests}}
+                    #{{#if isFirst}}### Tests {{/if}}
+                    #* ** ID{{this.id}}** 
+                    #   -  Name: {{this.testCase.name}}
+                    #   -  Outcome: {{this.outcome}}
+                    #{{/forEach}}
                  dumpPayloadToConsole: true
                  dumpPayloadToFile: false
                  replaceFile: True
@@ -221,8 +220,8 @@ jobs:
               inputs:
                  # Required arguments
                  repo: dev.azure.com/mytos/OrigoV2/_git/OrigoV2.wiki
-                 filename: Releases/ReleaseNotes.md
-                 sourceFile: $(System.DefaultWorkingDirectory)\releasenotes.md
+                 filename: Releases/${{ parameters.releaseDocName }}
+                 sourceFile: $(System.DefaultWorkingDirectory)\${{ parameters.releaseDocName }}
                  dataIsFile: true
                  replaceFile: false
                  appendToFile: True
