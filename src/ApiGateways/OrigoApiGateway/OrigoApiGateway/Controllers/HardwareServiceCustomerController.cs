@@ -87,7 +87,7 @@ namespace OrigoApiGateway.Controllers
         ///     loaded/included in the retrieved data. </param>
         /// <returns> An <see cref="ActionResult"/> containing the HTTP-response. </returns>
         [HttpGet("service-provider")]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin,Admin")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returned when the request was successful.", typeof(IEnumerable<CustomerPortalServiceProvider>))]
         public async Task<ActionResult> GetAllServiceProvidersAsync([FromQuery] bool includeSupportedServiceTypes = false, [FromQuery] bool includeOfferedServiceOrderAddons = false)
         {
@@ -116,7 +116,7 @@ namespace OrigoApiGateway.Controllers
         ///     loaded/included in the retrieved data. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet("configuration/organization/{organizationId:Guid}")]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin,Admin")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(IEnumerable<CustomerPortalCustomerServiceProvider>))]
         public async Task<ActionResult> CustomerPortalGetCustomerServiceProvidersAsync([FromRoute] Guid organizationId, [FromQuery] bool includeActiveServiceOrderAddons = false)
         {
@@ -175,10 +175,13 @@ namespace OrigoApiGateway.Controllers
         /// <param name="serviceOrderAddonIds"> A list containing the service-order IDs that should be added. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpPatch("configuration/organization/{organizationId:Guid}/service-provider/{serviceProviderId:int}/addons")]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin,Admin")]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         public async Task<ActionResult> AddServiceAddonAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
         {
+            if (!AuthenticatedUserHasAccessToOrganization(organizationId))
+                return Forbid();
+
             try
             {
                 // TODO: Improve the error/exception messages from this call
@@ -204,10 +207,14 @@ namespace OrigoApiGateway.Controllers
         /// <param name="serviceOrderAddonIds"> A list containing the service-order IDs that should be removed. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpDelete("configuration/organization/{organizationId:Guid}/service-provider/{serviceProviderId:int}/addons")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin,Admin")]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> RemoveServiceAddonAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
         {
+            if (!AuthenticatedUserHasAccessToOrganization(organizationId))
+                return Forbid();
+
             try
             {
                 // TODO: Improve the error/exception messages from this call
