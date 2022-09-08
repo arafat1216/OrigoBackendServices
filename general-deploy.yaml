@@ -29,7 +29,7 @@ parameters:
   type: boolean
   default: false
 - name: releaseDocName
-  default: ''
+  default: 'Release_$(Build.BuildNumber).md'
 
 jobs:
 - ${{ if eq(parameters.runMigration, true) }}:
@@ -195,6 +195,9 @@ jobs:
                           -  **File path:** {{this.item.path}}
                     {{/forEach}}
                     {{/forEach}}
+
+                    ** All values **
+                    {{json propertyToDump}}
 
                     ## Global list of test ({{tests.length}})
                     #{{#forEach tests}}
