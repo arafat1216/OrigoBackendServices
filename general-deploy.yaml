@@ -197,7 +197,13 @@ jobs:
                     {{/forEach}}
 
                     ** All values **
-                    {{json propertyToDump}}
+                    compareBuildDetails:
+                    {{json compareBuildDetails}}
+                    buildDetails:
+                    {{json buildDetails}}
+                    currentStage:
+                    {{json currentStage}}
+                    
 
                     ## Global list of test ({{tests.length}})
                     #{{#forEach tests}}
