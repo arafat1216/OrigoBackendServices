@@ -191,7 +191,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
         }
 
         [Fact]
-        public async Task CreateHardwarRepaireOrder()
+        public async Task CreateHardwareRepairOrder()
         {
             var body = new NewHardwareServiceOrder
             {
@@ -234,7 +234,10 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
                     PostalCode = "0275",
                     City = "City",
                     Country = "NO"
-                }
+                },
+                ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo,
+                ServiceTypeId = (int)ServiceTypeEnum.SUR,
+                ServiceOrderAddons = new List<ServiceOrderAddonsEnum>(){ ServiceOrderAddonsEnum.CONMODO_PACKAGING }
             };
 
             var request = $"/api/v1/hardware-repair/{_customerId}/orders";

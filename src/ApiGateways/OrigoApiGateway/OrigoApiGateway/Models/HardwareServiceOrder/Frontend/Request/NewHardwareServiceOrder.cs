@@ -18,5 +18,9 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request
         /// Asset identifier
         /// </summary>
         public Guid AssetId { get; set; }
+        
+        public int ServiceProviderId { get; set; }
+
+        public List<int> ServiceOrderAddons { get; set; } = new List<int>();
     }
 }

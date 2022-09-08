@@ -11,6 +11,22 @@ namespace HardwareServiceOrderServices.Email
         /// <param name="languageCode">Code of the language in ISO 639-1 format</param>
         /// <returns></returns>
         Task SendOrderConfirmationEmailAsync(OrderConfirmationEmail order, string languageCode);
+        
+        /// <summary>
+        /// Send order confirmation email for Packaging service
+        /// </summary>
+        /// <param name="order">Information that will be dynamically inserted into the email.</param>
+        /// <param name="languageCode">Code of the language in ISO 639-1 format</param>
+        /// <returns></returns>
+        Task SendOrderConfirmationEmailAsync(RemarketingPackaging order, string languageCode);
+        
+        /// <summary>
+        /// Send order confirmation email for Non Packaging service
+        /// </summary>
+        /// <param name="order">Information that will be dynamically inserted into the email.</param>
+        /// <param name="languageCode">Code of the language in ISO 639-1 format</param>
+        /// <returns></returns>
+        Task SendOrderConfirmationEmailAsync(RemarketingNoPackaging order, string languageCode);
 
         /// <summary>
         /// Send asset repair email

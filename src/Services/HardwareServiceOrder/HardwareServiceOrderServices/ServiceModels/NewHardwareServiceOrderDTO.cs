@@ -1,4 +1,6 @@
-﻿namespace HardwareServiceOrderServices.ServiceModels
+﻿using HardwareServiceOrderServices.Models;
+
+namespace HardwareServiceOrderServices.ServiceModels
 {
     public class NewHardwareServiceOrderDTO
     {
@@ -11,5 +13,9 @@
         public ContactDetailsExtendedDTO OrderedBy { get; set; }
 
         public AssetInfoDTO AssetInfo { get; set; }
+        
+        public int ServiceProviderId { get; set; }
+        public int ServiceTypeId { get; set; }
+        public List<ServiceOrderAddonsEnum> ServiceOrderAddons { get; set; } = new List<ServiceOrderAddonsEnum>();
     }
 }

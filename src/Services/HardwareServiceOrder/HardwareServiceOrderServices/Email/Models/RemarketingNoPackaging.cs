@@ -30,7 +30,18 @@ public class RemarketingNoPackaging
     /// </summary>
     public string Recipient { get; set; }
     
+    /// <summary>
+    /// Subject of the email
+    /// </summary>
     public string Subject { get; set; }
-    public const string TemplateKeyName = "RemarketingNoPackaging_Body";
+    
+    /// <summary>
+    /// Subject Key that suppose to be fetched from resx file
+    /// </summary>
     public const string SubjectKeyName = "RemarketingNoPackaging_Subject";
+    
+    /// <summary>
+    /// Email Template name that suppose to be fetched from resx file
+    /// </summary>
+    public const string TemplateKeyName = "RemarketingNoPackaging_Body";
 }

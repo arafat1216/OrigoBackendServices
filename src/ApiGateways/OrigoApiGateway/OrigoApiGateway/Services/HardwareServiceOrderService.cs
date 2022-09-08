@@ -5,6 +5,10 @@ using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
 using System.Collections.Generic;
 using System.Security.Claims;
+using Common.Enums;
+using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.HardwareServiceOrder;
+using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 using ServiceProvider = OrigoApiGateway.Models.HardwareServiceOrder.Backend.ServiceProvider;
 
 #nullable enable
@@ -211,6 +215,22 @@ namespace OrigoApiGateway.Services
             TOutput? deserialized = await response.Content.ReadFromJsonAsync<TOutput>();
             return deserialized;
         }
+        
+        /// <summary>
+        ///     Serializes <paramref name="inputValue"/> and adds the dynamic HTTP header values before sending a POST 
+        ///     request to the underlaying microservice. 
+        /// </summary>
+        /// <typeparam name="T"> The <see cref="Type"/> that will be serialized. </typeparam>
+        /// <param name="requestUri"> The URI the request is sent to. </param>
+        /// <param name="inputValue"> The value that should be serialized. </param>
+        /// <returns> The <see cref="HttpResponseMessage"/> that was received from the microservice. </returns>
+        private async Task<HttpResponseMessage> PostAsync<T>(string? requestUri, T? inputValue)
+        {
+            var content = JsonContent.Create(inputValue);
+            content.Headers.Add("X-Authenticated-UserId", GetUserId());
+
+            return await HttpClient.PostAsync(requestUri, content);
+        }
 
 
         /// <inheritdoc cref="HttpClient.GetAsync(string?)"/>
@@ -396,6 +416,93 @@ namespace OrigoApiGateway.Services
 
             // Place the "order" (we can use the backoffice version from here, since we have made the required checks)
             await RemoveServiceAddonFromBackofficeAsync(organizationId, serviceProviderId, removedServiceOrderAddonIds);
+        }
+        
+        /// <inheritdoc/>
+        public async Task<HardwareServiceOrder?> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, int serviceTypeId, NewHardwareServiceOrder model)
+        {
+            try
+            {
+                var dto = new NewHardwareServiceOrderDTO(model);
+
+                // Verify whether the asset can be sent to repair
+                var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(customerId, model.AssetId, null);
+
+                if (asset == null)
+                    throw new ArgumentException($"Asset does not exist with ID {model.AssetId}", nameof(model.AssetId));
+
+                if (asset.AssetStatus != AssetLifecycleStatus.InUse)
+                {
+                    throw new ArgumentException("This asset cannot be sent to repair.");
+                }
+
+                dto.AssetInfo = new AssetInfo
+                {
+                    AssetCategoryId = asset.AssetCategoryId,
+                    AssetLifecycleId = asset.Id,
+                    Brand = asset.Brand,
+                    Model = asset.ProductName,
+                    PurchaseDate = DateOnly.FromDateTime(asset.PurchaseDate),
+                    Imei = $"{asset.Imei.FirstOrDefault()}",
+                    SerialNumber = asset.SerialNumber
+                };
+
+                // Get owner information
+                userId = asset.AssetHolderId ?? userId;
+                var userInfo = await _userServices.GetUserAsync(userId);
+
+                // Get organization information
+                var organization = await _customerServices.GetCustomerAsync(customerId);
+
+                if (organization == null)
+                    throw new ArgumentException($"Unable retrieve organization for customerID {customerId}", nameof(customerId));
+
+                if (organization.PartnerId == null)
+                    throw new ArgumentException($"There is no partner associated with customerID {customerId}", nameof(customerId));
+
+                // Get partner information
+                var partner = await _partnerServices.GetPartnerAsync(organization.PartnerId.GetValueOrDefault());
+
+                if (partner == null)
+                    throw new ArgumentException($"No partner is for customerId {customerId}", nameof(customerId));
+
+                dto.OrderedBy = new ContactDetailsExtended(
+                    userId,
+                    userInfo.FirstName,
+                    userInfo.LastName,
+                    userInfo.Email,
+                    userInfo.MobileNumber,
+                    organization.OrganizationId,
+                    organization.Name,
+                    organization.OrganizationNumber,
+                    partner.Id,
+                    partner.Name,
+                    partner.OrganizationNumber
+                );
+
+                dto.ServiceTypeId = serviceTypeId; // Value "3 represents ServiceType SUR" and "2 represents ServiceType Remarketing"
+                dto.ServiceProviderId = model.ServiceProviderId;
+                dto.ServiceOrderAddons = model.ServiceOrderAddons;
+
+                var request = await PostAsync($"{_options.ApiPath}/{customerId}/orders", dto);
+                request.EnsureSuccessStatusCode();
+                return await request.Content.ReadFromJsonAsync<HardwareServiceOrder>();
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "CreateHardwareServiceOrderAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "CreateHardwareServiceOrderAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "CreateHardwareServiceOrderAsync unknown error.");
+                throw;
+            }
         }
 
     }

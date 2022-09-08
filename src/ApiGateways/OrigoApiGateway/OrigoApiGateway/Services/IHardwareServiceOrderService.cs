@@ -1,6 +1,7 @@
 ﻿using OrigoApiGateway.Models.HardwareServiceOrder.Backend;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response;
+using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
 
 #nullable enable
@@ -108,5 +109,14 @@ namespace OrigoApiGateway.Services
         /// </remarks>
         /// <exception cref="ArgumentException"> Thrown when one or more of the inputs is invalid. </exception>
         Task RemoveServiceAddonFromCustomerPortalAsync(Guid organizationId, int serviceProviderId, ISet<int> removedServiceOrderAddonIds);
+        
+        /// <summary>
+        ///     Creates a new Service Order for a particular Service Type. The Service Type could be SUR, Remarketing and so on
+        /// </summary>
+        /// <param name="customerId"> The customer/organization identifier </param>
+        /// <param name="userId"> The user identifier </param>
+        /// <param name="serviceTypeId"> Id of a ServiceType. This value resembles the values of enum <b>ServiceTypeEnum</b> </param>
+        /// <param name="model"> The request body to create a new Service Order </param>
+        Task<HardwareServiceOrder> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, int serviceTypeId, NewHardwareServiceOrder model);
     }
 }

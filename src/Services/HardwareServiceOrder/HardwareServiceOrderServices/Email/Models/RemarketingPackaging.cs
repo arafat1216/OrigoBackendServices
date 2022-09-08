@@ -34,8 +34,19 @@ public class RemarketingPackaging
     /// Email address of the recipient
     /// </summary>
     public string Recipient { get; set; }
-
+    
+    /// <summary>
+    /// Subject of the email
+    /// </summary>
     public string Subject { get; set; }
-    public const string TemplateKeyName = "RemarketingPackaging_Body";
+    
+    /// <summary>
+    /// Subject Key that suppose to be fetched from resx file
+    /// </summary>
     public const string SubjectKeyName = "RemarketingPackaging_Subject";
+    
+    /// <summary>
+    /// Email Template name that suppose to be fetched from resx file
+    /// </summary>
+    public const string TemplateKeyName = "RemarketingPackaging_Body";
 }

@@ -83,6 +83,24 @@ namespace HardwareServiceOrderServices.Email
             var variables = _flatDictionaryProvider.Execute(data);
             await SendAsync(data.Subject, template, data.Recipient, variables);
         }
+        
+        /// <inheritdoc />
+        public async Task SendOrderConfirmationEmailAsync(RemarketingPackaging data, string languageCode)
+        {
+            var template = _resourceManager.GetString(RemarketingPackaging.TemplateKeyName, CultureInfo.CreateSpecificCulture(languageCode));
+            data.Subject = _resourceManager.GetString(RemarketingPackaging.SubjectKeyName, CultureInfo.CreateSpecificCulture(languageCode));
+            var variables = _flatDictionaryProvider.Execute(data);
+            await SendAsync(data.Subject, template, data.Recipient, variables);
+        }
+
+        /// <inheritdoc />
+        public async Task SendOrderConfirmationEmailAsync(RemarketingNoPackaging data, string languageCode)
+        {
+            var template = _resourceManager.GetString(RemarketingNoPackaging.TemplateKeyName, CultureInfo.CreateSpecificCulture(languageCode));
+            data.Subject = _resourceManager.GetString(RemarketingNoPackaging.SubjectKeyName, CultureInfo.CreateSpecificCulture(languageCode));
+            var variables = _flatDictionaryProvider.Execute(data);
+            await SendAsync(data.Subject, template, data.Recipient, variables);
+        }
 
         public async Task<List<AssetRepairEmail>> SendAssetRepairEmailAsync(DateTime? olderThan, int? statusId, string languageCode = "en")
         {

@@ -201,7 +201,10 @@ namespace HardwareServiceOrder.UnitTests
                     City = "f",
                     Country = "FS",
                     PostalCode = "erg"
-                }
+                },
+                ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo,
+                ServiceTypeId = (int)ServiceTypeEnum.SUR,
+                ServiceOrderAddons = new List<ServiceOrderAddonsEnum>(){ ServiceOrderAddonsEnum.CONMODO_PACKAGING }
             };
 
             var hardwareServiceOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(CUSTOMER_ONE_ID, serviceOrderDTO);

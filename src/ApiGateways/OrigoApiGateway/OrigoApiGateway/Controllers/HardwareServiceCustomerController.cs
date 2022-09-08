@@ -1,9 +1,11 @@
-﻿using Common.Enums;
+﻿using System.Net;
+using Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
 using OrigoApiGateway.Services;
 using System.Security.Claims;
+using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 
 #nullable enable
 
@@ -225,6 +227,105 @@ namespace OrigoApiGateway.Controllers
             {
                 return BadRequest();
             }
+        }
+        
+        
+        /// <summary>
+        /// Creates a hardware service order for Service Type "SUR"
+        /// </summary>
+        /// <param name="customerId">Customer Identifier</param>
+        /// <param name="model">Order details</param>
+        /// <returns>New hardware service order</returns>
+        [Route("{customerId:Guid}/sur/orders")]
+        [HttpPost]
+        [ProducesResponseType(typeof(HardwareServiceOrder), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> CreateHardwareServiceOrderForSURAsync(Guid customerId, [FromBody] NewHardwareServiceOrder model)
+        {
+            // Todo: Need to check whether "HasPermissionToGetOrCreateOrderAsync" can be replaced with more appropriate method
+            if (!await HasPermissionToGetOrCreateOrderAsync(customerId, model.AssetId))
+                return Forbid();
+
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+
+            if (!Guid.TryParse(userId, out Guid userIdGuid))
+                return BadRequest();
+
+            // Todo: The Integer value "3" represents ServiceType "SUR" which can be found inside enum ServiceTypeEnum. Later on this should be converted into actual Enum
+            var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, userIdGuid, 3, model);
+
+            return Ok(newOrder);
+        }
+        
+        /// <summary>
+        /// Creates a hardware service order for Service Type "Remarketing"
+        /// </summary>
+        /// <param name="customerId">Customer Identifier</param>
+        /// <param name="model">Order details</param>
+        /// <returns>New hardware service order</returns>
+        [Route("{customerId:Guid}/remarketing/orders")]
+        [HttpPost]
+        [ProducesResponseType(typeof(HardwareServiceOrder), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> CreateHardwareServiceOrderForRemarketingAsync(Guid customerId, [FromBody] NewHardwareServiceOrder model)
+        {
+            // Todo: Need to check the validity of "HasPermissionToGetOrCreateOrderAsync" and whether this can be replaced with a more appropriate method
+            if (!await HasPermissionToGetOrCreateOrderAsync(customerId, model.AssetId))
+                return Forbid();
+
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+
+            if (!Guid.TryParse(userId, out Guid userIdGuid))
+                return BadRequest();
+
+            // Todo: The Integer value "2" represents ServiceType "Remarketing" which can be found inside enum ServiceTypeEnum. Later on this should be converted into actual Enum
+            var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, userIdGuid, 2, model);
+
+            return Ok(newOrder);
+        }
+
+        private async Task<bool> HasPermissionToGetOrCreateOrderAsync(Guid customerId, Guid assetId)
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            var asset = await _assetServices.GetAssetForCustomerAsync(customerId, assetId, null);
+
+            var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList() ?? new List<string> { };
+
+            if (asset == null)
+                return false;
+
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+
+            if (!Guid.TryParse(userId, out Guid userIdGuid))
+                return false;
+
+            //Check whether an enduser has permission
+            if (role == $"{PredefinedRole.EndUser}" && asset.AssetHolderId != userIdGuid)
+            {
+                return false;
+            }
+
+            //Check whether a manager has permission
+            if (new string[] { $"{PredefinedRole.DepartmentManager}", $"{PredefinedRole.Manager}" }.Contains(role))
+            {
+                if (asset.AssetHolderId != userIdGuid)
+                {
+                    if (accessList == null || !accessList.Any() || !accessList.Contains($"{asset.ManagedByDepartmentId}"))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            //For others except SystemAdmin
+            if (role != $"{PredefinedRole.SystemAdmin}")
+            {
+                if (!accessList.Contains($"{customerId}"))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

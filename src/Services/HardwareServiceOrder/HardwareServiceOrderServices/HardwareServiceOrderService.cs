@@ -78,8 +78,13 @@ namespace HardwareServiceOrderServices
 
             if (customerSetting == null)
                 throw new ArgumentException("Customer settings does not exist");
+             
+             // Converting ServiceAddonsEnum back to ServiceAddon Ids
+             List<string> strings = serviceOrderDTO.ServiceOrderAddons.ConvertAll<string>(x => ((int)x).ToString());
+             HashSet<string> serviceOrderAddons = new HashSet<string>(strings);
 
-            var newExternalOrder = new NewExternalServiceOrderDTO(
+            // Need to add the Service addons
+            var newExternalServiceOrder = new NewExternalServiceOrderDTO(
                                     serviceOrderDTO.OrderedBy.UserId,
                                     serviceOrderDTO.OrderedBy.FirstName,
                                     serviceOrderDTO.OrderedBy.LastName,
@@ -94,21 +99,29 @@ namespace HardwareServiceOrderServices
                                     serviceOrderDTO.DeliveryAddress,
                                     serviceOrderDTO.AssetInfo,
                                     serviceOrderDTO.ErrorDescription,
-                                    null);
+                                    serviceOrderAddons);
 
-            var customerProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, (int)ServiceProviderEnum.ConmodoNo, false, false);
+            // Todo: Instead of passing Conmodo manually, we will need to provide ServiceProviderId that we get from request-body dto
+            var customerProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, (int)ServiceProviderEnum.ConmodoNo, true, false);
 
             if (customerProvider == null)
                 throw new ArgumentException($"Service provider is not configured for customer {customerId}", nameof(customerId));
 
-            //Creating Conmodo order
+            var apiCredential = customerProvider.ApiCredentials.FirstOrDefault(apiCredential => apiCredential.ServiceTypeId == serviceOrderDTO.ServiceTypeId);
+
+            if (apiCredential == null)
+                throw new ArgumentException($"API Credential does not exist for customer {customerId}, ServiceType: {serviceOrderDTO.ServiceTypeId}", nameof(customerId));
+
+            //Todo: Need to do some validation checking for apiCredential ApiUsername and ApiPassword
+
             try
             {
-                var repairProvider = await _providerFactory.GetRepairProviderAsync(customerProvider.ServiceProviderId, customerProvider.ApiUserName, customerProvider.ApiPassword);
+                var repairProvider = await _providerFactory.GetRepairProviderAsync(customerProvider.ServiceProviderId, apiCredential?.ApiUsername, apiCredential?.ApiPassword);
 
                 var newOrderId = Guid.NewGuid();
 
-                var externalOrderResponseDTO = await repairProvider.CreateRepairOrderAsync(newExternalOrder, (int)ServiceTypeEnum.SUR, $"{newOrderId}");
+                // ServiceTypeId refers to the values of ServiceTypeEnum, like SUR, Remarketing
+                var externalOrderResponseDTO = await repairProvider.CreateRepairOrderAsync(newExternalServiceOrder, serviceOrderDTO.ServiceTypeId, $"{newOrderId}");
 
                 var deliveryAddress = _mapper.Map<DeliveryAddress>(serviceOrderDTO.DeliveryAddress);
 
@@ -131,9 +144,9 @@ namespace HardwareServiceOrderServices
                     serviceOrderDTO.ErrorDescription,
                     owner,
                     deliveryAddress,
-                    (int)ServiceTypeEnum.SUR,
+                    serviceOrderDTO.ServiceTypeId, // ServiceTypeId refers to the values of ServiceTypeEnum, like SUR, Remarketing
                     (int)ServiceStatusEnum.Registered,
-                    (int)ServiceProviderEnum.ConmodoNo,
+                    (int)ServiceProviderEnum.ConmodoNo, // Todo: Instead of passing Conmodo manually, we will need to provide ServiceProviderId that we get from request-body dto
                     null, // TODO: This needs to be replaced with the list of actually included addons.
                     externalOrderResponseDTO.ServiceProviderOrderId1,
                     externalOrderResponseDTO.ServiceProviderOrderId2,
@@ -144,20 +157,9 @@ namespace HardwareServiceOrderServices
                 //Creating order at Origo
                 var origoOrder = await _hardwareServiceOrderRepository.CreateHardwareServiceOrderAsync(serviceOrder);
 
-                var orderConfirmationMail = new OrderConfirmationEmail
-                {
-                    AssetId = $"{serviceOrderDTO.AssetInfo.AssetLifecycleId}",
-                    AssetName = $"{serviceOrderDTO.AssetInfo.Brand} {serviceOrderDTO.AssetInfo.Model}",
-                    FirstName = serviceOrderDTO.OrderedBy.FirstName,
-                    OrderDate = origoOrder.DateCreated.UtcDateTime,
-                    OrderLink = externalOrderResponseDTO.ExternalServiceManagementLink,
-                    Recipient = serviceOrderDTO.OrderedBy.Email,
-                    LoanDeviceContact = customerSetting.LoanDevicePhoneNumber,
-                    Subject = OrderConfirmationEmail.SubjectKeyName,
-                    PackageSlipLink = externalOrderResponseDTO.ExternalServiceManagementLink
-                };
-
-                await _emailService.SendOrderConfirmationEmailAsync(orderConfirmationMail, "en");
+                // Preparing related events
+                var statusHandler = _statusHandlerFactory.GetStatusHandler((ServiceTypeEnum)serviceOrder.ServiceTypeId);
+                await statusHandler.HandleServiceOrderRegisterAsync(origoOrder, serviceOrderDTO, newExternalServiceOrder, externalOrderResponseDTO, customerSetting);
 
                 var responseDto = _mapper.Map<HardwareServiceOrderDTO>(origoOrder);
 

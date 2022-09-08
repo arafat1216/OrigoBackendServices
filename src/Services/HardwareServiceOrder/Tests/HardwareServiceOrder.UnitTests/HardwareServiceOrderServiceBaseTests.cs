@@ -10,6 +10,7 @@ namespace HardwareServiceOrder.UnitTests
         protected readonly Guid CUSTOMER_THREE_ID = Guid.Parse("42447F76-D9A8-4F0A-B0FF-B4683ACEDD64");
         protected readonly Guid CUSTOMER_FOUR_ID = Guid.Parse("42447F76-D9A8-4F0A-B0FF-B4683ACEDD65");
         protected readonly Guid CALLER_ONE_ID = Guid.Parse("42447F76-D9A8-4F0A-B0FF-B4683ACEDD63");
+        protected readonly int CUSTOMER_SERVICE_PROVIDER_ONE = 1;
 
         protected HardwareServiceOrderServiceBaseTests(DbContextOptions<HardwareServiceOrderContext> dbContext)
         {
@@ -56,7 +57,7 @@ namespace HardwareServiceOrder.UnitTests
                 CustomerId = CUSTOMER_ONE_ID,
                 ApiPassword = "",
                 ApiUserName = "",
-                ServiceProviderId = 1,
+                ServiceProviderId = CUSTOMER_SERVICE_PROVIDER_ONE,
                 LastUpdateFetched = DateTime.Today,
             };
             var cmServiceProvider2 = new CustomerServiceProvider
@@ -64,7 +65,7 @@ namespace HardwareServiceOrder.UnitTests
                 CustomerId = CUSTOMER_TWO_ID,
                 ApiPassword = "",
                 ApiUserName = "",
-                ServiceProviderId = 1,
+                ServiceProviderId = CUSTOMER_SERVICE_PROVIDER_ONE,
                 LastUpdateFetched = DateTime.Today.AddDays(-1),
             };
             
@@ -73,7 +74,7 @@ namespace HardwareServiceOrder.UnitTests
                 CustomerId = CUSTOMER_THREE_ID,
                 ApiPassword = "",
                 ApiUserName = "",
-                ServiceProviderId = 1,
+                ServiceProviderId = CUSTOMER_SERVICE_PROVIDER_ONE,
                 LastUpdateFetched = DateTime.Today.AddDays(-1),
             };
 

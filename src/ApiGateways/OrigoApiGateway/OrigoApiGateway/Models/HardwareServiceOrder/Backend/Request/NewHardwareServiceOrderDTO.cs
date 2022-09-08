@@ -11,6 +11,12 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request
         public string ErrorDescription { get; set; }
         public ContactDetailsExtended OrderedBy { get; set; }
         public AssetInfo AssetInfo { get; set; }
+        
+        public int ServiceProviderId { get; set; }
+
+        public int ServiceTypeId { get; set; }
+        
+        public List<int> ServiceOrderAddons { get; set; } = new List<int>();
 
         public NewHardwareServiceOrderDTO(NewHardwareServiceOrder order)
         {

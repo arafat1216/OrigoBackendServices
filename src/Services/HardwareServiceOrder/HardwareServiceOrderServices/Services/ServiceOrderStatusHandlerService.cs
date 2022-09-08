@@ -110,6 +110,21 @@ namespace HardwareServiceOrderServices.Services
         }
 
         /// <summary>
+        /// Execute necessary operations after service order gets created for all service types
+        /// </summary>
+        /// <param name="hardwareServiceOrder"></param>
+        /// <param name="serviceOrder"></param>
+        /// <param name="externalServiceOrderResponse"></param>
+        /// <param name="customerSettings"></param>
+        /// <param name="externalServiceOrder"></param>
+        /// <returns></returns>
+        public abstract Task HandleServiceOrderRegisterAsync(HardwareServiceOrder hardwareServiceOrder, 
+            NewHardwareServiceOrderDTO serviceOrder,
+            NewExternalServiceOrderDTO externalServiceOrder, 
+            NewExternalServiceOrderResponseDTO externalServiceOrderResponse, 
+            CustomerSettingsDTO customerSettings);
+
+        /// <summary>
         /// Handles the status of a service order for "Canceled" state
         /// </summary>
         /// <param name="orderId">Order Identifier</param>

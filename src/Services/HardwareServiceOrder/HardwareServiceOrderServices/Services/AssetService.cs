@@ -26,6 +26,13 @@ namespace HardwareServiceOrderServices.Services
             _httpClient = httpClient;
         }
 
+        /// <inheritdoc/>
+        public async Task UpdateAssetLifeCycleStatusAsync<TRequest>(string endpoint, Guid assetLifecycleId, TRequest data)
+        {
+            JsonContent content = JsonContent.Create(data);
+            await _httpClient.PatchAsync($"{_config.ApiPath}/{assetLifecycleId}/{endpoint}", content);
+        }
+
 
         /// <inheritdoc/>
         public async Task UpdateAssetLifeCycleStatusForSURAsync(Guid assetLifecycleId, ServiceStatusEnum newServiceStatus, ISet<string>? newImeis, string? newSerialNumber)
@@ -85,15 +92,18 @@ namespace HardwareServiceOrderServices.Services
         public async Task UpdateAssetLifeCycleStatusForRemarketingAsync(Guid assetLifecycleId, ServiceStatusEnum newServiceStatus, ISet<string>? newImeis, string? newSerialNumber)
         {
             HttpResponseMessage? result = null;
+            JsonContent content;
 
             switch (newServiceStatus)
             {
                 case ServiceStatusEnum.Canceled:
-                    result = await _httpClient.PutAsJsonAsync($"{_config.ApiPath}/{assetLifecycleId}/cancel-return", new { CallerId = Guid.Empty.SystemUserId() });
+                    content = JsonContent.Create(Guid.Empty.SystemUserId());
+                    result = await _httpClient.PatchAsync($"{_config.ApiPath}/{assetLifecycleId}/cancel-return", content);
                     break;
 
                 case ServiceStatusEnum.CompletedDiscarded:
-                    result = await _httpClient.PutAsJsonAsync($"{_config.ApiPath}/{assetLifecycleId}/recycle", new { CallerId = Guid.Empty.SystemUserId(), AssetLifecycleStatus = AssetLifecycleStatus.Recycled });
+                    content = JsonContent.Create(new { CallerId = Guid.Empty.SystemUserId(), AssetLifecycleStatus = AssetLifecycleStatus.Recycled });
+                    result = await _httpClient.PatchAsync($"{_config.ApiPath}/{assetLifecycleId}/recycle", content);
                     break;
 
                 case ServiceStatusEnum.Null:
