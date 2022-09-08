@@ -66,6 +66,7 @@ stages:
       namespace: develop
       tag: '$(Build.BuildId)'
       pipelineWorkspace: $(Pipeline.Workspace)
+      generateReleaseNotes: true
 
 - stage: DeployTest
   displayName: Deploy to Test
