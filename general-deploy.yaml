@@ -220,7 +220,7 @@ jobs:
               inputs:
                  # Required arguments
                  repo: dev.azure.com/mytos/OrigoV2/_git/OrigoV2.wiki
-                 filename: Releases/${{ parameters.releaseDocName }}
+                 filename: Releases/${{ parameters.releaseName }}-${{ parameters.releaseDocName }}
                  sourceFile: $(System.DefaultWorkingDirectory)\${{ parameters.releaseDocName }}
                  dataIsFile: true
                  replaceFile: false

@@ -68,7 +68,7 @@ stages:
       pipelineWorkspace: $(Pipeline.Workspace)
       helmOverrideDeployValues: ',pubsub.host=amqp://rabbitmq.develop.svc.cluster.local:5672'
       generateReleaseNotes: true
-      releaseDocName: 'Release_$(Build.BuildId)'
+      releaseDocName: 'Release_$(Build.BuildNumber).md'
 
 - stage: DeployTest
   displayName: Deploy to Test
