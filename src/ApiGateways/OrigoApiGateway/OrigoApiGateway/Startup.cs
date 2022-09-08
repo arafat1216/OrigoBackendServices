@@ -163,7 +163,8 @@ namespace OrigoApiGateway
                 .AddHttpMessageHandler(() => new InvocationHandler())
                 .AddHttpMessageHandler<AddCallerIdHeaderHandler>();
             services.AddHttpClient("userpermissionservices", c => { c.BaseAddress = new Uri("http://customerservices"); })
-                .AddHttpMessageHandler(() => new InvocationHandler());
+                .AddHttpMessageHandler(() => new InvocationHandler())
+                .AddHttpMessageHandler<AddCallerIdHeaderHandler>();
             services.AddHttpClient("hardwareserviceorderservices", c => { c.BaseAddress = new Uri("http://hardwareserviceorderservices"); })
                 .AddHttpMessageHandler(() => new InvocationHandler())
                 .AddHttpMessageHandler<AddCallerIdHeaderHandler>();

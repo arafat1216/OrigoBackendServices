@@ -22,6 +22,8 @@ public class AddCallerIdHeaderHandler : DelegatingHandler
     {
         var callerId = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
 
+        if (request.RequestUri.AbsolutePath.Contains("permissions") && request.Method != HttpMethod.Put) return await base.SendAsync(request, cancellationToken);
+
         if (_httpContextAccessor.HttpContext.Request.Path.Value.Contains("844c0935-8768-4292-878e-73b915ebf7f6"))
         {
             callerId = "00000000-0000-0000-0000-000000000002";

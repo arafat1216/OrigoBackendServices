@@ -1,20 +1,14 @@
 ﻿using AutoMapper;
 using Common.Enums;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Controllers
 {
@@ -53,7 +47,7 @@ namespace OrigoApiGateway.Controllers
                 //User info about the user making the claim
                 var email = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
 
                 if (email == userName)
                 {
@@ -186,21 +180,45 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+                
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
-                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    //User that is requested access to
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
 
                     foreach (var permission in usersPermissions.UserPermissions)
                     {
                         var user = await _userServices.GetUserInfo(null, permission.UserId);
                         if (accessList == null || !accessList.Any() || !accessList.Contains(user.OrganizationId.ToString())) return Forbid();
+
+                        if (role == PredefinedRole.Admin.ToString() || role == PredefinedRole.CustomerAdmin.ToString())
+                        {
+                            //Can only create Admin's and down
+                            if (permission.Role == PredefinedRole.GroupAdmin.ToString() || 
+                                permission.Role == PredefinedRole.PartnerAdmin.ToString() ||
+                                permission.Role == PredefinedRole.PartnerReadOnlyAdmin.ToString() ||
+                                permission.Role == PredefinedRole.SystemAdmin.ToString()) return Forbid();
+
+                        }
+                        if (role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                        {
+                            //Can only create Managers and down
+                            if (permission.Role == PredefinedRole.GroupAdmin.ToString() ||
+                               permission.Role == PredefinedRole.PartnerAdmin.ToString() ||
+                               permission.Role == PredefinedRole.Admin.ToString() ||
+                               permission.Role == PredefinedRole.CustomerAdmin.ToString() ||
+                               permission.Role == PredefinedRole.PartnerReadOnlyAdmin.ToString() ||
+                               permission.Role == PredefinedRole.SystemAdmin.ToString()) return Forbid(); 
+
+                            //Checks if the user is apart of the department for the manager
+                            if (user?.DepartmentId == null || user.DepartmentId == Guid.Empty || !accessList.Contains(user.DepartmentId.ToString())) return Forbid();
+
+                        }
                     }
 
                 }
@@ -237,19 +255,42 @@ namespace OrigoApiGateway.Controllers
             {
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
-                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
+                    if (role == PredefinedRole.Admin.ToString() || role == PredefinedRole.CustomerAdmin.ToString())
+                    {
+                        //Can only remove Admin's and down
+                        if (userPermissions.Role == PredefinedRole.GroupAdmin.ToString() ||
+                            userPermissions.Role == PredefinedRole.PartnerAdmin.ToString() ||
+                            userPermissions.Role == PredefinedRole.PartnerReadOnlyAdmin.ToString() ||
+                            userPermissions.Role == PredefinedRole.SystemAdmin.ToString()) return Forbid();
+                    }
+
                     //User that is requested access to
                     var user = await _userServices.GetUserInfo(userName, Guid.Empty);
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
 
                     if (accessList == null || !accessList.Any() || !accessList.Contains(user.OrganizationId.ToString())) return Forbid();
 
+                    if (role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                    {
+                        //Can only create Managers and down
+                        if (userPermissions.Role == PredefinedRole.GroupAdmin.ToString() ||
+                           userPermissions.Role == PredefinedRole.PartnerAdmin.ToString() ||
+                           userPermissions.Role == PredefinedRole.Admin.ToString() ||
+                           userPermissions.Role == PredefinedRole.CustomerAdmin.ToString() ||
+                           userPermissions.Role == PredefinedRole.PartnerReadOnlyAdmin.ToString() ||
+                           userPermissions.Role == PredefinedRole.SystemAdmin.ToString()) return Forbid();
+
+                        //Checks if the user is apart of the department for the manager
+                        if (user?.DepartmentId == null || user.DepartmentId == Guid.Empty || !accessList.Contains(user.DepartmentId.ToString())) return Forbid();
+
+                    }
                 }
 
                 var userPermissionsDTO = _mapper.Map<NewUserPermissionsDTO>(userPermissions);

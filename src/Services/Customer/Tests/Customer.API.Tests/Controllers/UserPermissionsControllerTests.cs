@@ -303,5 +303,32 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.NotNull(user);
             Assert.Equal("OnboardInitiated", user?.UserStatusName);
         }
+        [Fact]
+        public async Task AssignUsersPermissions_AssignEndUserAdminRole()
+        {
+            var requestBody = new NewUsersPermission
+            {
+                UserPermissions = new List<NewUserPermissionDTO>
+                {
+                    new NewUserPermissionDTO
+                        {
+                            UserId = _userOneId,
+                            AccessList = new List<Guid> { _customerId },
+                            Role = "Admin"
+                        }
+                }
+            };
+            var requestUri = $"/api/v1/organizations/users/permissions";
+
+            var response = await _httpClient.PutAsJsonAsync(requestUri, requestBody);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var userPermissions = await response.Content.ReadFromJsonAsync<ViewModels.UsersPermissions>();
+
+            Assert.NotNull(userPermissions);
+            Assert.All(userPermissions.UserPermissions, permission => Assert.Equal("Admin", permission.Role));
+            Assert.All(userPermissions.UserPermissions, permission => Assert.Equal(_userOneId,permission.UserId));
+            Assert.All(userPermissions.UserPermissions, permission => Assert.All(permission.AccessList, access => Assert.Equal(_customerId,access)));
+
+        }
     }
 }
