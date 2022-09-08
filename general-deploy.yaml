@@ -221,11 +221,12 @@ jobs:
               inputs:
                  # Required arguments
                  repo: dev.azure.com/mytos/OrigoV2/_git/OrigoV2.wiki
-                 filename: $(System.DefaultWorkingDirectory)\releasenotes.md
+                 filename: Releases/ReleaseNotes.md
+                 sourceFile: $(System.DefaultWorkingDirectory)\releasenotes.md
+                 dataIsFile: true
                  replaceFile: false
                  appendToFile: True
-                 contents: 
-                 sourceFile: 
+                 contents:
                  message: 
                  gitname: 
                  gitemail: 
