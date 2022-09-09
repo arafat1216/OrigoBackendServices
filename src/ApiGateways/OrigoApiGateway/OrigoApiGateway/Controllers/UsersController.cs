@@ -26,18 +26,21 @@ namespace OrigoApiGateway.Controllers
         private readonly IUserServices _userServices;
         private readonly IAssetServices _assetServices;
         private readonly ICustomerServices _customerServices;
+        private readonly IProductCatalogServices _productCatalogServices;
         private readonly IMapper _mapper;
 
         public UsersController(ILogger<UsersController> logger,
             IUserServices userServices,
             IAssetServices assetServices,
             ICustomerServices customerServices,
+            IProductCatalogServices productCatalogServices,
             IMapper mapper)
         {
             _logger = logger;
             _userServices = userServices;
             _assetServices = assetServices;
             _customerServices = customerServices;
+            _productCatalogServices = productCatalogServices;
             _mapper = mapper;
         }
 
@@ -213,7 +216,19 @@ namespace OrigoApiGateway.Controllers
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 _ = Guid.TryParse(actor, out Guid callerId);
 
-                var updatedUser = await _userServices.AddUserForCustomerAsync(organizationId, newUser, callerId);
+                // TODO: The includeOnboarding variable and all code related to it should be removed when Onboarding process is required for all customers and employees.
+                // This is to ensure that all current users of customers with Implement as a product will be activated user.
+                var customer = await _customerServices.GetCustomerAsync(organizationId);
+                if (customer == null) return NotFound("Customer not found.");
+                
+                var includeOnboarding = false;
+                if (customer.PartnerId.HasValue && customer.PartnerId != Guid.Empty)
+                {
+                    var customerOrders = await _productCatalogServices.GetOrderedProductsByPartnerAndOrganizationAsync(customer.PartnerId.Value, organizationId);
+                    var implementOrder = customerOrders.FirstOrDefault(a => a.ProductTypeId == 2);
+                    if (implementOrder == null) includeOnboarding = true;
+                }
+                var updatedUser = await _userServices.AddUserForCustomerAsync(organizationId, newUser, callerId, includeOnboarding);
 
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUser.Id }, updatedUser);
             }

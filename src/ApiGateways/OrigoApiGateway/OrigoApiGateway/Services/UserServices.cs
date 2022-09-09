@@ -255,12 +255,14 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUser newUser, Guid callerId)
+        public async Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUser newUser, Guid callerId, bool includeOnboarding)
         {
             try
             {
                 var newUserDTO = _mapper.Map<NewUserDTO>(newUser);
                 newUserDTO.CallerId = callerId;
+                newUserDTO.NeedsOnboarding = includeOnboarding;
+
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/users", newUserDTO);
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     return null;

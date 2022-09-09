@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading;
@@ -316,6 +317,86 @@ namespace OrigoGateway.IntegrationTests.Controllers
                 new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
             var response = await client.PostAsync($"/origoapi/v1.0/customers/{organizationId}/users/onboarding-completed", null);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+        [Fact]
+        public async Task CreateUserForCustomer_IncludeOnboardingEqualFalse()
+        {
+            var organizationId = Guid.NewGuid();
+            var partnerId = Guid.NewGuid();
+            var callerId = Guid.NewGuid();
+
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, callerId.ToString()));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "SystemAdmin"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+            var newUser = new NewUser { Email = "tesst@mail.com", MobileNumber = "+4745545457"};
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), "mail@mail.com", CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = "mail@mail.com"; });
+
+                    var customerServiceMock = new Mock<ICustomerServices>();
+                    var customer = new Organization
+                    {
+                        OrganizationId = organizationId,
+                        PartnerId = partnerId
+                    };
+
+                    customerServiceMock.Setup(_ => _.GetCustomerAsync(organizationId))
+                        .ReturnsAsync(customer);
+                    services.AddSingleton(customerServiceMock.Object);
+
+                    var order = new List<OrigoApiGateway.Models.ProductCatalog.ProductGet> 
+                    { 
+                        new OrigoApiGateway.Models.ProductCatalog.ProductGet
+                            {
+                                PartnerId = partnerId,
+                                ProductTypeId = 2
+                            } 
+                    };
+                   
+
+                    var productOrderMock = new Mock<IProductCatalogServices>();
+                    productOrderMock.Setup(_ => _.GetOrderedProductsByPartnerAndOrganizationAsync(partnerId,organizationId))
+                      .ReturnsAsync(order);
+                    services.AddSingleton(productOrderMock.Object);
+
+
+                    var usersService = new Mock<IUserServices>();
+
+                    var user = new OrigoUser
+                    {
+                        Id = Guid.NewGuid(),
+                        Email = newUser.Email,
+                        MobileNumber = newUser.MobileNumber
+                    };
+
+                    usersService.Setup(_ => _.AddUserForCustomerAsync(organizationId, newUser, callerId, It.IsAny<bool>()))
+                        .ReturnsAsync(user);
+
+                    services.AddSingleton(usersService.Object);
+                });
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+
+            var response = await client.PostAsJsonAsync($"/origoapi/v1.0/customers/{organizationId}/users", newUser);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
     }
 }
