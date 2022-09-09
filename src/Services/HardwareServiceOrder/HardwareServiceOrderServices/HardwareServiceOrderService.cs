@@ -223,8 +223,8 @@ namespace HardwareServiceOrderServices
                     var updateStarted = DateTimeOffset.UtcNow;
 
                     // Todo: Need to think about a default "apiCredential.LastUpdateFetched"
-                    var updatedExternalOrders = await provider.GetUpdatedRepairOrdersAsync(apiCredential?.LastUpdateFetched ?? updateStarted);
-
+                    var updatedExternalOrders = await provider.GetOrdersUpdatedSinceAsync(apiCredential?.LastUpdateFetched ?? updateStarted);
+                    
                     foreach (var externalOrder in updatedExternalOrders)
                     {
                         if (!externalOrder.ExternalServiceEvents.Any())

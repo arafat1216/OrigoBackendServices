@@ -22,16 +22,15 @@ namespace HardwareServiceOrderServices
 
 
         /// <inheritdoc/>
-        public async Task<IRepairProvider> GetRepairProviderAsync(int providerId, string? apiUsername = null, string? apiPassword = null)
+        public async Task<IRepairProvider> GetRepairProviderAsync(int serviceProviderId, string? apiUsername = null, string? apiPassword = null)
         {
-            switch (providerId)
+            ServiceProviderEnum serviceProvider = (ServiceProviderEnum)serviceProviderId;
+
+            switch (serviceProvider)
             {
-                // Conmodo
-                case 1:
-                    if (string.IsNullOrEmpty(apiUsername))
-                        throw new ArgumentNullException(nameof(apiUsername));
-                    else
-                        return GetConmodo(apiUsername);
+                case ServiceProviderEnum.ConmodoNo:
+                    if (string.IsNullOrEmpty(apiUsername)) throw new ArgumentNullException(nameof(apiUsername));
+                    else return GetConmodoNo(apiUsername);
 
                 default:
                     throw new NotSupportedException("Repair-services is currently not supported for this service-provider.");
@@ -40,30 +39,52 @@ namespace HardwareServiceOrderServices
 
 
         /// <inheritdoc/>
-        public async Task<IAftermarketProvider> GetAftermarketProviderAsync(int providerId, string? apiUsername = null, string? apiPassword = null)
+        public async Task<IAftermarketProvider> GetAftermarketProviderAsync(int serviceProviderId, string? apiUsername = null, string? apiPassword = null)
         {
-            throw new NotImplementedException("Aftermarket services is currently not supported by the solution.");
+            ServiceProviderEnum serviceProvider = (ServiceProviderEnum)serviceProviderId;
 
-            switch (providerId)
+            switch (serviceProvider)
             {
-                // Add supported providers here.
+                case ServiceProviderEnum.ConmodoNo:
+                    if (string.IsNullOrEmpty(apiUsername)) throw new ArgumentNullException(nameof(apiUsername));
+                    else return GetConmodoNo(apiUsername);
+
                 default:
                     throw new NotSupportedException("Aftermarket-services is currently not supported for this service-provider.");
             }
         }
 
+
+        public async Task<IGenericProviderOfferings> GetGenericProviderAsync(int serviceProviderId, string? apiUsername = null, string? apiPassword = null)
+        {
+            ServiceProviderEnum serviceProvider = (ServiceProviderEnum)serviceProviderId;
+
+            switch (serviceProvider)
+            {
+                case ServiceProviderEnum.ConmodoNo:
+                    if (string.IsNullOrEmpty(apiUsername)) throw new ArgumentNullException(nameof(apiUsername));
+                    else return GetConmodoNo(apiUsername);
+
+                default:
+                    throw new NotSupportedException("Aftermarket-services is currently not supported for this service-provider.");
+            }
+        }
+
+
         /// <summary>
-        ///     Retrieves Conmodo's repair interface.
+        ///     Retrieve Conmodo's interface implementation(s).
         /// </summary>
-        /// <param name="apiUsername"> The customer's API username. This is their <see cref="CustomerSettings.ServiceId"/>. </param>
-        /// <returns> The corresponding <see cref="IRepairProvider"/>. </returns>
+        /// <param name="apiUsername"> The customer's API username. </param>
+        /// <returns> The service-provider implementation that has implemented the provider-interfaces. </returns>
         /// <exception cref="ApplicationException"> Thrown when the configurations/secrets was not found. </exception>
-        private IRepairProvider GetConmodo(string apiUsername)
+        private Conmodo.ConmodoProviderServices GetConmodoNo(string apiUsername)
         {
             bool credentialsExist = _providerConfiguration.Providers.TryGetValue("ConmodoNO", out ProviderConfiguration conmodoConfiguration);
 
             if (!credentialsExist)
                 throw new ApplicationException("Provider credentials was not found!");
+            if (conmodoConfiguration is null) 
+                throw new ApplicationException("The system's provider-configuration details has not been provided.");
 
             var provider = new Conmodo.ConmodoProviderServices(conmodoConfiguration.ApiBaseUrl, apiUsername, conmodoConfiguration.ApiPassword);
             return provider;

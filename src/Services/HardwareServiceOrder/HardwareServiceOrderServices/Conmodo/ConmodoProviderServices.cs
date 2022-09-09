@@ -8,7 +8,7 @@ namespace HardwareServiceOrderServices.Conmodo
     /// <summary>
     ///     The point-of-entry service-class that implements the provider-interfaces for Conmodo.
     /// </summary>
-    public class ConmodoProviderServices : IRepairProvider
+    public class ConmodoProviderServices : IRepairProvider, IAftermarketProvider
     {
         private IApiRequests ApiRequests { get; }
 
@@ -34,12 +34,34 @@ namespace HardwareServiceOrderServices.Conmodo
 
 
         /// <inheritdoc/>
+        public async Task<NewExternalServiceOrderResponseDTO> CreateAftermarketOrderAsync(NewExternalServiceOrderDTO newAftermarketOrder, int serviceTypeId, string serviceOrderId)
+        {
+            return await CreateOrderAsync(newAftermarketOrder, serviceTypeId, serviceOrderId);
+        }
+
+
+        /// <inheritdoc/>
         public async Task<NewExternalServiceOrderResponseDTO> CreateRepairOrderAsync(NewExternalServiceOrderDTO newRepairOrder, int serviceTypeId, string serviceOrderId)
         {
-            if (string.IsNullOrEmpty(newRepairOrder.AssetInfo.Brand))
-                throw new ArgumentException("The asset's brand name is missing.", nameof(newRepairOrder));
-            if (string.IsNullOrEmpty(newRepairOrder.AssetInfo.Model))
-                throw new ArgumentException("The asset's model name is missing.", nameof(newRepairOrder));
+            return await CreateOrderAsync(newRepairOrder, serviceTypeId, serviceOrderId);
+        }
+
+
+        /// <summary>
+        ///     Creates a new service-order.
+        /// </summary>
+        /// <param name="newServiceOrder"> The details for the new service-order. </param>
+        /// <param name="serviceTypeId"> The ID of the service type that should be used. </param>
+        /// <param name="serviceOrderId"> If supported by the provider, the ID we want to associate with the service order. 
+        ///     For some providers this may function as an alternate key/identifier, or can be used for reference purposes. </param>
+        /// <returns> A task that represents the asynchronous operation. The task result contains the details for the newly created service-order. </returns>
+        /// <exception cref="ArgumentException"></exception>
+        private async Task<NewExternalServiceOrderResponseDTO> CreateOrderAsync(NewExternalServiceOrderDTO newServiceOrder, int serviceTypeId, string serviceOrderId)
+        {
+            if (string.IsNullOrEmpty(newServiceOrder.AssetInfo.Brand))
+                throw new ArgumentException("The asset's brand name is missing.", nameof(newServiceOrder));
+            if (string.IsNullOrEmpty(newServiceOrder.AssetInfo.Model))
+                throw new ArgumentException("The asset's model name is missing.", nameof(newServiceOrder));
 
             // Register the system-wide 'always included' extra services
             HashSet<int> extraServices = new()
@@ -48,7 +70,7 @@ namespace HardwareServiceOrderServices.Conmodo
                 (int)ExtraServicesEnum.ReturnToCustomerOrUser_NO
             };
 
-            foreach (string addonId in newRepairOrder.IncludedExternalAddonIds)
+            foreach (string addonId in newServiceOrder.IncludedExternalAddonIds)
             {
                 if (int.TryParse(addonId, out int result))
                 {
@@ -56,28 +78,28 @@ namespace HardwareServiceOrderServices.Conmodo
                 }
                 else
                 {
-                    throw new ArgumentException("One or more of the provided service-order-addons is not a valid datatype (expected int).", nameof(newRepairOrder));
+                    throw new ArgumentException("One or more of the provided service-order-addons is not a valid datatype (expected int).", nameof(newServiceOrder));
                 }
             }
 
-            string? category = new CategoryMapper().ToConmodo(newRepairOrder.AssetInfo.AssetCategoryId);
+            string? category = new CategoryMapper().ToConmodo(newServiceOrder.AssetInfo.AssetCategoryId);
             StartStatus startStatus = new StartStatusMapper().FromServiceType(serviceTypeId);
-            ProductInfo productInfo = new(category, newRepairOrder.AssetInfo.Brand, newRepairOrder.AssetInfo.Model, newRepairOrder.AssetInfo.Imei, newRepairOrder.AssetInfo.SerialNumber, newRepairOrder.AssetInfo.Accessories);
-            Delivery deliveryAddress = new(newRepairOrder.DeliveryAddress.Address1, newRepairOrder.DeliveryAddress.Address2, newRepairOrder.DeliveryAddress.PostalCode, newRepairOrder.DeliveryAddress.City);
-            Contact customerHandler = new(newRepairOrder.PartnerId.ToString(), newRepairOrder.PartnerName, newRepairOrder.PartnerOrganizationNumber);
+            ProductInfo productInfo = new(category, newServiceOrder.AssetInfo.Brand, newServiceOrder.AssetInfo.Model, newServiceOrder.AssetInfo.Imei, newServiceOrder.AssetInfo.SerialNumber, newServiceOrder.AssetInfo.Accessories);
+            Delivery deliveryAddress = new(newServiceOrder.DeliveryAddress.Address1, newServiceOrder.DeliveryAddress.Address2, newServiceOrder.DeliveryAddress.PostalCode, newServiceOrder.DeliveryAddress.City);
+            Contact customerHandler = new(newServiceOrder.PartnerId.ToString(), newServiceOrder.PartnerName, newServiceOrder.PartnerOrganizationNumber);
             Contact serviceRequestOwner;
-            
+
             // Return to a company
-            if (newRepairOrder.DeliveryAddress.RecipientType == Models.RecipientTypeEnum.Organization)
-                serviceRequestOwner = new(newRepairOrder.UserId.ToString(), newRepairOrder.FirstName, newRepairOrder.LastName, newRepairOrder.OrganizationName, newRepairOrder.OrganizationNumber, newRepairOrder.Email, newRepairOrder.PhoneNumber, deliveryAddress, newRepairOrder.DeliveryAddress.Country);
+            if (newServiceOrder.DeliveryAddress.RecipientType == Models.RecipientTypeEnum.Organization)
+                serviceRequestOwner = new(newServiceOrder.UserId.ToString(), newServiceOrder.FirstName, newServiceOrder.LastName, newServiceOrder.OrganizationName, newServiceOrder.OrganizationNumber, newServiceOrder.Email, newServiceOrder.PhoneNumber, deliveryAddress, newServiceOrder.DeliveryAddress.Country);
             // Return to a user
-            else if (newRepairOrder.DeliveryAddress.RecipientType == Models.RecipientTypeEnum.Personal)
-                serviceRequestOwner = new(newRepairOrder.UserId.ToString(), newRepairOrder.FirstName, newRepairOrder.LastName, newRepairOrder.Email, newRepairOrder.PhoneNumber, deliveryAddress, newRepairOrder.DeliveryAddress.Country);
+            else if (newServiceOrder.DeliveryAddress.RecipientType == Models.RecipientTypeEnum.Personal)
+                serviceRequestOwner = new(newServiceOrder.UserId.ToString(), newServiceOrder.FirstName, newServiceOrder.LastName, newServiceOrder.Email, newServiceOrder.PhoneNumber, deliveryAddress, newServiceOrder.DeliveryAddress.Country);
             // Unsupported value
             else
                 throw new ArgumentException("An unsupported recipient type was used for the return address.");
-            
-            CreateOrderRequest orderRequest = new(serviceOrderId, $"Origo - {newRepairOrder.OrganizationName}", customerHandler, startStatus, newRepairOrder.ErrorDescription, productInfo, newRepairOrder.AssetInfo.PurchaseDate, serviceRequestOwner, extraServices);
+
+            CreateOrderRequest orderRequest = new(serviceOrderId, $"Origo - {newServiceOrder.OrganizationName}", customerHandler, startStatus, newServiceOrder.ErrorDescription, productInfo, newServiceOrder.AssetInfo.PurchaseDate, serviceRequestOwner, extraServices);
 
             // Do the request
             var response = await ApiRequests.CreateServiceOrderAsync(orderRequest);
@@ -94,7 +116,7 @@ namespace HardwareServiceOrderServices.Conmodo
         ///     Handles the parameter validation.
         /// </remarks>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S4457:Parameter validation in \"async\"/\"await\" methods should be wrapped", Justification = "It already does this...")]
-        public async Task<ExternalServiceOrderDTO> GetRepairOrderAsync(string serviceProviderOrderId1, string? serviceProviderOrderId2)
+        public async Task<ExternalServiceOrderDTO> GetOrderByIdAsync(string serviceProviderOrderId1, string? serviceProviderOrderId2)
         {
             // Make sure the generic string-IDs matches Conmodo's corresponding datatype (to verify the data/format).
             bool id1Validated = Guid.TryParse(serviceProviderOrderId1, out Guid commId);
@@ -124,9 +146,9 @@ namespace HardwareServiceOrderServices.Conmodo
         }
 
 
-        /// <inheritdoc cref="GetRepairOrderAsync(string, string?)"/>
+        /// <inheritdoc cref="GetOrderByIdAsync(string, string?)"/>
         /// <remarks>
-        ///     Handles the <see langword="async"/> portion of <see cref="GetRepairOrderAsync(string, string?)"/> once the input has been validated.
+        ///     Handles the <see langword="async"/> portion of <see cref="GetOrderByIdAsync(string, string?)"/> once the input has been validated.
         /// </remarks>
         /// <param name="commId"> Our custom identifier that was provided to Conmodo when we created the service-order. </param>
         /// <param name="orderNo"> Conmodo's order-number. In some parts of Conmodo's documentation this is referred to as <c>claimNumber</c>. </param>
@@ -208,7 +230,7 @@ namespace HardwareServiceOrderServices.Conmodo
 
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<ExternalServiceOrderDTO>> GetUpdatedRepairOrdersAsync(DateTimeOffset since)
+        public async Task<IEnumerable<ExternalServiceOrderDTO>> GetOrdersUpdatedSinceAsync(DateTimeOffset since)
         {
             var ordersWithUpdates = await ApiRequests.GetUpdatedOrdersAsync(since);
 
@@ -225,7 +247,7 @@ namespace HardwareServiceOrderServices.Conmodo
                 if (string.IsNullOrEmpty(updatedOrder.CommId))
                     continue;
 
-                listOfTasks.Add(GetRepairOrderAsync(updatedOrder.CommId, updatedOrder.OrderNo?.ToString()));
+                listOfTasks.Add(GetOrderByIdAsync(updatedOrder.CommId, updatedOrder.OrderNo?.ToString()));
             }
 
             // Once all the async fetches has been completed, return the result.

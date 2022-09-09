@@ -125,6 +125,37 @@ namespace HardwareServiceOrder.IntegrationTests
                 cmServiceProvider1.ActiveServiceOrderAddons.Add(serviceOrderAddon1);
                 hardwareServiceOrderContext.SaveChanges();
 
+                #region Mock/setup for IGenericProviderOfferings
+                var genericProviderOfferingsMock = new Mock<IGenericProviderOfferings>();
+
+                genericProviderOfferingsMock.Setup(m => m.GetOrdersUpdatedSinceAsync(It.IsAny<DateTimeOffset>()))
+                    .ReturnsAsync(new List<ExternalServiceOrderDTO> {
+                    new ExternalServiceOrderDTO
+                    {
+                        AssetIsReplaced = false,
+                        ExternalServiceEvents = new List<ExternalServiceEventDTO>
+                        {
+                            new ExternalServiceEventDTO (ServiceStatusEnum.Canceled, DateTimeOffset.UtcNow)
+                        },
+                        ProvidedAsset = new AssetInfoDTO("Samsung", "Galaxy S21 Ultra", null, "494018268170953", "S/N: 10000", DateOnly.Parse("2020-01-01"),null),
+                        ReturnedAsset = null,
+                        ServiceProviderOrderId1 = "serviceProviderOrderId1",
+                        ServiceProviderOrderId2 = "serviceProviderOrderId2"
+                    },
+                    new ExternalServiceOrderDTO
+                    {
+                        AssetIsReplaced = true,
+                        ExternalServiceEvents = new List<ExternalServiceEventDTO>
+                        {
+                            new ExternalServiceEventDTO (ServiceStatusEnum.CompletedReplaced, DateTimeOffset.UtcNow)
+                        },
+                        ProvidedAsset = new AssetInfoDTO("Samsung", "Galaxy S21 Ultra", null, "494018268170953", "S/N: 10000", DateOnly.Parse("2020-01-01"),null),
+                        ReturnedAsset = new AssetInfoDTO("Samsung", "Galaxy S22 Ultra", "440148139378553", "S/N: 10001"),
+                        ServiceProviderOrderId1 = "serviceProviderOrderId1",
+                        ServiceProviderOrderId2 = "serviceProviderOrderId2"
+                    }
+                });
+                #endregion
 
                 #region Mock/setup for IRepairProvider
                 // Conmodo
@@ -133,18 +164,41 @@ namespace HardwareServiceOrder.IntegrationTests
                 repairProviderMock.Setup(m => m.CreateRepairOrderAsync(It.IsAny<NewExternalServiceOrderDTO>(), It.IsAny<int>(), It.IsAny<string>()))
                     .ReturnsAsync(new NewExternalServiceOrderResponseDTO(serviceProviderOrderId1: "serviceProviderOrderId1", serviceProviderOrderId2: "serviceProviderOrderId2", externalServiceManagementLink: "externalServiceManagementLink"));
 
-                repairProviderMock.Setup(m => m.GetUpdatedRepairOrdersAsync(It.IsAny<DateTimeOffset>()))
+                repairProviderMock.Setup(m => m.GetOrdersUpdatedSinceAsync(It.IsAny<DateTimeOffset>()))
                     .ReturnsAsync(new List<ExternalServiceOrderDTO> {
-                        new ExternalServiceOrderDTO
+                    new ExternalServiceOrderDTO
+                    {
+                        AssetIsReplaced = false,
+                        ExternalServiceEvents = new List<ExternalServiceEventDTO>
                         {
-                            AssetIsReplaced = false,
-                            ExternalServiceEvents = new List<ExternalServiceEventDTO>{ new ExternalServiceEventDTO {  ServiceStatusId = 2, Timestamp = DateTimeOffset.UtcNow} },
-                            ProvidedAsset = new AssetInfoDTO(),
-                            ReturnedAsset = new AssetInfoDTO(),
-                            ServiceProviderOrderId1 = "serviceProviderOrderId1",
-                            ServiceProviderOrderId2 = "serviceProviderOrderId2"
-                        }
+                            new ExternalServiceEventDTO (ServiceStatusEnum.Canceled, DateTimeOffset.UtcNow)
+                        },
+                        ProvidedAsset = new AssetInfoDTO("Samsung", "Galaxy S21 Ultra", null, "494018268170953", "S/N: 10000", DateOnly.Parse("2020-01-01"),null),
+                        ReturnedAsset = null,
+                        ServiceProviderOrderId1 = "serviceProviderOrderId1",
+                        ServiceProviderOrderId2 = "serviceProviderOrderId2"
+                    },
+                    new ExternalServiceOrderDTO
+                    {
+                        AssetIsReplaced = true,
+                        ExternalServiceEvents = new List<ExternalServiceEventDTO>
+                        {
+                            new ExternalServiceEventDTO (ServiceStatusEnum.CompletedReplaced, DateTimeOffset.UtcNow)
+                        },
+                        ProvidedAsset = new AssetInfoDTO("Samsung", "Galaxy S21 Ultra", null, "494018268170953", "S/N: 10000", DateOnly.Parse("2020-01-01"),null),
+                        ReturnedAsset = new AssetInfoDTO("Samsung", "Galaxy S22 Ultra", "440148139378553", "S/N: 10001"),
+                        ServiceProviderOrderId1 = "serviceProviderOrderId1",
+                        ServiceProviderOrderId2 = "serviceProviderOrderId2"
+                    }
                     });
+                #endregion
+
+                #region Mock/setup for IAftermarketProvider
+                // Conmodo
+                var aftermarketProviderMock = new Mock<IAftermarketProvider>();
+
+                aftermarketProviderMock.Setup(m => m.CreateAftermarketOrderAsync(It.IsAny<NewExternalServiceOrderDTO>(), It.IsAny<int>(), It.IsAny<string>()))
+                    .ReturnsAsync(new NewExternalServiceOrderResponseDTO(serviceProviderOrderId1: "serviceProviderOrderId1", serviceProviderOrderId2: "serviceProviderOrderId2", externalServiceManagementLink: "externalServiceManagementLink"));
                 #endregion
 
                 #region Mock/setup for IProviderFactory

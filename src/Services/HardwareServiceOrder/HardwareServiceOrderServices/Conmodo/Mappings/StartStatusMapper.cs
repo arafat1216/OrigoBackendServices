@@ -14,12 +14,21 @@ namespace HardwareServiceOrderServices.Conmodo.Mappings
         /// <exception cref="NotSupportedException"> Thrown when a unsupported <paramref name="serviceTypeId"/> is provided. </exception>
         public StartStatus FromServiceType(int serviceTypeId)
         {
-            switch (serviceTypeId)
+            ServiceTypeEnum serviceType = (ServiceTypeEnum)serviceTypeId;
+
+            switch (serviceType)
             {
-                case (int)ServiceTypeEnum.SUR:
+                case ServiceTypeEnum.SUR:
                     return new StartStatus(25007, "Garanti?");
-                case (int)ServiceTypeEnum.SWAP:
+
+                case ServiceTypeEnum.PreSwap:
                     return new StartStatus(25456, "Preswap?");
+
+                case ServiceTypeEnum.Remarketing:
+                    return new StartStatus(25456, "Recycle");
+
+                case ServiceTypeEnum.Null:
+                case ServiceTypeEnum.Recycle:
                 default:
                     throw new NotSupportedException("This provider don't support this service-type.");
             }

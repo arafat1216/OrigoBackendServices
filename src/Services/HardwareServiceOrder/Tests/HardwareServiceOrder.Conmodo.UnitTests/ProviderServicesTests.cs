@@ -84,13 +84,13 @@ namespace HardwareServiceOrder.Conmodo.UnitTests
 
 
         /// <summary>
-        ///     Positive tests for <see cref="ConmodoProviderServices.GetRepairOrderAsync(string, string?)"/>. 
+        ///     Positive tests for <see cref="ConmodoProviderServices.GetOrderByIdAsync(string, string?)"/>. 
         ///     Tests the validation of the input-parameters.
         /// </summary>
         /// <param name="serviceProviderOrderId1"></param>
         /// <param name="serviceProviderOrderId2"></param>
         /// <returns> A <see cref="Task"/> containing the unit-test execution. </returns>
-        /// <see cref="ConmodoProviderServices.GetRepairOrderAsync(string, string?)"/>
+        /// <see cref="ConmodoProviderServices.GetOrderByIdAsync(string, string?)"/>
         [Theory]
         [InlineData("082c9ae0-ab03-4175-92a7-27d5a791cedc", null)]
         [InlineData("NOLF693-115", null)]
@@ -104,7 +104,7 @@ namespace HardwareServiceOrder.Conmodo.UnitTests
                 .ReturnsAsync(SeededConmodoModels.OrderResponse1);
 
             ConmodoProviderServices providerServices = new(mock.Object);
-            var actual = await providerServices.GetRepairOrderAsync(serviceProviderOrderId1, serviceProviderOrderId2);
+            var actual = await providerServices.GetOrderByIdAsync(serviceProviderOrderId1, serviceProviderOrderId2);
 
             // Assert
             Assert.NotNull(actual);
@@ -112,13 +112,13 @@ namespace HardwareServiceOrder.Conmodo.UnitTests
 
 
         /// <summary>
-        ///     Negative tests for <see cref="ConmodoProviderServices.GetRepairOrderAsync(string, string?)"/>. 
+        ///     Negative tests for <see cref="ConmodoProviderServices.GetOrderByIdAsync(string, string?)"/>. 
         ///     Tests the validation of the input-parameters to make sure it correctly throws exceptions.
         /// </summary>
         /// <param name="serviceProviderOrderId1"></param>
         /// <param name="serviceProviderOrderId2"></param>
         /// <returns> A <see cref="Task"/> containing the unit-test execution. </returns>
-        /// <see cref="ConmodoProviderServices.GetRepairOrderAsync(string, string?)"/>
+        /// <see cref="ConmodoProviderServices.GetOrderByIdAsync(string, string?)"/>
         [Theory]
         [InlineData("082c9ae0-ab03-4175-92a7-27d5a791cedc", "")] // Invalid int value
         [InlineData("082c9ae0-ab03-4175-92a7-27d5a791cedc", "a")] // Invalid int value
@@ -136,16 +136,16 @@ namespace HardwareServiceOrder.Conmodo.UnitTests
             ConmodoProviderServices providerServices = new(mock.Object);
 
             // Assert
-            await Assert.ThrowsAsync<ArgumentException>(async () => await providerServices.GetRepairOrderAsync(serviceProviderOrderId1, serviceProviderOrderId2));
+            await Assert.ThrowsAsync<ArgumentException>(async () => await providerServices.GetOrderByIdAsync(serviceProviderOrderId1, serviceProviderOrderId2));
         }
 
 
         /// <summary>
-        ///     Positive tests for <see cref="ConmodoProviderServices.GetRepairOrderAsync(string, string?)"/>. 
+        ///     Positive tests for <see cref="ConmodoProviderServices.GetOrderByIdAsync(string, string?)"/>. 
         ///     Tests the actual functionality.
         /// </summary>
         /// <returns> A <see cref="Task"/> containing the unit-test execution. </returns>
-        /// <see cref="ConmodoProviderServices.GetRepairOrderAsync(string, string?)"/>
+        /// <see cref="ConmodoProviderServices.GetOrderByIdAsync(string, string?)"/>
         [Fact(Skip = "Not implemented")]
         public void GetRepairOrderAsync3()
         {

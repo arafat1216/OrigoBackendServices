@@ -1,5 +1,4 @@
-﻿using Xunit;
-using AutoMapper;
+﻿using AutoMapper;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Email;
 using HardwareServiceOrderServices.Infrastructure;
@@ -20,9 +19,9 @@ namespace HardwareServiceOrder.UnitTests
         private readonly IHardwareServiceOrderService _hardwareServiceOrderService;
         private readonly IHardwareServiceOrderRepository _hardwareServiceOrderRepository;
         private readonly HardwareServiceOrderContext _dbContext;
-        public HardwareServiceOrderServiceTests() :
-            base(new DbContextOptionsBuilder<HardwareServiceOrderContext>()
-                .UseSqlite("Data Source=sqlitehardwareserviceorderservicetests.db").Options)
+
+
+        public HardwareServiceOrderServiceTests() : base(new DbContextOptionsBuilder<HardwareServiceOrderContext>().UseSqlite("Data Source=sqlitehardwareserviceorderservicetests.db").Options)
         {
             if (_mapper == null)
             {
@@ -34,38 +33,99 @@ namespace HardwareServiceOrder.UnitTests
             }
 
             _dbContext = new HardwareServiceOrderContext(ContextOptions);
-
             _hardwareServiceOrderRepository = new HardwareServiceOrderRepository(_dbContext);
 
-            //Email service mock
+
+            #region Email service mock
             var emailService = new Mock<IEmailService>();
             emailService.Setup(x => x.SendOrderConfirmationEmailAsync(new HardwareServiceOrderServices.Email.Models.OrderConfirmationEmail(), "en"));
+            #endregion
 
-            //Repair provider mock
+            #region IGenericProviderOfferings mock
+            var genericProviderOfferingsMock = new Mock<IGenericProviderOfferings>();
+
+            genericProviderOfferingsMock.Setup(m => m.GetOrdersUpdatedSinceAsync(It.IsAny<DateTimeOffset>()))
+                .ReturnsAsync(new List<ExternalServiceOrderDTO> {
+                    new ExternalServiceOrderDTO
+                    {
+                        AssetIsReplaced = false,
+                        ExternalServiceEvents = new List<ExternalServiceEventDTO>
+                        {
+                            new ExternalServiceEventDTO (ServiceStatusEnum.Canceled, DateTimeOffset.UtcNow)
+                        },
+                        ProvidedAsset = new AssetInfoDTO("Samsung", "Galaxy S21 Ultra", null, "494018268170953", "S/N: 10000", DateOnly.Parse("2020-01-01"),null),
+                        ReturnedAsset = null,
+                        ServiceProviderOrderId1 = "serviceProviderOrderId1",
+                        ServiceProviderOrderId2 = "serviceProviderOrderId2"
+                    },
+                    new ExternalServiceOrderDTO
+                    {
+                        AssetIsReplaced = true,
+                        ExternalServiceEvents = new List<ExternalServiceEventDTO>
+                        {
+                            new ExternalServiceEventDTO (ServiceStatusEnum.CompletedReplaced, DateTimeOffset.UtcNow)
+                        },
+                        ProvidedAsset = new AssetInfoDTO("Samsung", "Galaxy S21 Ultra", null, "494018268170953", "S/N: 10000", DateOnly.Parse("2020-01-01"),null),
+                        ReturnedAsset = new AssetInfoDTO("Samsung", "Galaxy S22 Ultra", "440148139378553", "S/N: 10001"),
+                        ServiceProviderOrderId1 = "serviceProviderOrderId1",
+                        ServiceProviderOrderId2 = "serviceProviderOrderId2"
+                    }
+            });
+            #endregion
+
+
+            #region Repair provider mock
             var repairProviderMock = new Mock<IRepairProvider>();
 
             repairProviderMock.Setup(m => m.CreateRepairOrderAsync(It.IsAny<NewExternalServiceOrderDTO>(), It.IsAny<int>(), It.IsAny<string>()))
                 .ReturnsAsync(new NewExternalServiceOrderResponseDTO(serviceProviderOrderId1: "serviceProviderOrderId1", serviceProviderOrderId2: "serviceProviderOrderId2", externalServiceManagementLink: "externalServiceManagementLink"));
 
-            repairProviderMock.Setup(m => m.GetUpdatedRepairOrdersAsync(It.IsAny<DateTimeOffset>()))
+            repairProviderMock.Setup(m => m.GetOrdersUpdatedSinceAsync(It.IsAny<DateTimeOffset>()))
                 .ReturnsAsync(new List<ExternalServiceOrderDTO> {
                     new ExternalServiceOrderDTO
                     {
                         AssetIsReplaced = false,
-                        ExternalServiceEvents = new List<ExternalServiceEventDTO>{ new ExternalServiceEventDTO {  ServiceStatusId = 2, Timestamp = DateTimeOffset.UtcNow} },
-                        ProvidedAsset = new AssetInfoDTO(),
-                        ReturnedAsset = new AssetInfoDTO(),
+                        ExternalServiceEvents = new List<ExternalServiceEventDTO>
+                        {
+                            new ExternalServiceEventDTO (ServiceStatusEnum.Canceled, DateTimeOffset.UtcNow)
+                        },
+                        ProvidedAsset = new AssetInfoDTO("Samsung", "Galaxy S21 Ultra", null, "494018268170953", "S/N: 10000", DateOnly.Parse("2020-01-01"),null),
+                        ReturnedAsset = null,
+                        ServiceProviderOrderId1 = "serviceProviderOrderId1",
+                        ServiceProviderOrderId2 = "serviceProviderOrderId2"
+                    },
+                    new ExternalServiceOrderDTO
+                    {
+                        AssetIsReplaced = true,
+                        ExternalServiceEvents = new List<ExternalServiceEventDTO>
+                        {
+                            new ExternalServiceEventDTO (ServiceStatusEnum.CompletedReplaced, DateTimeOffset.UtcNow)
+                        },
+                        ProvidedAsset = new AssetInfoDTO("Samsung", "Galaxy S21 Ultra", null, "494018268170953", "S/N: 10000", DateOnly.Parse("2020-01-01"),null),
+                        ReturnedAsset = new AssetInfoDTO("Samsung", "Galaxy S22 Ultra", "440148139378553", "S/N: 10001"),
                         ServiceProviderOrderId1 = "serviceProviderOrderId1",
                         ServiceProviderOrderId2 = "serviceProviderOrderId2"
                     }
-                });
+            });
 
+            #endregion
+
+            #region Aftermarket provider mock
+            var aftermarketProviderMock = new Mock<IAftermarketProvider>();
+
+            aftermarketProviderMock.Setup(m => m.CreateAftermarketOrderAsync(It.IsAny<NewExternalServiceOrderDTO>(), It.IsAny<int>(), It.IsAny<string>()))
+                .ReturnsAsync(new NewExternalServiceOrderResponseDTO(serviceProviderOrderId1: "serviceProviderOrderId1", serviceProviderOrderId2: "serviceProviderOrderId2", externalServiceManagementLink: "externalServiceManagementLink"));
+            #endregion
+
+            #region IProviderFactory mock
             var providerFactoryMock = new Mock<IProviderFactory>();
 
             providerFactoryMock.Setup(m => m.GetRepairProviderAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(repairProviderMock.Object);
 
-            // Status handler mock
+            #endregion
+
+            #region Status handler mock
             var statusHandlerFactoryMock = new Mock<IStatusHandlerFactory>();
 
             var serviceOrderStatusHandlerServiceMock = new Mock<ServiceOrderStatusHandlerService>();
@@ -77,8 +137,9 @@ namespace HardwareServiceOrder.UnitTests
                 .Setup(m =>
                     m.HandleServiceOrderStatusAsync(It.IsAny<HardwareServiceOrderServices.Models.HardwareServiceOrder>(), It.IsAny<ExternalServiceOrderDTO>()));
 
-            _hardwareServiceOrderService = new HardwareServiceOrderService(_hardwareServiceOrderRepository, _mapper, providerFactoryMock.Object, statusHandlerFactoryMock.Object, emailService.Object, new EphemeralDataProtectionProvider());
+            #endregion
 
+            _hardwareServiceOrderService = new HardwareServiceOrderService(_hardwareServiceOrderRepository, _mapper, providerFactoryMock.Object, statusHandlerFactoryMock.Object, emailService.Object, new EphemeralDataProtectionProvider());
         }
 
         [Fact]
@@ -183,7 +244,7 @@ namespace HardwareServiceOrder.UnitTests
             Assert.Null(customerServiceProviders?.FirstOrDefault()?.ApiCredentials?.FirstOrDefault()?.LastUpdateFetched);
             Assert.NotNull(updatedCustomerServiceProviders?.FirstOrDefault()?.ApiCredentials?.FirstOrDefault()?.LastUpdateFetched);
 
-            Assert.Equal(2, orders[0].ServiceEvents.ElementAt(0).ServiceStatusId);
+            Assert.Equal((int)ServiceStatusEnum.Canceled, orders[0].ServiceEvents.ElementAt(0).ServiceStatusId);
         }
 
         [Fact]
