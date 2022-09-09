@@ -3,6 +3,7 @@ using Common.Extensions;
 using HardwareServiceOrderServices.Configuration;
 using HardwareServiceOrderServices.Email;
 using HardwareServiceOrderServices.Email.Models;
+using HardwareServiceOrderServices.Exceptions;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
 using Microsoft.Extensions.Options;
@@ -31,36 +32,40 @@ namespace HardwareServiceOrderServices.Services
         {
             await _assetService.UpdateAssetLifeCycleStatusAsync("recycle", serviceOrder.AssetInfo.AssetLifecycleId,
                 new { AssetLifecycleStatus = AssetLifecycleStatus.PendingRecycle, CallerId = Guid.Empty.SystemUserId() });
-
-            // Todo: Correct Address format
-            if (serviceOrder.ServiceOrderAddons.Contains(ServiceOrderAddonsEnum.CONMODO_PACKAGING))
+            try
             {
-                var orderConfirmationMailForPackaging = new RemarketingPackaging
+                if (serviceOrder.ServiceOrderAddons.Contains(ServiceOrderAddonsEnum.CONMODO_PACKAGING))
                 {
-                    AssetId = serviceOrder.AssetInfo.AssetLifecycleId,
-                    AssetName = $"{serviceOrder.AssetInfo.Brand} {serviceOrder.AssetInfo.Model}",
-                    FirstName = serviceOrder.OrderedBy.FirstName,
-                    OrderDate = hardwareServiceOrder.DateCreated.UtcDateTime,
-                    Address = $"{serviceOrder.DeliveryAddress.Address1}", //Todo: Correct Address format
-                    Recipient = serviceOrder.OrderedBy.Email,
-                    Subject = RemarketingPackaging.SubjectKeyName
-                };
-                await _emailService.SendOrderConfirmationEmailAsync(orderConfirmationMailForPackaging, "en");
+                    var orderConfirmationMailForPackaging = new RemarketingPackaging
+                    {
+                        AssetId = serviceOrder.AssetInfo.AssetLifecycleId,
+                        AssetName = $"{serviceOrder.AssetInfo.Brand} {serviceOrder.AssetInfo.Model}",
+                        FirstName = serviceOrder.OrderedBy.FirstName,
+                        OrderDate = hardwareServiceOrder.DateCreated.UtcDateTime,
+                        Address = $"{serviceOrder.DeliveryAddress.Address1}",
+                        Recipient = serviceOrder.OrderedBy.Email,
+                        Subject = RemarketingPackaging.SubjectKeyName
+                    };
+                    await _emailService.SendOrderConfirmationEmailAsync(orderConfirmationMailForPackaging, "en");
+                }
+                else
+                {
+                    var orderConfirmationMailForNoPackaging = new RemarketingNoPackaging()
+                    {
+                        AssetId = serviceOrder.AssetInfo.AssetLifecycleId,
+                        AssetName = $"{serviceOrder.AssetInfo.Brand} {serviceOrder.AssetInfo.Model}",
+                        FirstName = serviceOrder.OrderedBy.FirstName,
+                        OrderDate = hardwareServiceOrder.DateCreated.UtcDateTime,
+                        Recipient = serviceOrder.OrderedBy.Email,
+                        Subject = RemarketingPackaging.SubjectKeyName
+                    };
+                    await _emailService.SendOrderConfirmationEmailAsync(orderConfirmationMailForNoPackaging, "en");
+                }
             }
-            else
+            catch (EmailException ex)
             {
-                var orderConfirmationMailForNoPackaging = new RemarketingNoPackaging()
-                {
-                    AssetId = serviceOrder.AssetInfo.AssetLifecycleId,
-                    AssetName = $"{serviceOrder.AssetInfo.Brand} {serviceOrder.AssetInfo.Model}",
-                    FirstName = serviceOrder.OrderedBy.FirstName,
-                    OrderDate = hardwareServiceOrder.DateCreated.UtcDateTime,
-                    Recipient = serviceOrder.OrderedBy.Email,
-                    Subject = RemarketingPackaging.SubjectKeyName
-                };
-                await _emailService.SendOrderConfirmationEmailAsync(orderConfirmationMailForNoPackaging, "en");
             }
-
+            
         }
 
         /// <inheritdoc />

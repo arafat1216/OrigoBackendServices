@@ -101,8 +101,7 @@ namespace HardwareServiceOrderServices
                                     serviceOrderDTO.ErrorDescription,
                                     serviceOrderAddons);
 
-            // Todo: Instead of passing Conmodo manually, we will need to provide ServiceProviderId that we get from request-body dto
-            var customerProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, (int)ServiceProviderEnum.ConmodoNo, true, false);
+            var customerProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, serviceOrderDTO.ServiceProviderId, true, false);
 
             if (customerProvider == null)
                 throw new ArgumentException($"Service provider is not configured for customer {customerId}", nameof(customerId));
@@ -146,7 +145,7 @@ namespace HardwareServiceOrderServices
                     deliveryAddress,
                     serviceOrderDTO.ServiceTypeId, // ServiceTypeId refers to the values of ServiceTypeEnum, like SUR, Remarketing
                     (int)ServiceStatusEnum.Registered,
-                    (int)ServiceProviderEnum.ConmodoNo, // Todo: Instead of passing Conmodo manually, we will need to provide ServiceProviderId that we get from request-body dto
+                    serviceOrderDTO.ServiceProviderId,
                     null, // TODO: This needs to be replaced with the list of actually included addons.
                     externalOrderResponseDTO.ServiceProviderOrderId1,
                     externalOrderResponseDTO.ServiceProviderOrderId2,

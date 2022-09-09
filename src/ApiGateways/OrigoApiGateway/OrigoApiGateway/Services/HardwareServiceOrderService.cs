@@ -486,7 +486,8 @@ namespace OrigoApiGateway.Services
 
                 var request = await PostAsync($"{_options.ApiPath}/{customerId}/orders", dto);
                 request.EnsureSuccessStatusCode();
-                return await request.Content.ReadFromJsonAsync<HardwareServiceOrder>();
+                var data = await request.Content.ReadFromJsonAsync<HardwareServiceOrder>();
+                return data;
             }
             catch (HttpRequestException exception)
             {
@@ -496,6 +497,11 @@ namespace OrigoApiGateway.Services
             catch (NotSupportedException exception)
             {
                 _logger.LogError(exception, "CreateHardwareServiceOrderAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (ArgumentException exception)
+            {
+                _logger.LogError(exception, exception.Message);
                 throw;
             }
             catch (Exception exception)

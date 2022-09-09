@@ -9,7 +9,7 @@ public enum ServiceOrderAddonsEnum
     Null = 0,
 
     /// <summary>
-    ///     The service-request was been canceled. <para>
+    ///     <b>Packing Service</b> which is an addon supported service provider Conmodo. <para>
     ///     
     ///     <b>Service Provider:</b> Conmodo <br/>
     ///     <b>Addon:</b> Packaging </para>

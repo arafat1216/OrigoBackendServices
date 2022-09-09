@@ -103,22 +103,29 @@ namespace HardwareServiceOrder.API.Controllers
         }
 
         /// <summary>
-        /// Creates a hardware service order
+        ///     Creates a new hardware service order
         /// </summary>
         /// <param name="customerId">Customer Identifier</param>
         /// <param name="model">Order details</param>
         /// <returns>New hardware service order</returns>
         [Route("{customerId:Guid}/orders")]
         [HttpPost]
-        [ProducesResponseType(typeof(HardwareServiceOrderDTO), (int)HttpStatusCode.OK)]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(HardwareServiceOrderDTO))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> CreateHardwareServiceOrder(Guid customerId, [FromBody] ViewModels.NewHardwareServiceOrder model)
         {
-            var dto = _mapper.Map<NewHardwareServiceOrderDTO>(model);
-            var vm = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, dto);
+            try
+            {
+                var dto = _mapper.Map<NewHardwareServiceOrderDTO>(model);
+                var hardwareServiceOrderDto = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, dto);
 
-            //return Ok(_mapper.Map<ViewModels.HardwareServiceOrderResponse>(vm));
-            return Ok(vm);
+                return Ok(hardwareServiceOrderDto);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         /// <summary>

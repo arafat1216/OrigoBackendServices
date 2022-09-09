@@ -109,7 +109,7 @@ namespace OrigoApiGateway.Services
         /// </remarks>
         /// <exception cref="ArgumentException"> Thrown when one or more of the inputs is invalid. </exception>
         Task RemoveServiceAddonFromCustomerPortalAsync(Guid organizationId, int serviceProviderId, ISet<int> removedServiceOrderAddonIds);
-        
+
         /// <summary>
         ///     Creates a new Service Order for a particular Service Type. The Service Type could be SUR, Remarketing and so on
         /// </summary>
@@ -117,6 +117,10 @@ namespace OrigoApiGateway.Services
         /// <param name="userId"> The user identifier </param>
         /// <param name="serviceTypeId"> Id of a ServiceType. This value resembles the values of enum <b>ServiceTypeEnum</b> </param>
         /// <param name="model"> The request body to create a new Service Order </param>
-        Task<HardwareServiceOrder> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, int serviceTypeId, NewHardwareServiceOrder model);
+        /// <exception cref="HttpRequestException"> Thrown when an HttpException happens during calling a third party service. </exception>
+        /// <exception cref="NotSupportedException"> Thrown when the content or input type is not valid. </exception>
+        /// <exception cref="ArgumentException"> Thrown when one or more of the invalid inputs due to which the service is unable to fetch necessary data from third party </exception>
+        /// <exception cref="Exception"> Thrown when any unknown error happens </exception>
+        Task<HardwareServiceOrder?> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, int serviceTypeId, NewHardwareServiceOrder model);
     }
 }

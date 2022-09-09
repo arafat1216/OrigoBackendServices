@@ -5,6 +5,7 @@ using Common.Extensions;
 using HardwareServiceOrderServices.Configuration;
 using HardwareServiceOrderServices.Email;
 using HardwareServiceOrderServices.Email.Models;
+using HardwareServiceOrderServices.Exceptions;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
 using Microsoft.Extensions.Options;
@@ -49,7 +50,15 @@ namespace HardwareServiceOrderServices.Services
                 PackageSlipLink = externalServiceOrderResponse.ExternalServiceManagementLink
             };
 
-            await _emailService.SendOrderConfirmationEmailAsync(orderConfirmationMail, "en");
+            try
+            {
+                await _emailService.SendOrderConfirmationEmailAsync(orderConfirmationMail, "en");
+            }
+            catch (EmailException ex)
+            {
+            }
+
+            
         }
 
         /// <inheritdoc cref="ServiceOrderStatusHandlerService.HandleServiceOrderCanceledStatusAsync"/>

@@ -231,47 +231,77 @@ namespace OrigoApiGateway.Controllers
         
         
         /// <summary>
-        /// Creates a hardware service order for Service Type "SUR"
+        /// Creates a hardware service order for Service Type <c>Repair(SUR)</c>
         /// </summary>
+        /// <remarks>
+        ///     The Service Provider provides different Services such as Repair(SUR), Remarketing etc. This endpoint will create a <c>Repair(SUR)</c> type of Service Order.
+        /// </remarks>
         /// <param name="customerId">Customer Identifier</param>
         /// <param name="model">Order details</param>
         /// <returns>New hardware service order</returns>
-        [Route("{customerId:Guid}/sur/orders")]
+        [Route("{customerId:Guid}/orders/repair")]
         [HttpPost]
-        [ProducesResponseType(typeof(HardwareServiceOrder), (int)HttpStatusCode.OK)]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(HardwareServiceOrder))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateHardwareServiceOrderForSURAsync(Guid customerId, [FromBody] NewHardwareServiceOrder model)
         {
-            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            try
+            {
+                var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
 
-            if (!Guid.TryParse(userId, out Guid userIdGuid))
-                return BadRequest();
+                if (!Guid.TryParse(userId, out Guid userIdGuid))
+                    return BadRequest();
 
-            // Todo: The Integer value "3" represents ServiceType "SUR" which can be found inside enum ServiceTypeEnum. Later on this should be converted into actual Enum
-            var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, userIdGuid, 3, model);
+                // Todo: The Integer value "3" represents ServiceType "SUR" which can be found inside enum ServiceTypeEnum. Later on this should be converted into actual Enum
+                var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, userIdGuid, 3, model);
 
-            return Ok(newOrder);
+                return Ok(newOrder);
+            }
+            catch (NotSupportedException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         
         /// <summary>
-        /// Creates a hardware service order for Service Type "Remarketing"
+        /// Creates a hardware service order for Service Type <c>Remarketing</c>
         /// </summary>
+        /// <remarks>
+        ///     The Service Provider provides different Services such as SUR, Remarketing etc. This endpoint will create a <c>Remarketing</c> type of Service Order.
+        /// </remarks>
         /// <param name="customerId">Customer Identifier</param>
         /// <param name="model">Order details</param>
         /// <returns>New hardware service order</returns>
-        [Route("{customerId:Guid}/remarketing/orders")]
+        [Route("{customerId:Guid}/orders/remarketing")]
         [HttpPost]
-        [ProducesResponseType(typeof(HardwareServiceOrder), (int)HttpStatusCode.OK)]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(HardwareServiceOrder))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateHardwareServiceOrderForRemarketingAsync(Guid customerId, [FromBody] NewHardwareServiceOrder model)
         {
-            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            try
+            {
+                var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
 
-            if (!Guid.TryParse(userId, out Guid userIdGuid))
-                return BadRequest();
+                if (!Guid.TryParse(userId, out Guid userIdGuid))
+                    return BadRequest();
 
-            // Todo: The Integer value "2" represents ServiceType "Remarketing" which can be found inside enum ServiceTypeEnum. Later on this should be converted into actual Enum
-            var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, userIdGuid, 2, model);
+                // Todo: The Integer value "2" represents ServiceType "Remarketing" which can be found inside enum ServiceTypeEnum. Later on this should be converted into actual Enum
+                var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, userIdGuid, 2, model);
 
-            return Ok(newOrder);
+                return Ok(newOrder);
+            }
+            catch (NotSupportedException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

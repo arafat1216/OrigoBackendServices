@@ -10,11 +10,12 @@ namespace HardwareServiceOrderServices.Services
         /// <summary>
         /// Connects to the Asset-microservice, notifying it about new service-statuses.
         /// </summary>
-        /// <param name="endpoint">Endpoint of the Asset-microservice</param>
+        /// <param name="endpointSuffix">Endpoint suffix of the Asset-microservice. Calling to this endpoint will update the Asset LifeCycle</param>
         /// <param name="assetLifecycleId">The ID for the asset-lifecycle.</param>
         /// <param name="data">Request body which contains the necessary information to update Asset status</param>
-        /// <returns></returns>
-        Task UpdateAssetLifeCycleStatusAsync<TRequest>(string endpoint, Guid assetLifecycleId, TRequest data);
+        /// <returns>The awaitable task.</returns>
+        /// <exception cref="HttpRequestException">Thrown if call to Asset Microservice got failed.</exception>
+        Task UpdateAssetLifeCycleStatusAsync<TRequest>(string endpointSuffix, Guid assetLifecycleId, TRequest data);
 
         /// <summary>
         ///     Connects to the Asset-microservice, notifying it about new and updated service-statuses for service-type --> SUR.

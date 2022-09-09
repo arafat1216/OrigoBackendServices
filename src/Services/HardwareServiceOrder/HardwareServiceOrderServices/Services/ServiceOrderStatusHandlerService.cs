@@ -60,7 +60,7 @@ namespace HardwareServiceOrderServices.Services
         /// The implementation can be overridden by subclass if the service-type/status/state requires different
         /// kinds of business logic.
         /// </summary>
-        /// <param name="hardwareServiceOrder">Order Identifier</param>
+        /// <param name="hardwareServiceOrder">Represents the Hardware Service Order<see cref="HardwareServiceOrder"/></param>
         /// <param name="repairOrderDto">Represents the repair-order details that is retrieved from the external service-provider.<see cref="ExternalRepairServiceOrderDTO"/></param>
         /// <returns> The awaitable task. </returns>
         /// <exception cref="ArgumentException">Thrown if the latest status extracted from <paramref name="repairOrderDto"/>
@@ -112,12 +112,12 @@ namespace HardwareServiceOrderServices.Services
         /// <summary>
         /// Execute necessary operations after service order gets created for all service types
         /// </summary>
-        /// <param name="hardwareServiceOrder"></param>
-        /// <param name="serviceOrder"></param>
-        /// <param name="externalServiceOrderResponse"></param>
+        /// <param name="hardwareServiceOrder">Represents the Hardware Service Order<see cref="HardwareServiceOrder"/></param>
+        /// <param name="serviceOrder">Contains necessary information to create Service Order. This mainly the converted one from the actual request body. <see cref="NewHardwareServiceOrderDTO"/></param>
+        /// <param name="externalServiceOrder">Contains the information required for registering a new repair-order with an external service-provider.<see cref="NewExternalServiceOrderDTO"/></param>
+        /// <param name="externalServiceOrderResponse">The Response Data that we got after creating the Service Order to third party. <see cref="NewExternalServiceOrderResponseDTO"/></param>
         /// <param name="customerSettings"></param>
-        /// <param name="externalServiceOrder"></param>
-        /// <returns></returns>
+        /// <returns>The awaitable task.</returns>
         public abstract Task HandleServiceOrderRegisterAsync(HardwareServiceOrder hardwareServiceOrder, 
             NewHardwareServiceOrderDTO serviceOrder,
             NewExternalServiceOrderDTO externalServiceOrder, 
