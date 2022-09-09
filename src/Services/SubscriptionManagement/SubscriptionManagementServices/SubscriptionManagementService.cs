@@ -339,7 +339,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             subscriptionOrder.DateOfTermination, @operator.OperatorName, organizationId, subscriptionOrder.CallerId);
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(cancelSubscriptionOrder);
 
-        await _emailService.SendAsync(OrderTypes.ChangeSubscription.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
+        await _emailService.SendAsync(OrderTypes.CancelSubscription.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
         var cancelMapped = _mapper.Map<CancelSubscriptionOrderDTO>(added);
         cancelMapped.OperatorId = @operator.Id;
 
