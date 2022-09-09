@@ -32,6 +32,8 @@ namespace HardwareServiceOrderServices.Services
             NewExternalServiceOrderResponseDTO externalServiceOrderResponse, 
             CustomerSettingsDTO customerSettings)
         {
+            await _assetService.UpdateAssetLifeCycleStatusAsync("send-to-repair", serviceOrder.AssetInfo.AssetLifecycleId, Guid.Empty.SystemUserId());
+            
             // Todo: Is there any Packaging or No Packaging action involved? Need to ask Product Team
             
             var orderConfirmationMail = new OrderConfirmationEmail
@@ -48,8 +50,6 @@ namespace HardwareServiceOrderServices.Services
             };
 
             await _emailService.SendOrderConfirmationEmailAsync(orderConfirmationMail, "en");
-            
-            await _assetService.UpdateAssetLifeCycleStatusAsync("send-to-repair", serviceOrder.AssetInfo.AssetLifecycleId, Guid.Empty.SystemUserId());
         }
 
         /// <inheritdoc cref="ServiceOrderStatusHandlerService.HandleServiceOrderCanceledStatusAsync"/>

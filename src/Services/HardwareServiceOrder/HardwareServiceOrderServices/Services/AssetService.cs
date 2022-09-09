@@ -29,8 +29,13 @@ namespace HardwareServiceOrderServices.Services
         /// <inheritdoc/>
         public async Task UpdateAssetLifeCycleStatusAsync<TRequest>(string endpoint, Guid assetLifecycleId, TRequest data)
         {
+            HttpResponseMessage? result = null;
             JsonContent content = JsonContent.Create(data);
-            await _httpClient.PatchAsync($"{_config.ApiPath}/{assetLifecycleId}/{endpoint}", content);
+            result = await _httpClient.PatchAsync($"{_config.ApiPath}/{assetLifecycleId}/{endpoint}", content);
+            if (result is not null && !result.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException("The external API-request returned a error-code. The asset lifecycle-status was not updated!");
+            }
         }
 
 

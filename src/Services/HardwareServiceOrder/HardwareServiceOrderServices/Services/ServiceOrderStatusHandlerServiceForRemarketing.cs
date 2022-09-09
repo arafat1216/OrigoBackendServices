@@ -29,6 +29,9 @@ namespace HardwareServiceOrderServices.Services
             NewExternalServiceOrderResponseDTO externalServiceOrderResponse, 
             CustomerSettingsDTO customerSettings)
         {
+            await _assetService.UpdateAssetLifeCycleStatusAsync("recycle", serviceOrder.AssetInfo.AssetLifecycleId,
+                new { AssetLifecycleStatus = AssetLifecycleStatus.PendingRecycle, CallerId = Guid.Empty.SystemUserId() });
+
             // Todo: Correct Address format
             if (serviceOrder.ServiceOrderAddons.Contains(ServiceOrderAddonsEnum.CONMODO_PACKAGING))
             {
@@ -58,8 +61,6 @@ namespace HardwareServiceOrderServices.Services
                 await _emailService.SendOrderConfirmationEmailAsync(orderConfirmationMailForNoPackaging, "en");
             }
 
-            await _assetService.UpdateAssetLifeCycleStatusAsync("recycle", serviceOrder.AssetInfo.AssetLifecycleId,
-                new { AssetLifecycleStatus = AssetLifecycleStatus.PendingRecycle, CallerId = Guid.Empty.SystemUserId() });
         }
 
         /// <inheritdoc />
