@@ -106,7 +106,10 @@ namespace HardwareServiceOrderServices
             if (customerProvider == null)
                 throw new ArgumentException($"Service provider is not configured for customer {customerId}", nameof(customerId));
 
-            var apiCredential = customerProvider.ApiCredentials.FirstOrDefault(apiCredential => apiCredential.ServiceTypeId == serviceOrderDTO.ServiceTypeId);
+            if (customerProvider?.ApiCredentials == null || customerProvider?.ApiCredentials.Count == 0)
+                throw new ArgumentException($"API Credential does not exist for customer {customerId}, ServiceType: {serviceOrderDTO.ServiceTypeId}", nameof(customerId));
+
+            var apiCredential = customerProvider?.ApiCredentials.FirstOrDefault(apiCredential => apiCredential.ServiceTypeId == serviceOrderDTO.ServiceTypeId || apiCredential.ServiceTypeId == null);
 
             if (apiCredential == null)
                 throw new ArgumentException($"API Credential does not exist for customer {customerId}, ServiceType: {serviceOrderDTO.ServiceTypeId}", nameof(customerId));

@@ -167,8 +167,10 @@ namespace HardwareServiceOrder.UnitTests
             Assert.NotNull(order!.Owner);
         }
 
-        [Fact]
-        public async Task CreateHardwareServiceOrder()
+        [Theory]
+        [InlineData(ServiceTypeEnum.SUR)]
+        [InlineData(ServiceTypeEnum.Remarketing)]
+        public async Task CreateHardwareServiceOrder(ServiceTypeEnum serviceType)
         {
             var serviceOrderDTO = new NewHardwareServiceOrderDTO
             {
@@ -203,7 +205,7 @@ namespace HardwareServiceOrder.UnitTests
                     PostalCode = "erg"
                 },
                 ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo,
-                ServiceTypeId = (int)ServiceTypeEnum.SUR,
+                ServiceTypeId = (int)serviceType,
                 ServiceOrderAddons = new List<ServiceOrderAddonsEnum>(){ ServiceOrderAddonsEnum.CONMODO_PACKAGING }
             };
 
@@ -211,7 +213,7 @@ namespace HardwareServiceOrder.UnitTests
 
             Assert.NotNull(hardwareServiceOrder);
             Assert.Equal((int)ServiceStatusEnum.Registered, hardwareServiceOrder.StatusId);
-            Assert.Equal((int)ServiceTypeEnum.SUR, hardwareServiceOrder.ServiceTypeId);
+            Assert.Equal((int)serviceType, hardwareServiceOrder.ServiceTypeId);
             Assert.Equal(CUSTOMER_ONE_ID, hardwareServiceOrder.CustomerId);
         }
 

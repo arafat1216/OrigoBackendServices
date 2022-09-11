@@ -90,8 +90,9 @@ namespace HardwareServiceOrder.UnitTests
             var apiCredentials2 = new ApiCredential(cmServiceProvider1.Id, (int)ServiceTypeEnum.Remarketing, "", "");
             var apiCredentials3 = new ApiCredential(cmServiceProvider2.Id, (int)ServiceTypeEnum.SUR, "", "");
             var apiCredentials4 = new ApiCredential(cmServiceProvider2.Id, (int)ServiceTypeEnum.Remarketing, "", "");
-            
-            context.AddRange(apiCredentials1, apiCredentials2, apiCredentials3, apiCredentials4);
+            var apiCredentials5 = new ApiCredential(cmServiceProvider3.Id, null, "", "");
+
+            context.AddRange(apiCredentials1, apiCredentials2, apiCredentials3, apiCredentials4, apiCredentials5);
 
             context.SaveChanges();
         }

@@ -33,10 +33,10 @@ namespace HardwareServiceOrderServices.Services
             NewExternalServiceOrderResponseDTO externalServiceOrderResponse, 
             CustomerSettingsDTO customerSettings)
         {
-            await _assetService.UpdateAssetLifeCycleStatusAsync("send-to-repair", serviceOrder.AssetInfo.AssetLifecycleId, Guid.Empty.SystemUserId());
-            
+            await _assetService.UpdateAssetLifeCycleStatusAsync(HttpMethod.Patch, "send-to-repair", serviceOrder.AssetInfo.AssetLifecycleId, Guid.Empty.SystemUserId());
+
             // Todo: Is there any Packaging or No Packaging action involved? Need to ask Product Team
-            
+
             var orderConfirmationMail = new OrderConfirmationEmail
             {
                 AssetId = $"{serviceOrder.AssetInfo.AssetLifecycleId}",
@@ -56,9 +56,9 @@ namespace HardwareServiceOrderServices.Services
             }
             catch (EmailException ex)
             {
+                //Todo: Need to investigate what should happen if the Email is not being sent
             }
 
-            
         }
 
         /// <inheritdoc cref="ServiceOrderStatusHandlerService.HandleServiceOrderCanceledStatusAsync"/>

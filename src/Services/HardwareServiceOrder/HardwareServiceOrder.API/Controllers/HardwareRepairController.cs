@@ -126,6 +126,10 @@ namespace HardwareServiceOrder.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+            catch (HttpRequestException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         /// <summary>

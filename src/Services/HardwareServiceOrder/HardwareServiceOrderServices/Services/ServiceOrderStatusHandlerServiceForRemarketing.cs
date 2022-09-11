@@ -30,8 +30,9 @@ namespace HardwareServiceOrderServices.Services
             NewExternalServiceOrderResponseDTO externalServiceOrderResponse, 
             CustomerSettingsDTO customerSettings)
         {
-            await _assetService.UpdateAssetLifeCycleStatusAsync("recycle", serviceOrder.AssetInfo.AssetLifecycleId,
+            await _assetService.UpdateAssetLifeCycleStatusAsync(HttpMethod.Patch, "recycle", serviceOrder.AssetInfo.AssetLifecycleId,
                 new { AssetLifecycleStatus = AssetLifecycleStatus.PendingRecycle, CallerId = Guid.Empty.SystemUserId() });
+
             try
             {
                 if (serviceOrder.ServiceOrderAddons.Contains(ServiceOrderAddonsEnum.CONMODO_PACKAGING))
@@ -64,8 +65,8 @@ namespace HardwareServiceOrderServices.Services
             }
             catch (EmailException ex)
             {
+                //Todo: Need to investigate what should happen if the Email is not being sent
             }
-            
         }
 
         /// <inheritdoc />

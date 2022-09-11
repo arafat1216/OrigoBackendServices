@@ -215,22 +215,6 @@ namespace OrigoApiGateway.Services
             TOutput? deserialized = await response.Content.ReadFromJsonAsync<TOutput>();
             return deserialized;
         }
-        
-        /// <summary>
-        ///     Serializes <paramref name="inputValue"/> and adds the dynamic HTTP header values before sending a POST 
-        ///     request to the underlaying microservice. 
-        /// </summary>
-        /// <typeparam name="T"> The <see cref="Type"/> that will be serialized. </typeparam>
-        /// <param name="requestUri"> The URI the request is sent to. </param>
-        /// <param name="inputValue"> The value that should be serialized. </param>
-        /// <returns> The <see cref="HttpResponseMessage"/> that was received from the microservice. </returns>
-        private async Task<HttpResponseMessage> PostAsync<T>(string? requestUri, T? inputValue)
-        {
-            var content = JsonContent.Create(inputValue);
-            content.Headers.Add("X-Authenticated-UserId", GetUserId());
-
-            return await HttpClient.PostAsync(requestUri, content);
-        }
 
 
         /// <inheritdoc cref="HttpClient.GetAsync(string?)"/>
@@ -484,10 +468,8 @@ namespace OrigoApiGateway.Services
                 dto.ServiceProviderId = model.ServiceProviderId;
                 dto.ServiceOrderAddons = model.ServiceOrderAddons;
 
-                var request = await PostAsync($"{_options.ApiPath}/{customerId}/orders", dto);
-                request.EnsureSuccessStatusCode();
-                var data = await request.Content.ReadFromJsonAsync<HardwareServiceOrder>();
-                return data;
+                HardwareServiceOrder hardwareServiceOrder = await SendRequestAsync<NewHardwareServiceOrderDTO, HardwareServiceOrder>(HttpMethod.Post, $"{_options.ApiPath}/{customerId}/orders", null, dto);
+                return hardwareServiceOrder;
             }
             catch (HttpRequestException exception)
             {

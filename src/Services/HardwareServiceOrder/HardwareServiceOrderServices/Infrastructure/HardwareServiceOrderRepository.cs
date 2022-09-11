@@ -220,14 +220,18 @@ namespace HardwareServiceOrderServices.Infrastructure
         /// <inheritdoc/>
         public async Task<HardwareServiceOrder> CreateHardwareServiceOrderAsync(HardwareServiceOrder serviceOrder)
         {
-            var serviceType = await GetServiceTypeAsync((int)ServiceTypeEnum.SUR) ?? new ServiceType { Id = (int)ServiceTypeEnum.SUR };
+            var serviceType = await GetServiceTypeAsync(serviceOrder.ServiceTypeId);
             var serviceStatus = await GetServiceStatusAsync((int)ServiceStatusEnum.Registered);
             var serviceProvider = await GetCustomerServiceProviderAsync(serviceOrder.CustomerId, (int)ServiceProviderEnum.ConmodoNo, false, false);
 
-            if (serviceProvider == null || serviceType == null || serviceStatus == null)
-            {
-                throw new Exception();
-            }
+            if (serviceProvider == null)
+                throw new ArgumentException($"Failed to fetch ServiceProvider");
+
+            if (serviceType == null)
+                throw new ArgumentException($"Failed to fetch ServiceType");
+
+            if (serviceStatus == null)
+                throw new ArgumentException($"Failed to fetch ServiceStatus");
 
             _hardwareServiceOrderContext.HardwareServiceOrders.Add(serviceOrder);
 

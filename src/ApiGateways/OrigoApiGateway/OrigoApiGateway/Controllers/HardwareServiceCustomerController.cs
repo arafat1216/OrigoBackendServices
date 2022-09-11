@@ -257,11 +257,15 @@ namespace OrigoApiGateway.Controllers
 
                 return Ok(newOrder);
             }
-            catch (NotSupportedException ex)
+            catch (HttpRequestException ex)
             {
                 return BadRequest(ex.Message);
             }
             catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (NotSupportedException ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -294,11 +298,15 @@ namespace OrigoApiGateway.Controllers
 
                 return Ok(newOrder);
             }
-            catch (NotSupportedException ex)
+            catch (HttpRequestException ex)
             {
                 return BadRequest(ex.Message);
             }
             catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (NotSupportedException ex)
             {
                 return BadRequest(ex.Message);
             }
