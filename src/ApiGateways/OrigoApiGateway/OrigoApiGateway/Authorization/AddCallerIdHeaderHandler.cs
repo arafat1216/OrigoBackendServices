@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using Microsoft.Extensions.Options;
+using OrigoApiGateway.Services;
+using System.Net;
 using System.Security.Claims;
 
 namespace OrigoApiGateway.Authorization;
@@ -11,20 +13,25 @@ public class AddCallerIdHeaderHandler : DelegatingHandler
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private const string AUTHENTICATED_USER_ID = "X-Authenticated-UserId";
+    private readonly TechstepCoreWebhookConfiguration _options;
 
-    public AddCallerIdHeaderHandler(IHttpContextAccessor httpContextAccessor)
+
+
+    public AddCallerIdHeaderHandler(IHttpContextAccessor httpContextAccessor, IOptions<TechstepCoreWebhookConfiguration> options)
     {
         _httpContextAccessor = httpContextAccessor;
+        _options = options.Value;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request,  CancellationToken cancellationToken)
     {
+
         var callerId = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
 
         if (request.RequestUri.AbsolutePath.Contains("permissions") && request.Method != HttpMethod.Put) return await base.SendAsync(request, cancellationToken);
 
-        if (_httpContextAccessor.HttpContext.Request.Path.Value.Contains("844c0935-8768-4292-878e-73b915ebf7f6"))
+        if (_httpContextAccessor.HttpContext.Request.Path.Value.Contains(_options.UpdatePath))
         {
             callerId = "00000000-0000-0000-0000-000000000002";
         }

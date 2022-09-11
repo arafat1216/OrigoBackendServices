@@ -199,21 +199,19 @@ namespace OrigoApiGateway.Controllers
                         if (role == PredefinedRole.Admin.ToString() || role == PredefinedRole.CustomerAdmin.ToString())
                         {
                             //Can only create Admin's and down
-                            if (permission.Role == PredefinedRole.GroupAdmin.ToString() || 
-                                permission.Role == PredefinedRole.PartnerAdmin.ToString() ||
-                                permission.Role == PredefinedRole.PartnerReadOnlyAdmin.ToString() ||
-                                permission.Role == PredefinedRole.SystemAdmin.ToString()) return Forbid();
+                            if (permission.Role != PredefinedRole.Admin.ToString() && 
+                                permission.Role != PredefinedRole.CustomerAdmin.ToString() &&
+                                permission.Role != PredefinedRole.Manager.ToString() &&
+                                permission.Role != PredefinedRole.DepartmentManager.ToString() &&
+                                permission.Role != PredefinedRole.EndUser.ToString()) return Forbid();
 
                         }
                         if (role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
                         {
                             //Can only create Managers and down
-                            if (permission.Role == PredefinedRole.GroupAdmin.ToString() ||
-                               permission.Role == PredefinedRole.PartnerAdmin.ToString() ||
-                               permission.Role == PredefinedRole.Admin.ToString() ||
-                               permission.Role == PredefinedRole.CustomerAdmin.ToString() ||
-                               permission.Role == PredefinedRole.PartnerReadOnlyAdmin.ToString() ||
-                               permission.Role == PredefinedRole.SystemAdmin.ToString()) return Forbid(); 
+                            if (permission.Role != PredefinedRole.Manager.ToString() &&
+                               permission.Role != PredefinedRole.DepartmentManager.ToString() &&
+                               permission.Role != PredefinedRole.EndUser.ToString()) return Forbid(); 
 
                             //Checks if the user is apart of the department for the manager
                             if (user?.DepartmentId == null || user.DepartmentId == Guid.Empty || !accessList.Contains(user.DepartmentId.ToString())) return Forbid();
