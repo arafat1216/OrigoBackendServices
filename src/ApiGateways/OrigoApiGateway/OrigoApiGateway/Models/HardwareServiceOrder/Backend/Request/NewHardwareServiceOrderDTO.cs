@@ -13,13 +13,19 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request
         /// <summary>
         /// Delivery address of the order
         /// </summary>
+        [Required]
         public DeliveryAddress DeliveryAddress { get; set; }
         
         /// <summary>
         /// Fault description
         /// </summary>
+        [Required]
         public string ErrorDescription { get; set; }
         
+        /// <summary>
+        /// Contact Details of the Person who made the order
+        /// </summary>
+        [Required]
         public ContactDetailsExtended OrderedBy { get; set; }
         
         /// <summary>
@@ -31,11 +37,13 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request
         /// <summary>
         /// Service Provider Id
         /// </summary>
+        [Required]
         public int ServiceProviderId { get; set; }
 
         /// <summary>
         /// Service Type Id. The value would one of values from <c>ServiceTypeEnum</c>
         /// </summary>
+        [Required]
         public int ServiceTypeId { get; set; }
         
         /// <summary>
