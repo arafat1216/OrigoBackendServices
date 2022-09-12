@@ -35,7 +35,7 @@ namespace HardwareServiceOrderServices.Services
 
             try
             {
-                if (serviceOrder.ServiceOrderAddons.Contains(ServiceOrderAddonsEnum.CONMODO_PACKAGING))
+                if (serviceOrder.UserSelectedServiceOrderAddonIds.Contains((int)ServiceOrderAddonsEnum.CONMODO_PACKAGING))
                 {
                     var orderConfirmationMailForPackaging = new RemarketingPackaging
                     {

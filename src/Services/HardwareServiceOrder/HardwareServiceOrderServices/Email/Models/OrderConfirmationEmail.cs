@@ -41,17 +41,17 @@
         /// <summary>
         /// Origo order link
         /// </summary>
-        public string OrderLink { get; set; }
+        public string? OrderLink { get; set; }
 
         /// <summary>
         /// Link of the package slip
         /// </summary>
-        public string PackageSlipLink { get; set; }
+        public string? PackageSlipLink { get; set; }
 
         /// <summary>
         /// Loan device contact email
         /// </summary>
-        public string LoanDeviceContact { get; set; }
+        public string? LoanDeviceContact { get; set; }
 
         /// <summary>
         /// Email address of the recipient

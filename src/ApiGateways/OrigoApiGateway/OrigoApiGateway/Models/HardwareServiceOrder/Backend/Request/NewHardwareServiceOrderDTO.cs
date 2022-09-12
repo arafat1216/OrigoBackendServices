@@ -47,9 +47,12 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request
         public int ServiceTypeId { get; set; }
         
         /// <summary>
-        /// Id(s) of the Service Addons or Extra Services that is/are supported by the Service Provider.
+        /// Id(s) of the Service Addons or Extra Services that is/are supported by the Third party Service Provider. <para>
+        /// 
+        /// A <see cref="ServiceProvider"/> provides 1 or many <see cref="ServiceOrderAddon"/>. Some of them come as default. Some are selectable by Organization and some are selectable by the User.
+        /// This list contains the <c>User selectable</c> service-addons.</para>
         /// </summary>
-        public ISet<int> ServiceOrderAddons { get; set; } = new HashSet<int>();
+        public ISet<int> UserSelectedServiceOrderAddonIds { get; set; } = new HashSet<int>();
 
         public NewHardwareServiceOrderDTO(NewHardwareServiceOrder order)
         {

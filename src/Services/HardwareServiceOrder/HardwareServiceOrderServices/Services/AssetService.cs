@@ -8,13 +8,16 @@ using Common.Extensions;
 namespace HardwareServiceOrderServices.Services
 {
     /// <summary>
-    /// Handles asset related service
+    /// Handles asset related service. <see cref="IAssetService"/>
     /// </summary>
     public class AssetService : IAssetService
     {
         private readonly AssetConfiguration _config;
         private readonly HttpClient _httpClient;
 
+        /// <summary>
+        /// Initializes the AssetService which will be used to call the Asset microservice in order to Update asset lifecycle.
+        /// </summary>
         /// <param name="options">Configuration for asset microservice</param>
         /// <param name="httpClient">HttpClient for calling the endpoints of asset microservice</param>
         public AssetService(IOptions<AssetConfiguration> options, HttpClient httpClient)

@@ -237,7 +237,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
                 },
                 ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo,
                 ServiceTypeId = (int)ServiceTypeEnum.SUR,
-                ServiceOrderAddons = new List<ServiceOrderAddonsEnum>(){ ServiceOrderAddonsEnum.CONMODO_PACKAGING }
+                UserSelectedServiceOrderAddonIds = new HashSet<int>(){ (int)ServiceOrderAddonsEnum.CONMODO_PACKAGING }
             };
 
             var request = $"/api/v1/hardware-repair/{_customerId}/orders";

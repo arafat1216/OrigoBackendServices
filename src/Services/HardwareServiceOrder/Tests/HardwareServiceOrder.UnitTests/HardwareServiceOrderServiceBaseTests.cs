@@ -10,7 +10,7 @@ namespace HardwareServiceOrder.UnitTests
         protected readonly Guid CUSTOMER_THREE_ID = Guid.Parse("42447F76-D9A8-4F0A-B0FF-B4683ACEDD64");
         protected readonly Guid CUSTOMER_FOUR_ID = Guid.Parse("42447F76-D9A8-4F0A-B0FF-B4683ACEDD65");
         protected readonly Guid CALLER_ONE_ID = Guid.Parse("42447F76-D9A8-4F0A-B0FF-B4683ACEDD63");
-        protected readonly int CUSTOMER_SERVICE_PROVIDER_ONE = 1;
+        protected readonly int CUSTOMER_SERVICE_PROVIDER_ONE = (int)ServiceProviderEnum.ConmodoNo;
 
         protected HardwareServiceOrderServiceBaseTests(DbContextOptions<HardwareServiceOrderContext> dbContext)
         {

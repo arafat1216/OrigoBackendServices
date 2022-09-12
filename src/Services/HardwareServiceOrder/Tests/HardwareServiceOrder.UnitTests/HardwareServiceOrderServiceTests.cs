@@ -172,6 +172,15 @@ namespace HardwareServiceOrder.UnitTests
         [InlineData(ServiceTypeEnum.Remarketing)]
         public async Task CreateHardwareServiceOrder(ServiceTypeEnum serviceType)
         {
+            ServiceOrderAddon serviceOrderAddon1 = new(500, (int)ServiceProviderEnum.ConmodoNo, "", true, true, Guid.Empty, DateTimeOffset.UtcNow);
+            ServiceOrderAddon serviceOrderAddon2 = new(501, (int)ServiceProviderEnum.ConmodoNo, "", false, true, Guid.Empty, DateTimeOffset.UtcNow);
+            _dbContext.AddRange(serviceOrderAddon1, serviceOrderAddon2);
+            await _dbContext.SaveChangesAsync();
+
+            await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProviderAsync(
+                CUSTOMER_ONE_ID, (int)ServiceProviderEnum.ConmodoNo, new HashSet<int>(){ 500, 501 });
+            
+            
             var serviceOrderDTO = new NewHardwareServiceOrderDTO
             {
                 ErrorDescription = "sd",
@@ -206,7 +215,7 @@ namespace HardwareServiceOrder.UnitTests
                 },
                 ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo,
                 ServiceTypeId = (int)serviceType,
-                ServiceOrderAddons = new List<ServiceOrderAddonsEnum>(){ ServiceOrderAddonsEnum.CONMODO_PACKAGING }
+                UserSelectedServiceOrderAddonIds = new HashSet<int>(){ 500 }
             };
 
             var hardwareServiceOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(CUSTOMER_ONE_ID, serviceOrderDTO);

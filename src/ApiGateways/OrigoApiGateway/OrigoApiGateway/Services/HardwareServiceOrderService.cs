@@ -466,9 +466,9 @@ namespace OrigoApiGateway.Services
 
                 dto.ServiceTypeId = serviceTypeId; // Value "3 represents ServiceType SUR" and "2 represents ServiceType Remarketing"
                 dto.ServiceProviderId = model.ServiceProviderId;
-                dto.ServiceOrderAddons = model.ServiceOrderAddons;
+                dto.UserSelectedServiceOrderAddonIds = model.UserSelectedServiceOrderAddonIds;
 
-                HardwareServiceOrder hardwareServiceOrder = await SendRequestAsync<NewHardwareServiceOrderDTO, HardwareServiceOrder>(HttpMethod.Post, $"{_options.ApiPath}/{customerId}/orders", null, dto);
+                var hardwareServiceOrder = await SendRequestAsync<NewHardwareServiceOrderDTO, HardwareServiceOrder>(HttpMethod.Post, $"{_options.ApiPath}/{customerId}/orders", null, dto);
                 return hardwareServiceOrder;
             }
             catch (HttpRequestException exception)

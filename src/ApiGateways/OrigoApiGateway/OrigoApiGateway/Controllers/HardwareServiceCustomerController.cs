@@ -236,14 +236,14 @@ namespace OrigoApiGateway.Controllers
         /// <remarks>
         ///     The Service Provider provides different Services such as Repair(SUR), Remarketing etc. This endpoint will create a <c>Repair(SUR)</c> type of Service Order.
         /// </remarks>
-        /// <param name="customerId">Customer Identifier</param>
+        /// <param name="organizationId">Customer Identifier</param>
         /// <param name="model">Order details</param>
         /// <returns>New hardware service order</returns>
-        [Route("{customerId:Guid}/orders/repair")]
+        [Route("organization/{organizationId:Guid}/orders/repair")]
         [HttpPost]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(HardwareServiceOrder))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateHardwareServiceOrderForSURAsync(Guid customerId, [FromBody] NewHardwareServiceOrder model)
+        public async Task<IActionResult> CreateHardwareServiceOrderForSURAsync(Guid organizationId, [FromBody] NewHardwareServiceOrder model)
         {
             try
             {
@@ -253,7 +253,7 @@ namespace OrigoApiGateway.Controllers
                     return BadRequest();
 
                 // Todo: The Integer value "3" represents ServiceType "SUR" which can be found inside enum ServiceTypeEnum. Later on this should be converted into actual Enum
-                var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, userIdGuid, 3, model);
+                var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(organizationId, userIdGuid, 3, model);
 
                 return Ok(newOrder);
             }
@@ -277,14 +277,14 @@ namespace OrigoApiGateway.Controllers
         /// <remarks>
         ///     The Service Provider provides different Services such as SUR, Remarketing etc. This endpoint will create a <c>Remarketing</c> type of Service Order.
         /// </remarks>
-        /// <param name="customerId">Customer Identifier</param>
+        /// <param name="organizationId">Customer Identifier</param>
         /// <param name="model">Order details</param>
         /// <returns>New hardware service order</returns>
-        [Route("{customerId:Guid}/orders/remarketing")]
+        [Route("organization/{organizationId:Guid}/orders/remarketing")]
         [HttpPost]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(HardwareServiceOrder))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateHardwareServiceOrderForRemarketingAsync(Guid customerId, [FromBody] NewHardwareServiceOrder model)
+        public async Task<IActionResult> CreateHardwareServiceOrderForRemarketingAsync(Guid organizationId, [FromBody] NewHardwareServiceOrder model)
         {
             try
             {
@@ -294,7 +294,7 @@ namespace OrigoApiGateway.Controllers
                     return BadRequest();
 
                 // Todo: The Integer value "2" represents ServiceType "Remarketing" which can be found inside enum ServiceTypeEnum. Later on this should be converted into actual Enum
-                var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(customerId, userIdGuid, 2, model);
+                var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(organizationId, userIdGuid, 2, model);
 
                 return Ok(newOrder);
             }

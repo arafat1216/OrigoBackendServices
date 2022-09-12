@@ -78,10 +78,29 @@ namespace HardwareServiceOrderServices
 
             if (customerSetting == null)
                 throw new ArgumentException("Customer settings does not exist");
-             
-             // Converting ServiceAddonsEnum back to ServiceAddon Ids
-             List<string> strings = serviceOrderDTO.ServiceOrderAddons.ConvertAll<string>(x => ((int)x).ToString());
-             HashSet<string> serviceOrderAddons = new HashSet<string>(strings);
+
+            var customerProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, serviceOrderDTO.ServiceProviderId, true, true);
+
+            HashSet<string> serviceOrderAddons = new HashSet<string>();
+            if (customerProvider?.ActiveServiceOrderAddons is not null && serviceOrderDTO.UserSelectedServiceOrderAddonIds.Count > 0)
+            {
+                foreach (var serviceOrderAddonId in serviceOrderDTO.UserSelectedServiceOrderAddonIds)
+                {
+                    var serviceOrderAddon = customerProvider?.ActiveServiceOrderAddons.FirstOrDefault(serviceOrderAddon => serviceOrderAddon.IsUserSelectable && serviceOrderAddon.Id == serviceOrderAddonId);
+                    if (serviceOrderAddon is null)
+                        throw new ArgumentException($"Wrong Service Addon Id provided for customer {customerId}, Service Order Addon: {serviceOrderAddonId}", nameof(customerId));
+                    serviceOrderAddons.Add(serviceOrderAddonId.ToString());
+                }
+            
+                var nonUserSelectableServiceOrderAddons = customerProvider?.ActiveServiceOrderAddons.Where(serviceOrderAddon => !serviceOrderAddon.IsUserSelectable);
+                if (nonUserSelectableServiceOrderAddons is not null)
+                {
+                    foreach (var serviceOrderAddon in nonUserSelectableServiceOrderAddons)
+                    {
+                        serviceOrderAddons.Add(serviceOrderAddon.Id.ToString());
+                    }
+                }
+            }
 
             // Need to add the Service addons
             var newExternalServiceOrder = new NewExternalServiceOrderDTO(
@@ -101,76 +120,69 @@ namespace HardwareServiceOrderServices
                                     serviceOrderDTO.ErrorDescription,
                                     serviceOrderAddons);
 
-            var customerProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, serviceOrderDTO.ServiceProviderId, true, false);
-
             if (customerProvider == null)
                 throw new ArgumentException($"Service provider is not configured for customer {customerId}", nameof(customerId));
 
             if (customerProvider?.ApiCredentials == null || customerProvider?.ApiCredentials.Count == 0)
                 throw new ArgumentException($"API Credential does not exist for customer {customerId}, ServiceType: {serviceOrderDTO.ServiceTypeId}", nameof(customerId));
 
-            var apiCredential = customerProvider?.ApiCredentials.FirstOrDefault(apiCredential => apiCredential.ServiceTypeId == serviceOrderDTO.ServiceTypeId || apiCredential.ServiceTypeId == null);
+            var apiCredential = customerProvider?.ApiCredentials.FirstOrDefault(apiCred => apiCred.ServiceTypeId == serviceOrderDTO.ServiceTypeId) ??
+                                           customerProvider?.ApiCredentials.FirstOrDefault(apiCred => apiCred.ServiceTypeId == null);
 
             if (apiCredential == null)
                 throw new ArgumentException($"API Credential does not exist for customer {customerId}, ServiceType: {serviceOrderDTO.ServiceTypeId}", nameof(customerId));
 
             //Todo: Need to do some validation checking for apiCredential ApiUsername and ApiPassword
 
-            try
-            {
-                var repairProvider = await _providerFactory.GetRepairProviderAsync(customerProvider.ServiceProviderId, apiCredential?.ApiUsername, apiCredential?.ApiPassword);
+            var repairProvider = await _providerFactory.GetRepairProviderAsync(serviceOrderDTO.ServiceProviderId, apiCredential?.ApiUsername, apiCredential?.ApiPassword);
 
-                var newOrderId = Guid.NewGuid();
+            var newOrderId = Guid.NewGuid();
 
-                // ServiceTypeId refers to the values of ServiceTypeEnum, like SUR, Remarketing
-                var externalOrderResponseDTO = await repairProvider.CreateRepairOrderAsync(newExternalServiceOrder, serviceOrderDTO.ServiceTypeId, $"{newOrderId}");
+            // ServiceTypeId refers to the values of ServiceTypeEnum, like SUR, Remarketing
+            var externalOrderResponseDTO = await repairProvider.CreateRepairOrderAsync(newExternalServiceOrder, serviceOrderDTO.ServiceTypeId, $"{newOrderId}");
 
-                var deliveryAddress = _mapper.Map<DeliveryAddress>(serviceOrderDTO.DeliveryAddress);
+            var deliveryAddress = _mapper.Map<DeliveryAddress>(serviceOrderDTO.DeliveryAddress);
 
-                var owner = new ContactDetails(serviceOrderDTO.OrderedBy.UserId, serviceOrderDTO.OrderedBy.FirstName, serviceOrderDTO.OrderedBy.LastName, serviceOrderDTO.OrderedBy.Email, serviceOrderDTO.OrderedBy.PhoneNumber);
+            var owner = new ContactDetails(serviceOrderDTO.OrderedBy.UserId, serviceOrderDTO.OrderedBy.FirstName, serviceOrderDTO.OrderedBy.LastName, serviceOrderDTO.OrderedBy.Email, serviceOrderDTO.OrderedBy.PhoneNumber);
 
-                var serviceOrder = new HardwareServiceOrder(
-                    Guid.NewGuid(),
-                    customerId,
-                    serviceOrderDTO.AssetInfo.AssetLifecycleId,
-                    // TODO: Fix this as we should not have the category id in the child object..
-                    serviceOrderDTO.AssetInfo.AssetCategoryId ?? 0,
-                    new(
-                        serviceOrderDTO.AssetInfo.Brand,
-                        serviceOrderDTO.AssetInfo.Model,
-                        string.IsNullOrEmpty(serviceOrderDTO.AssetInfo.Imei) ? null : new HashSet<string>() { serviceOrderDTO.AssetInfo.Imei }, // TODO: Change this to directly use a ISet
-                        serviceOrderDTO.AssetInfo.SerialNumber,
-                        serviceOrderDTO.AssetInfo.PurchaseDate,
-                        serviceOrderDTO.AssetInfo.Accessories
-                    ),
-                    serviceOrderDTO.ErrorDescription,
-                    owner,
-                    deliveryAddress,
-                    serviceOrderDTO.ServiceTypeId, // ServiceTypeId refers to the values of ServiceTypeEnum, like SUR, Remarketing
-                    (int)ServiceStatusEnum.Registered,
-                    serviceOrderDTO.ServiceProviderId,
-                    null, // TODO: This needs to be replaced with the list of actually included addons.
-                    externalOrderResponseDTO.ServiceProviderOrderId1,
-                    externalOrderResponseDTO.ServiceProviderOrderId2,
-                    externalOrderResponseDTO.ExternalServiceManagementLink,
-                    new List<ServiceEvent> { }
-                    );
+            var serviceOrder = new HardwareServiceOrder(
+                Guid.NewGuid(),
+                customerId,
+                serviceOrderDTO.AssetInfo.AssetLifecycleId,
+                // TODO: Fix this as we should not have the category id in the child object..
+                serviceOrderDTO.AssetInfo.AssetCategoryId ?? 0,
+                new(
+                    serviceOrderDTO.AssetInfo.Brand,
+                    serviceOrderDTO.AssetInfo.Model,
+                    string.IsNullOrEmpty(serviceOrderDTO.AssetInfo.Imei) ? null : new HashSet<string>() { serviceOrderDTO.AssetInfo.Imei }, // TODO: Change this to directly use a ISet
+                    serviceOrderDTO.AssetInfo.SerialNumber,
+                    serviceOrderDTO.AssetInfo.PurchaseDate,
+                    serviceOrderDTO.AssetInfo.Accessories
+                ),
+                serviceOrderDTO.ErrorDescription,
+                owner,
+                deliveryAddress,
+                serviceOrderDTO.ServiceTypeId, // ServiceTypeId refers to the values of ServiceTypeEnum, like SUR, Remarketing
+                (int)ServiceStatusEnum.Registered,
+                serviceOrderDTO.ServiceProviderId,
+                null, // TODO: This needs to be replaced with the list of actually included addons.
+                externalOrderResponseDTO.ServiceProviderOrderId1,
+                externalOrderResponseDTO.ServiceProviderOrderId2,
+                externalOrderResponseDTO.ExternalServiceManagementLink,
+                new List<ServiceEvent> { }
+                );
 
-                //Creating order at Origo
-                var origoOrder = await _hardwareServiceOrderRepository.CreateHardwareServiceOrderAsync(serviceOrder);
+            //Creating order at Origo
+            var origoOrder = await _hardwareServiceOrderRepository.CreateHardwareServiceOrderAsync(serviceOrder);
 
-                // Preparing related events
-                var statusHandler = _statusHandlerFactory.GetStatusHandler((ServiceTypeEnum)serviceOrder.ServiceTypeId);
-                await statusHandler.HandleServiceOrderRegisterAsync(origoOrder, serviceOrderDTO, newExternalServiceOrder, externalOrderResponseDTO, customerSetting);
+            // Preparing related events
+            var statusHandler = _statusHandlerFactory.GetStatusHandler((ServiceTypeEnum)serviceOrder.ServiceTypeId);
+            await statusHandler.HandleServiceOrderRegisterAsync(origoOrder, serviceOrderDTO, newExternalServiceOrder, externalOrderResponseDTO, customerSetting);
 
-                var responseDto = _mapper.Map<HardwareServiceOrderDTO>(origoOrder);
+            var responseDto = _mapper.Map<HardwareServiceOrderDTO>(origoOrder);
 
-                return responseDto;
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            return responseDto;
+
         }
 
 
