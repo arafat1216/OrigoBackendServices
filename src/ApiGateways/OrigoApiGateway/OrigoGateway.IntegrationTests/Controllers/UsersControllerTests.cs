@@ -360,12 +360,22 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         .ReturnsAsync(customer);
                     services.AddSingleton(customerServiceMock.Object);
 
-                    var order = new List<OrigoApiGateway.Models.ProductCatalog.ProductGet> 
-                    { 
+                    var order = new List<OrigoApiGateway.Models.ProductCatalog.ProductGet>
+                    {
                         new OrigoApiGateway.Models.ProductCatalog.ProductGet
                             {
+                                Id = 2,
                                 PartnerId = partnerId,
-                                ProductTypeId = 2
+                                ProductTypeId = 2,
+                                Translations = new List<OrigoApiGateway.Models.ProductCatalog.Translation>
+                                { 
+                                    new OrigoApiGateway.Models.ProductCatalog.Translation 
+                                    {
+                                         Language = "en",
+                                         Description = "Simple Asset Management for units purchased transactionally in Techstep's own WebShop.",
+                                         Name = "Implement"
+                                    } 
+                                }
                             } 
                     };
                    
