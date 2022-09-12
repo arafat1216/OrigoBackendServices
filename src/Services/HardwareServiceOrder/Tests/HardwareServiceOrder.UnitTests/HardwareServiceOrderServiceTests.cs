@@ -122,6 +122,9 @@ namespace HardwareServiceOrder.UnitTests
 
             providerFactoryMock.Setup(m => m.GetRepairProviderAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(repairProviderMock.Object);
+            
+            providerFactoryMock.Setup(m => m.GetAftermarketProviderAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(aftermarketProviderMock.Object);
 
             #endregion
 

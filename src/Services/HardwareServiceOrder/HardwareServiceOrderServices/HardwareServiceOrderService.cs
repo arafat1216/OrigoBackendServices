@@ -81,7 +81,7 @@ namespace HardwareServiceOrderServices
 
             var customerProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, serviceOrderDTO.ServiceProviderId, true, true);
 
-            HashSet<string> serviceOrderAddons = new HashSet<string>();
+            HashSet<string> serviceOrderAddonIds = new HashSet<string>();
             if (customerProvider?.ActiveServiceOrderAddons is not null && serviceOrderDTO.UserSelectedServiceOrderAddonIds.Count > 0)
             {
                 foreach (var serviceOrderAddonId in serviceOrderDTO.UserSelectedServiceOrderAddonIds)
@@ -89,7 +89,7 @@ namespace HardwareServiceOrderServices
                     var serviceOrderAddon = customerProvider?.ActiveServiceOrderAddons.FirstOrDefault(serviceOrderAddon => serviceOrderAddon.IsUserSelectable && serviceOrderAddon.Id == serviceOrderAddonId);
                     if (serviceOrderAddon is null)
                         throw new ArgumentException($"Wrong Service Addon Id provided for customer {customerId}, Service Order Addon: {serviceOrderAddonId}", nameof(customerId));
-                    serviceOrderAddons.Add(serviceOrderAddonId.ToString());
+                    serviceOrderAddonIds.Add(serviceOrderAddonId.ToString());
                 }
             
                 var nonUserSelectableServiceOrderAddons = customerProvider?.ActiveServiceOrderAddons.Where(serviceOrderAddon => !serviceOrderAddon.IsUserSelectable);
@@ -97,7 +97,7 @@ namespace HardwareServiceOrderServices
                 {
                     foreach (var serviceOrderAddon in nonUserSelectableServiceOrderAddons)
                     {
-                        serviceOrderAddons.Add(serviceOrderAddon.Id.ToString());
+                        serviceOrderAddonIds.Add(serviceOrderAddon.Id.ToString());
                     }
                 }
             }
@@ -118,7 +118,7 @@ namespace HardwareServiceOrderServices
                                     serviceOrderDTO.DeliveryAddress,
                                     serviceOrderDTO.AssetInfo,
                                     serviceOrderDTO.ErrorDescription,
-                                    serviceOrderAddons);
+                                    serviceOrderAddonIds);
 
             if (customerProvider == null)
                 throw new ArgumentException($"Service provider is not configured for customer {customerId}", nameof(customerId));
@@ -134,12 +134,28 @@ namespace HardwareServiceOrderServices
 
             //Todo: Need to do some validation checking for apiCredential ApiUsername and ApiPassword
 
-            var repairProvider = await _providerFactory.GetRepairProviderAsync(serviceOrderDTO.ServiceProviderId, apiCredential?.ApiUsername, apiCredential?.ApiPassword);
-
             var newOrderId = Guid.NewGuid();
 
             // ServiceTypeId refers to the values of ServiceTypeEnum, like SUR, Remarketing
-            var externalOrderResponseDTO = await repairProvider.CreateRepairOrderAsync(newExternalServiceOrder, serviceOrderDTO.ServiceTypeId, $"{newOrderId}");
+            NewExternalServiceOrderResponseDTO externalOrderResponseDTO;
+
+            switch (serviceOrderDTO.ServiceTypeId)
+            {
+                case (int)ServiceTypeEnum.SUR:
+                {
+                    var repairProvider = await _providerFactory.GetRepairProviderAsync(serviceOrderDTO.ServiceProviderId, apiCredential?.ApiUsername, apiCredential?.ApiPassword);
+                    externalOrderResponseDTO = await repairProvider.CreateRepairOrderAsync(newExternalServiceOrder, serviceOrderDTO.ServiceTypeId, $"{newOrderId}");
+                    break;
+                }
+                case (int)ServiceTypeEnum.Remarketing:
+                {
+                    var aftermarketProvider = await _providerFactory.GetAftermarketProviderAsync(serviceOrderDTO.ServiceProviderId, apiCredential?.ApiUsername, apiCredential?.ApiPassword);
+                    externalOrderResponseDTO = await aftermarketProvider.CreateAftermarketOrderAsync(newExternalServiceOrder, serviceOrderDTO.ServiceTypeId, $"{newOrderId}");
+                    break;
+                }
+                default:
+                    throw new NotSupportedException($"The requested ServiceTypeId: {serviceOrderDTO.ServiceTypeId} is either not supported or wrong ServiceTypeId");
+            }
 
             var deliveryAddress = _mapper.Map<DeliveryAddress>(serviceOrderDTO.DeliveryAddress);
 
@@ -165,7 +181,7 @@ namespace HardwareServiceOrderServices
                 serviceOrderDTO.ServiceTypeId, // ServiceTypeId refers to the values of ServiceTypeEnum, like SUR, Remarketing
                 (int)ServiceStatusEnum.Registered,
                 serviceOrderDTO.ServiceProviderId,
-                null, // TODO: This needs to be replaced with the list of actually included addons.
+                new HashSet<int>(serviceOrderAddonIds.ToList().ConvertAll(x => (int.Parse(x)))),
                 externalOrderResponseDTO.ServiceProviderOrderId1,
                 externalOrderResponseDTO.ServiceProviderOrderId2,
                 externalOrderResponseDTO.ExternalServiceManagementLink,
