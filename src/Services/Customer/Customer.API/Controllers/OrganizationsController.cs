@@ -361,7 +361,7 @@ namespace Customer.API.Controllers
 
         [Route("{organizationId:Guid}/preferences")]
         [HttpPost]
-        [ProducesResponseType(typeof(OrganizationDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(OrganizationPreferencesDTO), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<OrganizationPreferencesDTO>> UpdateOrganizationPreferencesPatch([FromBody] UpdateOrganizationPreferences preferences)
         {
             try
@@ -394,7 +394,7 @@ namespace Customer.API.Controllers
 
         [Route("{organizationId:Guid}/preferences")]
         [HttpPut]
-        [ProducesResponseType(typeof(OrganizationDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(OrganizationPreferencesDTO), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<OrganizationPreferencesDTO>> UpdateOrganizationPreferencesPut([FromBody] UpdateOrganizationPreferences preferences)
         {
             try

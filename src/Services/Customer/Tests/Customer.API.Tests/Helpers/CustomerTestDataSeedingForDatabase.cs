@@ -12,6 +12,7 @@ namespace Customer.API.IntegrationTests.Helpers
         public static readonly Guid ORGANIZATION_ID = Guid.Parse("f5635deb-9b38-411c-9577-5423c9290106");
         public static readonly Guid ORGANIZATION_TWO_ID = Guid.Parse("e454f5c8-f19c-4c76-ae9e-cc53ecefb21a"); 
         public static readonly Guid ORGANIZATION_THREE_ID = Guid.Parse("701d5de6-7264-41a5-9edd-f8e842edebda");
+        public static readonly Guid TECHSTEP_CUSTOMER_ID = Guid.Parse("c601dd7f-9930-46e2-944a-d994855663da");
 
         public static readonly Guid HEAD_DEPARTMENT_ID = Guid.Parse("37d6d1b1-54a5-465d-a313-b6c250d66db4");
         public static readonly Guid SUB_DEPARTMENT_ID = Guid.Parse("5355134f-4852-4c36-99d1-fa9d4a1d7a61");
@@ -90,6 +91,16 @@ namespace Customer.API.IntegrationTests.Helpers
             customerContext.Locations.Add(location);
             customerContext.Locations.Add(locationTWO);
 
+            var techstepOrganization = new Organization(TECHSTEP_CUSTOMER_ID, null, "TECHSTEP", "1111111111",
+              new Address("Brynsalléen 4", "0667", "Oslo", "no"),
+              new ContactPerson("Børge", "Astrup", "the@boss.com", "+4799999991"),
+              new OrganizationPreferences(TECHSTEP_CUSTOMER_ID, CALLER_ID, "www.techstep.com", "www.techstep.com/logo", null, true, "nb", 0),
+              new Location("TECHSTEP NORWAY", "Head office", "Brynsalléen", "4", "0667", "Oslo", "nb"),
+              null, true, 15, "payroll@techstep.com", false);
+
+            var techstepPartner = new Partner(techstepOrganization);
+            customerContext.Add(techstepPartner);
+
             var organization = new Organization(ORGANIZATION_ID,
                                                 PARENT_ID,
                                                 "ORGANIZATION ONE",
@@ -127,11 +138,12 @@ namespace Customer.API.IntegrationTests.Helpers
                                                contactPersonTWO,
                                                organizationPreferencesTHREE,
                                                locationTWO,
-                                               null,
+                                               techstepPartner,
                                                true,
                                                1,
                                                ""
                                                );
+            organizationThree.AddTechstepAccountOwner("Rolf Sjødal");
             organizationThree.AddTechstepCustomerId(123456789);
 
 

@@ -26,6 +26,7 @@ namespace CustomerServices.ServiceModels
             AddUsersToOkta = organization.AddUsersToOkta;
             LastDayForReportingSalaryDeduction = organization.LastDayForReportingSalaryDeduction;
             PayrollContactEmail = organization.PayrollContactEmail;
+            AccountOwner = organization.AccountOwner;
 
             if (organization.ChildOrganizations is not null && organization.ChildOrganizations.Count != 0)
             {
@@ -87,5 +88,6 @@ namespace CustomerServices.ServiceModels
         /// The string value of the customer status
         /// </summary>
         public string StatusName { get; set; }
+        public string AccountOwner { get; set; } = string.Empty;
     }
 }

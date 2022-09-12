@@ -722,6 +722,15 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(oldCountryCode.ToLower(), organization?.Preferences.PrimaryLanguage);
             Assert.Equal(oldOrganizationNumber, organization?.OrganizationNumber);
         }
+        [Fact]
+        public async Task GetOrganization_CheckAccountOwner()
+        {
+            var getRequestUri = $"/api/v1/organizations/{_organizationIdThree}/true";
+            var organization = await _httpClient.GetFromJsonAsync<OrganizationDTO>(getRequestUri);
+            Assert.NotNull(organization);
+            Assert.NotEmpty(organization.AccountOwner);
+            Assert.Equal("Rolf Sjødal",organization.AccountOwner);
+        }
 
     }
 }

@@ -368,9 +368,9 @@ namespace CustomerServices.Models
             TechstepCustomerId = techstepCusomerId;
             AddDomainEvent(new CustomerAddedTechstepCustomerIdDomainEvent(this));
         }
-        public void AddTechstepAccountOwner(long techstepCusomerId)
+        public void AddTechstepAccountOwner(string accountOwner)
         {
-            TechstepCustomerId = techstepCusomerId;
+            AccountOwner = accountOwner;
             AddDomainEvent(new CustomerAddedAccountOwnerDomainEvent(this));
         }
         public void UpdateOrganizationName(string name)

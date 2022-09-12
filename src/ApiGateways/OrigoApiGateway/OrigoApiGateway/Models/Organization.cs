@@ -31,5 +31,6 @@
         public int Status { get; set; }
 
         public string StatusName { get; set; }
+        public string AccountOwner { get; set; }
     }
 }
