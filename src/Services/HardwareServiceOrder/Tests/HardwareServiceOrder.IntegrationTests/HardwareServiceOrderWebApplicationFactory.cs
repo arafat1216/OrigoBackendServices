@@ -82,6 +82,7 @@ namespace HardwareServiceOrder.IntegrationTests
                     (int)ServiceTypeEnum.SUR,
                     11,
                     (int)ServiceProviderEnum.ConmodoNo,
+                    null,
                     "serviceProviderOrderId1",
                     "OrderID2",
                     "OrderExternalLink",

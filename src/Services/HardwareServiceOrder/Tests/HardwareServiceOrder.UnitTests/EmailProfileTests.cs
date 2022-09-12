@@ -36,6 +36,7 @@ namespace HardwareServiceOrder.UnitTests
                 (int)ServiceTypeEnum.Recycle,
                 (int)ServiceStatusEnum.Registered,
                 (int)ServiceProviderEnum.ConmodoNo,
+                null,
                 Guid.NewGuid().ToString(),
                 null,
                 "externalLink",

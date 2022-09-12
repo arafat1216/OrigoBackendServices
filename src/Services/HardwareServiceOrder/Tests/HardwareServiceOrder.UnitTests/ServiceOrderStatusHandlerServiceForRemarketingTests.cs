@@ -62,6 +62,7 @@ namespace HardwareServiceOrder.UnitTests
                 serviceTypeId: (int)ServiceTypeEnum.Remarketing,
                 statusId: (int)statusEnum,
                 serviceProviderId: 1,
+                null,
                 serviceProviderOrderId1: "[ServiceProviderOrderId1]",
                 serviceProviderOrderId2: "[ServiceProviderOrderId2]",
                 externalServiceManagementLink: "[ExternalServiceManagementLink]",

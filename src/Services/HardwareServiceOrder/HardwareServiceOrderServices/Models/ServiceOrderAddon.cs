@@ -138,6 +138,12 @@ namespace HardwareServiceOrderServices.Models
         public virtual ServiceProvider? ServiceProvider { get; set; }
 
 
+        /// <summary>
+        ///     A list of all <see cref="CustomerServiceProvider"/>s that uses the service-order addon.
+        /// </summary>
+        /// <remarks>
+        ///     This is a Entity Framework navigation property, and may not be included in the queried results.
+        /// </remarks>
         public virtual ICollection<CustomerServiceProvider>? CustomerServiceProviders { get; set; }
     }
 }

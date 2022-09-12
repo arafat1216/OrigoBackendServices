@@ -249,5 +249,51 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
             // Assert
             Assert.Null(result);
         }
+
+        [Fact()]
+        public async Task CreateHardwareServiceOrderAsyncTest()
+        {
+            // Arrange
+            AssetInfo assetInfo = new("Brand", "Model", new HashSet<string>() { "IMEI1", "IMEI2" }, "S/N", DateOnly.Parse("01-01-2020"), new List<string>() { "Charger" });
+            ContactDetails owner = new(Guid.NewGuid(), "FirstName", "LastName", "test@test.com", "+4799988777");
+            DeliveryAddress deliveryAddress = new(RecipientTypeEnum.Personal, "John Doe", "MyStreet", "C/O: Jane Doe", "1234", "City", "NO");
+            List<ServiceEvent> serviceEvents = new();
+            HashSet<int> includedServiceAddonIds = new() { 1 };
+
+            Models.HardwareServiceOrder serviceOrder = new(CUSTOMER_ONE_ID, Guid.NewGuid(), 1, assetInfo, "A general description", owner, deliveryAddress, (int)ServiceTypeEnum.SUR, (int)ServiceStatusEnum.Ongoing, (int)ServiceProviderEnum.ConmodoNo, includedServiceAddonIds, "ServiceProviderID1", "ServiceProviderID2", "https://www.example.com", serviceEvents);
+
+            // Act
+            var createResult = await _repository.CreateHardwareServiceOrderAsync(serviceOrder);
+            var dbResult = await _dbContext.HardwareServiceOrders.FindAsync(createResult.Id);
+
+            // Assert
+            Assert.NotNull(createResult);
+            Assert.NotNull(dbResult);
+
+            Assert.Equal(serviceOrder.AssetInfo.Imei!.Count, dbResult.AssetInfo.Imei?.Count);
+            Assert.Equal(serviceOrder.AssetInfo.PurchaseDate, dbResult.AssetInfo.PurchaseDate);
+            Assert.Equal(serviceOrder.IncludedServiceOrderAddonIds!.Count, dbResult.IncludedServiceOrderAddonIds?.Count);
+        }
+
+
+        // We want to test that the JSON serialization/de-serialization that is used on some properties don't throw errors during DB read/write operations.
+        [Fact()]
+        public async Task CreateHardwareServiceOrder_Test_JsonSerialization_WithNullValues_AsyncTest()
+        {
+            // Arrange
+            AssetInfo assetInfo = new(null, null, null, null, null, null);
+            ContactDetails owner = new(Guid.NewGuid(), "FirstName", "LastName", "test@test.com", null);
+            List<ServiceEvent> serviceEvents = new();
+
+            Models.HardwareServiceOrder serviceOrder = new(CUSTOMER_ONE_ID, Guid.NewGuid(), 1, assetInfo, "A general description", owner, null, (int)ServiceTypeEnum.SUR, (int)ServiceStatusEnum.Ongoing, (int)ServiceProviderEnum.ConmodoNo, null, "ServiceProviderID1", null, null, serviceEvents);
+
+            // Act
+            var createResult = await _repository.CreateHardwareServiceOrderAsync(serviceOrder);
+            var dbResult = await _dbContext.HardwareServiceOrders.FindAsync(createResult.Id);
+
+            // Assert
+            Assert.NotNull(createResult);
+            Assert.NotNull(dbResult);
+        }
     }
 }

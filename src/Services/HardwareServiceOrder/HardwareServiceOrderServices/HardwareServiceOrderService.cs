@@ -134,6 +134,7 @@ namespace HardwareServiceOrderServices
                     (int)ServiceTypeEnum.SUR,
                     (int)ServiceStatusEnum.Registered,
                     (int)ServiceProviderEnum.ConmodoNo,
+                    null, // TODO: This needs to be replaced with the list of actually included addons.
                     externalOrderResponseDTO.ServiceProviderOrderId1,
                     externalOrderResponseDTO.ServiceProviderOrderId2,
                     externalOrderResponseDTO.ExternalServiceManagementLink,

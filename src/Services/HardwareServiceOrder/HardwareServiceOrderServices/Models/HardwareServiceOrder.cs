@@ -32,11 +32,26 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="serviceTypeId"> The <see cref="ServiceType.Id">service-type</see> that is used for this service. </param>
         /// <param name="statusId"> The current <see cref="ServiceStatus.Id">service-status</see> for this service. </param>
         /// <param name="serviceProviderId"> The ID for the <see cref="Models.ServiceProvider">service-provider</see> that is handling this service. </param>
+        /// <param name="includedServiceOrderAddonIds"> A list containing the <see cref="ServiceOrderAddon"/> IDs that was included with the order. </param>
         /// <param name="serviceProviderOrderId1">  </param>
         /// <param name="serviceProviderOrderId2">  </param>
         /// <param name="externalServiceManagementLink">  </param>
         /// <param name="serviceEvents"> The service-events that was received from the service-provider. </param>
-        public HardwareServiceOrder(Guid customerId, Guid assetLifecycleId, int assetLifecycleCategoryId, AssetInfo assetInfo, string userDescription, ContactDetails owner, DeliveryAddress? deliveryAddress, int serviceTypeId, int statusId, int serviceProviderId, string serviceProviderOrderId1, string? serviceProviderOrderId2, string? externalServiceManagementLink, IEnumerable<ServiceEvent> serviceEvents) : base()
+        public HardwareServiceOrder(Guid customerId,
+                                    Guid assetLifecycleId,
+                                    int assetLifecycleCategoryId,
+                                    AssetInfo assetInfo,
+                                    string userDescription,
+                                    ContactDetails owner,
+                                    DeliveryAddress? deliveryAddress,
+                                    int serviceTypeId,
+                                    int statusId,
+                                    int serviceProviderId,
+                                    ISet<int>? includedServiceOrderAddonIds,
+                                    string serviceProviderOrderId1,
+                                    string? serviceProviderOrderId2,
+                                    string? externalServiceManagementLink,
+                                    IEnumerable<ServiceEvent> serviceEvents) : base()
         {
             CustomerId = customerId;
             AssetLifecycleId = assetLifecycleId;
@@ -47,6 +62,7 @@ namespace HardwareServiceOrderServices.Models
             DeliveryAddress = deliveryAddress;
             ServiceTypeId = serviceTypeId;
             StatusId = statusId;
+            IncludedServiceOrderAddonIds = includedServiceOrderAddonIds?.ToList();
             ServiceProviderId = serviceProviderId;
             ServiceProviderOrderId1 = serviceProviderOrderId1;
             ServiceProviderOrderId2 = serviceProviderOrderId2;
@@ -69,27 +85,28 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="serviceTypeId"> The <see cref="ServiceType.Id">service-type</see> that is used for this service. </param>
         /// <param name="statusId"> The current <see cref="ServiceStatus.Id">service-status</see> for this service. </param>
         /// <param name="serviceProviderId"> The ID for the <see cref="Models.ServiceProvider">service-provider</see> that is handling this service. </param>
+        /// <param name="includedServiceOrderAddonIds"> A list containing the <see cref="ServiceOrderAddon"/> IDs that was included with the order. </param>
         /// <param name="serviceProviderOrderId1">  </param>
         /// <param name="serviceProviderOrderId2">  </param>
         /// <param name="externalServiceManagementLink">  </param>
         /// <param name="serviceEvents"> The service-events that was received from the service-provider. </param>
-        public HardwareServiceOrder(
-            Guid externalId,
-            Guid customerId,
-            Guid assetLifecycleId,
-            int assetLifecycleCategoryId,
-            AssetInfo assetInfo,
-            string userDescription,
-            ContactDetails owner,
-            DeliveryAddress? deliveryAddress,
-            int serviceTypeId,
-            int statusId,
-            int serviceProviderId,
-            string serviceProviderOrderId1,
-            string? serviceProviderOrderId2,
-            string? externalServiceManagementLink,
-            IEnumerable<ServiceEvent> serviceEvents)
-            : base()
+        public HardwareServiceOrder(Guid externalId,
+                                    Guid customerId,
+                                    Guid assetLifecycleId,
+                                    int assetLifecycleCategoryId,
+                                    AssetInfo assetInfo,
+                                    string userDescription,
+                                    ContactDetails owner,
+                                    DeliveryAddress? deliveryAddress,
+                                    int serviceTypeId,
+                                    int statusId,
+                                    int serviceProviderId,
+                                    ISet<int>? includedServiceOrderAddonIds,
+                                    string serviceProviderOrderId1,
+                                    string? serviceProviderOrderId2,
+                                    string? externalServiceManagementLink,
+                                    IEnumerable<ServiceEvent> serviceEvents)
+                                    : base()
         {
             ExternalId = externalId;
             CustomerId = customerId;
@@ -102,6 +119,7 @@ namespace HardwareServiceOrderServices.Models
             ServiceTypeId = serviceTypeId;
             StatusId = statusId;
             ServiceProviderId = serviceProviderId;
+            IncludedServiceOrderAddonIds = includedServiceOrderAddonIds?.ToList();
             ServiceProviderOrderId1 = serviceProviderOrderId1;
             ServiceProviderOrderId2 = serviceProviderOrderId2;
             ExternalServiceManagementLink = externalServiceManagementLink;
@@ -126,6 +144,7 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="serviceTypeId"> The <see cref="ServiceType.Id">service-type</see> that is used for this service. </param>
         /// <param name="statusId"> The current <see cref="ServiceStatus.Id">service-status</see> for this service. </param>
         /// <param name="serviceProviderId"> The ID for the <see cref="Models.ServiceProvider">service-provider</see> that is handling this service. </param>
+        /// <param name="includedServiceOrderAddonIds"> A list containing the <see cref="ServiceOrderAddon"/> IDs that was included with the order. </param>
         /// <param name="serviceProviderOrderId1">  </param>
         /// <param name="serviceProviderOrderId2">  </param>
         /// <param name="externalServiceManagementLink">  </param>
@@ -138,30 +157,30 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="dateDeleted"> A timestamp stating when the entity was deleted. If the entity is not deleted, then the value is <see langword="null"/>. </param>
         /// <param name="isDeleted"> A <see cref="bool"/> indicating whether or not the entity is soft-deleted. </param>
         [Obsolete("This is a reserved constructor that should only be used for unit-testing.")]
-        public HardwareServiceOrder(
-            Guid externalId,
-            Guid customerId,
-            Guid assetLifecycleId,
-            int assetLifecycleCategoryId,
-            AssetInfo assetInfo,
-            string userDescription,
-            ContactDetails owner,
-            DeliveryAddress? deliveryAddress,
-            int serviceTypeId,
-            int statusId,
-            int serviceProviderId,
-            string serviceProviderOrderId1,
-            string? serviceProviderOrderId2,
-            string? externalServiceManagementLink,
-            IEnumerable<ServiceEvent> serviceEvents,
-            Guid createdBy,
-            DateTimeOffset dateCreated,
-            Guid? updatedBy = null,
-            DateTimeOffset? dateUpdated = null,
-            Guid? deletedBy = null,
-            DateTimeOffset? dateDeleted = null,
-            bool isDeleted = false)
-            : base(createdBy, dateCreated, updatedBy, dateUpdated, deletedBy, dateDeleted, isDeleted)
+        public HardwareServiceOrder(Guid externalId,
+                                    Guid customerId,
+                                    Guid assetLifecycleId,
+                                    int assetLifecycleCategoryId,
+                                    AssetInfo assetInfo,
+                                    string userDescription,
+                                    ContactDetails owner,
+                                    DeliveryAddress? deliveryAddress,
+                                    int serviceTypeId,
+                                    int statusId,
+                                    int serviceProviderId,
+                                    ISet<int>? includedServiceOrderAddonIds,
+                                    string serviceProviderOrderId1,
+                                    string? serviceProviderOrderId2,
+                                    string? externalServiceManagementLink,
+                                    IEnumerable<ServiceEvent> serviceEvents,
+                                    Guid createdBy,
+                                    DateTimeOffset dateCreated,
+                                    Guid? updatedBy = null,
+                                    DateTimeOffset? dateUpdated = null,
+                                    Guid? deletedBy = null,
+                                    DateTimeOffset? dateDeleted = null,
+                                    bool isDeleted = false)
+                                    : base(createdBy, dateCreated, updatedBy, dateUpdated, deletedBy, dateDeleted, isDeleted)
         {
             ExternalId = externalId;
             CustomerId = customerId;
@@ -174,6 +193,7 @@ namespace HardwareServiceOrderServices.Models
             ServiceTypeId = serviceTypeId;
             StatusId = statusId;
             ServiceProviderId = serviceProviderId;
+            IncludedServiceOrderAddonIds = includedServiceOrderAddonIds?.ToList();
             ServiceProviderOrderId1 = serviceProviderOrderId1;
             ServiceProviderOrderId2 = serviceProviderOrderId2;
             ExternalServiceManagementLink = externalServiceManagementLink;
@@ -197,8 +217,7 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="status"></param>
         /// <param name="createdDate"></param>
         [Obsolete("This is a deprecated unit-test constructor that will soon be removed.")]
-        public HardwareServiceOrder(
-            Guid customerId,
+        public HardwareServiceOrder(Guid customerId,
             ContactDetails owner,
             Guid assetLifecycleId,
             DeliveryAddress deliveryAddress,
@@ -330,6 +349,12 @@ namespace HardwareServiceOrderServices.Models
             get { return _serviceEvents; }
             init { _serviceEvents = value.ToList(); }
         }
+
+        /// <summary>
+        ///     A list containing the <see cref="ServiceOrderAddon"/> IDs that was included with the order.
+        /// </summary>
+        [NotMapped]
+        public IReadOnlyCollection<int>? IncludedServiceOrderAddonIds { get; private init; }
 
 
         /*

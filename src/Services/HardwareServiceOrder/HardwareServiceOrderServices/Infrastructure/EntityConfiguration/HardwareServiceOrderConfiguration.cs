@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Text.Json;
+using YamlDotNet.Core.Tokens;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
@@ -41,7 +42,11 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
              * Properties
              */
 
-            // Add here as needed
+            // Convert the list to a flat JSON vale so we don't need a separate table for the values
+            builder.Property(e => e.IncludedServiceOrderAddonIds)
+                   .HasConversion(entity => JsonSerializer.Serialize(entity, (JsonSerializerOptions?)default),
+                                  json => JsonSerializer.Deserialize<List<int>?>(json, (JsonSerializerOptions?)default)
+                    );
 
 
             /*
