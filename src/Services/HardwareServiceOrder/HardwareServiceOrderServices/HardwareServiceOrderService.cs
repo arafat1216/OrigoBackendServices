@@ -179,9 +179,9 @@ namespace HardwareServiceOrderServices
 
 
         /// <inheritdoc/>
-        public async Task<PagedModel<HardwareServiceOrderDTO>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
+        public async Task<PagedModel<HardwareServiceOrderDTO>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, int? serviceTypeId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
         {
-            var orderEntities = await _hardwareServiceOrderRepository.GetAllServiceOrdersAsync(customerId, userId, activeOnly, page, limit, cancellationToken);
+            var orderEntities = await _hardwareServiceOrderRepository.GetAllServiceOrdersAsync(customerId, userId, serviceTypeId, activeOnly, page, limit, cancellationToken);
 
             return new PagedModel<HardwareServiceOrderDTO>
             {
@@ -224,7 +224,7 @@ namespace HardwareServiceOrderServices
 
                     // Todo: Need to think about a default "apiCredential.LastUpdateFetched"
                     var updatedExternalOrders = await provider.GetUpdatedRepairOrdersAsync(apiCredential?.LastUpdateFetched ?? updateStarted);
-                    
+
                     foreach (var externalOrder in updatedExternalOrders)
                     {
                         if (!externalOrder.ExternalServiceEvents.Any())
@@ -247,10 +247,10 @@ namespace HardwareServiceOrderServices
 
                         await _hardwareServiceOrderRepository.UpdateServiceEventsAsync(origoOrder, serviceEvents);
                     }
-                    
+
                     await _hardwareServiceOrderRepository.UpdateApiCredentialLastUpdateFetchedAsync(apiCredential!, updateStarted);
                 }
-            } 
+            }
         }
 
 
@@ -423,7 +423,7 @@ namespace HardwareServiceOrderServices
 
             await _hardwareServiceOrderRepository.UpdateAndSaveAsync(customerServiceProvider);
         }
-        
+
         private string DecryptUsername(Guid customerId, string apiUserName)
         {
             if (string.IsNullOrEmpty(apiUserName))

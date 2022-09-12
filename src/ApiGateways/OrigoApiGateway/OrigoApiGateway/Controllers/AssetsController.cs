@@ -3,23 +3,16 @@ using Common.Enums;
 using Common.Interfaces;
 using Common.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
 using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Text.Json;
-using System.Threading.Tasks;
 // ReSharper disable RouteTemplates.RouteParameterConstraintNotResolved
 // ReSharper disable RouteTemplates.ControllerRouteParameterIsNotPassedToMethods
 
@@ -90,7 +83,7 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
                 var count = await _assetServices.GetAssetsCountAsync(organizationId, departmentId, assetLifecycleStatus);
-                return Ok(new CustomerAssetCount (){ OrganizationId = organizationId, Count = count });
+                return Ok(new CustomerAssetCount() { OrganizationId = organizationId, Count = count });
             }
             catch (Exception ex)
             {
@@ -122,7 +115,7 @@ namespace OrigoApiGateway.Controllers
 
                 var currency = await _customerServices.GetCurrencyByCustomer(organizationId);
                 var totalBookValue = await _assetServices.GetCustomerTotalBookValue(organizationId);
-                return Ok(new CustomerAssetValue(){ OrganizationId = organizationId, Amount = totalBookValue, Currency = currency });
+                return Ok(new CustomerAssetValue() { OrganizationId = organizationId, Amount = totalBookValue, Currency = currency });
             }
             catch (Exception ex)
             {
@@ -178,7 +171,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult> Get(Guid organizationId,[FromQuery] FilterOptionsForAsset filterOptions, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
+        public async Task<ActionResult> Get(Guid organizationId, [FromQuery] FilterOptionsForAsset filterOptions, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
         {
             try
             {
@@ -189,7 +182,7 @@ namespace OrigoApiGateway.Controllers
                 {
                     filterOptions.UserId = "me";
                 }
-                
+
                 var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
@@ -487,7 +480,7 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
                 var allOfficeLocations = await _customerServices.GetAllCustomerLocations(organizationId);
-                
+
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid callerId;
                 Guid.TryParse(actor, out callerId);
@@ -512,7 +505,7 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest();
             }
         }
-        
+
         [Route("customers/{organizationId:guid}/return-location/{returnLocationId:guid}")]
         [HttpPut]
         [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.OK)]
@@ -946,7 +939,7 @@ namespace OrigoApiGateway.Controllers
                 if (data.AssetId == Guid.Empty)
                     return BadRequest("No asset selected.");
                 var org = await _customerServices.GetCustomerAsync(organizationId);
-                if(string.IsNullOrEmpty(org.PayrollContactEmail))
+                if (string.IsNullOrEmpty(org.PayrollContactEmail))
                     throw new BadHttpRequestException($"Payroll responsible email need to set first to do buyout for CustomerId: {organizationId}");
 
                 var updatedAssets = await _assetServices.BuyoutDeviceAsync(organizationId, data.AssetId, role, department, org.PayrollContactEmail, callerId);
@@ -1605,7 +1598,7 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var allMinBuyoutPrices = await _assetServices.GetBaseMinBuyoutPrice(country,assetCategoryId);
+                var allMinBuyoutPrices = await _assetServices.GetBaseMinBuyoutPrice(country, assetCategoryId);
                 if (allMinBuyoutPrices == null)
                 {
                     return NotFound();
@@ -1774,7 +1767,7 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                
+
                 var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(userId, out Guid callerId);
 
@@ -2048,7 +2041,7 @@ namespace OrigoApiGateway.Controllers
                 changedAssetStatusDTO.CallerId = callerId;
 
                 var activatedAsset = await _assetServices.ActivateAssetStatusOnAssetLifecycle(organizationId, changedAssetStatusDTO);
-               
+
                 return Ok(activatedAsset);
             }
             catch (BadHttpRequestException ex)

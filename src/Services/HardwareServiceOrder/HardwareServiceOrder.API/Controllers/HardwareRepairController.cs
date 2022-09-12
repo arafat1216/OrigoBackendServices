@@ -14,6 +14,7 @@ namespace HardwareServiceOrder.API.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/hardware-repair")]
+    [Obsolete("This controller has been deprecated. Please use the hardware-service endpoints instead where possible. Existing functionality will gradually be migrated over to these.")]
     public class HardwareRepairController : ControllerBase
     {
         private readonly IHardwareServiceOrderService _hardwareServiceOrderService;
@@ -138,22 +139,28 @@ namespace HardwareServiceOrder.API.Controllers
             return Ok(dto);
         }
 
+
         /// <summary>
         /// Gets list of hardware service orders for a customer
         /// </summary>
-        /// <param name="customerId">Customer Identifier</param>
-        /// <param name="page">Page number</param>
-        /// <param name="userId">me for userId</param>
-        /// <param name="limit">Number of items to be returned</param>
-        /// <param name="activeOnly">Should return active orders only?</param>
-        /// <returns>List of hardware service orders</returns>
+        /// <param name="customerId"> The customer identifier. </param>
+        /// <param name="userId"> When provided, filters the results to only contain this user. </param>
+        /// <param name="serviceTypeId"> When provided, filters the results to only contain this service-type. </param>
+        /// <param name="activeOnly"> 
+        ///     When <c><see langword="true"/></c>, only active/ongoing service-orders are retrieved. 
+        ///     
+        ///     When <c><see langword="false"/></c>, the filter is ignored. </param>
+        /// <param name="page"> The paginated page that should be retrieved. </param>
+        /// <param name="limit"> The number of items to retrieve per <paramref name="page"/>. </param>
+        /// <param name="cancellationToken"></param>
+        /// <returns> List of hardware service orders. </returns>
         [Route("{customerId:Guid}/orders")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<HardwareServiceOrderDTO>), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
-        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, Guid? userId, [FromQuery] bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
+        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, Guid? userId, [FromQuery] int? serviceTypeId, [FromQuery] bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
         {
-            var dto = await _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(customerId, userId, activeOnly, cancellationToken, page, limit);
+            var dto = await _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(customerId, userId, serviceTypeId, activeOnly, cancellationToken, page, limit);
 
             return Ok(dto);
         }

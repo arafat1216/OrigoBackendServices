@@ -180,13 +180,16 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
-        public async Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, int page, int limit, CancellationToken cancellationToken)
+        public async Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersAsync(Guid customerId, Guid? userId, int? serviceTypeId, bool activeOnly, int page, int limit, CancellationToken cancellationToken)
         {
             var orders = _hardwareServiceOrderContext.HardwareServiceOrders
                 .Where(m => m.CustomerId == customerId);
 
-            if (userId != null)
+            if (userId is not null)
                 orders = orders.Where(m => m.Owner.UserId == userId);
+
+            if (serviceTypeId is not null)
+                orders = orders.Where(e => e.ServiceTypeId == serviceTypeId);
 
             if (activeOnly)
                 orders = orders.Where(m => m.StatusId == (int)ServiceStatusEnum.Registered || m.StatusId == (int)ServiceStatusEnum.RegisteredInTransit ||

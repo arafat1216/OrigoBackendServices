@@ -213,15 +213,20 @@ namespace OrigoApiGateway.Controllers
         /// <summary>
         /// Gets list of hardware service orders for a customer
         /// </summary>
-        /// <param name="customerId">Customer Identifier</param>
-        /// <param name="page">Page number</param>
+        /// <param name="customerId"> The customer identifier. </param>
         /// <param name="userId">me for userId</param>
+        /// <param name="serviceTypeId"> When provided, filters the results to only contain this service-type. </param>
+        /// <param name="activeOnly"> 
+        ///     When <c><see langword="true"/></c>, only active/ongoing service-orders are retrieved. 
+        ///     
+        ///     When <c><see langword="false"/></c>, the filter is ignored. </param>
+        /// <param name="page">Page number</param>
         /// <param name="limit">Number of items to be returned</param>
         /// <returns>List of hardware service orders</returns>
         [Route("{customerId:Guid}/orders")]
         [HttpGet]
         [ProducesResponseType(typeof(PagedModel<HardwareServiceOrder>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, string? userId, [FromQuery] bool activeOnly = false, int page = 1, int limit = 25)
+        public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, string? userId, [FromQuery] int? serviceTypeId, [FromQuery] bool activeOnly = false, int page = 1, int limit = 25)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
@@ -242,32 +247,10 @@ namespace OrigoApiGateway.Controllers
             if (userId == "me")
                 userIdGuid = new Guid(HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value);
 
-            var orders = await _hardwareRepairService.GetHardwareServiceOrdersAsync(customerId, userIdGuid, activeOnly, page, limit);
+            var orders = await _hardwareRepairService.GetHardwareServiceOrdersAsync(customerId, userIdGuid, serviceTypeId, activeOnly, page, limit);
 
             return Ok(orders);
         }
 
-
-        /*
-         * Customer API endpoints:
-         * 
-         * These endpoints should not offer any additional functionality/data outside what's available in the user/customer-portal.
-         * If partner/system-admins, or the backoffice requires additional functionality/data/access, this should be added into a
-         * separate backoffice version of the endpoint.
-         */
-
-
-
-
-        /*
-         * Backoffice only API endpoints
-         */
-
-        [HttpGet]
-        [Route("provider/")]
-        public async Task<ActionResult> Tmp()
-        {
-            return Ok();
-        }
     }
 }

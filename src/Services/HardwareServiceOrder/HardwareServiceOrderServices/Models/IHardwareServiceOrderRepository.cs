@@ -147,7 +147,18 @@ namespace HardwareServiceOrderServices.Models
         ///     Otherwise the value will be <see langword="null"/>. </returns>
         Task<HardwareServiceOrder?> GetServiceOrderAsync(Guid orderId);
 
-        Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersAsync(Guid customerId, Guid? userId, bool activeOnly, int page, int limit, CancellationToken cancellationToken);
+        /// <summary>
+        ///     Retrieves all service-orders that matches the parameters.
+        /// </summary>
+        /// <param name="customerId"> Filter the results to only contain this customer. </param>
+        /// <param name="userId"> Filter the results to only contain this user. When the value is <see langword="null"/>, the filter is ignored. </param>
+        /// <param name="serviceTypeId"> Filter the results to only contain this service-type. When the value is <see langword="null"/>, the filter is ignored. </param>
+        /// <param name="activeOnly"> When <see langword="true"/>, only active/ongoing service-orders are retrieved. When <see langword="false"/>, the filter is ignored. </param>
+        /// <param name="page"> The paginated page that should be retrieved. </param>
+        /// <param name="limit"> The number of items to retrieve per <paramref name="page"/>. </param>
+        /// <param name="cancellationToken"></param>
+        /// <returns> A task that represents the asynchronous operation. The task result contains the retrieved, paginated results. </returns>
+        Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersAsync(Guid customerId, Guid? userId, int? serviceTypeId, bool activeOnly, int page, int limit, CancellationToken cancellationToken);
 
 
         /*
