@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common.Configuration;
 using Common.Infrastructure;
 using Common.Logging;
 using CustomerServices.Email;
@@ -12,6 +13,7 @@ using CustomerServices.ServiceModels;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -33,7 +35,11 @@ public class PartnerServicesTests : OrganizationServicesBaseTest
         var organizationRepository =
             new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         _organizationServices =
-            new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, mapper, Mock.Of<IEmailService>());
+            new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, mapper, Mock.Of<IEmailService>(), 
+            Options.Create(new TechstepPartnerConfiguration
+            {
+               PartnerId = TECHSTEP_PARTNER_ID
+            }));
         _partnerServices = new PartnerServices(Mock.Of<ILogger<PartnerServices>>(), organizationRepository);
     }
 
@@ -142,17 +148,23 @@ public class PartnerServicesTests : OrganizationServicesBaseTest
         organization!.ChangePartner(null);
         await _organizationServices.UpdateOrganizationAsync(organization);
 
-        // Empty list
+        
         var results = await _partnerServices.GetPartnersAsync();
 
+        //Partner that exists is not the Customer One
+        Assert.All(results, item => Assert.NotEqual(CUSTOMER_ONE_ID, item.Organization.OrganizationId));
         Assert.True(results is not null);
-        Assert.True(results?.Count == 0);
+        Assert.True(results?.Count == 2);
 
         // List with results
         await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID);
         results = await _partnerServices.GetPartnersAsync();
 
         Assert.True(results is not null);
-        Assert.True(results?.Count == 1);
+        Assert.True(results?.Count == 3);
+
+        Assert.Collection(results, item => Assert.NotEqual(CUSTOMER_ONE_ID, item.Organization.OrganizationId),
+                                  item => Assert.NotEqual(CUSTOMER_ONE_ID, item.Organization.OrganizationId),
+                                  item => Assert.Equal(CUSTOMER_ONE_ID, item.Organization.OrganizationId));
     }
 }

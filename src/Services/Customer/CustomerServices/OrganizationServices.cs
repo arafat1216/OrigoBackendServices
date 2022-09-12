@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Common.Configuration;
 using Common.Cryptography;
 using Common.Enums;
 using Common.Exceptions;
@@ -7,6 +8,7 @@ using CustomerServices.Exceptions;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,13 +23,16 @@ namespace CustomerServices
         private readonly IOrganizationRepository _organizationRepository;
         private readonly IMapper _mapper;
         private readonly IEmailService _emailService;
+        private readonly TechstepPartnerConfiguration _techstepPartnerConfiguration;
 
-        public OrganizationServices(ILogger<OrganizationServices> logger, IOrganizationRepository customerRepository, IMapper mapper, IEmailService emailService)
+        public OrganizationServices(ILogger<OrganizationServices> logger, IOrganizationRepository customerRepository, IMapper mapper, IEmailService emailService,
+            IOptions<TechstepPartnerConfiguration> techstepPartnerConfiguration)
         {
             _logger = logger;
             _organizationRepository = customerRepository;
             _mapper = mapper;
             _emailService = emailService;
+            _techstepPartnerConfiguration = techstepPartnerConfiguration.Value;
         }
 
         public async Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false, bool customersOnly = false, Guid? partnerId = null)
@@ -99,7 +104,7 @@ namespace CustomerServices
         /// <returns>Organization</returns>
         public async Task<Organization?> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocations = false, bool customersOnly = false)
         {
-            var organization = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true, customersOnly: customersOnly, includeLocations: includeLocations);
+            var organization = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true, customersOnly: customersOnly, includeLocations: includeLocations, includePartner: true);
 
             if (organization is not null)
             {
@@ -260,6 +265,13 @@ namespace CustomerServices
                 // Check parent
                 if (!await ParentOrganizationIsValid(updatedOrganization.ParentId, updatedOrganization.OrganizationId))
                     throw new ParentNotValidException("Invalid organization id on parent.");
+                
+                //If Techstep is partner make sure that organization gets the original name and organization
+                if (organizationOriginal.Partner != null && (organizationOriginal.Partner.ExternalId == _techstepPartnerConfiguration.PartnerId))
+                {
+                    updatedOrganization.OrganizationNumber = organizationOriginal.OrganizationNumber;
+                    updatedOrganization.Name = organizationOriginal.Name;
+                }
 
                 // string fields
                 if (updatedOrganization.Name == null || updatedOrganization.Name == string.Empty)
@@ -360,17 +372,25 @@ namespace CustomerServices
                         throw new ParentNotValidException("Invalid organization id on parent.");
                 }
 
-                // String fields
-                if (name == string.Empty)
-                    throw new RequiredFieldIsEmptyException("The name field is required and should never be empty (null is allowed for patch).");
-                name = (name == null) ? organizationOriginal.Name : name;
-                organizationNumber = (organizationNumber == null) ? organizationOriginal.OrganizationNumber : organizationNumber;
+                //Customers with techstep as a partner should not be able to update their name and organization number
+                if (organizationOriginal.Partner == null || organizationOriginal.Partner.ExternalId != _techstepPartnerConfiguration.PartnerId) 
+                {
+                    // String fields
+                    if (name == string.Empty)
+                        throw new RequiredFieldIsEmptyException("The name field is required and should never be empty (null is allowed for patch).");
+                    name = (name == null) ? organizationOriginal.Name : name;
+                    organizationNumber = (organizationNumber == null) ? organizationOriginal.OrganizationNumber : organizationNumber;
 
-                // Check organizationNumber
-                var organizationFromOrgNumber = await GetOrganizationByOrganizationNumberAsync(organizationNumber);
-                if (organizationFromOrgNumber != null && organizationFromOrgNumber.OrganizationId != organizationOriginal.OrganizationId)
-                    throw new InvalidOrganizationNumberException($"Organization numbers must be unique. An Organization with organization number {organizationNumber} already exists.");
-
+                    // Check organizationNumber
+                    var organizationFromOrgNumber = await GetOrganizationByOrganizationNumberAsync(organizationNumber);
+                    if (organizationFromOrgNumber != null && organizationFromOrgNumber.OrganizationId != organizationOriginal.OrganizationId)
+                        throw new InvalidOrganizationNumberException($"Organization numbers must be unique. An Organization with organization number {organizationNumber} already exists.");
+                }
+                else
+                {
+                    organizationNumber = organizationOriginal.OrganizationNumber;
+                    name = organizationOriginal.Name;
+                }
                 // PrimaryLocation
                 Location newLocation;
                 if (primaryLocation == null)

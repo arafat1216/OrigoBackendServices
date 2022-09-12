@@ -17,9 +17,12 @@ namespace CustomerServices.UnitTests
         protected readonly Guid DEPARTMENT_ONE_ID = new("f0680388-145a-11ec-a469-00155d98690f");
         protected readonly Guid DEPARTMENT_TWO_ID = new("424f4485-53cc-4e59-8fae-59b27f12ff61");
         protected readonly Guid CUSTOMER_TWO_ID = new("f1530515-fe2e-4e2f-84c2-c60da5875e22");
-        private readonly Guid CUSTOMER_THREE_ID = new("6fb371c9-da3e-4ce4-b4e4-bc7f020eebf9");
+        protected readonly Guid CUSTOMER_THREE_ID = new("6fb371c9-da3e-4ce4-b4e4-bc7f020eebf9");
         protected readonly Guid CUSTOMER_FOUR_ID = new("2C005777-ED56-43D9-9B1E-2B8112E67D10");
         protected readonly Guid CUSTOMER_FIVE_ID = new("94e47c5b-9486-4017-8bab-252422b1262a");
+        protected readonly Guid PARTNER_CUSTOMER_ID = new("ea8db27c-560f-4c42-8787-9646b6d0509f");
+        protected readonly Guid TECHSTEP_CUSTOMER_ID = new("c601dd7f-9930-46e2-944a-d994855663da");
+        protected Guid TECHSTEP_PARTNER_ID;
 
         protected readonly Guid USER_ONE_ID = new Guid("42803f8e-5608-4beb-a3e6-029b8e229d91");
         private readonly Guid USER_TWO_ID = new Guid("39349c24-6e47-4a5e-9bab-7b65f438fac5");
@@ -52,6 +55,26 @@ namespace CustomerServices.UnitTests
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
 
+            var techstepOrganization = new Organization(TECHSTEP_CUSTOMER_ID, null,"TECHSTEP","1111111111",
+                new Address("Brynsalléen 4", "0667","Oslo","no"),
+                new ContactPerson("Børge", "Astrup","the@boss.com","+4799999991"),
+                new OrganizationPreferences(TECHSTEP_CUSTOMER_ID,EMPTY_CALLER_ID,"www.techstep.com","www.techstep.com/logo",null,true,"nb",0),
+                new Location("TECHSTEP NORWAY","Head office", "Brynsalléen", "4", "0667", "Oslo", "nb"),
+                null,true,15,"payroll@techstep.com",false);
+            var partnerOrganization = new Organization(PARTNER_CUSTOMER_ID, null, "PARTNER", "22222222222",
+              new Address("Billingstadsletta 19B", "1396", "Oslo", "no"),
+              new ContactPerson("Svein", "Hansen", "le@boss.com", "+4799999992"),
+              new OrganizationPreferences(PARTNER_CUSTOMER_ID, EMPTY_CALLER_ID, "www.mytos.com", "www.mytos.com/logo", null, true, "nb", 0),
+              new Location("MYTOS", "R&D office", "Billingstadsletta", "19B", "1396", "Oslo", "nb"),
+              null, true, 15, "payroll@mytos.com", false);
+
+            var techstepPartner = new Partner(techstepOrganization);
+            var partner = new Partner(partnerOrganization);
+            context.Add(techstepPartner);
+            context.Add(partner);
+            //To set the partner id in techstep configuration
+            TECHSTEP_PARTNER_ID = techstepPartner.ExternalId;
+            
             var customerOne = new Organization(CUSTOMER_ONE_ID, null, "COMPANY ONE", "999888777",
                 new Address("My Way 1", "1111", "My City", "NO"),
                 new ContactPerson("JOHN", "DOE", "john.doe@example.com", "99999999"),
@@ -71,14 +94,15 @@ namespace CustomerServices.UnitTests
                 new ContactPerson("Kari", "Nordmann", "kari.nordmann@example.com", "99999997"),
                 new OrganizationPreferences(CUSTOMER_THREE_ID, USER_ONE_ID, "webPage 3", "logoUrl 3", "organizationNotes 3", true, "nb", 0),
                 new Location("name", "description", "My Way 3A", "My Way 3B", "0585", "Oslo", "NO"),
-                null, true, 1, "");
+                partner, true, 1, "");
 
             var customerFour = new Organization(CUSTOMER_FOUR_ID, null, "COMPANY FOUR", "999555444",
                 new Address("My Way 4", "1111", "My City", "NO"),
                 new ContactPerson("Petter", "Smart", "petter.smart@example.com", "99999996"),
                 new OrganizationPreferences(CUSTOMER_FOUR_ID, USER_ONE_ID, "webPage 4", "logoUrl 4", "organizationNotes 4", true, "nb", 0),
                 new Location("name", "description", "My Way 4A", "My Way 4B", "0585", "Oslo", "NO"),
-                null, true, 1, "",true);
+                techstepPartner, true, 1, "",true);
+            customerFour.AddTechstepCustomerId(123456700);
             customerFour.InitiateOnboarding();
 
             var customerFive = new Organization(CUSTOMER_FIVE_ID, null, "COMPANY FIVE", "999555555",
@@ -90,7 +114,7 @@ namespace CustomerServices.UnitTests
             customerFive.AddTechstepCustomerId(123456789);
 
 
-            context.AddRange(customerOne, customerTwo, customerThree, customerFour, customerFive);
+            context.AddRange(customerOne, customerTwo, customerThree, customerFour, customerFive, techstepOrganization);
             context.OrganizationPreferences.AddRange(customerOne.Preferences, customerTwo.Preferences, customerThree.Preferences, customerFour.Preferences);
             context.Locations.AddRange(customerOne.PrimaryLocation!, customerTwo.PrimaryLocation!, customerThree.PrimaryLocation!, customerFour.PrimaryLocation!);
             var departmentOneForCustomerOne = new Department("Cust1Dept1", "1123", "Department one for customer one", customerOne, DEPARTMENT_ONE_ID, Guid.Empty);

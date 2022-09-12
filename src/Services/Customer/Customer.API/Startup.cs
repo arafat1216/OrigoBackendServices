@@ -111,6 +111,7 @@ namespace Customer.API
             services.AddSingleton(s => new ResourceManager("CustomerServices.Resources.Customer", Assembly.GetAssembly(typeof(EmailService))));
             services.Configure<OktaConfiguration>(Configuration.GetSection("Okta"));
             services.Configure<WebshopConfiguration>(Configuration.GetSection("Webshop"));
+            services.Configure<TechstepPartnerConfiguration>(Configuration.GetSection("TechstepPartner"));
             services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
             services.AddScoped<IOrganizationServices, OrganizationServices>();
             services.AddScoped<IPartnerServices, PartnerServices>();

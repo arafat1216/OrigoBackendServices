@@ -14,6 +14,8 @@ using Common.Infrastructure;
 using Xunit;
 using CustomerServices.Email;
 using CustomerServices.Email.Models;
+using Microsoft.Extensions.Options;
+using Common.Configuration;
 //using System.Collections.Generic;
 
 namespace CustomerServices.UnitTests
@@ -41,7 +43,11 @@ namespace CustomerServices.UnitTests
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var emailMock = new Mock<IEmailService>();
             _emailServiceMock = emailMock;
-            organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper, emailMock.Object);
+            organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper, emailMock.Object, 
+                Options.Create(new TechstepPartnerConfiguration
+                {
+                    PartnerId = TECHSTEP_PARTNER_ID
+                }));
         }
 
         [Fact]
@@ -319,6 +325,87 @@ namespace CustomerServices.UnitTests
             var organization = await organizationRepository.GetOrganizationByTechstepCustomerIdAsync(123456789);
             // Assert
             Assert.Equal(CUSTOMER_FIVE_ID,organization?.OrganizationId);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task PutOrganizationAsync_WithTechstepPartner_NotUpdateNameAndOrgNumb()
+        {
+
+            //Arrange
+            var organizationUpdate = new UpdateOrganizationDTO
+            {
+                OrganizationId = CUSTOMER_FOUR_ID,
+                OrganizationNumber = "55555555",
+                Name = "Hallo på do!",
+            };
+            // Act
+            var organization = await organizationServices.PutOrganizationAsync(organizationUpdate);
+            // Arrange
+            Assert.Equal("COMPANY FOUR",organization.Name);
+            Assert.Equal("999555444", organization.OrganizationNumber);
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task PutOrganizationAsync_WithNoPartner_UpdateNameAndOrganizationNumb()
+        {
+            var newOrgNumber = "55555555";
+            var newName = "Hallo på do!";
+            //Arrange
+            var organizationUpdate = new UpdateOrganizationDTO
+            {
+                OrganizationId = CUSTOMER_ONE_ID,
+                OrganizationNumber = newOrgNumber,
+                Name = newName,
+            };
+            // Act
+            var organization = await organizationServices.PutOrganizationAsync(organizationUpdate);
+            // Arrange
+            Assert.Equal(newName, organization.Name);
+            Assert.Equal(newOrgNumber, organization.OrganizationNumber);
+        }
+       
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task PatchOrganizationAsync_WithTechstepPartner_NotUpdateNameAndOrgNumb()
+        {
+
+            //Arrange
+            var newOrgNumber = "55555555";
+            var newName = "Hallo på do!";
+            // Act
+            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_FOUR_ID, null,null,EMPTY_CALLER_ID,newName, newOrgNumber,null,null,null,null,null,null,null,null,null);
+            // Arrange
+            Assert.Equal("COMPANY FOUR", organization.Name);
+            Assert.Equal("999555444", organization.OrganizationNumber);
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task PatchOrganizationAsync_WithNoPartner_UpdateNameAndOrganizationNumb()
+        {
+            //Arrange
+            var newOrgNumber = "55555555";
+            var newName = "Hallo på do!";
+            
+            // Act
+            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, EMPTY_CALLER_ID, newName, newOrgNumber, null, null, null, null, null, null, null, null, null);
+            // Arrange
+            Assert.Equal(newName, organization.Name);
+            Assert.Equal(newOrgNumber, organization.OrganizationNumber);
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task PatchOrganizationAsync_WithPartnerThatIsNotTechstep_UpdateNameAndOrganizationNumb()
+        {
+            //Arrange
+            var newOrgNumber = "55555555";
+            var newName = "Hallo på do!";
+
+            // Act
+            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_THREE_ID, null, null, EMPTY_CALLER_ID, newName, newOrgNumber, null, null, null, null, null, null, null, null, null);
+            // Arrange
+            Assert.Equal(newName, organization.Name);
+            Assert.Equal(newOrgNumber, organization.OrganizationNumber);
         }
     }
 }
