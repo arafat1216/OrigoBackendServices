@@ -1,4 +1,5 @@
-﻿using OrigoApiGateway.Models.HardwareServiceOrder.Backend;
+﻿using Common.Interfaces;
+using OrigoApiGateway.Models.HardwareServiceOrder.Backend;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
@@ -122,5 +123,27 @@ namespace OrigoApiGateway.Services
         /// <exception cref="ArgumentException"> Thrown when one or more of the invalid inputs due to which the service is unable to fetch necessary data from third party </exception>
         /// <exception cref="Exception"> Thrown when any unknown error happens </exception>
         Task<HardwareServiceOrder?> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, int serviceTypeId, NewHardwareServiceOrder model);
+
+        /// <summary>
+        ///     Retrieves all service-orders that matches the parameters.
+        /// </summary>
+        /// <param name="organizationId"> Filter the results to only contain this customer. </param>
+        /// <param name="userId"> Filter the results to only contain this user. When the value is <see langword="null"/>, the filter is ignored. </param>
+        /// <param name="serviceTypeId"> Filter the results to only contain this service-type. When the value is <see langword="null"/>, the filter is ignored. </param>
+        /// <param name="activeOnly"> When <see langword="true"/>, only active/ongoing service-orders are retrieved. When <see langword="false"/>, the filter is ignored. </param>
+        /// <param name="page"> The paginated page that should be retrieved. </param>
+        /// <param name="limit"> The number of items to retrieve per <paramref name="page"/>. </param>
+        /// <returns> A task that represents the asynchronous operation. The task result contains the retrieved, paginated results. </returns>
+        Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, int page = 1, int limit = 25);
+
+        /// <summary>
+        ///     Retrieves a service-order using it's ID.
+        /// </summary>
+        /// <param name="organizationId"> Filter the results to only contain this customer. </param>
+        /// <param name="serviceOrderId"> The ID of the service-order that should be retrieved. </param>
+        /// <returns> 
+        ///     A task that represents the asynchronous operation. The task result contains the retrieved order, or <see langword="null"/> if no orders were found. 
+        /// </returns>
+        Task<HardwareServiceOrder?> GetServiceOrderByIdAndOrganizationAsync(Guid organizationId, Guid serviceOrderId);
     }
 }

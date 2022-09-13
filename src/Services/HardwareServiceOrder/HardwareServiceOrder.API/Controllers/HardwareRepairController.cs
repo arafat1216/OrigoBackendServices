@@ -145,7 +145,7 @@ namespace HardwareServiceOrder.API.Controllers
         public async Task<IActionResult> GetHardwareServiceOrder(Guid customerId, Guid orderId)
         {
             // TODO: Fix this so it don't create a new object when the result is null!
-            var dto = await _hardwareServiceOrderService.GetHardwareServiceOrderAsync(customerId, orderId) ?? new HardwareServiceOrderServices.ServiceModels.HardwareServiceOrderDTO();
+            var dto = await _hardwareServiceOrderService.GetServiceOrderByIdAsync(orderId) ?? new HardwareServiceOrderServices.ServiceModels.HardwareServiceOrderDTO();
 
             return Ok(dto);
         }
@@ -171,7 +171,7 @@ namespace HardwareServiceOrder.API.Controllers
         [SwaggerOperation(Tags = new[] { "Orders" })]
         public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, Guid? userId, [FromQuery] int? serviceTypeId, [FromQuery] bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
         {
-            var dto = await _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(customerId, userId, serviceTypeId, activeOnly, cancellationToken, page, limit);
+            var dto = await _hardwareServiceOrderService.GetAllServiceOrdersForOrganizationAsync(customerId, userId, serviceTypeId, activeOnly, cancellationToken, page, limit);
 
             return Ok(dto);
         }

@@ -1,4 +1,6 @@
-﻿namespace OrigoApiGateway.Services
+﻿#nullable enable
+
+namespace OrigoApiGateway.Services
 {
     public class HardwareServiceOrderConfiguration : IBaseGatewayOptions
     {
@@ -17,5 +19,10 @@
         ///     The API base-path to the 'configuration' controller.
         /// </summary>
         public string ConfigurationApiPath { get; set; }
+
+        /// <summary>
+        ///     The API base-path to the 'service-order' controller.
+        /// </summary>
+        public string ServiceOrderApiPath { get; set; }
     }
 }

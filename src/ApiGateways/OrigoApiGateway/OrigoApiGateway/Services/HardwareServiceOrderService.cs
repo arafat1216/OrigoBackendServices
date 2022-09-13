@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
+using Common.Interfaces;
 using Microsoft.Extensions.Options;
+using OrigoApiGateway.Models.HardwareServiceOrder.Backend;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
-using System.Collections.Generic;
 using System.Security.Claims;
 using Common.Enums;
 using OrigoApiGateway.Models;
@@ -343,7 +344,7 @@ namespace OrigoApiGateway.Services
             };
 
             ServiceProvider? serviceProvider = await SendRequestAsync<ISet<int>, ServiceProvider>(HttpMethod.Get, $"{_options.ServiceProviderApiPath}/{serviceProviderId}", queryParameters, newServiceOrderAddonIds);
-            
+
             if (serviceProvider is null)
                 throw new ArgumentException("The service-provider was not found.", nameof(serviceProviderId));
 
@@ -492,6 +493,37 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+
+        /// <inheritdoc/>
+        public async Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, int page = 1, int limit = 25)
+        {
+            var queryParameters = new Dictionary<string, string>
+            {
+                { "userId", userId.ToString() ?? string.Empty },
+                { "serviceTypeId", serviceTypeId.ToString() ?? string.Empty },
+                { "activeOnly", activeOnly.ToString() },
+                { "page", page.ToString() },
+                { "limit", limit.ToString() },
+            };
+
+            var result = await GetAsync<PagedModel<HardwareServiceOrder>>($"{_options.ServiceOrderApiPath}/organization/{organizationId}/orders", queryParameters);
+
+            // The results should never be nullable in this case, but let's check to be sure!
+            if (result is null)
+                throw new Exception("Failed to retrieve the paged results");
+
+            return result;
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<HardwareServiceOrder?> GetServiceOrderByIdAndOrganizationAsync(Guid organizationId, Guid serviceOrderId)
+        {
+            var result = await GetAsync<HardwareServiceOrder?>($"{_options.ServiceOrderApiPath}/organization/{organizationId}/orders/{serviceOrderId}", null);
+            return result;
+        }
+
 
     }
 }

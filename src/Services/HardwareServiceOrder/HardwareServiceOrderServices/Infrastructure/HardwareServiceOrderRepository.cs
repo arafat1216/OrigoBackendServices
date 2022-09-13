@@ -180,10 +180,10 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
-        public async Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersAsync(Guid customerId, Guid? userId, int? serviceTypeId, bool activeOnly, int page, int limit, CancellationToken cancellationToken)
+        public async Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, int page, int limit, CancellationToken cancellationToken)
         {
             var orders = _hardwareServiceOrderContext.HardwareServiceOrders
-                .Where(m => m.CustomerId == customerId);
+                .Where(m => m.CustomerId == organizationId);
 
             if (userId is not null)
                 orders = orders.Where(m => m.Owner.UserId == userId);
@@ -203,9 +203,19 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
-        public async Task<HardwareServiceOrder?> GetServiceOrderAsync(Guid orderId)
+        public async Task<HardwareServiceOrder?> GetServiceOrderByIdAsync(Guid serviceOrderId, Guid? organizationId = null)
         {
-            var order = await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == orderId);
+            HardwareServiceOrder? order;
+
+            if (organizationId is null)
+            {
+                order = await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == serviceOrderId);
+            }
+            else
+            {
+                order = await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == serviceOrderId && m.CustomerId == organizationId);
+            }
+
             return order;
         }
 
@@ -362,8 +372,8 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
-        public async Task<ServiceProvider?> GetServiceProviderByIdAsync(int id, 
-                                                                        bool includeSupportedServiceTypes, 
+        public async Task<ServiceProvider?> GetServiceProviderByIdAsync(int id,
+                                                                        bool includeSupportedServiceTypes,
                                                                         bool includeOfferedServiceOrderAddons,
                                                                         bool asNoTracking = false)
         {
@@ -478,7 +488,7 @@ namespace HardwareServiceOrderServices.Infrastructure
             await _hardwareServiceOrderContext.SaveChangesAsync();
             return apiCredential;
         }
-        
+
         /// <inheritdoc/>
         public async Task UpdateApiCredentialLastUpdateFetchedAsync(ApiCredential apiCredential, DateTimeOffset lastUpdateFetched)
         {

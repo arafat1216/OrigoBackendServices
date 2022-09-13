@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Xunit;
+using AutoMapper;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Email;
 using HardwareServiceOrderServices.Infrastructure;
@@ -233,7 +234,7 @@ namespace HardwareServiceOrder.UnitTests
         public async Task Get_My_Orders_By_UserId()
         {
             Guid? userId = CUSTOMER_ONE_ID;
-            var order = await _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(CUSTOMER_ONE_ID, userId, null, false, new System.Threading.CancellationToken());
+            var order = await _hardwareServiceOrderService.GetAllServiceOrdersForOrganizationAsync(CUSTOMER_ONE_ID, userId, null, false, new System.Threading.CancellationToken());
             Assert.NotNull(order);
             Assert.Equal(1, order.Items.Count);
         }
@@ -241,7 +242,7 @@ namespace HardwareServiceOrder.UnitTests
         [Fact]
         public async Task Get_Active_Orders()
         {
-            var order = await _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(CUSTOMER_FOUR_ID, null, null, true, new System.Threading.CancellationToken());
+            var order = await _hardwareServiceOrderService.GetAllServiceOrdersForOrganizationAsync(CUSTOMER_FOUR_ID, null, null, true, new System.Threading.CancellationToken());
             Assert.NotNull(order);
             Assert.Equal(1, order.Items.Count);
         }
@@ -255,7 +256,7 @@ namespace HardwareServiceOrder.UnitTests
 
             var updatedCustomerServiceProviders = await _hardwareServiceOrderRepository.GetCustomerServiceProvidersByFilterAsync(null, true, false, true);
 
-            var orders = _hardwareServiceOrderService.GetHardwareServiceOrdersAsync(CUSTOMER_ONE_ID, null, null, false, new System.Threading.CancellationToken()).Result.Items;
+            var orders = _hardwareServiceOrderService.GetAllServiceOrdersForOrganizationAsync(CUSTOMER_ONE_ID, null, null, false, new System.Threading.CancellationToken()).Result.Items;
 
             Assert.NotNull(orders);
             Assert.Null(customerServiceProviders?.FirstOrDefault()?.ApiCredentials?.FirstOrDefault()?.LastUpdateFetched);
@@ -382,6 +383,38 @@ namespace HardwareServiceOrder.UnitTests
 
             // Assert
             Assert.Equal((originalNumberOfAddons - expectedItemsToBeRemoved), customerServiceProviderPostRemoval!.ActiveServiceOrderAddons!.Count);
+        }
+
+
+
+        [Fact()]
+        public async Task GetHardwareServiceOrderById_NoMatchingId_Test()
+        {
+            // Arrange
+
+            // Act
+            HardwareServiceOrderDTO? result = await _hardwareServiceOrderService.GetServiceOrderByIdAsync(Guid.NewGuid());
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        
+        [Fact()]
+        public async Task GetHardwareServiceOrderById_MatchFound_Test()
+        {
+            // Arrange
+
+            // Since we don't know any IDs, let's grab one that exist
+            Guid orderId = await _dbContext.HardwareServiceOrders
+                                           .Select(e => e.ExternalId)
+                                           .FirstOrDefaultAsync();
+
+            // Act
+            HardwareServiceOrderDTO? result = await _hardwareServiceOrderService.GetServiceOrderByIdAsync(orderId);
+
+            // Assert
+            Assert.NotNull(result);
         }
 
     }

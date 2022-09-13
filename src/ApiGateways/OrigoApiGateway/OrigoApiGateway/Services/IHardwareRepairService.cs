@@ -1,7 +1,7 @@
 ﻿using Common.Interfaces;
 using OrigoApiGateway.Models.HardwareServiceOrder;
+using OrigoApiGateway.Models.HardwareServiceOrder.Backend;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
-using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
 
 #nullable enable
 

@@ -1,14 +1,13 @@
 ﻿#if DEBUG
 
 using AutoMapper;
-using HardwareServiceOrder.API.ViewModels;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Infrastructure;
 using HardwareServiceOrderServices.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+using Swashbuckle.AspNetCore.Annotations;
+using System.Text;
 
 namespace HardwareServiceOrder.API.Controllers
 {
@@ -19,7 +18,6 @@ namespace HardwareServiceOrder.API.Controllers
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("1.0")]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Minor Code Smell", "S2737:\"catch\" clauses should do more than rethrow", Justification = "<Pending>")]
     public class TestController : ControllerBase
     {
         // Dependency injections
@@ -39,6 +37,7 @@ namespace HardwareServiceOrder.API.Controllers
             _hardwareServiceOrderService = hardwareServiceOrderService;
         }
 
+        #region Commonly (re-)used methods
 
         // Please don't delete this one. It's a helper that's used for debugging when we need to fetch the injected caller-ID.
         private object GetResponseObject()
@@ -48,6 +47,162 @@ namespace HardwareServiceOrder.API.Controllers
                 AuthenticatedUserId = _apiRequesterService.AuthenticatedUserId
             };
         }
+
+        #endregion
+
+        #region Test-data Population
+
+        /// <summary>
+        ///     Add 'service-order' test-data.
+        /// </summary>
+        /// <remarks>
+        ///     Populate the local database with various sample/test-data. 
+        ///     This instance will add a single, randomly generated service-order.
+        ///     
+        ///     <br/><br/>
+        ///     NB: This should only be performed on a local, unpopulated database! Your local database should be
+        ///     dropped and re-created before you run this to avoid problems/conflicts.
+        /// </remarks>
+        /// <returns> A task containing the appropriate action-result. </returns>
+        [HttpPost("test-data/populate/service-order")]
+        [Tags("Populate test-data")]
+        public async Task<IActionResult> PopulateLocalTestData_NewOrder_Async([FromQuery] Guid? customerId = null, [FromQuery] Guid? userId = null, [FromQuery] Guid? assetLifecyleId = null)
+        {
+            customerId ??= Guid.NewGuid();
+            userId ??= Guid.NewGuid();
+            assetLifecyleId ??= Guid.NewGuid();
+            Random random = new(); // NOTE: The random max value is exclusive, not inclusive!
+
+            HardwareServiceOrderServices.Models.DeliveryAddress deliveryAddress = new(
+                (RecipientTypeEnum)random.Next(1, 3),
+                $"{GenerateName(random.Next(4, 12))} {GenerateName(random.Next(4, 13))}",
+                $"{GenerateName(random.Next(4, 13))} Street",
+                null,
+                $"{random.Next(1000, 10000)}",
+                $"{GenerateName(random.Next(5, 12))}",
+                $"NO"
+            );
+
+            HardwareServiceOrderServices.Models.ContactDetails owner = new(
+                userId.Value,
+                (random.Next(0, 101) >= 80) ? $"{GenerateName(random.Next(4, 12))} {GenerateName(random.Next(4, 12))}" : GenerateName(random.Next(4, 12)), // 20% chance for double first name
+                (random.Next(0, 101) >= 80) ? $"{GenerateName(random.Next(4, 12))} {GenerateName(random.Next(4, 12))}" : GenerateName(random.Next(4, 12)), // 20% chance for double last name
+                $"{GenerateName(random.Next(4, 12))}@{GenerateName(random.Next(4, 12))}.{GenerateName(random.Next(2, 3))}".ToLower(),
+                (random.Next(0, 101) >= 80) ? $"+47{random.Next(80000000, 99999999)}" : null // 20% chance to add a phone-number
+            );
+
+            List<HardwareServiceOrderServices.Models.ServiceEvent> serviceEvents = new() { };
+            for (int i = 0; i < random.Next(0, 8); i++)
+            {
+                serviceEvents.Add(new HardwareServiceOrderServices.Models.ServiceEvent()
+                {
+                    ServiceStatusId = random.Next(1, 17),
+                    Timestamp = GenerateDateTimeOffset()
+                });
+            }
+
+            HashSet<int> includedServiceOrderAddonIds = new() { };
+            if (random.Next(0, 2) == 1)
+                includedServiceOrderAddonIds.Add(1);
+
+            HardwareServiceOrderServices.Models.AssetInfo asset;
+            if (random.Next(0, 2) == 1)
+                asset = new("Samsung", $"Galaxy S{random.Next(10, 23)}", new HashSet<string>() { random.NextInt64(888888888888888, 999999999999999).ToString() }, null, GenerateDateOnly(), null);
+            else
+                asset = new("Apple", $"iPhone {random.Next(6, 16)}", new HashSet<string>() { random.NextInt64(888888888888888, 999999999999999).ToString() }, null, GenerateDateOnly(), null);
+
+            HardwareServiceOrderServices.Models.HardwareServiceOrder serviceOrder = new(
+                customerId.Value,
+                assetLifecyleId.Value,
+                1,
+                asset,
+                $"{GenerateSentence(random.Next(0, 20))}",
+                owner,
+                deliveryAddress,
+                1,
+                random.Next(1, 17),
+                1,
+                includedServiceOrderAddonIds,
+                Guid.NewGuid().ToString(),
+                null,
+                $"https://example.com/user?{GenerateName(9)}&password={GenerateName(9)}",
+                serviceEvents
+            );
+
+            _context.HardwareServiceOrders.Add(serviceOrder);
+            await _context.SaveChangesAsync();
+
+            return Ok(serviceOrder);
+        }
+
+
+        // Generates random sentences. Only to be used when adding random test-data.
+        private static string GenerateSentence(int length)
+        {
+            Random random = new();
+            StringBuilder sb = new();
+
+            for (int i = 0; i < length; i++)
+            {
+                if (i != 0)
+                    sb.Append(' ');
+
+                sb.Append(GenerateName(random.Next(1, 10)));
+            }
+
+            return sb.ToString();
+        }
+
+        // Generates a random DateTimeOffset. Only to be used when adding random test-data.
+        private static DateTimeOffset GenerateDateTimeOffset()
+        {
+            Random random = new();
+
+            DateTimeOffset result = DateTimeOffset.Now;
+            result.AddYears(-random.Next(0, 4));
+            result.AddMonths(-random.Next(0, 13));
+            result.AddDays(-random.Next(0, 32));
+            result.AddHours(-random.Next(0, 25));
+            result.AddMinutes(-random.Next(0, 61));
+
+            return result;
+        }
+
+        // Generates a random DateOnly. Only to be used when adding random test-data.
+        private static DateOnly GenerateDateOnly()
+        {
+            Random random = new();
+
+            DateOnly result = DateOnly.FromDateTime(DateTime.Now);
+            result.AddYears(-random.Next(0, 4));
+            result.AddMonths(-random.Next(0, 13));
+            result.AddDays(-random.Next(0, 32));
+
+            return result;
+        }
+
+        // Generates random names/words. Only to be used when adding random test-data.
+        private static string GenerateName(int length)
+        {
+            Random random = new();
+            string[] consonants = { "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "l", "n", "p", "q", "r", "s", "sh", "zh", "t", "v", "w", "x" };
+            string[] vowels = { "a", "e", "i", "o", "u", "ae", "y" };
+            string Name = "";
+            Name += consonants[random.Next(consonants.Length)].ToUpper();
+            Name += vowels[random.Next(vowels.Length)];
+            int b = 2; //b tells how many times a new letter has been added. It's 2 right now because the first two letters are already in the name.
+            while (b < length)
+            {
+                Name += consonants[random.Next(consonants.Length)];
+                b++;
+                Name += vowels[random.Next(vowels.Length)];
+                b++;
+            }
+
+            return Name;
+        }
+
+        #endregion
 
 
         /// <summary>
@@ -76,22 +231,6 @@ namespace HardwareServiceOrder.API.Controllers
             {
                 return Accepted(results);
             }
-        }
-
-
-
-
-        [HttpPut]
-        public async Task<ActionResult> Test()
-        {
-            HashSet<int> addonIds = new()
-            {
-                1,2,3,0
-            };
-
-            await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProviderAsync(Guid.Empty, 1, addonIds);
-
-            return Ok();
         }
 
 

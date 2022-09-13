@@ -1,5 +1,4 @@
 ﻿using Common.Interfaces;
-using Common.Seedwork;
 using HardwareServiceOrderServices.Exceptions;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
@@ -49,12 +48,24 @@ namespace HardwareServiceOrderServices
 
         // Order
         Task<HardwareServiceOrderDTO> CreateHardwareServiceOrderAsync(Guid customerId, NewHardwareServiceOrderDTO serviceOrderDTO);
-        Task<HardwareServiceOrderDTO> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId);
+
+        /// <summary>
+        ///     Retrieves a service-order using it's ID.
+        /// </summary>
+        /// <param name="serviceOrderId"> The ID of the service-order that should be retrieved. </param>
+        /// <param name="organizationId"> 
+        ///     An optional safety-check that ensures we will only retrieve the result, if it actually belongs to this customer.
+        ///     When the value is <see langword="null"/>, the filter is ignored. 
+        /// </param>
+        /// <returns> 
+        ///     A task that represents the asynchronous operation. The task result contains the retrieved order, or <see langword="null"/> if no orders were found. 
+        /// </returns>
+        Task<HardwareServiceOrderDTO?> GetServiceOrderByIdAsync(Guid serviceOrderId, Guid? organizationId = null);
 
         /// <summary>
         ///     Retrieves all service-orders that matches the parameters.
         /// </summary>
-        /// <param name="customerId"> Filter the results to only contain this customer. </param>
+        /// <param name="organizationId"> Filter the results to only contain this customer. </param>
         /// <param name="userId"> Filter the results to only contain this user. When the value is <see langword="null"/>, the filter is ignored. </param>
         /// <param name="serviceTypeId"> Filter the results to only contain this service-type. When the value is <see langword="null"/>, the filter is ignored. </param>
         /// <param name="activeOnly"> When <see langword="true"/>, only active/ongoing service-orders are retrieved. When <see langword="false"/>, the filter is ignored. </param>
@@ -62,7 +73,7 @@ namespace HardwareServiceOrderServices
         /// <param name="limit"> The number of items to retrieve per <paramref name="page"/>. </param>
         /// <param name="cancellationToken"></param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the retrieved, paginated results. </returns>
-        Task<PagedModel<HardwareServiceOrderDTO>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, int? serviceTypeId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25);
+        Task<PagedModel<HardwareServiceOrderDTO>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25);
 
         /// <summary>
         /// Update all order status since last updated datetime
@@ -117,7 +128,7 @@ namespace HardwareServiceOrderServices
         /// <param name="includeActiveServiceOrderAddons"> Should <see cref="CustomerServiceProvider.ActiveServiceOrderAddons"/> be loaded and included in the results? </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the matching customer-service-provider details. </returns>
         /// <exception cref="NotFoundException"> Thrown if no matching customer-service-providers were found. </exception>
-        Task<CustomerServiceProviderDto> GetCustomerServiceProviderByIdAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials = false, bool includeActiveServiceOrderAddons = false);
+        Task<CustomerServiceProviderDto> GetCustomerServiceProviderAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials = false, bool includeActiveServiceOrderAddons = false);
 
 
         /// <summary>

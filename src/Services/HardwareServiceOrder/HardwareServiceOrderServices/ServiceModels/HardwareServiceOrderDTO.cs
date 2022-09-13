@@ -1,10 +1,18 @@
 ﻿using Common.Seedwork;
 using HardwareServiceOrderServices.Models;
+using System.Text.Json.Serialization;
 
 namespace HardwareServiceOrderServices.ServiceModels
 {
     public class HardwareServiceOrderDTO
     {
+        /// <inheritdoc cref="EntityV2.Id"/>
+        /// <remarks>
+        ///     This is a read-only property. This will never be <see langword="null"/> for existing entities.
+        /// </remarks>
+        [JsonIgnore]
+        public int Id { get; init; }
+
         /// <inheritdoc cref="HardwareServiceOrder.ExternalId"/>
         /// <remarks>
         ///     For existing entities, this property is read-only, and can never be <see langword="null"/>.
@@ -17,7 +25,7 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// <inheritdoc cref="HardwareServiceOrder.AssetLifecycleId"/>
         public Guid AssetLifecycleId { get; set; }
 
-
+        /// <inheritdoc cref="HardwareServiceOrder.AssetLifecycleCategoryId"/>
         public int AssetLifecycleCategoryId { get; set; }
 
         /// <inheritdoc cref="HardwareServiceOrder.AssetInfo"/>
@@ -43,6 +51,12 @@ namespace HardwareServiceOrderServices.ServiceModels
 
         /// <inheritdoc cref="HardwareServiceOrder.ServiceProviderId"/>
         public int ServiceProviderId { get; init; }
+
+        /// <inheritdoc cref="HardwareServiceOrder.IncludedServiceOrderAddonIds"/>
+        /// <remarks>
+        ///     This is a read-only property. This will never be <see langword="null"/> for existing entities.
+        /// </remarks>
+        public IReadOnlyCollection<int>? IncludedServiceOrderAddonIds { get; init; }
 
         /// <inheritdoc cref="HardwareServiceOrder.ServiceProviderOrderId1"/>
         public string ServiceProviderOrderId1 { get; set; }

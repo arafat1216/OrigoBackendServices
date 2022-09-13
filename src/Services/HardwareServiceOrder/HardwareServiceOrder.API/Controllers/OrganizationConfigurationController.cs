@@ -87,7 +87,7 @@ namespace HardwareServiceOrder.API.Controllers
         {
             try
             {
-                var dtoResults = await _hardwareServiceOrderService.GetCustomerServiceProviderByIdAsync(organizationId, serviceProviderId, includeApiCredentialIndicators, includeServiceOrderAddons);
+                var dtoResults = await _hardwareServiceOrderService.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, includeApiCredentialIndicators, includeServiceOrderAddons);
                 var mappedResult = _mapper.Map<ViewModels.CustomerServiceProvider>(dtoResults);
 
                 return Ok(mappedResult);

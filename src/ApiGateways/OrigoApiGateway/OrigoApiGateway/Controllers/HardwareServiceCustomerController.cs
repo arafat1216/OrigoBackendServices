@@ -1,7 +1,9 @@
 ﻿using System.Net;
 using Common.Enums;
+using Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OrigoApiGateway.Models.HardwareServiceOrder.Backend;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
 using OrigoApiGateway.Services;
 using System.Security.Claims;
@@ -28,6 +30,7 @@ namespace OrigoApiGateway.Controllers
     [Route("origoapi/v{version:apiVersion}/hardware-service")]
     [Tags("Hardware Service: Customer")]
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Returned when the user is not authenticated.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden)]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Returned if the system encounter an unexpected problem.")]
     public class HardwareServiceCustomerController : ControllerBase
     {
@@ -89,7 +92,7 @@ namespace OrigoApiGateway.Controllers
         ///     loaded/included in the retrieved data. </param>
         /// <returns> An <see cref="ActionResult"/> containing the HTTP-response. </returns>
         [HttpGet("service-provider")]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin,Admin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returned when the request was successful.", typeof(IEnumerable<CustomerPortalServiceProvider>))]
         public async Task<ActionResult> GetAllServiceProvidersAsync([FromQuery] bool includeSupportedServiceTypes = false, [FromQuery] bool includeOfferedServiceOrderAddons = false)
         {
@@ -118,7 +121,7 @@ namespace OrigoApiGateway.Controllers
         ///     loaded/included in the retrieved data. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet("configuration/organization/{organizationId:Guid}")]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin,Admin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(IEnumerable<CustomerPortalCustomerServiceProvider>))]
         public async Task<ActionResult> CustomerPortalGetCustomerServiceProvidersAsync([FromRoute] Guid organizationId, [FromQuery] bool includeActiveServiceOrderAddons = false)
         {
@@ -177,7 +180,7 @@ namespace OrigoApiGateway.Controllers
         /// <param name="serviceOrderAddonIds"> A list containing the service-order IDs that should be added. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpPatch("configuration/organization/{organizationId:Guid}/service-provider/{serviceProviderId:int}/addons")]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin,Admin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin")]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         public async Task<ActionResult> AddServiceAddonAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
         {
@@ -209,7 +212,7 @@ namespace OrigoApiGateway.Controllers
         /// <param name="serviceOrderAddonIds"> A list containing the service-order IDs that should be removed. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpDelete("configuration/organization/{organizationId:Guid}/service-provider/{serviceProviderId:int}/addons")]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin,Admin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin")]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> RemoveServiceAddonAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
@@ -226,6 +229,84 @@ namespace OrigoApiGateway.Controllers
             catch (ArgumentException)
             {
                 return BadRequest();
+            }
+        }
+
+
+
+        /// <summary>
+        ///     Retrieves a paginated list that contains a organization's service-orders.
+        /// </summary>
+        /// <param name="organizationId"> The organization ID to retrieve service-orders for. </param>
+        /// <param name="userId"> When provided, filters the results to only contain this user. </param>
+        /// <param name="serviceTypeId"> When provided, filters the results to only contain this service-type. </param>
+        /// <param name="activeOnly"> 
+        ///     When <c><see langword="true"/></c>, only active/ongoing service-orders are retrieved. When <c><see langword="false"/></c>, the filter is ignored. </param>
+        /// <param name="page"> The paginated page that should be retrieved. </param>
+        /// <param name="limit"> The number of items to retrieve per <paramref name="page"/>. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
+        [HttpGet("organization/{organizationId:Guid}/orders")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager")]
+        [SwaggerResponse(StatusCodes.Status200OK, null, typeof(PagedModel<HardwareServiceOrder>))]
+        public async Task<ActionResult> GetAllServiceOrdersForOrganizationAsync([FromRoute] Guid organizationId, [FromQuery] Guid? userId, [FromQuery] int? serviceTypeId, [FromQuery] bool activeOnly = false, [FromQuery] int page = 1, [FromQuery] int limit = 25)
+        {
+            try
+            {
+                if (!AuthenticatedUserHasAccessToOrganization(organizationId))
+                    return Forbid();
+
+                PagedModel<HardwareServiceOrder> results = await _hardwareServiceOrderService.GetAllServiceOrdersForOrganizationAsync(organizationId, userId, serviceTypeId, activeOnly, page, limit);
+                return Ok(results);
+            }
+            catch (HttpRequestException ex)
+            {
+                switch (ex.StatusCode)
+                {
+                    case System.Net.HttpStatusCode.NotFound:
+                        return Unauthorized();
+                    default:
+                        throw;
+                }
+            }
+        }
+
+
+        /// <summary>
+        ///     Retrieve a service-order by it's ID.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves a service-order that matches a given ID.
+        /// </remarks>
+        /// <param name="organizationId"> The organization that owns the service-order. </param>
+        /// <param name="serviceOrderId"> The service-order ID that should be retrieved. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
+        [HttpGet("organization/{organizationId:Guid}/orders/{serviceOrderId:Guid}")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager")]
+        [SwaggerResponse(StatusCodes.Status200OK, null, typeof(HardwareServiceOrder))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Returned if the ID was not found.")]
+        public async Task<IActionResult> GetServiceOrderByIdAndOrganizationAsync([FromRoute] Guid organizationId, [FromRoute] Guid serviceOrderId)
+        {
+            try
+            {
+                if (!AuthenticatedUserHasAccessToOrganization(organizationId))
+                    return Forbid();
+
+                var result = await _hardwareServiceOrderService.GetServiceOrderByIdAndOrganizationAsync(organizationId, serviceOrderId);
+
+                if (result is null)
+                    return Forbid();
+                else return
+                        Ok(result);
+            }
+            catch (HttpRequestException ex)
+            {
+                switch (ex.StatusCode)
+                {
+                    case System.Net.HttpStatusCode.NotFound:
+                        return Forbid();
+                    default:
+                        throw;
+                }
             }
         }
         

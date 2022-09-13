@@ -6,7 +6,6 @@ using HardwareServiceOrderServices.Exceptions;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Mvc;
 
 namespace HardwareServiceOrderServices
 {
@@ -203,18 +202,18 @@ namespace HardwareServiceOrderServices
 
 
         /// <inheritdoc/>
-        public async Task<HardwareServiceOrderDTO> GetHardwareServiceOrderAsync(Guid customerId, Guid orderId)
+        public async Task<HardwareServiceOrderDTO?> GetServiceOrderByIdAsync(Guid serviceOrderId, Guid? organizationId = null)
         {
-            var orderEntity = await _hardwareServiceOrderRepository.GetServiceOrderAsync(orderId);
+            var orderEntity = await _hardwareServiceOrderRepository.GetServiceOrderByIdAsync(serviceOrderId, organizationId);
 
-            return _mapper.Map<HardwareServiceOrderDTO>(orderEntity);
+            return _mapper.Map<HardwareServiceOrderDTO?>(orderEntity);
         }
 
 
         /// <inheritdoc/>
-        public async Task<PagedModel<HardwareServiceOrderDTO>> GetHardwareServiceOrdersAsync(Guid customerId, Guid? userId, int? serviceTypeId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
+        public async Task<PagedModel<HardwareServiceOrderDTO>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
         {
-            var orderEntities = await _hardwareServiceOrderRepository.GetAllServiceOrdersAsync(customerId, userId, serviceTypeId, activeOnly, page, limit, cancellationToken);
+            var orderEntities = await _hardwareServiceOrderRepository.GetAllServiceOrdersForOrganizationAsync(organizationId, userId, serviceTypeId, activeOnly, page, limit, cancellationToken);
 
             return new PagedModel<HardwareServiceOrderDTO>
             {
@@ -257,7 +256,7 @@ namespace HardwareServiceOrderServices
 
                     // Todo: Need to think about a default "apiCredential.LastUpdateFetched"
                     var updatedExternalOrders = await provider.GetOrdersUpdatedSinceAsync(apiCredential?.LastUpdateFetched ?? updateStarted);
-                    
+
                     foreach (var externalOrder in updatedExternalOrders)
                     {
                         if (!externalOrder.ExternalServiceEvents.Any())
@@ -383,7 +382,7 @@ namespace HardwareServiceOrderServices
 
 
         /// <inheritdoc/>
-        public async Task<CustomerServiceProviderDto> GetCustomerServiceProviderByIdAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials = false, bool includeActiveServiceOrderAddons = false)
+        public async Task<CustomerServiceProviderDto> GetCustomerServiceProviderAsync(Guid organizationId, int serviceProviderId, bool includeApiCredentials = false, bool includeActiveServiceOrderAddons = false)
         {
             CustomerServiceProvider? customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, includeApiCredentials, includeActiveServiceOrderAddons);
             if (customerServiceProvider is null)

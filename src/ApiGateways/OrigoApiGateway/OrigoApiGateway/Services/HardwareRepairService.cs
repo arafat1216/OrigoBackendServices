@@ -1,13 +1,11 @@
 ﻿using Common.Enums;
 using Common.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.HardwareServiceOrder;
+using OrigoApiGateway.Models.HardwareServiceOrder.Backend;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
-using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
-using System;
 using System.Security.Claims;
 
 #nullable enable

@@ -255,7 +255,7 @@ namespace HardwareServiceOrderServices.Models
         public Guid CustomerId { get; set; }
 
         /// <summary>
-        ///     The identifier for the asset life-cycle attached to the service order.
+        ///     The ID of the asset life-cycle the service-order is attached to.
         /// </summary>
         public Guid AssetLifecycleId { get; set; }
 
@@ -315,9 +315,10 @@ namespace HardwareServiceOrderServices.Models
         public virtual ContactDetails Owner { get; set; }
 
         /// <summary>
-        ///     The delivery address used when returning the completed service order. <para>
+        ///     The delivery address used when returning the completed service order.
         ///     
-        ///     This is required for repairs, but will be <see langword="null"/> for aftermarket services.</para>
+        ///     <para>
+        ///     This is also used as the "return to sender" address in shipping-labels. </para>
         /// </summary>
         public DeliveryAddress? DeliveryAddress { get; set; }
 
@@ -353,7 +354,6 @@ namespace HardwareServiceOrderServices.Models
         /// <summary>
         ///     A list containing the <see cref="ServiceOrderAddon"/> IDs that was included with the order.
         /// </summary>
-        [NotMapped]
         public IReadOnlyCollection<int>? IncludedServiceOrderAddonIds { get; private init; }
 
 
