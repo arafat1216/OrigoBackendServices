@@ -90,7 +90,7 @@ namespace HardwareServiceOrderServices
                         throw new ArgumentException($"Wrong Service Addon Id provided for customer {customerId}, Service Order Addon: {serviceOrderAddonId}", nameof(customerId));
                     serviceOrderAddonIds.Add(serviceOrderAddonId.ToString());
                 }
-            
+
                 var nonUserSelectableServiceOrderAddons = customerProvider?.ActiveServiceOrderAddons.Where(serviceOrderAddon => !serviceOrderAddon.IsUserSelectable);
                 if (nonUserSelectableServiceOrderAddons is not null)
                 {
@@ -141,17 +141,17 @@ namespace HardwareServiceOrderServices
             switch (serviceOrderDTO.ServiceTypeId)
             {
                 case (int)ServiceTypeEnum.SUR:
-                {
-                    var repairProvider = await _providerFactory.GetRepairProviderAsync(serviceOrderDTO.ServiceProviderId, apiCredential?.ApiUsername, apiCredential?.ApiPassword);
-                    externalOrderResponseDTO = await repairProvider.CreateRepairOrderAsync(newExternalServiceOrder, serviceOrderDTO.ServiceTypeId, $"{newOrderId}");
-                    break;
-                }
+                    {
+                        var repairProvider = await _providerFactory.GetRepairProviderAsync(serviceOrderDTO.ServiceProviderId, apiCredential?.ApiUsername, apiCredential?.ApiPassword);
+                        externalOrderResponseDTO = await repairProvider.CreateRepairOrderAsync(newExternalServiceOrder, serviceOrderDTO.ServiceTypeId, $"{newOrderId}");
+                        break;
+                    }
                 case (int)ServiceTypeEnum.Remarketing:
-                {
-                    var aftermarketProvider = await _providerFactory.GetAftermarketProviderAsync(serviceOrderDTO.ServiceProviderId, apiCredential?.ApiUsername, apiCredential?.ApiPassword);
-                    externalOrderResponseDTO = await aftermarketProvider.CreateAftermarketOrderAsync(newExternalServiceOrder, serviceOrderDTO.ServiceTypeId, $"{newOrderId}");
-                    break;
-                }
+                    {
+                        var aftermarketProvider = await _providerFactory.GetAftermarketProviderAsync(serviceOrderDTO.ServiceProviderId, apiCredential?.ApiUsername, apiCredential?.ApiPassword);
+                        externalOrderResponseDTO = await aftermarketProvider.CreateAftermarketOrderAsync(newExternalServiceOrder, serviceOrderDTO.ServiceTypeId, $"{newOrderId}");
+                        break;
+                    }
                 default:
                     throw new NotSupportedException($"The requested ServiceTypeId: {serviceOrderDTO.ServiceTypeId} is either not supported or wrong ServiceTypeId");
             }
@@ -350,7 +350,7 @@ namespace HardwareServiceOrderServices
             if (apiCredentialToBeRemoved is null)
                 return;
 
-            await _hardwareServiceOrderRepository.Delete(apiCredentialToBeRemoved);
+            await _hardwareServiceOrderRepository.DeleteAndSaveAsync(apiCredentialToBeRemoved);
         }
 
 
@@ -466,6 +466,38 @@ namespace HardwareServiceOrderServices
             var decryptedApiUserName = protector.Unprotect(apiUserName);
 
             return decryptedApiUserName;
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<CustomerSettingsDTO> AddOrUpdateCustomerSettings(CustomerSettingsDTO customerSettingsDTO)
+        {
+            CustomerSettings result;
+            var existingCustomerSettings = await _hardwareServiceOrderRepository.GetCustomerSettingsByOrganizationIdAsync(customerSettingsDTO.CustomerId);
+
+            if (existingCustomerSettings is null)
+            {
+                CustomerSettings customerSettings = new(customerSettingsDTO.CustomerId, customerSettingsDTO.ProvidesLoanDevice, customerSettingsDTO.LoanDevicePhoneNumber, customerSettingsDTO.LoanDeviceEmail);
+                result = await _hardwareServiceOrderRepository.AddAndSaveAsync(customerSettings);
+            }
+            else
+            {
+                existingCustomerSettings.ProvidesLoanDevice = customerSettingsDTO.ProvidesLoanDevice;
+                existingCustomerSettings.LoanDevicePhoneNumber = customerSettingsDTO.LoanDevicePhoneNumber;
+                existingCustomerSettings.LoanDeviceEmail = customerSettingsDTO.LoanDeviceEmail;
+
+                result = await _hardwareServiceOrderRepository.UpdateAndSaveAsync(existingCustomerSettings);
+            }
+
+            return _mapper.Map<CustomerSettingsDTO>(result);
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<CustomerSettingsDTO?> GetCustomerSettings(Guid organizationId)
+        {
+            var result = await _hardwareServiceOrderRepository.GetCustomerSettingsByOrganizationIdAsync(organizationId);
+            return _mapper.Map<CustomerSettingsDTO?>(result);
         }
     }
 }

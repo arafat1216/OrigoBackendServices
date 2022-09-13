@@ -123,7 +123,7 @@ namespace HardwareServiceOrder.UnitTests
 
             providerFactoryMock.Setup(m => m.GetRepairProviderAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(repairProviderMock.Object);
-            
+
             providerFactoryMock.Setup(m => m.GetAftermarketProviderAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(aftermarketProviderMock.Object);
 
@@ -182,9 +182,9 @@ namespace HardwareServiceOrder.UnitTests
             await _dbContext.SaveChangesAsync();
 
             await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProviderAsync(
-                CUSTOMER_ONE_ID, (int)ServiceProviderEnum.ConmodoNo, new HashSet<int>(){ 500, 501 });
-            
-            
+                CUSTOMER_ONE_ID, (int)ServiceProviderEnum.ConmodoNo, new HashSet<int>() { 500, 501 });
+
+
             var serviceOrderDTO = new NewHardwareServiceOrderDTO
             {
                 ErrorDescription = "sd",
@@ -219,7 +219,7 @@ namespace HardwareServiceOrder.UnitTests
                 },
                 ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo,
                 ServiceTypeId = (int)serviceType,
-                UserSelectedServiceOrderAddonIds = new HashSet<int>(){ 500 }
+                UserSelectedServiceOrderAddonIds = new HashSet<int>() { 500 }
             };
 
             var hardwareServiceOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(CUSTOMER_ONE_ID, serviceOrderDTO);
@@ -415,6 +415,55 @@ namespace HardwareServiceOrder.UnitTests
 
             // Assert
             Assert.NotNull(result);
+        }
+
+
+
+        [Fact()]
+        public async Task AddOrUpdateCustomerSettings_NoExistingItems_Test()
+        {
+            // Arrange
+            CustomerSettingsDTO newDTO = new(Guid.NewGuid(), true, "[Phone]", "[Email]");
+
+            // Act
+            var newAdded = await _hardwareServiceOrderService.AddOrUpdateCustomerSettings(newDTO);
+            var newRetrieved = await _dbContext.CustomerSettings.FirstOrDefaultAsync(e => e.CustomerId == newDTO.CustomerId);
+
+            // Assert 
+            Assert.NotNull(newAdded);
+            Assert.NotNull(newRetrieved);
+
+            Assert.Equal(newAdded.ProvidesLoanDevice, newRetrieved.ProvidesLoanDevice);
+            Assert.Equal(newAdded.LoanDevicePhoneNumber, newRetrieved.LoanDevicePhoneNumber);
+            Assert.Equal(newAdded.LoanDeviceEmail, newRetrieved.LoanDeviceEmail);
+        }
+
+
+        [Fact()]
+        public async Task AddOrUpdateCustomerSettings_ExistingItems_Test()
+        {
+            // Arrange
+            CustomerSettingsDTO originalDTO = new(Guid.NewGuid(), false, "[Old Phone]", "[Old Email]");
+            CustomerSettingsDTO newDTO = new(originalDTO.CustomerId, true, "[New Phone]", "[New Email]");
+            
+            var originalAdded = await _hardwareServiceOrderService.AddOrUpdateCustomerSettings(originalDTO);
+            var originalRetrieved = await _dbContext.CustomerSettings.FirstOrDefaultAsync(e => e.CustomerId == originalDTO.CustomerId);
+            int originalId = originalRetrieved!.Id;
+
+            // Act (the 'originalRetrieved' is tracked by EF, and also gets updated by some of these calls. Make a copy of any required values before referencing them)
+            var newAdded = await _hardwareServiceOrderService.AddOrUpdateCustomerSettings(newDTO);
+            var newRetrievedList = await _dbContext.CustomerSettings.Where(e => e.CustomerId == newDTO.CustomerId).ToListAsync();
+            var newRetrieved = newRetrievedList.FirstOrDefault();
+
+            // Assert 
+            Assert.NotNull(newAdded);
+            Assert.True(newRetrievedList.Count == 1);
+            Assert.NotNull(newRetrieved);
+            Assert.Equal(originalId, newRetrieved.Id);
+
+            Assert.NotEqual(originalAdded.ProvidesLoanDevice, newRetrieved.ProvidesLoanDevice);
+            Assert.NotEqual(originalAdded.LoanDevicePhoneNumber, newRetrieved.LoanDevicePhoneNumber);
+            Assert.NotEqual(originalAdded.LoanDeviceEmail, newRetrieved.LoanDeviceEmail);
         }
 
     }

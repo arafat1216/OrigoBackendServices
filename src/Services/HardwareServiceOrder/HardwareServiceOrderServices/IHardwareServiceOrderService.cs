@@ -46,6 +46,27 @@ namespace HardwareServiceOrderServices
         Task<CustomerSettingsDTO> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, bool providesLoanDevice, Guid callerId);
         Task<CustomerSettingsDTO> GetSettingsAsync(Guid customerId);
 
+        /// <summary>
+        ///     Updates a existing <see cref="CustomerSettings"/> if found. Otherwise a new one is created.
+        ///     
+        ///     <para>
+        ///     The add/create is performed using the organization's ID, provided in the <paramref name="customerSettingsDTO"/> 
+        ///     property (<see cref="CustomerSettingsDTO.CustomerId"/>). </para>
+        /// </summary>
+        /// <param name="customerSettingsDTO"> The new customer settings. </param>
+        /// <returns> A task that represents the asynchronous operation. The task result contains the created/updated entity. </returns>
+        Task<CustomerSettingsDTO> AddOrUpdateCustomerSettings(CustomerSettingsDTO customerSettingsDTO);
+
+        /// <summary>
+        ///     Retrieves the <see cref="CustomerSettingsDTO"/> for a given organization.
+        /// </summary>
+        /// <param name="organizationId"> The organization to retrieve. </param>
+        /// <returns> 
+        ///     A task that represents the asynchronous operation. The task result contains the retrieved result, or <see langword="null"/>
+        ///     of no results were found. 
+        /// </returns>
+        Task<CustomerSettingsDTO?> GetCustomerSettings(Guid organizationId);
+
         // Order
         Task<HardwareServiceOrderDTO> CreateHardwareServiceOrderAsync(Guid customerId, NewHardwareServiceOrderDTO serviceOrderDTO);
 

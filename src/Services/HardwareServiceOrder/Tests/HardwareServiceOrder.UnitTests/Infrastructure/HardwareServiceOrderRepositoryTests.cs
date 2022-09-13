@@ -243,7 +243,7 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
             ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, (int)ServiceTypeEnum.SUR, "OldUsername", "OldPassword");
 
             // Act
-            _repository.Delete(apiCredential1).Wait();
+            _repository.DeleteAndSaveAsync(apiCredential1).Wait();
             ApiCredential? result = await _dbContext.ApiCredentials.FindAsync(apiCredential1.Id);
 
             // Assert

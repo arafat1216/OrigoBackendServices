@@ -5,6 +5,7 @@ using HardwareServiceOrderServices.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Linq;
+using HardwareServiceOrderServices.Exceptions;
 
 namespace HardwareServiceOrderServices.Infrastructure
 {
@@ -33,7 +34,7 @@ namespace HardwareServiceOrderServices.Infrastructure
         /// <typeparam name="TEntity"> The entities datatype. </typeparam>
         /// <param name="entityToBeDeleted"> The entity that should be deleted. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        public async Task Delete<TEntity>(TEntity entityToBeDeleted) where TEntity : Auditable, IDbSetEntity
+        public async Task DeleteAndSaveAsync<TEntity>(TEntity entityToBeDeleted) where TEntity : Auditable, IDbSetEntity
         {
             // Fetch the private-properties we need to use reflections on
             var deletedByProperty = typeof(Auditable).GetProperty(nameof(Auditable.DeletedBy));
@@ -96,19 +97,13 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
-        public async Task<CustomerSettings> ConfigureLoanPhoneAsync(
-            Guid customerId,
-            string loanPhoneNumber,
-            string loanPhoneEmail,
-            bool providesLoanDevice,
-            Guid callerId
-            )
+        public async Task<CustomerSettings> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, bool providesLoanDevice, Guid callerId)
         {
             var settings = await GetSettingsAsync(customerId);
 
             if (settings == null)
             {
-                var newSettings = new CustomerSettings(customerId, loanPhoneNumber, loanPhoneEmail, providesLoanDevice, callerId);
+                var newSettings = new CustomerSettings(customerId, providesLoanDevice, loanPhoneNumber, loanPhoneEmail);
                 _hardwareServiceOrderContext.Add(newSettings);
                 await _hardwareServiceOrderContext.SaveChangesAsync();
                 return newSettings;
@@ -170,7 +165,7 @@ namespace HardwareServiceOrderServices.Infrastructure
 
             if (settings == null)
             {
-                settings = new CustomerSettings(customerId, callerId);
+                settings = new CustomerSettings(customerId);
                 _hardwareServiceOrderContext.Add(settings);
                 await _hardwareServiceOrderContext.SaveChangesAsync();
             }
@@ -286,22 +281,6 @@ namespace HardwareServiceOrderServices.Infrastructure
         }
 
 
-        /// <inheritdoc/>
-        public async Task<string?> GetServiceIdAsync(Guid customerId)
-        {
-            var entity = await _hardwareServiceOrderContext.CustomerServiceProviders.FirstOrDefaultAsync(m => m.CustomerId == customerId);
-
-            return entity?.ApiUserName;
-        }
-
-
-        /// <inheritdoc/>
-        public async Task<List<CustomerServiceProvider>> GetAllCustomerProvidersAsync()
-        {
-            return await _hardwareServiceOrderContext.CustomerServiceProviders.ToListAsync();
-        }
-
-
         /// <inheritdoc cref="IHardwareServiceOrderRepository.GetOrderByServiceProviderOrderIdAsync(string)"/>
         public async Task<HardwareServiceOrder?> GetOrderByServiceProviderOrderIdAsync(string serviceProviderOrderId)
         {
@@ -309,17 +288,6 @@ namespace HardwareServiceOrderServices.Infrastructure
                 .HardwareServiceOrders
                 .Include(m => m.ServiceEvents)
                 .FirstOrDefaultAsync(m => m.ServiceProviderOrderId1 == serviceProviderOrderId);
-        }
-
-
-        /// <inheritdoc/>
-        public async Task UpdateCustomerProviderLastUpdateFetchedAsync(CustomerServiceProvider customerServiceProvider, DateTimeOffset lastUpdateFetched)
-        {
-            customerServiceProvider.LastUpdateFetched = lastUpdateFetched;
-
-            _hardwareServiceOrderContext.Entry(customerServiceProvider).State = EntityState.Modified;
-
-            await _hardwareServiceOrderContext.SaveChangesAsync();
         }
 
 
@@ -498,5 +466,14 @@ namespace HardwareServiceOrderServices.Infrastructure
 
             await _hardwareServiceOrderContext.SaveChangesAsync();
         }
+
+        /// <inheritdoc/>
+        public async Task<CustomerSettings?> GetCustomerSettingsByOrganizationIdAsync(Guid organizationId)
+        {
+            return await _hardwareServiceOrderContext.CustomerSettings
+                                                     .FirstOrDefaultAsync(e => e.CustomerId == organizationId);
+        }
+
+
     }
 }

@@ -6,6 +6,10 @@ namespace HardwareServiceOrderServices.Models
 {
     public interface IHardwareServiceOrderRepository
     {
+        /*
+         * Generics
+         */
+
         /// <summary>
         ///     Adds a new entity, and saves it to the database.
         /// </summary>
@@ -14,14 +18,13 @@ namespace HardwareServiceOrderServices.Models
         /// <returns> A task that represents the asynchronous operation. The task result contains the stored entity. </returns>
         Task<TEntity> AddAndSaveAsync<TEntity>(TEntity entityToBeAdded) where TEntity : Auditable, IDbSetEntity;
 
-
         /// <summary>
         ///     Deletes an existing entity from the database.
         /// </summary>
         /// <typeparam name="TEntity"> The entities datatype. </typeparam>
         /// <param name="entityToBeDeleted"> The entity that should be deleted. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        Task Delete<TEntity>(TEntity entityToBeDeleted) where TEntity : Auditable, IDbSetEntity;
+        Task DeleteAndSaveAsync<TEntity>(TEntity entityToBeDeleted) where TEntity : Auditable, IDbSetEntity;
 
         /// <summary>
         ///     Retrieves a entity by it's primary-key.
@@ -51,70 +54,6 @@ namespace HardwareServiceOrderServices.Models
         ///     A task that represents the asynchronous operation. The task result contains the updated entity.
         /// </returns>
         Task<TEntity> UpdateAndSaveAsync<TEntity>(TEntity entityToBeUpdated) where TEntity : Auditable, IDbSetEntity;
-
-        /// <summary>
-        /// Configure customer service provider
-        /// </summary>
-        /// <param name="providerId">Provider identifier</param>
-        /// <param name="customerId">Customer identifier</param>
-        /// <param name="apiUsername">Username for calling provider's API</param>
-        /// <param name="apiPassword">Password for calling provider's API</param>
-        /// <returns></returns>
-        [Obsolete("This will be replaced in the R&W work-package")]
-        Task<string?> ConfigureCustomerServiceProviderAsync(int providerId, Guid customerId, string? apiUsername, string? apiPassword);
-
-        /// <summary>
-        /// Configure customer settings
-        /// </summary>
-        /// <param name="customerId">Customer identifier</param>
-        /// <param name="callerId"></param>
-        /// <returns></returns>
-        [Obsolete("This will be replaced in the R&W work-package")]
-        Task<CustomerSettings> ConfigureCustomerSettingsAsync(Guid customerId, Guid callerId);
-
-        /// <summary>
-        /// Configure Loan Phone
-        /// </summary>
-        /// <param name="customerId">Customer identifier</param>
-        /// <param name="loanPhoneNumber">The phone-number in <c>E.164</c> format.</param>
-        /// <param name="loanPhoneEmail"></param>
-        /// <param name="providesLoanDevice">This parameter ensures whether a customer provides loan device</param>
-        /// <param name="callerId"></param>
-        /// <returns></returns>
-        [Obsolete("This will be replaced in the R&W work-package")]
-        Task<CustomerSettings> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, bool providesLoanDevice, Guid callerId);
-
-        [Obsolete("This will be replaced in the R&W work-package")]
-        Task<CustomerSettings?> GetSettingsAsync(Guid customerId);
-
-        [Obsolete("This will be replaced in the R&W work-package")]
-        Task<string?> GetServiceIdAsync(Guid customerId);
-
-        /// <summary>
-        /// Get all customers' providers
-        /// </summary>
-        /// <returns></returns>
-        [Obsolete("This will be replaced in the R&W work-package")]
-        Task<List<CustomerServiceProvider>> GetAllCustomerProvidersAsync();
-
-        // TODO: This method makes no sense. If we retrieve orders based on the service-provider the result will always be a list, so this needs to be investigated!
-        /// <summary>
-        /// Get order by service provider's order ID
-        /// </summary>
-        /// <param name="serviceProviderOrderId">The identifier that was provided by the service-provider. <see cref="HardwareServiceOrder.ServiceProviderOrderId1"/></param>
-        /// <returns></returns>
-        [Obsolete("This will be replaced in the R&W work-package")]
-        Task<HardwareServiceOrder?> GetOrderByServiceProviderOrderIdAsync(string serviceProviderOrderId);
-
-        /// <summary>
-        /// Update Customer Provider's LastUpdateFetched
-        /// </summary>
-        /// <param name="customerServiceProvider">Existing Customer Service Provider <see cref="Models.CustomerServiceProvider"/></param>
-        /// <param name="lastUpdateFetched">Last DateTime when the updates were fetched from the service provider</param>
-        /// <returns></returns>
-        [Obsolete("This will be replaced in the R&W work-package")]
-        Task UpdateCustomerProviderLastUpdateFetchedAsync(CustomerServiceProvider customerServiceProvider, DateTimeOffset lastUpdateFetched);
-
 
 
         /*
@@ -259,6 +198,21 @@ namespace HardwareServiceOrderServices.Models
 
 
         /*
+         * Customer Configuration (global configuration - not for 'Customer Service Provider')
+         */
+
+        /// <summary>
+        ///     Retrieves the <see cref="CustomerSettings"/> for a given organization.
+        /// </summary>
+        /// <param name="organizationId"> The organization identifier. </param>
+        /// <returns> 
+        ///     A task that represents the asynchronous operation. The task result contains the retrieved entity, 
+        ///     or <see langword="null"/> if no matches was found. 
+        /// </returns>
+        Task<CustomerSettings?> GetCustomerSettingsByOrganizationIdAsync(Guid organizationId);
+
+
+        /*
          * Customer Service Provider
          */
 
@@ -311,7 +265,7 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="apiPassword"> The new API password. </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the new or updated <see cref="ApiCredential"/>. </returns>
         Task<ApiCredential> AddOrUpdateApiCredentialAsync(int customerServiceProviderId, int? serviceTypeId, string? apiUsername, string? apiPassword);
-        
+
         /// <summary>
         ///     Update <see cref="Models.ApiCredential"/>'s LastUpdateFetched property.
         /// </summary>
@@ -320,5 +274,54 @@ namespace HardwareServiceOrderServices.Models
         /// <returns> A task that represents the asynchronous operation. The task result contains the new or updated <see cref="ApiCredential"/>. </returns>
         Task UpdateApiCredentialLastUpdateFetchedAsync(ApiCredential apiCredential, DateTimeOffset lastUpdateFetched);
 
+
+        /*
+         * Misc & Legacy
+         */
+
+
+        /// <summary>
+        /// Configure customer service provider
+        /// </summary>
+        /// <param name="providerId">Provider identifier</param>
+        /// <param name="customerId">Customer identifier</param>
+        /// <param name="apiUsername">Username for calling provider's API</param>
+        /// <param name="apiPassword">Password for calling provider's API</param>
+        /// <returns></returns>
+        [Obsolete("This will be replaced in the R&W work-package")]
+        Task<string?> ConfigureCustomerServiceProviderAsync(int providerId, Guid customerId, string? apiUsername, string? apiPassword);
+
+        /// <summary>
+        /// Configure customer settings
+        /// </summary>
+        /// <param name="customerId">Customer identifier</param>
+        /// <param name="callerId"></param>
+        /// <returns></returns>
+        [Obsolete("This will be replaced in the R&W work-package")]
+        Task<CustomerSettings> ConfigureCustomerSettingsAsync(Guid customerId, Guid callerId);
+
+        /// <summary>
+        /// Configure Loan Phone
+        /// </summary>
+        /// <param name="customerId">Customer identifier</param>
+        /// <param name="loanPhoneNumber">The phone-number in <c>E.164</c> format.</param>
+        /// <param name="loanPhoneEmail"></param>
+        /// <param name="providesLoanDevice">This parameter ensures whether a customer provides loan device</param>
+        /// <param name="callerId"></param>
+        /// <returns></returns>
+        [Obsolete("This will be replaced in the R&W work-package")]
+        Task<CustomerSettings> ConfigureLoanPhoneAsync(Guid customerId, string loanPhoneNumber, string loanPhoneEmail, bool providesLoanDevice, Guid callerId);
+
+        [Obsolete("This will be replaced in the R&W work-package")]
+        Task<CustomerSettings?> GetSettingsAsync(Guid customerId);
+
+        // TODO: This method makes no sense. If we retrieve orders based on the service-provider the result will always be a list, so this needs to be investigated!
+        /// <summary>
+        /// Get order by service provider's order ID
+        /// </summary>
+        /// <param name="serviceProviderOrderId">The identifier that was provided by the service-provider. <see cref="HardwareServiceOrder.ServiceProviderOrderId1"/></param>
+        /// <returns></returns>
+        [Obsolete("This will be replaced in the R&W work-package")]
+        Task<HardwareServiceOrder?> GetOrderByServiceProviderOrderIdAsync(string serviceProviderOrderId);
     }
 }
