@@ -26,12 +26,6 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request
         /// </summary>
         [Required]
         public Guid AssetId { get; set; }
-        
-        /// <summary>
-        /// Service Provider Id
-        /// </summary>
-        [Required]
-        public int ServiceProviderId { get; set; }
 
         /// <summary>
         /// Id(s) of the Service Addons or Extra Services that is/are supported by the Third party Service Provider. <para>

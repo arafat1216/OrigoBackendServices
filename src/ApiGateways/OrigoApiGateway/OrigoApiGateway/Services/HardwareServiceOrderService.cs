@@ -466,7 +466,7 @@ namespace OrigoApiGateway.Services
                 );
 
                 dto.ServiceTypeId = serviceTypeId; // Value "3 represents ServiceType SUR" and "2 represents ServiceType Remarketing"
-                dto.ServiceProviderId = model.ServiceProviderId;
+                dto.ServiceProviderId = 1; //Todo: Value "1" represents the Service Provider Conmodo. In Future, this should come from Request
                 dto.UserSelectedServiceOrderAddonIds = model.UserSelectedServiceOrderAddonIds;
 
                 var hardwareServiceOrder = await SendRequestAsync<NewHardwareServiceOrderDTO, HardwareServiceOrder>(HttpMethod.Post, $"{_options.ApiPath}/{customerId}/orders", null, dto);
