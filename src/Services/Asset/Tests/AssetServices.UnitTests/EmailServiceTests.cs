@@ -22,11 +22,15 @@ namespace AssetServices.UnitTests
             var ReportAssetEngTemplate = resourceManger.GetString(ReportAssetNotification.TemplateName, CultureInfo.CreateSpecificCulture("EN"));
             var ManagerOnBehalfBuyoutEngTemplate = resourceManger.GetString(ManagerOnBehalfBuyoutNotification.TemplateName, CultureInfo.CreateSpecificCulture("EN"));
             var ManagerOnBehalfBuyoutEngSubTemplate = resourceManger.GetString(ManagerOnBehalfBuyoutNotification.SubjectTemplatename, CultureInfo.CreateSpecificCulture("EN"));
+            var ManagerOnBehalfReturnEngTemplate = resourceManger.GetString(ManagerOnBehalfReturnNotification.TemplateName, CultureInfo.CreateSpecificCulture("EN"));
+            var ManagerOnBehalfReturnEngSubTemplate = resourceManger.GetString(ManagerOnBehalfReturnNotification.SubjectTemplatename, CultureInfo.CreateSpecificCulture("EN"));
 
             Assert.NotNull(ReassignedToUserEngTemplate);
             Assert.NotNull(ReportAssetEngTemplate);
             Assert.NotNull(ManagerOnBehalfBuyoutEngTemplate);
             Assert.NotNull(ManagerOnBehalfBuyoutEngSubTemplate);
+            Assert.NotNull(ManagerOnBehalfReturnEngTemplate);
+            Assert.NotNull(ManagerOnBehalfReturnEngSubTemplate);
         }
 
     }

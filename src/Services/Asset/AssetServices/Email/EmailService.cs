@@ -116,7 +116,7 @@ namespace AssetServices.Email
         {
             var template = _resourceManager.GetString(ManagerOnBehalfReturnNotification.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(emailData);
-            var subject = _resourceManager.GetString(ManagerOnBehalfReturnNotification.Subject, CultureInfo.CreateSpecificCulture(languageCode));
+            var subject = _resourceManager.GetString(ManagerOnBehalfReturnNotification.SubjectTemplatename, CultureInfo.CreateSpecificCulture(languageCode));
             await SendAsync(subject, template, new List<string>() { emailData.Recipient }, variables);
         }
 

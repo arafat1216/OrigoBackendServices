@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace AssetServices.Email.Model
 {
+    /// <summary>
+    /// Email Data to notify User when Manager perform 'Return' on behalf
+    /// </summary>
     public class ManagerOnBehalfReturnNotification
     {
         /// <summary>
@@ -29,9 +32,12 @@ namespace AssetServices.Email.Model
         /// </summary>
         public string Recipient { get; set; }
         /// <summary>
-        /// Subject of the email
+        /// Name of the subject template in resource
         /// </summary>
-        public const string Subject = "ManagerOnBehalfReturn_Subject";
+        public const string SubjectTemplatename = "ManagerOnBehalfReturn_Subject";
+        /// <summary>
+        /// Name of the email body template in resource
+        /// </summary>
         public const string TemplateName = "ManagerOnBehalfReturn";
     }
 }
