@@ -55,6 +55,6 @@ namespace OrigoApiGateway.Services
         Task<ReturnLocation> AddReturnLocationsByCustomer(Guid customerId, NewReturnLocation data, IList<Location> officeLocation, Guid callerId);
         Task<ReturnLocation> UpdateReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, NewReturnLocation data, Guid callerId);
         Task<IList<ReturnLocation>> DeleteReturnLocationsByCustomer(Guid customerId, Guid returnLocationId);
-        Task<HttpResponseMessage> ImportAssetsFileAsync(Guid organizationId, IFormFile file, bool validateOnly);
+        Task<AssetValidationResult> ImportAssetsFileAsync(Guid organizationId, IFormFile file, bool validateOnly);
     }
 }

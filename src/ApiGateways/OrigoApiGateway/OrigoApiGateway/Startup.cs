@@ -98,7 +98,7 @@ namespace OrigoApiGateway
             AddHttpClientsToFactory(services);
 
             services.AddSingleton<IWebshopService, WebshopService>();
-            services.AddSingleton<IAssetServices, AssetServices>();
+            services.AddSingleton<IAssetServices, Services.AssetServices>();
             services.AddSingleton<ICustomerServices, CustomerServices>();
             services.AddSingleton<IHardwareRepairService, HardwareRepairService>();
             services.AddSingleton<IHardwareServiceOrderService, HardwareServiceOrderService>();

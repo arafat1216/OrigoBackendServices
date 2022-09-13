@@ -10,7 +10,10 @@ using OrigoApiGateway.Models.BackendDTO;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
-using System.Security.Policy;
+using System.Globalization;
+using AssetServices.ServiceModel;
+using CsvHelper;
+using CsvHelper.Configuration;
 
 namespace OrigoApiGateway.Services
 {
@@ -432,12 +435,27 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<HttpResponseMessage> ImportAssetsFileAsync(Guid organizationId, IFormFile file, bool validateOnly)
+        public async Task<AssetValidationResult> ImportAssetsFileAsync(Guid organizationId, IFormFile file, bool validateOnly)
         {
             if (validateOnly)
             {
-                string url = $"{_options.ApiPath}/customers/{organizationId}/import";
-                return await HttpClient.PostAsJsonAsync<object>(url, file);
+                var url = $"{_options.ApiPath}/customers/{organizationId}/import";
+                var multiContent = new MultipartFormDataContent();
+                multiContent.Add(new StreamContent(file.OpenReadStream()), "assetImportFile", file.FileName);
+                var result = await HttpClient.PostAsync(url, multiContent);
+                return await result.Content.ReadFromJsonAsync<AssetValidationResult>();
+            }
+            else
+            {
+                var csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    Delimiter = ";",
+                    HeaderValidated = null,
+                    MissingFieldFound = null
+                };
+                using var reader = new StreamReader(file.OpenReadStream());
+                using var csv = new CsvReader(reader, csvConfiguration);
+                IList<AssetFromCsvFile>  assetsFromFileRecords = csv.GetRecords<AssetFromCsvFile>().ToList();
             }
 
             return null;

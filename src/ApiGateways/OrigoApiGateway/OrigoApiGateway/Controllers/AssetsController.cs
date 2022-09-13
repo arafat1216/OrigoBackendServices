@@ -1826,12 +1826,12 @@ namespace OrigoApiGateway.Controllers
 
         [Route("customers/{organizationId:guid}/import")]
         [HttpPost]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AssetValidationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer, Permission.CanCreateAsset)]
-        public async Task<ActionResult> ImportAssetFile(Guid organizationId, IFormFile file, bool validateOnly = true)
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanCreateAsset)]
+        public async Task<ActionResult> ImportAssetFile([FromRoute] Guid organizationId, [FromForm] IFormFile assetImportFile, [FromQuery] bool validateOnly = true)
         {
             try
             {
@@ -1850,7 +1850,7 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                return Ok(await _assetServices.ImportAssetsFileAsync(organizationId, file, validateOnly));
+                return Ok(await _assetServices.ImportAssetsFileAsync(organizationId, assetImportFile, validateOnly));
             }
             catch (ResourceNotFoundException ex)
             {
