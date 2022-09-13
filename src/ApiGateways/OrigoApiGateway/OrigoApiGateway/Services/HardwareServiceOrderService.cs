@@ -1,15 +1,15 @@
 ﻿using AutoMapper;
+using Common.Enums;
 using Common.Interfaces;
 using Microsoft.Extensions.Options;
+using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.HardwareServiceOrder;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response;
+using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
 using System.Security.Claims;
-using Common.Enums;
-using OrigoApiGateway.Models;
-using OrigoApiGateway.Models.HardwareServiceOrder;
-using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 using ServiceProvider = OrigoApiGateway.Models.HardwareServiceOrder.Backend.ServiceProvider;
 
 #nullable enable
@@ -402,7 +402,7 @@ namespace OrigoApiGateway.Services
             // Place the "order" (we can use the backoffice version from here, since we have made the required checks)
             await RemoveServiceAddonFromBackofficeAsync(organizationId, serviceProviderId, removedServiceOrderAddonIds);
         }
-        
+
         /// <inheritdoc/>
         public async Task<HardwareServiceOrder?> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, int serviceTypeId, NewHardwareServiceOrder model)
         {
@@ -511,7 +511,7 @@ namespace OrigoApiGateway.Services
 
             // The results should never be nullable in this case, but let's check to be sure!
             if (result is null)
-                throw new Exception("Failed to retrieve the paged results");
+                throw new Exception("Failed to retrieve the paged results.");
 
             return result;
         }
@@ -525,5 +525,24 @@ namespace OrigoApiGateway.Services
         }
 
 
+        /// <inheritdoc/>
+        public async Task<CustomerSettings?> GetCustomerSettingsAsync(Guid organizationId)
+        {
+            var result = await GetAsync<CustomerSettings>($"{_options.ConfigurationApiPath}/{organizationId}", null);
+            return result;
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<CustomerSettings> AddOrUpdateCustomerSettings(Guid organizationId, NewCustomerSettings newCustomerSettings)
+        {
+            var result = await SendRequestAsync<NewCustomerSettings, CustomerSettings>(HttpMethod.Put, $"{_options.ConfigurationApiPath}/{organizationId}", null, newCustomerSettings);
+
+            // The results should never be nullable in this case, but let's check to be sure!
+            if (result is null)
+                throw new Exception("Failed to retrieve the requested item.");
+
+            return result;
+        }
     }
 }

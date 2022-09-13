@@ -42,7 +42,7 @@ namespace OrigoApiGateway.Controllers
         /// <returns>Whole customer settings</returns>
         [Route("{customerId:Guid}/config/sur")]
         [HttpPatch]
-        [ProducesResponseType(typeof(CustomerSettings), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(LegacyCustomerSettings), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> ConfigureSur(Guid customerId, [FromBody] string serviceId)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -72,7 +72,7 @@ namespace OrigoApiGateway.Controllers
         /// <returns>Whole customer settings</returns>
         [Route("{customerId:Guid}/config/loan-device")]
         [HttpPatch]
-        [ProducesResponseType(typeof(CustomerSettings), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(LegacyCustomerSettings), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> ConfigureLoanDevice(Guid customerId, [FromBody] LoanDevice loanDevice)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -101,7 +101,7 @@ namespace OrigoApiGateway.Controllers
         /// <returns>Whole customer settings</returns>
         [Route("{customerId:Guid}/config")]
         [HttpGet]
-        [ProducesResponseType(typeof(CustomerSettings), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(LegacyCustomerSettings), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetConfiguration(Guid customerId)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;

@@ -1,6 +1,4 @@
-﻿using System;
-
-#nullable enable
+﻿#nullable enable
 
 namespace OrigoApiGateway.Models.HardwareServiceOrder
 {
@@ -8,7 +6,7 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder
     /// <summary>
     /// Settings for managing hardware service order
     /// </summary>
-    public class CustomerSettings
+    public class LegacyCustomerSettings
     {
         /// <summary>
         /// Customer identifier

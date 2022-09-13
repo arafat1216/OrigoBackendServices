@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Common.Interfaces;
 using HardwareServiceOrderServices.Email;
-using HardwareServiceOrderServices.Email.Models;
 using HardwareServiceOrderServices.Exceptions;
 using HardwareServiceOrderServices.Models;
 using HardwareServiceOrderServices.ServiceModels;

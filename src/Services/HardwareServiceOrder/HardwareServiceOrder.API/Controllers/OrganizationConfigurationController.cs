@@ -199,8 +199,55 @@ namespace HardwareServiceOrder.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> RemoveServiceOrderAddonsFromCustomerServiceProviderAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
         {
-            await _hardwareServiceOrderService.RemoveServiceOrderAddonsFromCustomerServiceProviderAsync(organizationId, serviceProviderId,serviceOrderAddonIds);
+            await _hardwareServiceOrderService.RemoveServiceOrderAddonsFromCustomerServiceProviderAsync(organizationId, serviceProviderId, serviceOrderAddonIds);
             return NoContent();
         }
+
+
+        /// <summary>
+        ///     Updates a organization's settings.
+        /// </summary>
+        /// <remarks>
+        ///     Updates the global customer-settings (service configurations) for a given organization. If no configuration exists, it is created.
+        /// </remarks>
+        /// <param name="organizationId"> The organization identifier. </param>
+        /// <param name="customerSettings"> The new or updated customer settings. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
+        [HttpPut]
+        [SwaggerResponse(StatusCodes.Status200OK, null, typeof(CustomerSettingsDTO))]
+        public async Task<IActionResult> AddOrUpdateCustomerSettings([FromRoute] Guid organizationId, [FromBody] NewCustomerSettings customerSettings)
+        {
+            CustomerSettingsDTO newDTO = new(organizationId, customerSettings.ProvidesLoanDevice, customerSettings.LoanDevicePhoneNumber, customerSettings.LoanDeviceEmail);
+
+            CustomerSettingsDTO result = await _hardwareServiceOrderService.AddOrUpdateCustomerSettings(newDTO);
+            return Ok(result);
+        }
+
+
+        /// <summary>
+        ///     Retrieves a organization's settings.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves the global customer-settings (service configurations) for a given organization.
+        ///     
+        ///     <br/><br/>
+        ///     This only retrieves the global settings (not tied to any service-providers). If you require the service-provider specific settings,
+        ///     you must retrieved these separately.
+        /// </remarks>
+        /// <param name="organizationId"> The organization identifier. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
+        [HttpGet]
+        [SwaggerResponse(StatusCodes.Status200OK, null, typeof(CustomerSettingsDTO))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Returned if no customer-settings exist for the provided organization.")]
+        public async Task<IActionResult> GetCustomerSettingsAsync([FromRoute] Guid organizationId)
+        {
+            var result = await _hardwareServiceOrderService.GetCustomerSettings(organizationId);
+
+            if (result is null)
+                return NotFound("No customer-settings exist for this organization.");
+            else
+                return Ok(result);
+        }
+
     }
 }

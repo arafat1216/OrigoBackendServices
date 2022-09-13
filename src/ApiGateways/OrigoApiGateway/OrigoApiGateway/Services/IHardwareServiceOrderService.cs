@@ -145,5 +145,26 @@ namespace OrigoApiGateway.Services
         ///     A task that represents the asynchronous operation. The task result contains the retrieved order, or <see langword="null"/> if no orders were found. 
         /// </returns>
         Task<HardwareServiceOrder?> GetServiceOrderByIdAndOrganizationAsync(Guid organizationId, Guid serviceOrderId);
+
+
+        /// <summary>
+        ///     Retrieves the <see cref="CustomerSettings"/> for a given organization.
+        /// </summary>
+        /// <param name="organizationId"> The organization to retrieve. </param>
+        /// <returns> 
+        ///     A task that represents the asynchronous operation. The task result contains the retrieved result, or <see langword="null"/>
+        ///     of no results were found. 
+        /// </returns>
+        Task<CustomerSettings?> GetCustomerSettingsAsync(Guid organizationId);
+
+
+        /// <summary>
+        ///     Updates a existing <see cref="CustomerSettings"/> for the given organization. 
+        ///     If not <see cref="CustomerSettings"/> exists, then it will be created.
+        /// </summary>
+        /// <param name="organizationId"> The organization identifier. </param>
+        /// <param name="newCustomerSettings"> The new customer settings. </param>
+        /// <returns> A task that represents the asynchronous operation. The task result contains the created/updated entity. </returns>
+        Task<CustomerSettings> AddOrUpdateCustomerSettings(Guid organizationId, NewCustomerSettings newCustomerSettings);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OrigoApiGateway.Models.HardwareServiceOrder.Backend;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response;
 using OrigoApiGateway.Services;
@@ -70,7 +71,7 @@ namespace OrigoApiGateway.Controllers
         /// <param name="includeActiveServiceOrderAddons"> When <c><see langword="true"/></c>, the <c>ActiveServiceOrderAddons</c> property is
         ///     loaded/included in the retrieved data. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
-        [HttpGet("configuration/organization/{organizationId:Guid}")]
+        [HttpGet("configuration/organization/{organizationId:Guid}/service-provider")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(IEnumerable<CustomerServiceProvider>))]
         public async Task<ActionResult> GetCustomerServiceProvidersAsync([FromRoute] Guid organizationId, [FromQuery] bool includeApiCredentialIndicators = false, [FromQuery] bool includeActiveServiceOrderAddons = false)
         {
@@ -161,5 +162,61 @@ namespace OrigoApiGateway.Controllers
             await _hardwareServiceOrderService.RemoveServiceAddonFromBackofficeAsync(organizationId, serviceProviderId, serviceOrderAddonIds);
             return NoContent();
         }
+
+
+        /// <summary>
+        ///     Updates a organization's settings.
+        /// </summary>
+        /// <remarks>
+        ///     Updates the global customer-settings (service configurations) for a given organization. If no configuration exists, it is created.
+        /// </remarks>
+        /// <param name="organizationId"> The organization identifier. </param>
+        /// <param name="newCustomerSettings"> The new or updated customer settings. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
+        [HttpPut("configuration/organization/{organizationId:Guid}")]
+        [SwaggerResponse(StatusCodes.Status200OK, null, typeof(CustomerSettings))]
+        public async Task<IActionResult> AddOrUpdateCustomerSettings([FromRoute] Guid organizationId, [FromBody] NewCustomerSettings newCustomerSettings)
+        {
+            CustomerSettings result = await _hardwareServiceOrderService.AddOrUpdateCustomerSettings(organizationId, newCustomerSettings);
+            return Ok(result);
+        }
+
+
+        /// <summary>
+        ///     Retrieves a organization's settings.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves the global customer-settings (service configurations) for a given organization.
+        ///     
+        ///     <br/><br/>
+        ///     This only retrieves the global settings (not tied to any service-providers). If you require the service-provider specific settings,
+        ///     you must retrieved these separately.
+        /// </remarks>
+        /// <param name="organizationId"> The organization identifier. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
+        [HttpGet("configuration/organization/{organizationId:Guid}")]
+        [SwaggerResponse(StatusCodes.Status200OK, null, typeof(CustomerSettings))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Returned if no customer-settings exist for the provided organization.")]
+        public async Task<IActionResult> GetCustomerSettingsAsync([FromRoute] Guid organizationId)
+        {
+            try
+            {
+                var result = await _hardwareServiceOrderService.GetCustomerSettingsAsync(organizationId);
+
+                if (result is null)
+                    return NotFound("No customer-settings exist for this organization.");
+                else
+                    return Ok(result);
+            }
+            catch (HttpRequestException ex)
+            {
+                if (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return NotFound();
+                else
+                    throw;
+            }
+        }
+
+
     }
 }

@@ -93,13 +93,13 @@ namespace OrigoApiGateway.Services
          * Old HW Repair methods
          */
 
-        public async Task<CustomerSettings?> ConfigureLoanPhoneAsync(Guid customerId, LoanDevice loanDevice)
+        public async Task<LegacyCustomerSettings?> ConfigureLoanPhoneAsync(Guid customerId, LoanDevice loanDevice)
         {
             try
             {
                 var request = await PatchAsync($"{_options.ApiPath}/{customerId}/config/loan-device", loanDevice);
                 request.EnsureSuccessStatusCode();
-                return await request.Content.ReadFromJsonAsync<CustomerSettings>();
+                return await request.Content.ReadFromJsonAsync<LegacyCustomerSettings>();
             }
             catch (HttpRequestException exception)
             {
@@ -118,7 +118,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<CustomerSettings?> ConfigureServiceIdAsync(Guid customerId, string serviceId)
+        public async Task<LegacyCustomerSettings?> ConfigureServiceIdAsync(Guid customerId, string serviceId)
         {
             try
             {
@@ -130,7 +130,7 @@ namespace OrigoApiGateway.Services
 
                 var request = await PatchAsync($"{_options.ApiPath}/{customerId}/config/sur", dto);
                 request.EnsureSuccessStatusCode();
-                return await request.Content.ReadFromJsonAsync<CustomerSettings>();
+                return await request.Content.ReadFromJsonAsync<LegacyCustomerSettings>();
             }
             catch (HttpRequestException exception)
             {
@@ -149,11 +149,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<CustomerSettings?> GetSettingsAsync(Guid customerId)
+        public async Task<LegacyCustomerSettings?> GetSettingsAsync(Guid customerId)
         {
             try
             {
-                var response = await HttpClient.GetFromJsonAsync<CustomerSettings>($"{_options.ApiPath}/{customerId}/config");
+                var response = await HttpClient.GetFromJsonAsync<LegacyCustomerSettings>($"{_options.ApiPath}/{customerId}/config");
                 return response;
             }
             catch (HttpRequestException exception)
