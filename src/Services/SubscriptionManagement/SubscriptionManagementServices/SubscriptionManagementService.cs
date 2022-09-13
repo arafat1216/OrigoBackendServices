@@ -184,7 +184,20 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             order.CallerId);
         var subscriptionOrder = await _subscriptionManagementRepository.AddSubscriptionOrder(transferToBusinessSubscriptionOrder);
 
-        await _emailService.SendAsync(OrderTypes.TransferToBusiness.ToString(), subscriptionOrder.SubscriptionOrderId, order, new Dictionary<string, string> { { "OperatorName", newOperatorName }, { "SubscriptionProductName", transferToBusinessSubscriptionOrder.SubscriptionProductName } });
+        var variables = new Dictionary<string, string>
+        {
+            { "OperatorName", newOperatorName },
+            { "OperatorAccount", $"{transferToBusinessSubscriptionOrder.OperatorAccountName} - { transferToBusinessSubscriptionOrder.OperatorAccountNumber }" },
+            { "OperatorAccountPayer", $"{transferToBusinessSubscriptionOrder.OperatorAccountPayer} ({ transferToBusinessSubscriptionOrder.OrganizationNumberPayer })" },
+            { "OperatorAccountOwner", $"{transferToBusinessSubscriptionOrder.OperatorAccountOwner} ({ transferToBusinessSubscriptionOrder.OrganizationNumberOwner })" },
+            { "SubscriptionProductName", transferToBusinessSubscriptionOrder.SubscriptionProductName },
+            { "SimcardAddress", $"{order.SimCardAddress?.FirstName} {order.SimCardAddress?.LastName}, {order.SimCardAddress?.Address}, {order.SimCardAddress?.PostalCode} {order.SimCardAddress?.PostalPlace}" },
+            { "UserReferences", order.CustomerReferenceFields == null || !order.CustomerReferenceFields.Any() ? string.Empty
+                    : string.Join(", ", order.CustomerReferenceFields.Where(c => c.Type == "User").Select(c => $"{c.Name}:{c.Value}").ToArray()) }
+        };
+
+
+        await _emailService.SendAsync(OrderTypes.TransferToBusiness.ToString(), subscriptionOrder.SubscriptionOrderId, order, variables);
 
         var operatorSettings = customerSettings.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == newOperatorName);
 
@@ -237,7 +250,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         if (!DateValidator.ValidDateForAction(DateOnly.FromDateTime(subscriptionOrder.OrderExecutionDate), DateOnly.FromDateTime(_today.GetNow()), _transferSubscriptionDateConfiguration.MinDaysForCurrentOperator))
             throw new ArgumentException(
                 $"Invalid transfer date. {_transferSubscriptionDateConfiguration.MinDaysForCurrentOperator} workdays ahead or more is allowed.");
-                
+
         var order = _mapper.Map<TransferToPrivateSubscriptionOrder>(subscriptionOrder);
         order.OrganizationId = organizationId;
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(order);
