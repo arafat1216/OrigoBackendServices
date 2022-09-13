@@ -22,7 +22,7 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             builder.Property(s => s.LastUpdatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
             builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
 
-            builder.HasIndex(x => new { x.OrganizationId, x.AccountNumber }).IsUnique();
+            builder.HasIndex(x => new { x.OrganizationId, x.OperatorId, x.AccountNumber }).IsUnique();
 
             //Relationships
             builder.HasOne(e => e.Operator)
