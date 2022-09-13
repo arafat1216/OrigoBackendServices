@@ -1,7 +1,12 @@
-﻿using Microsoft.AspNetCore.TestHost;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
+using Moq.Protected;
 using OrigoApiGateway.Controllers;
+using OrigoApiGateway.Mappings;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
@@ -10,10 +15,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -205,6 +213,176 @@ namespace OrigoGateway.IntegrationTests.Controllers
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
             var response = await client.PutAsJsonAsync($"/origoapi/v1.0/customers", postData);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task UpdateOrganization_WithLastDayForReportingSalaryDeduction()
+        {
+            var organizationId = Guid.NewGuid();
+            var email = "test@techstep.no";
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "CustomerAdmin"));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+            var postData = @"{
+                                ""organizationId"": """+ organizationId + @""",
+                                ""name"": ""Anne Petra Østli"",
+                                ""organizationNumber"": ""123456789"",
+                                ""address"": {
+                                    ""street"": ""Test"",
+                                    ""postcode"": ""1234"",
+                                    ""city"": ""Test"",
+                                    ""country"": ""NO""
+                                },
+                                ""contactPerson"": {
+                                    ""firstName"": ""Anne Petra"",
+                                    ""lastName"": ""Østli"",
+                                    ""email"": ""annepetra@gture.com"",
+                                    ""phoneNumber"": ""+4797698931""
+                                },
+                                ""lastDayForReportingSalaryDeduction"": ""18"",
+                                ""payrollContactEmail"": ""annepetra@gture.com""
+                            }";
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+
+                    var mockFactory = new Mock<IHttpClientFactory>();
+                    var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+                    mockHttpMessageHandler.Protected()
+                        .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                            ItExpr.IsAny<CancellationToken>())
+                        .ReturnsAsync(new HttpResponseMessage
+                        {
+                            StatusCode = HttpStatusCode.OK,
+                            Content = new StringContent(postData)
+                        });
+
+                    var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+                    mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+                    var options = new CustomerConfiguration() { ApiPath = @"/customers" };
+                    var optionsMock = new Mock<IOptions<CustomerConfiguration>>();
+                    optionsMock.Setup(o => o.Value).Returns(options);
+                    var mappingConfig = new MapperConfiguration(mc =>
+                    {
+                        mc.AddMaps(Assembly.GetAssembly(typeof(UpdateOrganizationProfile)));
+                    });
+                    var _mapper = mappingConfig.CreateMapper();
+
+                    var customerServices = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), mockFactory.Object, optionsMock.Object, _mapper);
+                    services.AddSingleton<ICustomerServices>(x => customerServices);
+
+                });
+
+
+            }).CreateClient();
+
+            var content = new StringContent(postData, Encoding.UTF8, "application/json");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.PatchAsync($"/origoapi/v1.0/customers", content);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+        [Fact]
+        public async Task UpdateOrganization_WithoutLastDayForReportingSalaryDeduction()
+        {
+            var organizationId = Guid.NewGuid();
+            var email = "test@techstep.no";
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "CustomerAdmin"));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+            var postData = @"{
+                                ""organizationId"": """ + organizationId + @""",
+                                ""name"": ""Anne Petra Østli"",
+                                ""organizationNumber"": ""123456789"",
+                                ""address"": {
+                                    ""street"": ""Test"",
+                                    ""postcode"": ""1234"",
+                                    ""city"": ""Test"",
+                                    ""country"": ""NO""
+                                },
+                                ""contactPerson"": {
+                                    ""firstName"": ""Anne Petra"",
+                                    ""lastName"": ""Østli"",
+                                    ""email"": ""annepetra@gture.com"",
+                                    ""phoneNumber"": ""+4797698931""
+                                },
+                                ""payrollContactEmail"": ""annepetra@gture.com""
+                            }";
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+
+                    var mockFactory = new Mock<IHttpClientFactory>();
+                    var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+                    mockHttpMessageHandler.Protected()
+                        .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                            ItExpr.IsAny<CancellationToken>())
+                        .ReturnsAsync(new HttpResponseMessage
+                        {
+                            StatusCode = HttpStatusCode.OK,
+                            Content = new StringContent(postData)
+                        });
+
+                    var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+                    mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+                    var options = new CustomerConfiguration() { ApiPath = @"/customers" };
+                    var optionsMock = new Mock<IOptions<CustomerConfiguration>>();
+                    optionsMock.Setup(o => o.Value).Returns(options);
+                    var mappingConfig = new MapperConfiguration(mc =>
+                    {
+                        mc.AddMaps(Assembly.GetAssembly(typeof(UpdateOrganizationProfile)));
+                    });
+                    var _mapper = mappingConfig.CreateMapper();
+
+                    var customerServices = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), mockFactory.Object, optionsMock.Object, _mapper);
+                    services.AddSingleton<ICustomerServices>(x => customerServices);
+
+                });
+
+
+            }).CreateClient();
+
+            var content = new StringContent(postData, Encoding.UTF8, "application/json");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.PatchAsync($"/origoapi/v1.0/customers", content);
+
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
     }
