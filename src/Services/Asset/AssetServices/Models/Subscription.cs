@@ -13,7 +13,7 @@ namespace AssetServices.Models
             ExternalId = externalId;
             SerialKey = serialNumber;
             Brand = brand;
-            ProductName = productName;
+            ProductName = productName[..Math.Min(productName.Length, 50)];
         }
     }
 }

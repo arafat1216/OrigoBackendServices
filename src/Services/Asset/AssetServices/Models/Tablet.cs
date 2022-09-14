@@ -17,7 +17,7 @@ namespace AssetServices.Models
             ExternalId = externalId;
             SerialNumber = serialNumber;
             Brand = brand;
-            ProductName = productName;
+            ProductName = ProductName = productName[..Math.Min(productName.Length, 50)]; ;
             _imeis.AddRange(imei.ToList());
             MacAddress = macAddress;
             CreatedBy = callerId;
@@ -43,7 +43,7 @@ namespace AssetServices.Models
         public override void UpdateProductName(string model, Guid callerId)
         {
             var previousModel = ProductName;
-            ProductName = model;
+            ProductName = model[..Math.Min(model.Length, 50)];
             AddDomainEvent(new ModelChangedDomainEvent<Tablet>(this, callerId, previousModel));
             base.UpdateProductName(model, callerId);    
         }

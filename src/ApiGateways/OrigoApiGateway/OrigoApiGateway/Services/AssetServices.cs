@@ -10,10 +10,6 @@ using OrigoApiGateway.Models.BackendDTO;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
-using System.Globalization;
-using AssetServices.ServiceModel;
-using CsvHelper;
-using CsvHelper.Configuration;
 
 namespace OrigoApiGateway.Services
 {
@@ -437,28 +433,56 @@ namespace OrigoApiGateway.Services
 
         public async Task<AssetValidationResult> ImportAssetsFileAsync(Guid organizationId, IFormFile file, bool validateOnly)
         {
+            var url = $"{_options.ApiPath}/customers/{organizationId}/import";
+            var multiContent = new MultipartFormDataContent();
+            multiContent.Add(new StreamContent(file.OpenReadStream()), "assetImportFile", file.FileName);
+            var result = await HttpClient.PostAsync(url, multiContent);
+            var assetValidationResults = await result.Content.ReadFromJsonAsync<AssetValidationResult>();
             if (validateOnly)
             {
-                var url = $"{_options.ApiPath}/customers/{organizationId}/import";
-                var multiContent = new MultipartFormDataContent();
-                multiContent.Add(new StreamContent(file.OpenReadStream()), "assetImportFile", file.FileName);
-                var result = await HttpClient.PostAsync(url, multiContent);
-                return await result.Content.ReadFromJsonAsync<AssetValidationResult>();
-            }
-            else
-            {
-                var csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
-                {
-                    Delimiter = ";",
-                    HeaderValidated = null,
-                    MissingFieldFound = null
-                };
-                using var reader = new StreamReader(file.OpenReadStream());
-                using var csv = new CsvReader(reader, csvConfiguration);
-                IList<AssetFromCsvFile>  assetsFromFileRecords = csv.GetRecords<AssetFromCsvFile>().ToList();
+                return assetValidationResults;
             }
 
-            return null;
+            if (assetValidationResults == null) return null;
+            foreach (var validAsset in assetValidationResults.ValidAssets)
+            {
+                Guid userId;
+                var users = await _userServices.GetAllUsersAsync(organizationId, new FilterOptionsForUser(),
+                    search: validAsset.ImportedUser.Email, cancellationToken: CancellationToken.None);
+                if (users == null || users.TotalItems == 0)
+                {
+                    var newUser = await _userServices.AddUserForCustomerAsync(organizationId,
+                        new NewUser
+                        {
+                            Email = validAsset.ImportedUser.Email,
+                            FirstName = validAsset.ImportedUser.FirstName,
+                            LastName = validAsset.ImportedUser.LastName,
+                            MobileNumber = validAsset.ImportedUser.PhoneNumber
+                        }, Guid.Empty, true);
+                    userId = newUser.Id;
+                }
+                else
+                {
+                    var user = users.Items.FirstOrDefault();
+                    userId = user?.Id ?? Guid.Empty;
+                }
+
+                await AddAssetForCustomerAsync(organizationId, new NewAssetDTO
+                {
+                    Alias = validAsset.Alias,
+                    AssetHolderId = userId,
+                    Brand = validAsset.Brand,
+                    AssetCategoryId = 1,
+                    Imei = validAsset.Imeis.Split(",", StringSplitOptions.TrimEntries).Select(long.Parse).ToList(),
+                    ProductName = validAsset.ProductName,
+                    Source = "FileImport",
+                    SerialNumber = validAsset.SerialNumber,
+                    PurchaseDate = validAsset.PurchaseDate,
+                    PurchasedBy = validAsset.ImportedUser.FirstName + ' ' + validAsset.ImportedUser.LastName
+                });
+            }
+
+            return assetValidationResults;
         }
 
         public async Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId, FilterOptionsForAsset? filterOptions)

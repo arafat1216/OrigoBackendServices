@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AssetServices.Attributes;
 using AssetServices.Utility;
+using YamlDotNet.Core.Tokens;
 
 namespace AssetServices.Models
 {
@@ -18,7 +19,7 @@ namespace AssetServices.Models
             ExternalId = externalId;
             SerialNumber = serialNumber;
             Brand = brand;
-            ProductName = productName;
+            ProductName = productName[..Math.Min(productName.Length, 50)];
             _imeis.AddRange(imei);
             MacAddress = macAddress;
             CreatedBy = callerId;
