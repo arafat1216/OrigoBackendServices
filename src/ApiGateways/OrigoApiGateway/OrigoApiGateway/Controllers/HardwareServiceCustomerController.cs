@@ -1,4 +1,5 @@
-﻿using Common.Enums;
+﻿using System.Net;
+using Common.Enums;
 using Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
 using OrigoApiGateway.Services;
 using System.Net;
 using System.Security.Claims;
+using OrigoApiGateway.Models;
 
 #nullable enable
 
@@ -99,38 +101,50 @@ namespace OrigoApiGateway.Controllers
         }
 
         /// <summary>
-        ///     Checks if the authenticated user with <b>CustomerAdmin</b> or <b>Admin</b> role should have access to the given organization ID.
+        ///     Checks if the authenticated user should have access to the given Asset
         /// </summary>
-        /// <param name="organizationId"> The organization we are checking for access. </param>
+        /// <param name="asset"> The Asset that User trying to do some operation on <see cref="OrigoAsset"/></param>
+        /// <param name="organizationId"> Organization Identifier </param>
         /// <returns> Returns <see langword="true"/> if the user has access. Otherwise it returns <see langword="false"/>. </returns>
-        private bool AuthorizeUserHasAccessToOrganization(Guid organizationId)
+        private bool CheckUserHasAccessToAsset(Guid organizationId, HardwareSuperType asset)
         {
-            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            var userRole = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value ?? string.Empty;
 
-            // Note:    For security reasons, we should always do "true" checks rather then "false" checks when granting
-            //          access, as we'd much rather let someone be rejected then allowed if we were to make a mistake.
-            if (role == PredefinedRole.SystemAdmin.ToString())
+            if (!Guid.TryParse(userId, out Guid userIdGuid))
+                return false;
+
+            // If the User Role is SystemAdmin then he/she is allowed to access the Asset.
+            if (userRole == PredefinedRole.SystemAdmin.ToString())
+                return true;
+
+            // If the User Role is EndUser and the User owns the device or,
+            // If the User Role is DepartmentManager/Manager and the User owns the device
+            // then he/she is allowed to access the Asset.
+            if ((userRole == PredefinedRole.EndUser.ToString() && userIdGuid == asset.AssetHolderId) ||
+                ((userRole == PredefinedRole.DepartmentManager.ToString() || userRole == PredefinedRole.Manager.ToString()) && userIdGuid == asset.AssetHolderId))
             {
                 return true;
             }
-
-            // For the CustomerAdmin/Admin, the accessList will contain list of Organizations.
-            // So here, we are checking whether the Customer Admin has access to the desired Organization
-            if (role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.Admin.ToString())
+            
+            // For the DepartmentManager/Manager, the accessList will contain list of Departments.
+            // So if the Asset belongs to the same Department of the DepartmentManager/Manager.
+            // then he/she is allowed to access the Asset.
+            if (userRole == PredefinedRole.DepartmentManager.ToString() || userRole == PredefinedRole.Manager.ToString())
             {
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                if (accessList is not null && accessList.Contains(organizationId.ToString()))
-                {
-                    return true;
-                }
-
-                return false;
+                return accessList.Contains(asset.ManagedByDepartmentId.ToString() ?? string.Empty);
             }
             
-            //Todo: In future, checks for "PartnerAdmin" may get added
+            // For the CustomerAdmin/Admin, the accessList will contain list of Organizations.
+            // So here, we are checking whether the CustomerAdmin has access to the desired Organization
+            if (userRole == PredefinedRole.CustomerAdmin.ToString() || userRole == PredefinedRole.Admin.ToString())
+            {
+                return accessList.Contains(organizationId.ToString());
+            }
 
-            // The User must have some Role. If not, then should not be authorized.
-            return role is not null;
+            // For any unexpected or not implemented scenario, the access should be denied.
+            return false;
         }
 
 
@@ -387,30 +401,30 @@ namespace OrigoApiGateway.Controllers
         [Route("organization/{organizationId:Guid}/orders/repair")]
         [HttpPost]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(HardwareServiceOrder))]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         [SwaggerResponse(StatusCodes.Status403Forbidden)]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateHardwareServiceOrderForSURAsync(Guid organizationId, [FromBody] NewHardwareServiceOrder model)
         {
             try
             {
-                if (!AuthorizeUserHasAccessToOrganization(organizationId))
-                    return Forbid();
-
-                var userRole = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
 
-                if (!Guid.TryParse(userId, out Guid userIdGuid) || userRole is null)
-                    return BadRequest();
+                if (!Guid.TryParse(userId, out Guid userIdGuid))
+                    return Unauthorized("Cannot extract UserId");
+
+                var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(organizationId, model.AssetId, null);
+
+                if (asset is null)
+                    throw new ArgumentException($"Asset does not exist with ID {model.AssetId}", nameof(model.AssetId));
+
+                if (!CheckUserHasAccessToAsset(organizationId, asset))
+                    return Forbid($"User {userId} does not have correct access to Asset: {model.AssetId}");
 
                 // Todo: The Integer value "3" represents ServiceType "SUR" which can be found inside enum ServiceTypeEnum. Later on this should be converted into actual Enum
-                var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(organizationId, userIdGuid, userRole, accessList, 3, model);
+                var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(organizationId, userIdGuid, 3, model, asset);
 
                 return Ok(newOrder);
-            }
-            catch (BadHttpRequestException ex)
-            {
-                return Forbid(ex.Message);
             }
             catch (HttpRequestException ex)
             {
@@ -438,30 +452,30 @@ namespace OrigoApiGateway.Controllers
         [Route("organization/{organizationId:Guid}/orders/remarketing")]
         [HttpPost]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(HardwareServiceOrder))]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         [SwaggerResponse(StatusCodes.Status403Forbidden)]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateHardwareServiceOrderForRemarketingAsync(Guid organizationId, [FromBody] NewHardwareServiceOrder model)
         {
             try
             {
-                if (!AuthorizeUserHasAccessToOrganization(organizationId))
-                    return Forbid();
-
-                var userRole = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
 
-                if (!Guid.TryParse(userId, out Guid userIdGuid) || userRole is null)
-                    return BadRequest();
+                if (!Guid.TryParse(userId, out Guid userIdGuid))
+                    return Unauthorized("Cannot extract UserId");
+
+                var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(organizationId, model.AssetId, null);
+
+                if (asset is null)
+                    throw new ArgumentException($"Asset does not exist with ID {model.AssetId}", nameof(model.AssetId));
+
+                if (!CheckUserHasAccessToAsset(organizationId, asset))
+                    return Forbid($"User {userId} does not have correct access to Asset: {model.AssetId}");
 
                 // Todo: The Integer value "2" represents ServiceType "Remarketing" which can be found inside enum ServiceTypeEnum. Later on this should be converted into actual Enum
-                var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(organizationId, userIdGuid, userRole, accessList, 2, model);
+                var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(organizationId, userIdGuid, 2, model, asset);
 
                 return Ok(newOrder);
-            }
-            catch (BadHttpRequestException ex)
-            {
-                return Forbid(ex.Message);
             }
             catch (HttpRequestException ex)
             {

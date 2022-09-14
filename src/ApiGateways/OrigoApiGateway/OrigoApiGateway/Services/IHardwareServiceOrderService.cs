@@ -1,4 +1,5 @@
 ﻿using Common.Interfaces;
+using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response;
@@ -118,11 +119,12 @@ namespace OrigoApiGateway.Services
         /// <param name="userId"> The user identifier </param>
         /// <param name="serviceTypeId"> Id of a ServiceType. This value resembles the values of enum <b>ServiceTypeEnum</b> </param>
         /// <param name="model"> The request body to create a new Service Order </param>
+        /// <param name="asset"> The Asset for which User wants to create a Service Order </param>
         /// <exception cref="HttpRequestException"> Thrown when an HttpException happens during calling a third party service. </exception>
         /// <exception cref="NotSupportedException"> Thrown when the content or input type is not valid. </exception>
         /// <exception cref="ArgumentException"> Thrown when one or more of the invalid inputs due to which the service is unable to fetch necessary data from third party </exception>
         /// <exception cref="Exception"> Thrown when any unknown error happens </exception>
-        Task<HardwareServiceOrder?> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, string userRole, string? accessList, int serviceTypeId, NewHardwareServiceOrder model);
+        Task<HardwareServiceOrder?> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, int serviceTypeId, NewHardwareServiceOrder model, HardwareSuperType asset);
 
         /// <summary>
         ///     Retrieves all service-orders that matches the parameters.
