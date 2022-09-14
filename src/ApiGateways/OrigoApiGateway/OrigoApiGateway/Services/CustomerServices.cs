@@ -515,7 +515,7 @@ public class CustomerServices : ICustomerServices
             return new TechstepCustomers();
         }
         
-        var techstepProducts = await TechtepCoreHttpClient.GetFromJsonAsync<TechstepCoreCustomersData>($"?searchString={searchString}");
+        var techstepProducts = await TechtepCoreHttpClient.GetFromJsonAsync<TechstepCoreCustomersData>($"?searchString={searchString}&pageSize=10");
         
        
         if (techstepProducts == null)
