@@ -162,6 +162,22 @@ namespace OrigoApiGateway
             services.AddHttpClient("customerservices", c => { c.BaseAddress = new Uri("http://customerservices"); })
                 .AddHttpMessageHandler(() => new InvocationHandler())
                 .AddHttpMessageHandler<AddCallerIdHeaderHandler>();
+            var techstepCoreConfiguration = Configuration.GetSection("TechstepCore:Customers");
+            var baseUrl = techstepCoreConfiguration.GetValue(typeof(string), "BaseUrl");
+            var apiKey = techstepCoreConfiguration.GetValue(typeof(string), "SecretKey").ToString();
+            if (baseUrl != null)
+            {
+                var baseUrlString = baseUrl.ToString();
+                if (!string.IsNullOrEmpty(baseUrlString))
+                {
+                    services.AddHttpClient("techstep-core-customers", c => 
+                    { 
+                        c.BaseAddress = new Uri(baseUrlString); 
+                        c.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", apiKey); 
+                        c.DefaultRequestHeaders.Add("CountryCode","NO"); 
+                    });
+                }
+            }
             services.AddHttpClient("userpermissionservices", c => { c.BaseAddress = new Uri("http://customerservices"); })
                 .AddHttpMessageHandler(() => new InvocationHandler())
                 .AddHttpMessageHandler<AddCallerIdHeaderHandler>();

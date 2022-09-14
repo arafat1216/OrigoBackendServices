@@ -1,9 +1,6 @@
 ﻿using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
-using OrigoApiGateway.Models.TechstepCoreWebhook;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using OrigoApiGateway.Models.TechstepCore;
 
 namespace OrigoApiGateway.Services
 {
@@ -27,6 +24,7 @@ namespace OrigoApiGateway.Services
         Task<Location> CreateLocationAsync(OfficeLocation officeLocation, Guid customerId, Guid callerId);
         Task<IList<Location>> DeleteLocationAsync(Guid customerId, Guid locationId, Guid callerId);
         Task<Organization> InitiateOnbardingAsync(Guid customerId);
-        Task UpdateCustomerFromTechstepCore(TechstepCoreCustomerUpdate techstepCoreUpdate);
+        Task UpdateCustomerFromTechstepCore(TechstepCoreCustomersData techstepCoreUpdate);
+        Task<TechstepCustomers> GetTechstepCustomers(string searchString);
     }
 }

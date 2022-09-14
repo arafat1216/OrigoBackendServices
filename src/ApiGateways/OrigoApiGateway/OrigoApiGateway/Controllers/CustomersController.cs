@@ -11,6 +11,7 @@ using OrigoApiGateway.Models.SubscriptionManagement;
 using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
+using OrigoApiGateway.Models.TechstepCore;
 using OrigoApiGateway.Services;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
@@ -1176,6 +1177,23 @@ namespace OrigoApiGateway.Controllers
 
             var mockObject = new CustomerAssetsTotalBookValue { OrganizationId = organizationId, AssetsTotalBookValue = 12345 };
             return Ok(mockObject);
+        }
+        [Route("techstep-customer-search")]
+        [ProducesResponseType(typeof(TechstepCustomers), (int)HttpStatusCode.OK)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
+        [HttpGet]
+        public async Task<ActionResult> GetTechstepCustomers([FromQuery]string searchString)
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role != PredefinedRole.SystemAdmin.ToString() && role != PredefinedRole.PartnerAdmin.ToString())
+            {
+                return Forbid();
+            }
+
+            var techstepCustomers = await CustomerServices.GetTechstepCustomers(searchString);
+
+            return Ok(techstepCustomers);
         }
     }
 }

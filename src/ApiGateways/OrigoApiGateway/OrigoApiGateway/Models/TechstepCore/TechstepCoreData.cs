@@ -1,5 +1,5 @@
 ﻿
-namespace OrigoApiGateway.Models.TechstepCoreWebhook
+namespace OrigoApiGateway.Models.TechstepCore
 {
     public class TechstepCoreData
     {
@@ -8,7 +8,7 @@ namespace OrigoApiGateway.Models.TechstepCoreWebhook
             public string Name { get; set; }
             public bool IsInactive { get; set; }
             public string AccountOwner { get; set; }
-            public string ChainCode { get; set; }
+            public string? ChainCode { get; set; }
             public string CountryCode { get; set; }
             public string MainCountryCode { get; set; }
             public int CustomerClassId { get; set; }

@@ -6,7 +6,7 @@ using Common.Exceptions;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
-using OrigoApiGateway.Models.TechstepCoreWebhook;
+using OrigoApiGateway.Models.TechstepCore;
 
 namespace OrigoApiGateway.Services;
 
@@ -23,6 +23,7 @@ public class CustomerServices : ICustomerServices
 
     private readonly ILogger<CustomerServices> _logger;
     private HttpClient HttpClient => _httpClientFactory.CreateClient("customerservices");
+    private HttpClient TechtepCoreHttpClient => _httpClientFactory.CreateClient("techstep-core-customers");
     private readonly CustomerConfiguration _options;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IMapper _mapper;
@@ -488,7 +489,7 @@ public class CustomerServices : ICustomerServices
         };
     }
 
-    public async Task UpdateCustomerFromTechstepCore(TechstepCoreCustomerUpdate techstepCoreUpdate)
+    public async Task UpdateCustomerFromTechstepCore(TechstepCoreCustomersData techstepCoreUpdate)
     {
         try
         {
@@ -505,5 +506,23 @@ public class CustomerServices : ICustomerServices
             _logger.LogError(ex, "UpdateCustomerFromTechstepCore error.");
             throw;
         }
+    }
+
+    public async Task<TechstepCustomers> GetTechstepCustomers(string searchString)
+    {
+        if (string.IsNullOrEmpty(searchString))
+        {
+            return new TechstepCustomers();
+        }
+        
+        var techstepProducts = await TechtepCoreHttpClient.GetFromJsonAsync<TechstepCoreCustomersData>($"?searchString={searchString}");
+        
+       
+        if (techstepProducts == null)
+        {
+            return new TechstepCustomers();
+        }
+
+        return _mapper.Map<TechstepCustomers>(techstepProducts.Data);
     }
 }
