@@ -1,13 +1,14 @@
-﻿using System.Net;
-using Common.Enums;
+﻿using Common.Enums;
 using Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend;
+using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
+using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
 using OrigoApiGateway.Services;
+using System.Net;
 using System.Security.Claims;
-using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 
 #nullable enable
 
@@ -120,7 +121,7 @@ namespace OrigoApiGateway.Controllers
         /// <param name="includeActiveServiceOrderAddons"> When <c><see langword="true"/></c>, the <c>ActiveServiceOrderAddons</c> property is
         ///     loaded/included in the retrieved data. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
-        [HttpGet("configuration/organization/{organizationId:Guid}")]
+        [HttpGet("configuration/organization/{organizationId:Guid}/service-provider")]
         [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(IEnumerable<CustomerPortalCustomerServiceProvider>))]
         public async Task<ActionResult> CustomerPortalGetCustomerServiceProvidersAsync([FromRoute] Guid organizationId, [FromQuery] bool includeActiveServiceOrderAddons = false)
@@ -150,7 +151,7 @@ namespace OrigoApiGateway.Controllers
         /// <param name="includeActiveServiceOrderAddons"> When <c><see langword="true"/></c>, the <c>ActiveServiceOrderAddons</c> property is
         ///     loaded/included in the retrieved data. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
-        [HttpGet("configuration/organization/{organizationId:Guid}/user")]
+        [HttpGet("configuration/organization/{organizationId:Guid}/service-provider/user")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(IEnumerable<UserPortalCustomerServiceProvider>))]
         public async Task<ActionResult> UserPortalGetCustomerServiceProvidersAsync([FromRoute] Guid organizationId, [FromQuery] bool includeActiveServiceOrderAddons = false)
         {
@@ -197,7 +198,6 @@ namespace OrigoApiGateway.Controllers
             {
                 return BadRequest();
             }
-
         }
 
 
@@ -309,8 +309,8 @@ namespace OrigoApiGateway.Controllers
                 }
             }
         }
-        
-        
+
+
         /// <summary>
         /// Creates a hardware service order for Service Type <c>Repair(SUR)</c>
         /// </summary>
@@ -351,7 +351,7 @@ namespace OrigoApiGateway.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        
+
         /// <summary>
         /// Creates a hardware service order for Service Type <c>Remarketing</c>
         /// </summary>
@@ -390,6 +390,69 @@ namespace OrigoApiGateway.Controllers
             catch (NotSupportedException ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+
+
+        /// <summary>
+        ///     Updates a organization's settings.
+        /// </summary>
+        /// <remarks>
+        ///     Updates the global customer-settings (service configurations) for a given organization. If no configuration exists, it is created.
+        /// </remarks>
+        /// <param name="organizationId"> The organization identifier. </param>
+        /// <param name="newCustomerSettings"> The new or updated customer settings. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
+        [HttpPut("configuration/organization/{organizationId:Guid}")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin")]
+        [SwaggerResponse(StatusCodes.Status200OK, null, typeof(CustomerSettings))]
+        public async Task<IActionResult> AddOrUpdateCustomerSettings([FromRoute] Guid organizationId, [FromBody] NewCustomerSettings newCustomerSettings)
+        {
+            if (!AuthenticatedUserHasAccessToOrganization(organizationId))
+                return Forbid();
+
+            CustomerSettings result = await _hardwareServiceOrderService.AddOrUpdateCustomerSettings(organizationId, newCustomerSettings);
+            return Ok(result);
+        }
+
+
+        /// <summary>
+        ///     Retrieves a organization's settings.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves the global customer-settings (service configurations) for a given organization.
+        ///     
+        ///     <br/><br/>
+        ///     This only retrieves the global settings (not tied to any service-providers). If you require the service-provider specific settings,
+        ///     you must retrieved these separately.
+        /// </remarks>
+        /// <param name="organizationId"> The organization identifier. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
+        [HttpGet("configuration/organization/{organizationId:Guid}")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin")]
+        [SwaggerResponse(StatusCodes.Status200OK, null, typeof(CustomerSettings))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Returned if no customer-settings exist for the provided organization.")]
+        public async Task<IActionResult> GetCustomerSettingsAsync([FromRoute] Guid organizationId)
+        {
+            if (!AuthenticatedUserHasAccessToOrganization(organizationId))
+                return Forbid();
+
+            try
+            {
+                var result = await _hardwareServiceOrderService.GetCustomerSettingsAsync(organizationId);
+
+                if (result is null)
+                    return NotFound("No customer-settings exist for this organization.");
+                else
+                    return Ok(result);
+            }
+            catch (HttpRequestException ex)
+            {
+                if (ex.StatusCode == HttpStatusCode.NotFound)
+                    return NotFound();
+                else
+                    throw;
             }
         }
     }
