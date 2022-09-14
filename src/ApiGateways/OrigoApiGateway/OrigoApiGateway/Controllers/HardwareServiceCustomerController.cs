@@ -398,8 +398,8 @@ namespace OrigoApiGateway.Controllers
         /// <param name="organizationId">Customer Identifier</param>
         /// <param name="model">Order details</param>
         /// <returns>New hardware service order</returns>
-        [Route("organization/{organizationId:Guid}/orders/repair")]
-        [HttpPost]
+        [HttpPost("organization/{organizationId:Guid}/orders/repair")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager")]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(HardwareServiceOrder))]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         [SwaggerResponse(StatusCodes.Status403Forbidden)]
@@ -449,8 +449,8 @@ namespace OrigoApiGateway.Controllers
         /// <param name="organizationId">Customer Identifier</param>
         /// <param name="model">Order details</param>
         /// <returns>New hardware service order</returns>
-        [Route("organization/{organizationId:Guid}/orders/remarketing")]
-        [HttpPost]
+        [HttpPost("organization/{organizationId:Guid}/orders/remarketing")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager")]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(HardwareServiceOrder))]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         [SwaggerResponse(StatusCodes.Status403Forbidden)]
