@@ -98,6 +98,41 @@ namespace OrigoApiGateway.Controllers
             return false;
         }
 
+        /// <summary>
+        ///     Checks if the authenticated user with <b>CustomerAdmin</b> or <b>Admin</b> role should have access to the given organization ID.
+        /// </summary>
+        /// <param name="organizationId"> The organization we are checking for access. </param>
+        /// <returns> Returns <see langword="true"/> if the user has access. Otherwise it returns <see langword="false"/>. </returns>
+        private bool AuthorizeUserHasAccessToOrganization(Guid organizationId)
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            // Note:    For security reasons, we should always do "true" checks rather then "false" checks when granting
+            //          access, as we'd much rather let someone be rejected then allowed if we were to make a mistake.
+            if (role == PredefinedRole.SystemAdmin.ToString())
+            {
+                return true;
+            }
+
+            // For the CustomerAdmin/Admin, the accessList will contain list of Organizations.
+            // So here, we are checking whether the Customer Admin has access to the desired Organization
+            if (role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.Admin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                if (accessList is not null && accessList.Contains(organizationId.ToString()))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            
+            //Todo: In future, checks for "PartnerAdmin" may get added
+
+            // The User must have some Role. If not, then should not be authorized.
+            return role is not null;
+        }
+
 
         /// <summary>
         ///     Retrieves all service-providers.
@@ -352,20 +387,30 @@ namespace OrigoApiGateway.Controllers
         [Route("organization/{organizationId:Guid}/orders/repair")]
         [HttpPost]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(HardwareServiceOrder))]
+        [SwaggerResponse(StatusCodes.Status403Forbidden)]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateHardwareServiceOrderForSURAsync(Guid organizationId, [FromBody] NewHardwareServiceOrder model)
         {
             try
             {
-                var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                if (!AuthorizeUserHasAccessToOrganization(organizationId))
+                    return Forbid();
 
-                if (!Guid.TryParse(userId, out Guid userIdGuid))
+                var userRole = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+
+                if (!Guid.TryParse(userId, out Guid userIdGuid) || userRole is null)
                     return BadRequest();
 
                 // Todo: The Integer value "3" represents ServiceType "SUR" which can be found inside enum ServiceTypeEnum. Later on this should be converted into actual Enum
-                var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(organizationId, userIdGuid, 3, model);
+                var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(organizationId, userIdGuid, userRole, accessList, 3, model);
 
                 return Ok(newOrder);
+            }
+            catch (BadHttpRequestException ex)
+            {
+                return Forbid(ex.Message);
             }
             catch (HttpRequestException ex)
             {
@@ -393,20 +438,30 @@ namespace OrigoApiGateway.Controllers
         [Route("organization/{organizationId:Guid}/orders/remarketing")]
         [HttpPost]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(HardwareServiceOrder))]
+        [SwaggerResponse(StatusCodes.Status403Forbidden)]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateHardwareServiceOrderForRemarketingAsync(Guid organizationId, [FromBody] NewHardwareServiceOrder model)
         {
             try
             {
-                var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                if (!AuthorizeUserHasAccessToOrganization(organizationId))
+                    return Forbid();
 
-                if (!Guid.TryParse(userId, out Guid userIdGuid))
+                var userRole = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+
+                if (!Guid.TryParse(userId, out Guid userIdGuid) || userRole is null)
                     return BadRequest();
 
                 // Todo: The Integer value "2" represents ServiceType "Remarketing" which can be found inside enum ServiceTypeEnum. Later on this should be converted into actual Enum
-                var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(organizationId, userIdGuid, 2, model);
+                var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(organizationId, userIdGuid, userRole, accessList, 2, model);
 
                 return Ok(newOrder);
+            }
+            catch (BadHttpRequestException ex)
+            {
+                return Forbid(ex.Message);
             }
             catch (HttpRequestException ex)
             {

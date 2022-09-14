@@ -122,7 +122,7 @@ namespace OrigoApiGateway.Services
         /// <exception cref="NotSupportedException"> Thrown when the content or input type is not valid. </exception>
         /// <exception cref="ArgumentException"> Thrown when one or more of the invalid inputs due to which the service is unable to fetch necessary data from third party </exception>
         /// <exception cref="Exception"> Thrown when any unknown error happens </exception>
-        Task<HardwareServiceOrder?> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, int serviceTypeId, NewHardwareServiceOrder model);
+        Task<HardwareServiceOrder?> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, string userRole, string? accessList, int serviceTypeId, NewHardwareServiceOrder model);
 
         /// <summary>
         ///     Retrieves all service-orders that matches the parameters.

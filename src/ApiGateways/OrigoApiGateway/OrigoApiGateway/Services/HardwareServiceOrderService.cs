@@ -242,6 +242,46 @@ namespace OrigoApiGateway.Services
             TOutput? deserialized = await response.Content.ReadFromJsonAsync<TOutput>();
             return deserialized;
         }
+        
+        /// <summary>
+        ///     Checks if the authenticated user should have access to the given Asset
+        /// </summary>
+        /// <param name="asset"> The Asset that User trying to do some operation on <see cref="OrigoAsset"/></param>
+        /// <param name="organizationId"> Organization Identifier </param>
+        /// <param name="userId"> User identifier </param>
+        /// <param name="userRole"> User Role <see cref="PredefinedRole"/></param>
+        /// <param name="userAccessList"> List of Organizations or Departments </param>
+        /// <returns> Returns <see langword="true"/> if the user has access. Otherwise it returns <see langword="false"/>. </returns>
+        private bool CheckUserHasAccessToAsset(HardwareSuperType asset, Guid organizationId, Guid userId, string userRole, string userAccessList)
+        {
+            // If the User Role is SystemAdmin or
+            // If the User Role is EndUser and the User owns the device
+            // If the User Role is DepartmentManager/Manager and the User owns the device
+            // then he/she is allowed to access the Asset.
+            if (userRole == PredefinedRole.SystemAdmin.ToString() || 
+                (userRole == PredefinedRole.EndUser.ToString() && userId == asset.AssetHolderId) ||
+                ((userRole == PredefinedRole.DepartmentManager.ToString() || userRole == PredefinedRole.Manager.ToString()) && userId == asset.AssetHolderId))
+            {
+                return true;
+            }
+            
+            // For the DepartmentManager/Manager, the accessList will contain list of Departments.
+            // So here, we are checking whether the Asset belongs to the same Department of the DepartmentManager/Manager.
+            if (userRole == PredefinedRole.DepartmentManager.ToString() || userRole == PredefinedRole.Manager.ToString())
+            {
+                return userAccessList.Contains(asset.ManagedByDepartmentId.ToString() ?? string.Empty);
+            }
+            
+            // For the CustomerAdmin/Admin, the accessList will contain list of Organizations.
+            // So here, we are checking whether the CustomerAdmin has access to the desired Organization
+            if (userRole == PredefinedRole.CustomerAdmin.ToString() || userRole == PredefinedRole.Admin.ToString())
+            {
+                return userAccessList.Contains(organizationId.ToString());
+            }
+
+            // For any unexpected or not implemented scenario, the access should be denied.
+            return false;
+        }
 
 
         /// <inheritdoc/>
@@ -405,7 +445,7 @@ namespace OrigoApiGateway.Services
         }
 
         /// <inheritdoc/>
-        public async Task<HardwareServiceOrder?> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, int serviceTypeId, NewHardwareServiceOrder model)
+        public async Task<HardwareServiceOrder?> CreateHardwareServiceOrderAsync(Guid customerId, Guid userId, string userRole, string? accessList, int serviceTypeId, NewHardwareServiceOrder model)
         {
             try
             {
@@ -417,9 +457,12 @@ namespace OrigoApiGateway.Services
                 if (asset == null)
                     throw new ArgumentException($"Asset does not exist with ID {model.AssetId}", nameof(model.AssetId));
 
+                if (!CheckUserHasAccessToAsset(asset, customerId, userId, userRole, accessList ?? string.Empty))
+                    throw new BadHttpRequestException($"User: {userId} does not have correct access to the Asset: {model.AssetId}");
+
                 if (!(asset.AssetStatus == AssetLifecycleStatus.InUse ||
-                     asset.AssetStatus == AssetLifecycleStatus.Active ||
-                     asset.AssetStatus == AssetLifecycleStatus.Available))
+                      asset.AssetStatus == AssetLifecycleStatus.Active ||
+                      asset.AssetStatus == AssetLifecycleStatus.Available))
                 {
                     throw new ArgumentException("This Asset does not have correct life-cycle-status to create a Service Order");
                 }
