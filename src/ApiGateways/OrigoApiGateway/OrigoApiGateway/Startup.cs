@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
 using Microsoft.OpenApi.Models;
 using Okta.AspNetCore;
-//using OrigoApiGateway.Attributes;
 using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Extensions;
@@ -100,7 +99,6 @@ namespace OrigoApiGateway
             services.AddSingleton<IWebshopService, WebshopService>();
             services.AddSingleton<IAssetServices, Services.AssetServices>();
             services.AddSingleton<ICustomerServices, CustomerServices>();
-            services.AddSingleton<IHardwareRepairService, HardwareRepairService>();
             services.AddSingleton<IHardwareServiceOrderService, HardwareServiceOrderService>();
             services.AddSingleton<IPartnerServices, PartnerServices>();
             services.AddSingleton<IUserPermissionService, UserPermissionService>();

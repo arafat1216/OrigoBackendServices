@@ -1,6 +1,4 @@
-﻿using System;
-
-#nullable enable
+﻿#nullable enable
 
 namespace OrigoApiGateway.Models.HardwareServiceOrder
 {
@@ -9,9 +7,6 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder
     /// </summary>
     public class ServiceEvent
     {
-        [Obsolete("This is being replaced with 'ServiceStatusId', and will soon be removed.")]
-        public string? Status { get; set; }
-
         /// <summary>
         ///     The service-order status that was associated with this service-event. In most cases, the service-order's status
         ///     was updated to this status-id when the service-event was registered in our solution.
