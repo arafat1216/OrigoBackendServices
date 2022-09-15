@@ -416,9 +416,11 @@ namespace OrigoApiGateway.Services
                 if (asset == null)
                     throw new ArgumentException($"Asset does not exist with ID {model.AssetId}", nameof(model.AssetId));
 
-                if (asset.AssetStatus != AssetLifecycleStatus.InUse || asset.AssetStatus != AssetLifecycleStatus.Active || asset.AssetStatus != AssetLifecycleStatus.Available)
+                if (!(asset.AssetStatus == AssetLifecycleStatus.InUse ||
+                     asset.AssetStatus == AssetLifecycleStatus.Active ||
+                     asset.AssetStatus == AssetLifecycleStatus.Available))
                 {
-                    throw new ArgumentException("This asset cannot be sent to repair.");
+                    throw new ArgumentException("This asset does not have correct life cycle");
                 }
 
                 dto.AssetInfo = new AssetInfo
