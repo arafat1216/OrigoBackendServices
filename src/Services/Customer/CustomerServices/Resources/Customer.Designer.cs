@@ -123,7 +123,7 @@ namespace CustomerServices.Resources {
         ///
         ///In order for you to start using Origo, please go through our onboarding tour:
         ///
-        ///[Start Onboarding](https://origov2dev.mytos.no/en/login)
+        ///[Start Onboarding]({{OrigoBaseUrl}})
         ///.
         /// </summary>
         internal static string OrigoInvitation {

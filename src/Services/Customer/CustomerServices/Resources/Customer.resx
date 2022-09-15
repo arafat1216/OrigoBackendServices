@@ -162,7 +162,7 @@ Origo is a self service portal to help you and your business to keep control of 
 
 In order for you to start using Origo, please go through our onboarding tour:
 
-[Start Onboarding](https://origov2dev.mytos.no/en/login)
+[Start Onboarding]({{OrigoBaseUrl}})
 </value>
   </data>
 </root>

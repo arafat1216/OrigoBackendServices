@@ -13,6 +13,10 @@ namespace CustomerServices.Email.Models
         /// </summary>
         public string FirstName { get; set; }
         /// <summary>
+        /// The link to guide the new user to Origo. 
+        /// </summary>
+        public string OrigoBaseUrl { get; set; }
+        /// <summary>
         /// Email address of the recipient
         /// </summary>
         public List<string> Recipient { get; set; }

@@ -12,5 +12,6 @@
         public Dictionary<string, string> Templates { get; set; }
         public string AzureStorageConnectionString { get; set; }
         public string TemplateContainer { get; set; }
+        public string OrigoBaseUrl { get; set; }
     }
 }
