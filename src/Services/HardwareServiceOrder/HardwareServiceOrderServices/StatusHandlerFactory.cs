@@ -40,8 +40,11 @@ namespace HardwareServiceOrderServices
             switch (serviceType)
             {
                 case ServiceTypeEnum.SUR:
-                    var statusHandler = new ServiceOrderStatusHandlerServiceForSUR(_options, _hardwareServiceOrderRepository, _assetService, _emailService);
-                    return statusHandler;
+                    var repairStatusHandler = new ServiceOrderStatusHandlerServiceForSUR(_options, _hardwareServiceOrderRepository, _assetService, _emailService);
+                    return repairStatusHandler;
+                case ServiceTypeEnum.Remarketing:
+                    var remarketingStatusHandler = new ServiceOrderStatusHandlerServiceForRemarketing(_options, _hardwareServiceOrderRepository, _assetService, _emailService);
+                    return remarketingStatusHandler;
                 default:
                     throw new NotSupportedException("This service type currently is not supported");
             }

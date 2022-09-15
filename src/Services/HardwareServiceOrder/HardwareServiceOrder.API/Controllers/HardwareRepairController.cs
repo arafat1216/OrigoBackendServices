@@ -130,6 +130,10 @@ namespace HardwareServiceOrder.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+            catch (NotSupportedException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         /// <summary>
