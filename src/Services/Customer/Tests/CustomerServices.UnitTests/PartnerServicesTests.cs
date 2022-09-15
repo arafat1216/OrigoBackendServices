@@ -19,18 +19,21 @@ using Xunit;
 
 namespace CustomerServices.UnitTests;
 
-public class PartnerServicesTests : OrganizationServicesBaseTest
+public class PartnerServicesTests
 {
     private readonly OrganizationServices _organizationServices;
     private readonly PartnerServices _partnerServices;
+    private DbContextOptions<CustomerContext> ContextOptions { get; }
 
-    public PartnerServicesTests() : base(new DbContextOptionsBuilder<CustomerContext>()
-        .UseSqlite("Data Source=sqlitepartnerunittests.db").Options)
+    public PartnerServicesTests()
     {
+        ContextOptions = new DbContextOptionsBuilder<CustomerContext>()
+            .UseSqlite($"Data Source={Guid.NewGuid()}.db").Options;
+        new UnitTestDatabaseSeeder().SeedUnitTestDatabase(ContextOptions);
         var mappingConfig = new MapperConfiguration(mc => { mc.AddMaps(Assembly.GetAssembly(typeof(LocationDTO))); });
         var mapper = mappingConfig.CreateMapper();
         var apiRequesterServiceMock = new Mock<IApiRequesterService>();
-        apiRequesterServiceMock.Setup(r => r.AuthenticatedUserId).Returns(CALLER_ID);
+        apiRequesterServiceMock.Setup(r => r.AuthenticatedUserId).Returns(UnitTestDatabaseSeeder.CALLER_ID);
         var context = new CustomerContext(ContextOptions, apiRequesterServiceMock.Object);
         var organizationRepository =
             new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
@@ -38,7 +41,7 @@ public class PartnerServicesTests : OrganizationServicesBaseTest
             new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, mapper, Mock.Of<IEmailService>(), 
             Options.Create(new TechstepPartnerConfiguration
             {
-               PartnerId = TECHSTEP_PARTNER_ID
+               PartnerId = UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID
             }));
         _partnerServices = new PartnerServices(Mock.Of<ILogger<PartnerServices>>(), organizationRepository);
     }
@@ -46,11 +49,11 @@ public class PartnerServicesTests : OrganizationServicesBaseTest
     [Fact]
     public async Task CreatePartnerAsyncTest1()
     {
-        var organization = await _organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
+        var organization = await _organizationServices.GetOrganizationAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID);
         organization!.ChangePartner(null);
         organization = await _organizationServices.UpdateOrganizationAsync(organization);
 
-        var partner = await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID);
+        var partner = await _partnerServices.CreatePartnerAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID);
 
         // Make sure ID is generated correctly
         Assert.True(partner.ExternalId != Guid.Empty);
@@ -63,7 +66,7 @@ public class PartnerServicesTests : OrganizationServicesBaseTest
         Assert.True(DateTime.UtcNow.AddMinutes(30) > partner.LastUpdatedDate);
 
         // Check that the caller IDs are correct
-        Assert.Equal(CALLER_ID, partner.CreatedBy);
+        Assert.Equal(UnitTestDatabaseSeeder.CALLER_ID, partner.CreatedBy);
         Assert.Equal(Guid.Empty, partner.UpdatedBy);
 
         // Make sure we have retrieved the correct organization (we don't test for all values as we only attach the retrieved entity).
@@ -87,17 +90,17 @@ public class PartnerServicesTests : OrganizationServicesBaseTest
     public async Task CreatePartnerAsyncTest3()
     {
         // Ensure the organization don't have a partner or customer status
-        var organization = await _organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
+        var organization = await _organizationServices.GetOrganizationAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID);
         organization!.ChangePartner(null);
         await _organizationServices.UpdateOrganizationAsync(organization);
 
         // Register the 1st partner instance, and then unset the organization's auto-assigned partner so we can recycle it
-        var partner = await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID);
+        var partner = await _partnerServices.CreatePartnerAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID);
         partner.Organization.ChangePartner(null);
         await _organizationServices.UpdateOrganizationAsync(partner.Organization);
 
         await Assert.ThrowsAsync<DuplicateException>(async () =>
-            await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID));
+            await _partnerServices.CreatePartnerAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID));
     }
 
     // Negative test that ensures we can't assign a customer as a partner.
@@ -105,28 +108,28 @@ public class PartnerServicesTests : OrganizationServicesBaseTest
     public async Task CreatePartnerAsyncTest4()
     {
         // Ensure the organization don't have a partner or customer status
-        var organization = await _organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
+        var organization = await _organizationServices.GetOrganizationAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID);
         organization!.ChangePartner(null);
         await _organizationServices.UpdateOrganizationAsync(organization);
 
         // Create the partner, and remove the assigned partner it's organization so we can re-use it
-        var partner = await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID);
+        var partner = await _partnerServices.CreatePartnerAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID);
         partner.Organization.ChangePartner(partner);
         await _organizationServices.UpdateOrganizationAsync(partner.Organization);
 
         await Assert.ThrowsAsync<ArgumentException>(async () =>
-            await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID));
+            await _partnerServices.CreatePartnerAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID));
     }
 
     [Fact]
     public async Task GetPartnerAsyncTest()
     {
         // Ensure the organization don't have a partner or customer status
-        var organization = await _organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
+        var organization = await _organizationServices.GetOrganizationAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID);
         organization!.ChangePartner(null);
         await _organizationServices.UpdateOrganizationAsync(organization);
 
-        var partner = await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID);
+        var partner = await _partnerServices.CreatePartnerAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID);
         var result1 =
             await _partnerServices.GetPartnerAsync(
                 Guid.Parse("00000000-0000-0000-0000-000000000002")); // Partner not found (null)
@@ -144,7 +147,7 @@ public class PartnerServicesTests : OrganizationServicesBaseTest
     public async Task GetPartnersAsyncTest()
     {
         // Ensure the organization don't have a partner or customer status
-        var organization = await _organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
+        var organization = await _organizationServices.GetOrganizationAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID);
         organization!.ChangePartner(null);
         await _organizationServices.UpdateOrganizationAsync(organization);
 
@@ -152,19 +155,19 @@ public class PartnerServicesTests : OrganizationServicesBaseTest
         var results = await _partnerServices.GetPartnersAsync();
 
         //Partner that exists is not the Customer One
-        Assert.All(results, item => Assert.NotEqual(CUSTOMER_ONE_ID, item.Organization.OrganizationId));
+        Assert.All(results, item => Assert.NotEqual(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, item.Organization.OrganizationId));
         Assert.True(results is not null);
         Assert.True(results?.Count == 2);
 
         // List with results
-        await _partnerServices.CreatePartnerAsync(CUSTOMER_ONE_ID);
+        await _partnerServices.CreatePartnerAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID);
         results = await _partnerServices.GetPartnersAsync();
 
         Assert.True(results is not null);
         Assert.True(results?.Count == 3);
 
-        Assert.Collection(results, item => Assert.NotEqual(CUSTOMER_ONE_ID, item.Organization.OrganizationId),
-                                  item => Assert.NotEqual(CUSTOMER_ONE_ID, item.Organization.OrganizationId),
-                                  item => Assert.Equal(CUSTOMER_ONE_ID, item.Organization.OrganizationId));
+        Assert.Collection(results, item => Assert.NotEqual(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, item.Organization.OrganizationId),
+                                  item => Assert.NotEqual(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, item.Organization.OrganizationId),
+                                  item => Assert.Equal(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, item.Organization.OrganizationId));
     }
 }

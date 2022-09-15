@@ -18,21 +18,19 @@ using Xunit;
 
 namespace CustomerServices.UnitTests;
 
-public class DepartmentServicesTests : OrganizationServicesBaseTest
+public class DepartmentServicesTests
 {
-    private IMapper _mapper;
+    private readonly IMapper _mapper;
+    private DbContextOptions<CustomerContext> ContextOptions { get; }
 
-    public DepartmentServicesTests() : base(
-                new DbContextOptionsBuilder<CustomerContext>()
-                    // ReSharper disable once StringLiteralTypo
-                    .UseSqlite("Data Source=sqlitedepartmentsunittests.db").Options
-            )
+    public DepartmentServicesTests()
     {
-        if (_mapper == null)
-        {
-            var mappingConfig = new MapperConfiguration(mc => { mc.AddMaps(Assembly.GetAssembly(typeof(DepartmentsServices))); });
-            _mapper = mappingConfig.CreateMapper();
-        }
+        ContextOptions = new DbContextOptionsBuilder<CustomerContext>()
+            .UseSqlite($"Data Source={Guid.NewGuid()}.db").Options;
+        new UnitTestDatabaseSeeder().SeedUnitTestDatabase(ContextOptions);
+        if (_mapper != null) return;
+        var mappingConfig = new MapperConfiguration(mc => { mc.AddMaps(Assembly.GetAssembly(typeof(DepartmentsServices))); });
+        _mapper = mappingConfig.CreateMapper();
     }
 
     [Fact]
@@ -73,24 +71,24 @@ public class DepartmentServicesTests : OrganizationServicesBaseTest
         var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var departmentServices = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), organizationRepository, _mapper, Mock.Of<IUserPermissionServices>());
 
-        var departments = await context.Departments.Include(m => m.Managers).FirstOrDefaultAsync(c => c.ExternalDepartmentId == DEPARTMENT_TWO_ID);
+        var departments = await context.Departments.Include(m => m.Managers).FirstOrDefaultAsync(c => c.ExternalDepartmentId == UnitTestDatabaseSeeder.DEPARTMENT_TWO_ID);
         Assert.Equal(2, departments?.Managers.Count);
-        Assert.Collection(departments?.Managers,
-             item => Assert.Equal(USER_FOUR_ID, item.UserId),
-             item => Assert.Equal(USER_FIVE_ID, item.UserId)
+        Assert.Collection(departments?.Managers!,
+             item => Assert.Equal(UnitTestDatabaseSeeder.USER_FOUR_ID, item.UserId),
+             item => Assert.Equal(UnitTestDatabaseSeeder.USER_FIVE_ID, item.UserId)
          );
 
-        var managers = new List<Guid>{USER_FOUR_ID, USER_FIVE_ID, USER_FIVE_ID, USER_FOUR_ID};
+        var managers = new List<Guid>{ UnitTestDatabaseSeeder.USER_FOUR_ID, UnitTestDatabaseSeeder.USER_FIVE_ID, UnitTestDatabaseSeeder.USER_FIVE_ID, UnitTestDatabaseSeeder.USER_FOUR_ID };
 
         // Act
-        var department = await departmentServices.UpdateDepartmentAsync(CUSTOMER_ONE_ID, DEPARTMENT_TWO_ID, null, null, null, null, managers,
+        var department = await departmentServices.UpdateDepartmentAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, UnitTestDatabaseSeeder.DEPARTMENT_TWO_ID, null, null, null, null, managers,
             Guid.Empty);
 
         // Assert
         Assert.Equal(2, department.ManagedBy.Count);
-        Assert.Collection(department?.ManagedBy,
-             item => Assert.Equal(USER_FOUR_ID, item.UserId),
-             item => Assert.Equal(USER_FIVE_ID, item.UserId)
+        Assert.Collection(department?.ManagedBy!,
+             item => Assert.Equal(UnitTestDatabaseSeeder.USER_FOUR_ID, item.UserId),
+             item => Assert.Equal(UnitTestDatabaseSeeder.USER_FIVE_ID, item.UserId)
          );
 
         
@@ -102,24 +100,24 @@ public class DepartmentServicesTests : OrganizationServicesBaseTest
         var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var departmentServices = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), organizationRepository, _mapper, Mock.Of<IUserPermissionServices>());
 
-        var departments = await context.Departments.Include(m => m.Managers).FirstOrDefaultAsync(c => c.ExternalDepartmentId == DEPARTMENT_TWO_ID);
-        Assert.Equal(2, departments?.Managers.Count);
-        Assert.Collection(departments?.Managers,
-             item => Assert.Equal(USER_FOUR_ID, item.UserId),
-             item => Assert.Equal(USER_FIVE_ID, item.UserId)
+        var departments = await context.Departments.Include(m => m.Managers).FirstOrDefaultAsync(c => c.ExternalDepartmentId == UnitTestDatabaseSeeder.DEPARTMENT_TWO_ID);
+        Assert.Equal(2, departments!.Managers.Count);
+        Assert.Collection(departments.Managers,
+             item => Assert.Equal(UnitTestDatabaseSeeder.USER_FOUR_ID, item.UserId),
+             item => Assert.Equal(UnitTestDatabaseSeeder.USER_FIVE_ID, item.UserId)
          );
 
-        var managers = new List<Guid> { USER_FOUR_ID, USER_FIVE_ID, USER_FIVE_ID, USER_FOUR_ID };
+        var managers = new List<Guid> { UnitTestDatabaseSeeder.USER_FOUR_ID, UnitTestDatabaseSeeder.USER_FIVE_ID, UnitTestDatabaseSeeder.USER_FIVE_ID, UnitTestDatabaseSeeder.USER_FOUR_ID };
 
         // Act
-        var department = await departmentServices.UpdateDepartmentAsync(CUSTOMER_ONE_ID, DEPARTMENT_TWO_ID, null, null, null, null, managers,
+        var department = await departmentServices.UpdateDepartmentAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, UnitTestDatabaseSeeder.DEPARTMENT_TWO_ID, null, null, null, null, managers,
             Guid.Empty);
 
         // Assert
         Assert.Equal(2, department.ManagedBy.Count);
         Assert.Collection(department?.ManagedBy,
-             item => Assert.Equal(USER_FOUR_ID, item.UserId),
-             item => Assert.Equal(USER_FIVE_ID, item.UserId)
+             item => Assert.Equal(UnitTestDatabaseSeeder.USER_FOUR_ID, item.UserId),
+             item => Assert.Equal(UnitTestDatabaseSeeder.USER_FIVE_ID, item.UserId)
          );
     }
     [Fact]
@@ -130,22 +128,22 @@ public class DepartmentServicesTests : OrganizationServicesBaseTest
         var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var departmentServices = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), organizationRepository, _mapper, Mock.Of<IUserPermissionServices>());
 
-        var department = await context.Departments.Include(m => m.Managers).FirstOrDefaultAsync(c => c.ExternalDepartmentId == DEPARTMENT_TWO_ID);
+        var department = await context.Departments.Include(m => m.Managers).FirstOrDefaultAsync(c => c.ExternalDepartmentId == UnitTestDatabaseSeeder.DEPARTMENT_TWO_ID);
         Assert.Equal(2, department?.Managers.Count);
         Assert.Collection(department?.Managers,
-             item => Assert.Equal(USER_FOUR_ID, item.UserId),
-             item => Assert.Equal(USER_FIVE_ID, item.UserId)
+             item => Assert.Equal(UnitTestDatabaseSeeder.USER_FOUR_ID, item.UserId),
+             item => Assert.Equal(UnitTestDatabaseSeeder.USER_FIVE_ID, item.UserId)
          );
 
         //Act
-        var departments = await organizationRepository.GetDepartmentsAsync(CUSTOMER_ONE_ID);
-        var departmentTwo = departments.Where(a=>a.ExternalDepartmentId == DEPARTMENT_TWO_ID).FirstOrDefault();
+        var departments = await organizationRepository.GetDepartmentsAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID);
+        var departmentTwo = departments.Where(a=>a.ExternalDepartmentId == UnitTestDatabaseSeeder.DEPARTMENT_TWO_ID).FirstOrDefault();
 
         //Assert
         Assert.Equal(2, departmentTwo?.Managers.Count);
         Assert.Collection(departmentTwo?.Managers,
-             item => Assert.Equal(USER_FOUR_ID, item.UserId),
-             item => Assert.Equal(USER_FIVE_ID, item.UserId)
+             item => Assert.Equal(UnitTestDatabaseSeeder.USER_FOUR_ID, item.UserId),
+             item => Assert.Equal(UnitTestDatabaseSeeder.USER_FIVE_ID, item.UserId)
          );
     }
     [Fact]
@@ -156,21 +154,21 @@ public class DepartmentServicesTests : OrganizationServicesBaseTest
         var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var departmentServices = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), organizationRepository, _mapper, Mock.Of<IUserPermissionServices>());
 
-        var department = await context.Departments.Include(m => m.Managers).FirstOrDefaultAsync(c => c.ExternalDepartmentId == DEPARTMENT_TWO_ID);
+        var department = await context.Departments.Include(m => m.Managers).FirstOrDefaultAsync(c => c.ExternalDepartmentId == UnitTestDatabaseSeeder.DEPARTMENT_TWO_ID);
         Assert.Equal(2, department?.Managers.Count);
         Assert.Collection(department?.Managers,
-             item => Assert.Equal(USER_FOUR_ID, item.UserId),
-             item => Assert.Equal(USER_FIVE_ID, item.UserId)
+             item => Assert.Equal(UnitTestDatabaseSeeder.USER_FOUR_ID, item.UserId),
+             item => Assert.Equal(UnitTestDatabaseSeeder.USER_FIVE_ID, item.UserId)
          );
 
         //Act
-        var departmentTwo = await organizationRepository.GetDepartmentAsync(CUSTOMER_ONE_ID, DEPARTMENT_TWO_ID);
+        var departmentTwo = await organizationRepository.GetDepartmentAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, UnitTestDatabaseSeeder.DEPARTMENT_TWO_ID);
 
         //Assert
         Assert.Equal(2, departmentTwo?.Managers.Count);
         Assert.Collection(departmentTwo?.Managers,
-             item => Assert.Equal(USER_FOUR_ID, item.UserId),
-             item => Assert.Equal(USER_FIVE_ID, item.UserId)
+             item => Assert.Equal(UnitTestDatabaseSeeder.USER_FOUR_ID, item.UserId),
+             item => Assert.Equal(UnitTestDatabaseSeeder.USER_FIVE_ID, item.UserId)
          );
     }
 }

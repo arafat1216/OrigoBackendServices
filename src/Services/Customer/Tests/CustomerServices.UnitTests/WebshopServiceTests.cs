@@ -12,7 +12,7 @@ namespace CustomerServices.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task CheckAndProvisionWebShopUser_NullUser()
         {
-            ServiceModels.OktaUserDTO oktaUserDTO = null;
+            ServiceModels.OktaUserDTO oktaUserDTO = null!;
             var oktaMock = new Mock<IOktaServices>();
             var webshopConFigMock = new Mock<IOptions<WebshopConfiguration>>();
             oktaMock.Setup(m => m.GetOktaUserProfileByLoginEmailAsync(It.IsAny<string>()))

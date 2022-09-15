@@ -116,7 +116,7 @@ namespace CustomerServices
 
             // Check if email address is used by another user
             var userWithEmail = await _organizationRepository.GetUserByUserName(email);
-            var mobileNumberInUse = await _organizationRepository.GetUserByMobileNumber(mobileNumber);
+            var mobileNumberInUse = await _organizationRepository.GetUserByMobileNumber(mobileNumber, customerId);
 
             //Activate the user if the user i soft deleted
             if (userWithEmail != null) {
@@ -368,11 +368,15 @@ namespace CustomerServices
                     throw new UserNameIsInUseException("Email address is already in use.");
                 user.ChangeEmailAddress(email, callerId);
             }
-            if (employeeId != default && user.EmployeeId != employeeId) user.ChangeEmployeeId(employeeId, callerId);
-            if (mobileNumber != default && user.MobileNumber?.Trim() != mobileNumber?.Trim())
+
+            if (!string.IsNullOrEmpty(employeeId) && user.EmployeeId != employeeId)
+            {
+                user.ChangeEmployeeId(employeeId, callerId);
+            }
+            if (!string.IsNullOrEmpty(user.MobileNumber) && !user.MobileNumber.Equals(mobileNumber.Trim()))
             {
                 // Check if mobile address is used by another user
-                var mobileNumberInUse = await _organizationRepository.GetUserByMobileNumber(mobileNumber);
+                var mobileNumberInUse = await _organizationRepository.GetUserByMobileNumber(mobileNumber, customerId);
                 if (mobileNumberInUse != null) throw new InvalidPhoneNumberException("Phone number already in use.");
                 user.ChangeMobileNumber(mobileNumber, callerId);
             }
@@ -417,13 +421,13 @@ namespace CustomerServices
             }
             user.ChangeEmailAddress(email, callerId);
             user.ChangeEmployeeId(employeeId, callerId);
-            if (mobileNumber != default && user.MobileNumber?.Trim() != mobileNumber?.Trim())
+            if (!string.IsNullOrEmpty(user.MobileNumber) && !user.MobileNumber.Equals(mobileNumber.Trim()))
             {
                 // Check if mobile address is used by another user
-                var mobileNumberInUse = await _organizationRepository.GetUserByMobileNumber(mobileNumber);
+                var mobileNumberInUse = await _organizationRepository.GetUserByMobileNumber(mobileNumber, customerId);
                 if (mobileNumberInUse != null) throw new InvalidPhoneNumberException("Phone number already in use.");
+                user.ChangeMobileNumber(mobileNumber, callerId);
             }
-            user.ChangeMobileNumber(mobileNumber, callerId);
             if (userPreference != null)
             {
                 user.ChangeUserPreferences(userPreference, callerId);

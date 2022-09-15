@@ -314,13 +314,13 @@ namespace CustomerServices.Infrastructure
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<User?> GetUserByMobileNumber(string mobileNumber)
+        public async Task<User?> GetUserByMobileNumber(string mobileNumber, Guid organizationId)
         {
-            if (mobileNumber == null)
+            if (string.IsNullOrEmpty(mobileNumber))
                 return null;
 
-            return await _customerContext.Users
-                .Where(u => u.MobileNumber == mobileNumber)
+            return await _customerContext.Users.Include(u => u.Customer)
+                .Where(u => u.MobileNumber == mobileNumber && u.Customer.OrganizationId == organizationId)
                 .FirstOrDefaultAsync();
         }
 

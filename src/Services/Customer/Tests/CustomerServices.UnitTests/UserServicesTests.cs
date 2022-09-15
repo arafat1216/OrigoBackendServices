@@ -25,22 +25,25 @@ using Xunit;
 
 namespace CustomerServices.UnitTests;
 
-public class UserServicesTests : OrganizationServicesBaseTest
+public class UserServicesTests
 {
     private readonly IMapper _mapper;
     private readonly IApiRequesterService _apiRequesterService;
 
-    public UserServicesTests() : base(new DbContextOptionsBuilder<CustomerContext>()
-        // ReSharper disable once StringLiteralTypo
-        .UseSqlite("Data Source=sqliteusersunittests.db").Options)
+    private DbContextOptions<CustomerContext> ContextOptions { get; }
+
+    public UserServicesTests()
     {
+        ContextOptions = new DbContextOptionsBuilder<CustomerContext>()
+            .UseSqlite($"Data Source={Guid.NewGuid()}.db").Options;
+        new UnitTestDatabaseSeeder().SeedUnitTestDatabase(ContextOptions);
         var mappingConfig = new MapperConfiguration(mc =>
         {
             mc.AddMaps(Assembly.GetAssembly(typeof(UserDTOProfile)));
         });
         _mapper = mappingConfig.CreateMapper();
         var apiRequesterServiceMock = new Mock<IApiRequesterService>();
-        apiRequesterServiceMock.Setup(r => r.AuthenticatedUserId).Returns(CALLER_ID);
+        apiRequesterServiceMock.Setup(r => r.AuthenticatedUserId).Returns(UnitTestDatabaseSeeder.CALLER_ID);
         _apiRequesterService = apiRequesterServiceMock.Object;
     }
 
@@ -60,13 +63,13 @@ public class UserServicesTests : OrganizationServicesBaseTest
             _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
         // Act
-        await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
-        await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_THREE_ID, false, EMPTY_CALLER_ID);
+        await userServices.SetUserActiveStatusAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, UnitTestDatabaseSeeder.USER_ONE_ID, true, UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
+        await userServices.SetUserActiveStatusAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, UnitTestDatabaseSeeder.USER_THREE_ID, false, UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
 
-        var users = await userServices.GetUsersCountAsync(CUSTOMER_ONE_ID, null, new[] { "SystemAdmin" });
+        var users = await userServices.GetUsersCountAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, new[] { "SystemAdmin" });
 
         // Assert
-        Assert.Equal(1, users.Count);
+        Assert.Equal(1, users!.Count);
     }
 
     [Fact]
@@ -85,7 +88,7 @@ public class UserServicesTests : OrganizationServicesBaseTest
             _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
         // Act
-        var users = await userServices.GetUsersCountAsync(CUSTOMER_TWO_ID, null, new[] { "SystemAdmin" });
+        var users = await userServices.GetUsersCountAsync(UnitTestDatabaseSeeder.CUSTOMER_TWO_ID, null, new[] { "SystemAdmin" });
 
         // Assert
         Assert.Equal(3, users?.NotOnboarded);
@@ -105,7 +108,7 @@ public class UserServicesTests : OrganizationServicesBaseTest
             Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
         // Act
-        var user = await userServices.GetUserAsync(CUSTOMER_ONE_ID, USER_ONE_ID);
+        var user = await userServices.GetUserAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, UnitTestDatabaseSeeder.USER_ONE_ID);
 
         // Assert
         Assert.Equal("Jane", user.FirstName);
@@ -125,12 +128,12 @@ public class UserServicesTests : OrganizationServicesBaseTest
 
         // Act
         const string EMAIL_TEST_TEST = "email@test.test";
-        var userPref = new UserPreference("NO", EMPTY_CALLER_ID);
-        var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "Test Firstname", "Testlastname",
-            EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, "Role");
+        var userPref = new UserPreference("NO", UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
+        var newUser = await userServices.AddUserForCustomerAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, "Test Firstname", "Testlastname",
+            EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, UnitTestDatabaseSeeder.EMPTY_CALLER_ID, "Role");
 
         // Assert
-        var newUserRead = await userServices.GetUserAsync(CUSTOMER_ONE_ID, newUser.Id);
+        var newUserRead = await userServices.GetUserAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, newUser.Id);
         Assert.NotNull(newUserRead);
     }
 
@@ -149,9 +152,9 @@ public class UserServicesTests : OrganizationServicesBaseTest
 
         // Act
         const string EMAIL_TEST_TEST = "email@test.test";
-        var userPref = new UserPreference("NO", EMPTY_CALLER_ID);
-        var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "Test Firstname", "Testlastname",
-            EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, "Role");
+        var userPref = new UserPreference("NO", UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
+        var newUser = await userServices.AddUserForCustomerAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, "Test Firstname", "Testlastname",
+            EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, UnitTestDatabaseSeeder.EMPTY_CALLER_ID, "Role");
 
         // Assert
         oktaMock.Verify(
@@ -175,9 +178,9 @@ public class UserServicesTests : OrganizationServicesBaseTest
 
         // Act
         const string EMAIL_TEST_TEST = "email@test.test";
-        var userPref = new UserPreference("NO", EMPTY_CALLER_ID);
-        var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_FOUR_ID, "Test Firstname", "Testlastname",
-            EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, null, true);
+        var userPref = new UserPreference("NO", UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
+        var newUser = await userServices.AddUserForCustomerAsync(UnitTestDatabaseSeeder.CUSTOMER_FOUR_ID, "Test Firstname", "Testlastname",
+            EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, UnitTestDatabaseSeeder.EMPTY_CALLER_ID, string.Empty, true);
 
         // Assert
         emailMock.Verify(email => email.InvitationEmailToUserAsync(It.IsAny<InvitationMail>(), It.IsAny<string>()),
@@ -199,9 +202,9 @@ public class UserServicesTests : OrganizationServicesBaseTest
             Mock.Of<IOktaServices>(), _mapper, userPermissionServices, emailMock.Object);
 
         // Act
-        var userPref = new UserPreference("NO", EMPTY_CALLER_ID);
-        var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_FOUR_ID, "Test Firstname", "Testlastname",
-            "email@test.test", "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, null, true);
+        var userPref = new UserPreference("NO", UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
+        var newUser = await userServices.AddUserForCustomerAsync(UnitTestDatabaseSeeder.CUSTOMER_FOUR_ID, "Test Firstname", "Testlastname",
+            "email@test.test", "+4741676767", "43435435", userPref, UnitTestDatabaseSeeder.EMPTY_CALLER_ID, null, true);
 
         // Assert
         Assert.Equal(2, newUser.UserStatus);
@@ -225,9 +228,9 @@ public class UserServicesTests : OrganizationServicesBaseTest
             Mock.Of<IOktaServices>(), _mapper, userPermissionService, emailMock.Object);
 
         // Act
-        var userPref = new UserPreference("NO", EMPTY_CALLER_ID);
-        var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_FOUR_ID, "Test Firstname", "Testlastname",
-            "email@test.test", "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, "Admin", true);
+        var userPref = new UserPreference("NO", UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
+        var newUser = await userServices.AddUserForCustomerAsync(UnitTestDatabaseSeeder.CUSTOMER_FOUR_ID, "Test Firstname", "Testlastname",
+            "email@test.test", "+4741676767", "43435435", userPref, UnitTestDatabaseSeeder.EMPTY_CALLER_ID, "Admin", true);
 
         // Assert
         Assert.Equal(2, newUser.UserStatus);
@@ -255,9 +258,9 @@ public class UserServicesTests : OrganizationServicesBaseTest
 
         // Act
         const string EMAIL_TEST_TEST = "email@test.test";
-        var userPref = new UserPreference("NO", EMPTY_CALLER_ID);
-        var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_TWO_ID, "Test Firstname", "Testlastname",
-            EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, "Role", true);
+        var userPref = new UserPreference("NO", UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
+        var newUser = await userServices.AddUserForCustomerAsync(UnitTestDatabaseSeeder.CUSTOMER_TWO_ID, "Test Firstname", "Testlastname",
+            EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, UnitTestDatabaseSeeder.EMPTY_CALLER_ID, "Role", true);
 
         // Assert
         oktaMock.Verify(
@@ -281,9 +284,9 @@ public class UserServicesTests : OrganizationServicesBaseTest
 
         // Act
         const string EMAIL_TEST_TEST = "email@test.test";
-        var userPref = new UserPreference("NO", EMPTY_CALLER_ID);
-        var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_TWO_ID, "Test Firstname", "Testlastname",
-            EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, "Role", true, true);
+        var userPref = new UserPreference("NO", UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
+        var newUser = await userServices.AddUserForCustomerAsync(UnitTestDatabaseSeeder.CUSTOMER_TWO_ID, "Test Firstname", "Testlastname",
+            EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, UnitTestDatabaseSeeder.EMPTY_CALLER_ID, "Role", true, true);
 
         // Assert
         oktaMock.Verify(
@@ -305,10 +308,10 @@ public class UserServicesTests : OrganizationServicesBaseTest
             _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
         // Act
-        var deleteUser = await userServices.DeleteUserAsync(CUSTOMER_TWO_ID, USER_ONE_ID, EMPTY_CALLER_ID);
-        var userPref = new UserPreference("NO", EMPTY_CALLER_ID);
-        var reActiveUser = await userServices.AddUserForCustomerAsync(CUSTOMER_TWO_ID, "Test Firstname", "Testlastname",
-            deleteUser.Email, "+4741676767", "43435435", userPref, EMPTY_CALLER_ID, "Role");
+        var deleteUser = await userServices.DeleteUserAsync(UnitTestDatabaseSeeder.CUSTOMER_TWO_ID, UnitTestDatabaseSeeder.USER_ONE_ID, UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
+        var userPref = new UserPreference("NO", UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
+        var reActiveUser = await userServices.AddUserForCustomerAsync(UnitTestDatabaseSeeder.CUSTOMER_TWO_ID, "Test Firstname", "Testlastname",
+            deleteUser.Email, "+4741676767", "43435435", userPref, UnitTestDatabaseSeeder.EMPTY_CALLER_ID, "Role");
 
         // Assert
         oktaMock.Verify(
@@ -328,7 +331,7 @@ public class UserServicesTests : OrganizationServicesBaseTest
 
         // Act
         var permission = await userPermissionServices.AssignUserPermissionsAsync("jane@doe.com", "DepartmentManager",
-            new List<Guid>(), EMPTY_CALLER_ID);
+            new List<Guid>(), UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
 
         //Assert
         Assert.Null(permission);
@@ -349,17 +352,17 @@ public class UserServicesTests : OrganizationServicesBaseTest
 
         // Act
         await userPermissionServices.AssignUserPermissionsAsync("jane@doe.com", "DepartmentManager",
-            new List<Guid> { CUSTOMER_ONE_ID }, EMPTY_CALLER_ID);
+            new List<Guid> { UnitTestDatabaseSeeder.CUSTOMER_ONE_ID }, UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
 
         //Assert
         var permission = await context.UserPermissions.FirstOrDefaultAsync(u => u.User.Email == "jane@doe.com");
         Assert.Equal("jane@doe.com", permission?.User.Email);
 
         //Act
-        await userServices.AssignManagerToDepartment(CUSTOMER_ONE_ID, USER_ONE_ID, DEPARTMENT_ONE_ID, EMPTY_CALLER_ID);
+        await userServices.AssignManagerToDepartment(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, UnitTestDatabaseSeeder.USER_ONE_ID, UnitTestDatabaseSeeder.DEPARTMENT_ONE_ID, UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
 
         // Assert
-        var user = await context.Users.FirstOrDefaultAsync(u => u.UserId == USER_ONE_ID);
+        var user = await context.Users.FirstOrDefaultAsync(u => u.UserId == UnitTestDatabaseSeeder.USER_ONE_ID);
         Assert.Equal(1, user!.ManagesDepartments.Count);
     }
 
@@ -377,7 +380,7 @@ public class UserServicesTests : OrganizationServicesBaseTest
 
         // Act & Assert
         await Assert.ThrowsAsync<MissingRolePermissionsException>(() =>
-            userServices.AssignManagerToDepartment(CUSTOMER_ONE_ID, USER_ONE_ID, DEPARTMENT_ONE_ID, EMPTY_CALLER_ID));
+            userServices.AssignManagerToDepartment(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, UnitTestDatabaseSeeder.USER_ONE_ID, UnitTestDatabaseSeeder.DEPARTMENT_ONE_ID, UnitTestDatabaseSeeder.EMPTY_CALLER_ID));
     }
 
     [Fact]
@@ -396,8 +399,8 @@ public class UserServicesTests : OrganizationServicesBaseTest
             _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
         // Act
-        await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_ONE_ID, true, EMPTY_CALLER_ID);
-        var user = await userServices.GetUserAsync(CUSTOMER_ONE_ID, USER_ONE_ID);
+        await userServices.SetUserActiveStatusAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, UnitTestDatabaseSeeder.USER_ONE_ID, true, UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
+        var user = await userServices.GetUserAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, UnitTestDatabaseSeeder.USER_ONE_ID);
 
         // Assert
         Assert.Equal("123", user.OktaUserId);
@@ -420,11 +423,11 @@ public class UserServicesTests : OrganizationServicesBaseTest
         var userPermissionServices = Mock.Of<IUserPermissionServices>();
         var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository, oktaMock.Object,
             _mapper, userPermissionServices, Mock.Of<IEmailService>());
-        await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_THREE_ID, true,
-            EMPTY_CALLER_ID); // Activate user
+        await userServices.SetUserActiveStatusAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, UnitTestDatabaseSeeder.USER_THREE_ID, true,
+            UnitTestDatabaseSeeder.EMPTY_CALLER_ID); // Activate user
 
         // Act
-        var user = await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_THREE_ID, false, EMPTY_CALLER_ID);
+        var user = await userServices.SetUserActiveStatusAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, UnitTestDatabaseSeeder.USER_THREE_ID, false, UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
 
         // Assert
         oktaMock.Verify(mock => mock.RemoveUserFromGroupAsync(It.IsAny<string>()), Times.Once());
@@ -446,8 +449,8 @@ public class UserServicesTests : OrganizationServicesBaseTest
             _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
         // Act
-        await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_THREE_ID, false, EMPTY_CALLER_ID);
-        var user = await userServices.SetUserActiveStatusAsync(CUSTOMER_ONE_ID, USER_THREE_ID, true, EMPTY_CALLER_ID);
+        await userServices.SetUserActiveStatusAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, UnitTestDatabaseSeeder.USER_THREE_ID, false, UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
+        var user = await userServices.SetUserActiveStatusAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, UnitTestDatabaseSeeder.USER_THREE_ID, true, UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
 
         // Assert
         oktaMock.Verify(
@@ -469,13 +472,13 @@ public class UserServicesTests : OrganizationServicesBaseTest
             Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
         // Act
-        var newUser = await userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "TEST", "TEST", "hello@mail.com",
-            "+479898989", "hhhh", new UserPreference("EN", EMPTY_CALLER_ID), EMPTY_CALLER_ID, "Role");
+        var newUser = await userServices.AddUserForCustomerAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, "TEST", "TEST", "hello@mail.com",
+            "+479898989", "hhhh", new UserPreference("EN", UnitTestDatabaseSeeder.EMPTY_CALLER_ID), UnitTestDatabaseSeeder.EMPTY_CALLER_ID, "Role");
         IList<int>? status = new List<int> { (int)UserStatus.Activated };
         string[]? role = { "admin" };
-        Guid[]? assignedToDepartment = { DEPARTMENT_ONE_ID };
+        Guid[]? assignedToDepartment = { UnitTestDatabaseSeeder.DEPARTMENT_ONE_ID };
 
-        var user = await userServices.GetAllUsersAsync(CUSTOMER_ONE_ID, null, null, status, new CancellationToken());
+        var user = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null, status, new CancellationToken());
 
         Assert.Equal(1, user.Items.Count);
         Assert.Contains("Gordon", user.Items[0].FirstName);
@@ -504,7 +507,7 @@ public class UserServicesTests : OrganizationServicesBaseTest
         //Assert
         await Assert.ThrowsAsync<CustomerNotFoundException>(() =>
             userServices.AddUserForCustomerAsync(new Guid(NOT_VALID_CUSTOMER_ID), "TEST", "TEST", "hello@mail.com",
-                "+479898989", "90909090", new UserPreference("EN", EMPTY_CALLER_ID), EMPTY_CALLER_ID, "Role"));
+                "+479898989", "90909090", new UserPreference("EN", UnitTestDatabaseSeeder.EMPTY_CALLER_ID), UnitTestDatabaseSeeder.EMPTY_CALLER_ID, "Role"));
     }
 
     [Fact]
@@ -524,8 +527,8 @@ public class UserServicesTests : OrganizationServicesBaseTest
 
         //Assert
         await Assert.ThrowsAsync<CustomerNotFoundException>(() =>
-            userServices.AssignManagerToDepartment(new Guid(NOT_VALID_CUSTOMER_ID), USER_ONE_ID, DEPARTMENT_ONE_ID,
-                EMPTY_CALLER_ID));
+            userServices.AssignManagerToDepartment(new Guid(NOT_VALID_CUSTOMER_ID), UnitTestDatabaseSeeder.USER_ONE_ID, UnitTestDatabaseSeeder.DEPARTMENT_ONE_ID,
+                UnitTestDatabaseSeeder.EMPTY_CALLER_ID));
     }
 
     [Fact]
@@ -545,8 +548,8 @@ public class UserServicesTests : OrganizationServicesBaseTest
 
         //Assert
         await Assert.ThrowsAsync<UserNotFoundException>(() =>
-            userServices.AssignManagerToDepartment(CUSTOMER_ONE_ID, new Guid(NOT_VALID_USER_ID), DEPARTMENT_ONE_ID,
-                EMPTY_CALLER_ID));
+            userServices.AssignManagerToDepartment(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, new Guid(NOT_VALID_USER_ID), UnitTestDatabaseSeeder.DEPARTMENT_ONE_ID,
+                UnitTestDatabaseSeeder.EMPTY_CALLER_ID));
     }
 
     [Fact]
@@ -566,8 +569,8 @@ public class UserServicesTests : OrganizationServicesBaseTest
 
         //Assert
         await Assert.ThrowsAsync<DepartmentNotFoundException>(() =>
-            userServices.AssignManagerToDepartment(CUSTOMER_ONE_ID, USER_ONE_ID, new Guid(NOT_VALID_DEPARTMENT_ID),
-                EMPTY_CALLER_ID));
+            userServices.AssignManagerToDepartment(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, UnitTestDatabaseSeeder.USER_ONE_ID, new Guid(NOT_VALID_DEPARTMENT_ID),
+                UnitTestDatabaseSeeder.EMPTY_CALLER_ID));
     }
 
     [Fact]
@@ -583,11 +586,11 @@ public class UserServicesTests : OrganizationServicesBaseTest
             Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
         // Act
         const string EMAIL_THAT_EXIST = "john@doe.com";
-        var userPref = new UserPreference("NO", EMPTY_CALLER_ID);
+        var userPref = new UserPreference("NO", UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
 
         // Assert
-        await Assert.ThrowsAsync<UserNameIsInUseException>(() => userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID,
-            "Test Firstname", "Testlastname", EMAIL_THAT_EXIST, "+479000000", "43435435", userPref, EMPTY_CALLER_ID,
+        await Assert.ThrowsAsync<UserNameIsInUseException>(() => userServices.AddUserForCustomerAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID,
+            "Test Firstname", "Testlastname", EMAIL_THAT_EXIST, "+479000000", "43435435", userPref, UnitTestDatabaseSeeder.EMPTY_CALLER_ID,
             "Role"));
     }
 
@@ -612,20 +615,20 @@ public class UserServicesTests : OrganizationServicesBaseTest
         const string EMAIL_THAT_EXIST = "john@doe.com";
         const string MOBILE_NUMBER_THAT_EXIST = "+4798888811";
         var existingUser = new User(organization, Guid.NewGuid(), "John", "Doe", EMAIL_THAT_EXIST,
-            MOBILE_NUMBER_THAT_EXIST, "emp123", new UserPreference("no", CALLER_ID), CALLER_ID);
+            MOBILE_NUMBER_THAT_EXIST, "emp123", new UserPreference("no", UnitTestDatabaseSeeder.CALLER_ID), UnitTestDatabaseSeeder.CALLER_ID);
 
         mockRepository.Setup(u => u.GetUserByUserName(EMAIL_THAT_EXIST)).ReturnsAsync(existingUser);
-        mockRepository.Setup(u => u.GetUserByMobileNumber(MOBILE_NUMBER_THAT_EXIST)).ReturnsAsync(existingUser);
+        mockRepository.Setup(u => u.GetUserByMobileNumber(MOBILE_NUMBER_THAT_EXIST, organizationId)).ReturnsAsync(existingUser);
 
 
         var userPermissionServices = Mock.Of<IUserPermissionServices>();
         var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), mockRepository.Object,
             Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
-        var userPref = new UserPreference("NO", EMPTY_CALLER_ID);
+        var userPref = new UserPreference("NO", UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
 
         // Act and assert
         await Assert.ThrowsAsync<UserNameIsInUseException>(() => userServices.AddUserForCustomerAsync(organizationId,
-            "Test Firstname", "Testlastname", EMAIL_THAT_EXIST, "+479000000", "43435435", userPref, EMPTY_CALLER_ID,
+            "Test Firstname", "Testlastname", EMAIL_THAT_EXIST, "+479000000", "43435435", userPref, UnitTestDatabaseSeeder.EMPTY_CALLER_ID,
             "Role"));
         mockRepository.Verify(r => r.SaveEntitiesAsync(CancellationToken.None), Times.Exactly(0));
     }
@@ -643,11 +646,11 @@ public class UserServicesTests : OrganizationServicesBaseTest
             Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
         // Act
         const string PHONE_NUMBER_THAT_EXIST = "+4799999999";
-        var userPref = new UserPreference("NO", EMPTY_CALLER_ID);
+        var userPref = new UserPreference("NO", UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
         // Assert
         await Assert.ThrowsAsync<InvalidPhoneNumberException>(() =>
-            userServices.AddUserForCustomerAsync(CUSTOMER_ONE_ID, "Test Firstname", "Testlastname", "mail@testmail.com",
-                PHONE_NUMBER_THAT_EXIST, "43435435", userPref, EMPTY_CALLER_ID, "Role"));
+            userServices.AddUserForCustomerAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, "Test Firstname", "Testlastname", "mail@testmail.com",
+                PHONE_NUMBER_THAT_EXIST, "43435435", userPref, UnitTestDatabaseSeeder.EMPTY_CALLER_ID, "Role"));
     }
 
     [Fact]
@@ -659,12 +662,12 @@ public class UserServicesTests : OrganizationServicesBaseTest
         var organizationRepository =
             new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
 
-        var count = await organizationRepository.GetOrganizationUsersCountAsync(CUSTOMER_ONE_ID, null,
+        var count = await organizationRepository.GetOrganizationUsersCountAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null,
             new[] { "SystemAdmin" });
 
         Assert.Equal(2, count.NotOnboarded);
         Assert.Equal(1, count.Count);
-        Assert.Equal(CUSTOMER_ONE_ID, count.OrganizationId);
+        Assert.Equal(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, count.OrganizationId);
     }
 
     [Fact]
@@ -676,12 +679,12 @@ public class UserServicesTests : OrganizationServicesBaseTest
         var organizationRepository =
             new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
 
-        var count = await organizationRepository.GetOrganizationUsersCountAsync(CUSTOMER_ONE_ID,
-            new[] { DEPARTMENT_ONE_ID, DEPARTMENT_TWO_ID }, null);
+        var count = await organizationRepository.GetOrganizationUsersCountAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID,
+            new[] { UnitTestDatabaseSeeder.DEPARTMENT_ONE_ID, UnitTestDatabaseSeeder.DEPARTMENT_TWO_ID }, null);
 
         Assert.Equal(1, count.NotOnboarded);
         Assert.Equal(1, count.Count);
-        Assert.Equal(CUSTOMER_ONE_ID, count.OrganizationId);
+        Assert.Equal(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, count.OrganizationId);
     }
 
     [Fact]
@@ -694,7 +697,7 @@ public class UserServicesTests : OrganizationServicesBaseTest
             new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
 
         var organizationUserCount =
-            await organizationRepository.GetOrganizationUsersCountAsync(CUSTOMER_ONE_ID, null, null);
+            await organizationRepository.GetOrganizationUsersCountAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null);
 
         Assert.Null(organizationUserCount);
     }
@@ -713,7 +716,7 @@ public class UserServicesTests : OrganizationServicesBaseTest
             Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
         // Act
-        var user = await userServices.CompleteOnboardingAsync(CUSTOMER_TWO_ID, USER_SEVEN_ID);
+        var user = await userServices.CompleteOnboardingAsync(UnitTestDatabaseSeeder.CUSTOMER_TWO_ID, UnitTestDatabaseSeeder.USER_SEVEN_ID);
 
         // Assert
         Assert.Equal(0, user.UserStatus);

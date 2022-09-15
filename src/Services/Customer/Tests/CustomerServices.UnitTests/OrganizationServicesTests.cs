@@ -20,33 +20,32 @@ using Common.Configuration;
 
 namespace CustomerServices.UnitTests
 {
-    public class OrganizationServicesTests : OrganizationServicesBaseTest
+    public class OrganizationServicesTests
     {
         private readonly IMapper _mapper;
-        private readonly OrganizationServices organizationServices;
+        private readonly OrganizationServices _organizationServices;
         private readonly Mock<IEmailService> _emailServiceMock;
+        private DbContextOptions<CustomerContext> ContextOptions { get; }
+
 
         public OrganizationServicesTests()
-            : base(
-                new DbContextOptionsBuilder<CustomerContext>()
-                    // ReSharper disable once StringLiteralTypo
-                    .UseSqlite("Data Source=sqlitecustomerunittests.db")
-                    .Options
-            )
         {
+            ContextOptions = new DbContextOptionsBuilder<CustomerContext>()
+                .UseSqlite($"Data Source={Guid.NewGuid()}.db").Options;
+            new UnitTestDatabaseSeeder().SeedUnitTestDatabase(ContextOptions);
             var mappingConfig =
                 new MapperConfiguration(mc => { mc.AddMaps(Assembly.GetAssembly(typeof(LocationDTO))); });
             _mapper = mappingConfig.CreateMapper();
             var apiRequesterServiceMock = new Mock<IApiRequesterService>();
-            apiRequesterServiceMock.Setup(r => r.AuthenticatedUserId).Returns(CALLER_ID);
+            apiRequesterServiceMock.Setup(r => r.AuthenticatedUserId).Returns(UnitTestDatabaseSeeder.CALLER_ID);
             var context = new CustomerContext(ContextOptions, apiRequesterServiceMock.Object);
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var emailMock = new Mock<IEmailService>();
             _emailServiceMock = emailMock;
-            organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper, emailMock.Object, 
+            _organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper, emailMock.Object, 
                 Options.Create(new TechstepPartnerConfiguration
                 {
-                    PartnerId = TECHSTEP_PARTNER_ID
+                    PartnerId = UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID
                 }));
         }
 
@@ -55,10 +54,10 @@ namespace CustomerServices.UnitTests
         public async Task GetCompanyOne_CheckName()
         {
             // Act
-            var organization = await organizationServices.GetOrganizationAsync(CUSTOMER_ONE_ID);
+            var organization = await _organizationServices.GetOrganizationAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID);
 
             // Assert
-            Assert.Equal("COMPANY ONE", organization.Name);
+            Assert.Equal("COMPANY ONE", organization!.Name);
             Assert.Equal("My Way 1", organization.Address.Street);
             Assert.Equal("1111", organization.Address.PostCode);
             Assert.Equal("My City", organization.Address.City);
@@ -69,10 +68,10 @@ namespace CustomerServices.UnitTests
         [Trait("Category", "UnitTest")]
         public async Task PutCompanyOne_null_values()
         {
-            // Aarrange
+            // Arrange
             var orgData = new UpdateOrganizationDTO()
             {
-                OrganizationId = CUSTOMER_ONE_ID,
+                OrganizationId = UnitTestDatabaseSeeder.CUSTOMER_ONE_ID,
                 ParentId = null,
                 PrimaryLocation = null,
                 CallerId = Guid.Empty,
@@ -81,14 +80,14 @@ namespace CustomerServices.UnitTests
             };
 
             // Act
-            var organization = await organizationServices.PutOrganizationAsync(orgData);
+            var organization = await _organizationServices.PutOrganizationAsync(orgData);
 
             // Assert 
             Assert.Equal("Mytos", organization.Name);
             Assert.Equal("", organization.OrganizationNumber);
             Assert.Null(organization.ParentId);
             Assert.True(organization.PrimaryLocation!.IsNull());
-            Assert.Equal(CALLER_ID, organization.UpdatedBy);
+            Assert.Equal(UnitTestDatabaseSeeder.CALLER_ID, organization.UpdatedBy);
             Assert.Equal("", organization.Address.Street);
             Assert.Equal("", organization.Address.PostCode);
             Assert.Equal("", organization.Address.City);
@@ -105,7 +104,7 @@ namespace CustomerServices.UnitTests
         public async Task AddOrganization_WithoutAddOktaUsersSet_CheckDefaultValueSetToFalse()
         {
             // Act
-            var organization = await organizationServices.AddOrganizationAsync(new NewOrganizationDTO
+            var organization = await _organizationServices.AddOrganizationAsync(new NewOrganizationDTO
             {
                 Name = "COMPANY NAME",
                 OrganizationNumber = "999999999",
@@ -123,7 +122,7 @@ namespace CustomerServices.UnitTests
         public async Task AddOrganization_WithAddOktaUsersSet_CheckValue()
         {
             // Act
-            var organization = await organizationServices.AddOrganizationAsync(new NewOrganizationDTO
+            var organization = await _organizationServices.AddOrganizationAsync(new NewOrganizationDTO
             {
                 Name = "COMPANY NAME",
                 OrganizationNumber = "999999999",
@@ -141,7 +140,7 @@ namespace CustomerServices.UnitTests
         public async Task AddOrganization_initializedStatus_BeforOnboarding()
         {
             // Act
-            var organization = await organizationServices.AddOrganizationAsync(new NewOrganizationDTO
+            var organization = await _organizationServices.AddOrganizationAsync(new NewOrganizationDTO
             {
                 Name = "COMPANY NAME",
                 OrganizationNumber = "999999999",
@@ -162,7 +161,7 @@ namespace CustomerServices.UnitTests
             var accountOwner = "Krister Emanuelsen";
             var techstepCustomerId = 112223232321;
 
-            var organization = await organizationServices.AddOrganizationAsync(new NewOrganizationDTO
+            var organization = await _organizationServices.AddOrganizationAsync(new NewOrganizationDTO
             {
                 Name = "Techstep mini",
                 OrganizationNumber = "22222222278",
@@ -170,7 +169,7 @@ namespace CustomerServices.UnitTests
                 Address = new AddressDTO(),
                 ContactPerson = new ContactPersonDTO(),
                 AddUsersToOkta = true,
-                PartnerId = TECHSTEP_PARTNER_ID,
+                PartnerId = UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID,
                 AccountOwner = accountOwner,
                 TechstepCustomerId = techstepCustomerId
             });
@@ -186,7 +185,7 @@ namespace CustomerServices.UnitTests
         {
             //Arrange
             var techstepCustomerId = 112223232321;
-            var organization = await organizationServices.AddOrganizationAsync(new NewOrganizationDTO
+            var organization = await _organizationServices.AddOrganizationAsync(new NewOrganizationDTO
             {
                 Name = "Techstep mini",
                 OrganizationNumber = "9897878787878",
@@ -194,7 +193,7 @@ namespace CustomerServices.UnitTests
                 Address = new AddressDTO(),
                 ContactPerson = new ContactPersonDTO(),
                 AddUsersToOkta = true,
-                PartnerId = TECHSTEP_PARTNER_ID,
+                PartnerId = UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID,
                 TechstepCustomerId = techstepCustomerId
             });
 
@@ -218,13 +217,13 @@ namespace CustomerServices.UnitTests
                 Address = new AddressDTO(),
                 ContactPerson = new ContactPersonDTO(),
                 AddUsersToOkta = true,
-                PartnerId = PARTNER_ID,
+                PartnerId = UnitTestDatabaseSeeder.PARTNER_ID,
                 TechstepCustomerId = 122323312312,
                 AccountOwner = accountOwner
             };
 
             //Act and Assert
-            var organization = await organizationServices.AddOrganizationAsync(newOrganization);
+            var organization = await _organizationServices.AddOrganizationAsync(newOrganization);
             
             Assert.Null(organization.TechstepCustomerId);
         }
@@ -236,7 +235,7 @@ namespace CustomerServices.UnitTests
             // Arrange
             var orgData = new UpdateOrganizationDTO()
             {
-                OrganizationId = CUSTOMER_ONE_ID,
+                OrganizationId = UnitTestDatabaseSeeder.CUSTOMER_ONE_ID,
                 ParentId = null,
                 PrimaryLocation = null,
                 CallerId = Guid.Empty,
@@ -253,14 +252,14 @@ namespace CustomerServices.UnitTests
             };
 
             // Act
-            var organization = await organizationServices.PutOrganizationAsync(orgData);
+            var organization = await _organizationServices.PutOrganizationAsync(orgData);
 
             // Assert 
             Assert.Equal("name", organization.Name);
             Assert.Equal("", organization.OrganizationNumber);
             Assert.Null(organization.ParentId);
             Assert.True(organization.PrimaryLocation!.IsNull());
-            Assert.Equal(CALLER_ID, organization.UpdatedBy);
+            Assert.Equal(UnitTestDatabaseSeeder.CALLER_ID, organization.UpdatedBy);
             Assert.Equal("street", organization.Address.Street);
             Assert.Equal("", organization.Address.PostCode);
             Assert.Equal("", organization.Address.City);
@@ -278,7 +277,7 @@ namespace CustomerServices.UnitTests
             // Arrange
             var orgData = new UpdateOrganizationDTO()
             {
-                OrganizationId = CUSTOMER_ONE_ID,
+                OrganizationId = UnitTestDatabaseSeeder.CUSTOMER_ONE_ID,
                 ParentId = null,
                 PrimaryLocation = null,
                 CallerId = Guid.Empty,
@@ -296,7 +295,7 @@ namespace CustomerServices.UnitTests
             };
 
             // Act
-            var organization = await organizationServices.PutOrganizationAsync(orgData);
+            var organization = await _organizationServices.PutOrganizationAsync(orgData);
 
             // Assert 
             Assert.True(organization.AddUsersToOkta);
@@ -307,7 +306,7 @@ namespace CustomerServices.UnitTests
         public async Task PatchOrganization_WithAddOktaUsersSet_CheckValue()
         {
             // Act
-            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null, 1, "", addUsersToOkta: true);
+            var organization = await _organizationServices.PatchOrganizationAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, "FirstName", null, null, null, 1, "", addUsersToOkta: true);
 
             // Assert 
             Assert.True(organization.AddUsersToOkta);
@@ -318,7 +317,7 @@ namespace CustomerServices.UnitTests
         public async Task GetOrganization_WithAddOktaUsersSet_CheckValue()
         {
             // Arrange
-            var organization = await organizationServices.AddOrganizationAsync(new NewOrganizationDTO
+            var organization = await _organizationServices.AddOrganizationAsync(new NewOrganizationDTO
             {
                 Name = "COMPANY NAME",
                 OrganizationNumber = "999999999",
@@ -330,7 +329,7 @@ namespace CustomerServices.UnitTests
             });
 
             // Act
-            var addedOrganization = await organizationServices.GetOrganizationAsync(organization.OrganizationId);
+            var addedOrganization = await _organizationServices.GetOrganizationAsync(organization.OrganizationId);
 
             // Assert 
             Assert.True(addedOrganization!.AddUsersToOkta);
@@ -341,7 +340,7 @@ namespace CustomerServices.UnitTests
         public async Task PatchCompanyOne__null_values()
         {
             // Act
-            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, null, null, null, null, null, null, null, null, null, null, 1, "");
+            var organization = await _organizationServices.PatchOrganizationAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null, Guid.Empty, null, null, null, null, null, null, null, null, null, null, 1, "");
             
             // Assert 
             Assert.Equal("COMPANY ONE", organization.Name);
@@ -364,14 +363,14 @@ namespace CustomerServices.UnitTests
         public async Task PatchCompanyOne_partial_null_values()
         {
             // Act
-            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, null, "Paavola", null, null, 1, "");
+            var organization = await _organizationServices.PatchOrganizationAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null, Guid.Empty, "name", null, "street", null, null, null, null, "Paavola", null, null, 1, "");
 
             // Assert 
             Assert.Equal("name", organization.Name);
             Assert.Equal("999888777", organization.OrganizationNumber);
             Assert.Null(organization.ParentId);
             Assert.NotNull(organization.PrimaryLocation);
-            Assert.Equal(CALLER_ID, organization.UpdatedBy);
+            Assert.Equal(UnitTestDatabaseSeeder.CALLER_ID, organization.UpdatedBy);
             Assert.Equal("street", organization.Address.Street);
             Assert.Equal("1111", organization.Address.PostCode);
             Assert.Equal("My City", organization.Address.City);
@@ -386,7 +385,7 @@ namespace CustomerServices.UnitTests
         public async Task InitiateOnboardingAsync_CallEmailOnlyOnUserStatusNotInvited()
         {
             // Act
-            var organization = await organizationServices.InitiateOnboardingAsync(CUSTOMER_ONE_ID);
+            var organization = await _organizationServices.InitiateOnboardingAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID);
             // Arrange
             _emailServiceMock.Verify(email => email.InvitationEmailToUserAsync(It.IsAny<InvitationMail>(), It.IsAny<string>()), Times.Exactly(2));
         }
@@ -399,7 +398,7 @@ namespace CustomerServices.UnitTests
             var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
             var organization = await organizationRepository.GetOrganizationByTechstepCustomerIdAsync(123456789);
             // Assert
-            Assert.Equal(CUSTOMER_FIVE_ID,organization?.OrganizationId);
+            Assert.Equal(UnitTestDatabaseSeeder.CUSTOMER_FIVE_ID,organization?.OrganizationId);
         }
 
         [Fact]
@@ -410,12 +409,12 @@ namespace CustomerServices.UnitTests
             //Arrange
             var organizationUpdate = new UpdateOrganizationDTO
             {
-                OrganizationId = CUSTOMER_FOUR_ID,
+                OrganizationId = UnitTestDatabaseSeeder.CUSTOMER_FOUR_ID,
                 OrganizationNumber = "55555555",
                 Name = "Hallo på do!",
             };
             // Act
-            var organization = await organizationServices.PutOrganizationAsync(organizationUpdate);
+            var organization = await _organizationServices.PutOrganizationAsync(organizationUpdate);
             // Arrange
             Assert.Equal("COMPANY FOUR",organization.Name);
             Assert.Equal("999555444", organization.OrganizationNumber);
@@ -429,12 +428,12 @@ namespace CustomerServices.UnitTests
             //Arrange
             var organizationUpdate = new UpdateOrganizationDTO
             {
-                OrganizationId = CUSTOMER_ONE_ID,
+                OrganizationId = UnitTestDatabaseSeeder.CUSTOMER_ONE_ID,
                 OrganizationNumber = newOrgNumber,
                 Name = newName,
             };
             // Act
-            var organization = await organizationServices.PutOrganizationAsync(organizationUpdate);
+            var organization = await _organizationServices.PutOrganizationAsync(organizationUpdate);
             // Arrange
             Assert.Equal(newName, organization.Name);
             Assert.Equal(newOrgNumber, organization.OrganizationNumber);
@@ -449,7 +448,7 @@ namespace CustomerServices.UnitTests
             var newOrgNumber = "55555555";
             var newName = "Hallo på do!";
             // Act
-            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_FOUR_ID, null,null,EMPTY_CALLER_ID,newName, newOrgNumber,null,null,null,null,null,null,null,null,null);
+            var organization = await _organizationServices.PatchOrganizationAsync(UnitTestDatabaseSeeder.CUSTOMER_FOUR_ID, null,null, UnitTestDatabaseSeeder.EMPTY_CALLER_ID,newName, newOrgNumber,null,null,null,null,null,null,null,null,null);
             // Arrange
             Assert.Equal("COMPANY FOUR", organization.Name);
             Assert.Equal("999555444", organization.OrganizationNumber);
@@ -463,7 +462,7 @@ namespace CustomerServices.UnitTests
             var newName = "Hallo på do!";
             
             // Act
-            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_ONE_ID, null, null, EMPTY_CALLER_ID, newName, newOrgNumber, null, null, null, null, null, null, null, null, null);
+            var organization = await _organizationServices.PatchOrganizationAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null, UnitTestDatabaseSeeder.EMPTY_CALLER_ID, newName, newOrgNumber, null, null, null, null, null, null, null, null, null);
             // Arrange
             Assert.Equal(newName, organization.Name);
             Assert.Equal(newOrgNumber, organization.OrganizationNumber);
@@ -477,7 +476,7 @@ namespace CustomerServices.UnitTests
             var newName = "Hallo på do!";
 
             // Act
-            var organization = await organizationServices.PatchOrganizationAsync(CUSTOMER_THREE_ID, null, null, EMPTY_CALLER_ID, newName, newOrgNumber, null, null, null, null, null, null, null, null, null);
+            var organization = await _organizationServices.PatchOrganizationAsync(UnitTestDatabaseSeeder.CUSTOMER_THREE_ID, null, null, UnitTestDatabaseSeeder.EMPTY_CALLER_ID, newName, newOrgNumber, null, null, null, null, null, null, null, null, null);
             // Arrange
             Assert.Equal(newName, organization.Name);
             Assert.Equal(newOrgNumber, organization.OrganizationNumber);

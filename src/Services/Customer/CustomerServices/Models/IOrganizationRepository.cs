@@ -113,7 +113,7 @@ namespace CustomerServices.Models
         Task<Organization> DeleteOrganizationAsync(Organization organization);
 
         Task<User?> GetUserByUserName(string emailAddress);
-        Task<User?> GetUserByMobileNumber(string mobileNumber);
+        Task<User?> GetUserByMobileNumber(string mobileNumber, Guid organizationId);
         Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100);
         Task<User?> GetUserAsync(Guid customerId, Guid userId);
         Task<User?> GetUserAsync(Guid userId);

@@ -9,7 +9,7 @@ namespace CustomerServices.UnitTests
     public class OktaServicesTests
     {
         private IOktaServices _oktaServices;
-        bool _isIntegrationTest = false;
+        readonly bool _isIntegrationTest = false;
         public OktaServicesTests()
         {
             if (_isIntegrationTest)

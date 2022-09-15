@@ -19,17 +19,16 @@ using Xunit;
 
 namespace CustomerServices.UnitTests
 {
-    public class OrganizationEncryptionTests : OrganizationServicesBaseTest
+    public class OrganizationEncryptionTests
     {
-        private static IMapper _mapper;
+        private readonly IMapper _mapper;
+        private DbContextOptions<CustomerContext> ContextOptions { get; }
 
-        public OrganizationEncryptionTests() : base(
-        new DbContextOptionsBuilder<CustomerContext>()
-        // ReSharper disable once StringLiteralTypo
-        .UseSqlite("Data Source=sqlitecustomerencryptionunittests.db")
-            .Options
-        )
+        public OrganizationEncryptionTests()
         {
+            ContextOptions = new DbContextOptionsBuilder<CustomerContext>()
+                .UseSqlite($"Data Source={Guid.NewGuid()}.db").Options;
+            new UnitTestDatabaseSeeder().SeedUnitTestDatabase(ContextOptions);
             if (_mapper == null)
             {
                 var mappingConfig = new MapperConfiguration(mc => { mc.AddMaps(Assembly.GetAssembly(typeof(LocationDTO))); });
@@ -57,8 +56,8 @@ namespace CustomerServices.UnitTests
             }
 
             // Act
-            var encryptedMessage = await customerService.EncryptDataForCustomer(CUSTOMER_ONE_ID, message, key, iv);
-            var decryptedMessage = await customerService.DecryptDataForCustomer(CUSTOMER_ONE_ID, encryptedMessage, key, iv);
+            var encryptedMessage = await customerService.EncryptDataForCustomer(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, message, key, iv);
+            var decryptedMessage = await customerService.DecryptDataForCustomer(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, encryptedMessage, key, iv);
 
             // Assert
             Assert.Equal(message, decryptedMessage);
