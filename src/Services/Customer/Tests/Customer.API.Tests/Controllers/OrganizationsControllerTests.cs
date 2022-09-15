@@ -25,6 +25,8 @@ namespace Customer.API.IntegrationTests.Controllers
         private readonly Guid _organizationTwoId;
         private readonly Guid _organizationIdThree;
         private readonly Guid _departmentId;
+        private readonly Guid _techstepPartnerId;
+        private readonly Guid _partnerId;
 
 
         private readonly CustomerWebApplicationFactory<Startup> _factory;
@@ -38,6 +40,8 @@ namespace Customer.API.IntegrationTests.Controllers
             _organizationTwoId = factory.ORGANIZATION_TWO_ID;
             _organizationIdThree = factory.ORGANIZATION_THREE_ID;
             _departmentId = factory.HEAD_DEPARTMENT_ID;
+            _techstepPartnerId = factory.TECHSTEP_PARTNER_ID;
+            _partnerId = factory.PARTNER_ID;
             _httpClient.DefaultRequestHeaders.Add("X-Authenticated-UserId", Guid.Empty.SystemUserId().ToString());
         }
 
@@ -199,6 +203,120 @@ namespace Customer.API.IntegrationTests.Controllers
 
             // Check asserts
             Assert.True(readOrganization!.AddUsersToOkta);
+        }
+        [Fact]
+        public async Task CreateOrganization_WithTechstepAsPartner_SaveTechstepCustomerIdAndAccountOwner()
+        {
+            // Setup
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var requestUri = $"/api/v1/organizations";
+
+            string accountOwner = "Julia";
+            long techstepCustomerId = 1233232323;
+
+            var newOrganization = new NewOrganizationDTO
+            {
+                Name = "TE BØ",
+                OrganizationNumber = "912343222",
+                Address = new AddressDTO
+                {
+                    City = "OSLO",
+                    Country = "NO",
+                    PostCode = "0554",
+                    Street = "Markveien 32F"
+                },
+                ContactPerson = new ContactPersonDTO
+                {
+                    Email = "test@test.test",
+                    FirstName = "test",
+                    LastName = "test",
+                    PhoneNumber = "+4790909090"
+                },
+                Location = new LocationDTO
+                {
+                    Name = "Default location",
+                    Description = null,
+                    Address1 = "Markveien 32F",
+                    Address2 = null,
+                    City = "OSLO",
+                    PostalCode = "0554",
+                    Country = "NO"
+                },
+                PrimaryLocation = null,
+                ParentId = null,
+                InternalNotes = null,
+                IsCustomer = true,
+                Preferences = null,
+                AddUsersToOkta = true,
+                PartnerId = _techstepPartnerId,
+                AccountOwner = accountOwner,
+                TechstepCustomerId = techstepCustomerId
+            };
+
+            var response = await httpClient.PostAsJsonAsync(requestUri, newOrganization);
+            var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+
+
+            // Check asserts
+            Assert.Equal(accountOwner,organization?.AccountOwner);
+            Assert.Equal(techstepCustomerId,organization?.TechstepCustomerId);
+        }
+        [Fact]
+        public async Task CreateOrganization_PartnerNotTechstep_NotSaveTechstepCustomerId()
+        {
+            // Setup
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations";
+
+            string accountOwner = "Julia";
+            long techstepCustomerId = 1233232323;
+
+            var newOrganization = new NewOrganizationDTO
+            {
+                Name = "TE BØ",
+                OrganizationNumber = "912343222",
+                Address = new AddressDTO
+                {
+                    City = "OSLO",
+                    Country = "NO",
+                    PostCode = "0554",
+                    Street = "Markveien 32F"
+                },
+                ContactPerson = new ContactPersonDTO
+                {
+                    Email = "test@test.test",
+                    FirstName = "test",
+                    LastName = "test",
+                    PhoneNumber = "+4790909090"
+                },
+                Location = new LocationDTO
+                {
+                    Name = "Default location",
+                    Description = null,
+                    Address1 = "Markveien 32F",
+                    Address2 = null,
+                    City = "OSLO",
+                    PostalCode = "0554",
+                    Country = "NO"
+                },
+                PrimaryLocation = null,
+                ParentId = null,
+                InternalNotes = null,
+                IsCustomer = true,
+                Preferences = null,
+                AddUsersToOkta = true,
+                PartnerId = _partnerId,
+                AccountOwner = accountOwner,
+                TechstepCustomerId = techstepCustomerId
+            };
+
+            var response = await httpClient.PostAsJsonAsync(requestUri, newOrganization);
+            var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
+
+            // Check asserts
+            Assert.Equal(accountOwner, organization?.AccountOwner);
+            Assert.Null(organization?.TechstepCustomerId);
         }
 
         [Fact()]

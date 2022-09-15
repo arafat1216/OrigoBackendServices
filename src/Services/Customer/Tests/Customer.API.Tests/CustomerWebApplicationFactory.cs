@@ -1,3 +1,4 @@
+using Common.Configuration;
 using Common.Logging;
 using Customer.API.IntegrationTests.Helpers;
 using CustomerServices.Email;
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using System;
 using System.Linq;
@@ -36,6 +38,8 @@ public class CustomerWebApplicationFactory<TProgram> : WebApplicationFactory<TPr
     public Guid USER_SEVEN_ID => CustomerTestDataSeedingForDatabase.USER_SEVEN_ID;
     public string USER_ONE_EMAIL => CustomerTestDataSeedingForDatabase.USER_ONE_EMAIL;
     public string USER_FOUR_EMAIL => CustomerTestDataSeedingForDatabase.USER_FOUR_EMAIL;
+    public Guid TECHSTEP_PARTNER_ID => CustomerTestDataSeedingForDatabase.TECHSTEP_PARTNER_ID;
+    public Guid PARTNER_ID => CustomerTestDataSeedingForDatabase.PARTNER_ID;
 
 
 
@@ -52,7 +56,7 @@ public class CustomerWebApplicationFactory<TProgram> : WebApplicationFactory<TPr
             using var scope = serviceProvider.CreateScope();
             using var customerContext = scope.ServiceProvider.GetRequiredService<CustomerContext>();
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<CustomerWebApplicationFactory<TProgram>>>();
-
+            
             try
             {
                 CustomerTestDataSeedingForDatabase.PopulateData(customerContext);
@@ -66,6 +70,11 @@ public class CustomerWebApplicationFactory<TProgram> : WebApplicationFactory<TPr
             emailServiceMock.Setup(m => m.OffboardingOverdueEmailToManagersAsync(new CustomerServices.Email.Models.OffboardingOverdueMail(), "en"));
 
             services.AddSingleton(s => emailServiceMock.Object);
+
+            var techstepConfig = new Mock<IOptions<TechstepPartnerConfiguration>>();
+            techstepConfig.Setup(a => a.Value).Returns(new TechstepPartnerConfiguration { PartnerId = TECHSTEP_PARTNER_ID });
+            services.AddSingleton(s => techstepConfig.Object);
+
         });
         base.ConfigureWebHost(builder);
     }

@@ -33,5 +33,7 @@ namespace OrigoApiGateway.Models.BackendDTO
         public NewOrganizationPreferences Preferences { get; set; }
 
         public bool? AddUsersToOkta { get; set; }
+        public long? TechstepCustomerId { get; set; }
+        public string? AccountOwner { get; set; }
     }
 }

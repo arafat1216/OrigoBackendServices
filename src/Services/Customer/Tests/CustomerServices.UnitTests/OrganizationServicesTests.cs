@@ -156,6 +156,81 @@ namespace CustomerServices.UnitTests
 
         [Fact]
         [Trait("Category", "UnitTest")]
+        public async Task AddOrganization_WithTechstepAsPartner_ReturnTechstepCustomerIdAndAccountOwner()
+        {
+            // Act
+            var accountOwner = "Krister Emanuelsen";
+            var techstepCustomerId = 112223232321;
+
+            var organization = await organizationServices.AddOrganizationAsync(new NewOrganizationDTO
+            {
+                Name = "Techstep mini",
+                OrganizationNumber = "22222222278",
+                Location = new LocationDTO(),
+                Address = new AddressDTO(),
+                ContactPerson = new ContactPersonDTO(),
+                AddUsersToOkta = true,
+                PartnerId = TECHSTEP_PARTNER_ID,
+                AccountOwner = accountOwner,
+                TechstepCustomerId = techstepCustomerId
+            });
+
+            // Assert 
+            Assert.Equal(accountOwner, organization.AccountOwner);
+            Assert.Equal(techstepCustomerId, organization.TechstepCustomerId);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task AddOrganization_WithTechstepAsPartner_OnlyTechstepCustomerId()
+        {
+            //Arrange
+            var techstepCustomerId = 112223232321;
+            var organization = await organizationServices.AddOrganizationAsync(new NewOrganizationDTO
+            {
+                Name = "Techstep mini",
+                OrganizationNumber = "9897878787878",
+                Location = new LocationDTO(),
+                Address = new AddressDTO(),
+                ContactPerson = new ContactPersonDTO(),
+                AddUsersToOkta = true,
+                PartnerId = TECHSTEP_PARTNER_ID,
+                TechstepCustomerId = techstepCustomerId
+            });
+
+            // Assert 
+            Assert.Equal("", organization.AccountOwner);
+            Assert.Equal(techstepCustomerId, organization.TechstepCustomerId);
+
+        }
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task AddOrganization_NotTechstepAsPartner_ShouldNotSavetechstepCustomerId()
+        {
+            //Arrange
+            var accountOwner = "Krister Emanuelsen";
+
+            var newOrganization = new NewOrganizationDTO
+            {
+                Name = "Techstep mini",
+                OrganizationNumber = "23233222",
+                Location = new LocationDTO(),
+                Address = new AddressDTO(),
+                ContactPerson = new ContactPersonDTO(),
+                AddUsersToOkta = true,
+                PartnerId = PARTNER_ID,
+                TechstepCustomerId = 122323312312,
+                AccountOwner = accountOwner
+            };
+
+            //Act and Assert
+            var organization = await organizationServices.AddOrganizationAsync(newOrganization);
+            
+            Assert.Null(organization.TechstepCustomerId);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
         public async Task PutCompanyOne_partial_null_values()
         {
             // Arrange
@@ -407,5 +482,6 @@ namespace CustomerServices.UnitTests
             Assert.Equal(newName, organization.Name);
             Assert.Equal(newOrgNumber, organization.OrganizationNumber);
         }
+      
     }
 }

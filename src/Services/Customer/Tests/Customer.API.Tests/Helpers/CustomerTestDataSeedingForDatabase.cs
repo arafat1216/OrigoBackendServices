@@ -12,7 +12,11 @@ namespace Customer.API.IntegrationTests.Helpers
         public static readonly Guid ORGANIZATION_ID = Guid.Parse("f5635deb-9b38-411c-9577-5423c9290106");
         public static readonly Guid ORGANIZATION_TWO_ID = Guid.Parse("e454f5c8-f19c-4c76-ae9e-cc53ecefb21a"); 
         public static readonly Guid ORGANIZATION_THREE_ID = Guid.Parse("701d5de6-7264-41a5-9edd-f8e842edebda");
+        public static readonly Guid PARTNER_CUSTOMER_ID = Guid.Parse("5bf9322d-4c60-47a5-84e5-8118c2917df9");
         public static readonly Guid TECHSTEP_CUSTOMER_ID = Guid.Parse("c601dd7f-9930-46e2-944a-d994855663da");
+
+        public static readonly Guid TECHSTEP_PARTNER_ID = Guid.Parse("149d04d9-206f-4b9d-9310-d103d4cf0f2a");
+        public static readonly Guid PARTNER_ID = Guid.Parse("db5f1f31-4bb6-4b66-a1f2-91008277288f");
 
         public static readonly Guid HEAD_DEPARTMENT_ID = Guid.Parse("37d6d1b1-54a5-465d-a313-b6c250d66db4");
         public static readonly Guid SUB_DEPARTMENT_ID = Guid.Parse("5355134f-4852-4c36-99d1-fa9d4a1d7a61");
@@ -96,10 +100,21 @@ namespace Customer.API.IntegrationTests.Helpers
               new ContactPerson("Børge", "Astrup", "the@boss.com", "+4799999991"),
               new OrganizationPreferences(TECHSTEP_CUSTOMER_ID, CALLER_ID, "www.techstep.com", "www.techstep.com/logo", null, true, "nb", 0),
               new Location("TECHSTEP NORWAY", "Head office", "Brynsalléen", "4", "0667", "Oslo", "nb"),
-              null, true, 15, "payroll@techstep.com", false);
+              null, true, 15, null, null, "payroll@techstep.com", false);
+            var partnerOrganization = new Organization(PARTNER_CUSTOMER_ID, null, "PARTNER", "22222222222",
+              new Address("Billingstadsletta 19B", "1396", "Oslo", "no"),
+              new ContactPerson("Svein", "Hansen", "le@boss.com", "+4799999992"),
+              new OrganizationPreferences(PARTNER_CUSTOMER_ID, CALLER_ID, "www.mytos.com", "www.mytos.com/logo", null, true, "nb", 0),
+              new Location("MYTOS", "R&D office", "Billingstadsletta", "19B", "1396", "Oslo", "nb"),
+              null, true, 15, null, null, "payroll@mytos.com", false);
 
-            var techstepPartner = new Partner(techstepOrganization);
-            customerContext.Add(techstepPartner);
+            customerContext.Organizations.Add(techstepOrganization);
+            customerContext.Organizations.Add(partnerOrganization);
+
+            var techstepPartner = new Partner(techstepOrganization, TECHSTEP_PARTNER_ID);
+            var partner = new Partner(partnerOrganization, PARTNER_ID);
+            customerContext.Partners.Add(techstepPartner);
+            customerContext.Partners.Add(partner);
 
             var organization = new Organization(ORGANIZATION_ID,
                                                 PARENT_ID,
@@ -112,6 +127,8 @@ namespace Customer.API.IntegrationTests.Helpers
                                                 null,
                                                 true,
                                                 15,
+                                                null,
+                                                null,
                                                 ""
                                                 );
 
@@ -126,6 +143,8 @@ namespace Customer.API.IntegrationTests.Helpers
                                                 null,
                                                 true,
                                                 1,
+                                                null,
+                                                null,
                                                 ""
                                                 );
             organizationTWO.InitiateOnboarding();
@@ -141,6 +160,8 @@ namespace Customer.API.IntegrationTests.Helpers
                                                techstepPartner,
                                                true,
                                                1,
+                                               null,
+                                               null,
                                                ""
                                                );
             organizationThree.AddTechstepAccountOwner("Rolf Sjødal");

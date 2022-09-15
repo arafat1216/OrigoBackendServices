@@ -183,15 +183,21 @@ namespace CustomerServices
             #region Partner
             Partner? partner = null;
             // If it has a partner, make sure it exist!
+            long? techstepCustomerId = null;
             if (newOrganization.PartnerId is not null)
             {
                 partner = await _organizationRepository.GetPartnerAsync((Guid)newOrganization.PartnerId);
 
                 if (partner is null)
                     throw new ArgumentException("Partner not found");
+
+                //Only if the partner is Techstep the customers techstepCustomerId should be saved
+                if (partner.ExternalId == _techstepPartnerConfiguration.PartnerId)
+                {
+                    techstepCustomerId = newOrganization.TechstepCustomerId;
+                }
             }
             #endregion Partner
-
 
             #region Parent
             // If it has a parent, make sure it exist!
@@ -216,7 +222,7 @@ namespace CustomerServices
             var organization = new Organization(Guid.NewGuid(), newOrganization.ParentId,
                                                 newOrganization.Name, newOrganization.OrganizationNumber, address,
                                                 contactPerson, null, location,
-                                                partner, newOrganization.IsCustomer, lastSalaryReportingDay: null, addUsersToOkta: newOrganization.AddUsersToOkta);
+                                                partner, newOrganization.IsCustomer, lastSalaryReportingDay: null, addUsersToOkta: newOrganization.AddUsersToOkta, accountOwner: newOrganization.AccountOwner, techstepCustomerId:techstepCustomerId);
 
             organization = await _organizationRepository.AddAsync(organization);
 
@@ -308,7 +314,7 @@ namespace CustomerServices
 
                 // Do update
                 Organization newOrganization = new Organization(updatedOrganization.OrganizationId, updatedOrganization.ParentId, updatedOrganization
-                    .Name, updatedOrganization.OrganizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, updatedOrganization.LastDayForReportingSalaryDeduction, updatedOrganization.PayrollContactEmail, updatedOrganization.AddUsersToOkta == null? false:true);
+                    .Name, updatedOrganization.OrganizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, updatedOrganization.LastDayForReportingSalaryDeduction, null, null, updatedOrganization.PayrollContactEmail, updatedOrganization.AddUsersToOkta == null? false:true);
 
                 organizationOriginal.UpdateOrganization(newOrganization);
 
@@ -427,7 +433,7 @@ namespace CustomerServices
                 newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
 
                 // Do update
-                Organization newOrganization = new Organization(organizationId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, lastSalaryReportingDay, payrollEmail, addUsersToOkta);
+                Organization newOrganization = new Organization(organizationId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, lastSalaryReportingDay, null, null, payrollEmail, addUsersToOkta);
 
                 organizationOriginal.UpdateOrganization(newOrganization);
 

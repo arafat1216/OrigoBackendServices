@@ -32,5 +32,6 @@
 
         public string StatusName { get; set; }
         public string AccountOwner { get; set; }
+        public long? TechstepCustomerId { get; set; }
     }
 }

@@ -11,7 +11,7 @@ public record NewOrganizationDTO
 
     public NewOrganizationDTO(string name, string organizationNumber, AddressDTO address,
         ContactPersonDTO contactPerson, Guid primaryLocation, Guid? parentId, string? internalNotes, Guid? partnerId,
-        bool isCustomer, NewOrganizationPreferencesDTO preferences, bool addUsersToOkta = false)
+        bool isCustomer, NewOrganizationPreferencesDTO preferences, string? accountOwner, long? techstepCustomerId, bool addUsersToOkta = false)
     {
         Name = name;
         OrganizationNumber = organizationNumber;
@@ -25,6 +25,8 @@ public record NewOrganizationDTO
         IsCustomer = isCustomer;
         Preferences = preferences;
         AddUsersToOkta = addUsersToOkta;
+        AccountOwner = accountOwner;
+        TechstepCustomerId = techstepCustomerId;
     }
 
     public string Name { get; init; } = string.Empty;
@@ -91,4 +93,12 @@ public record NewOrganizationDTO
     /// Should new users be added to Okta.
     /// </summary>
     public bool AddUsersToOkta { get; set; }
+    /// <summary>
+    /// The id used across all Techstep systems to identify the customer.
+    /// </summary>
+    public long? TechstepCustomerId { get; set; }
+    /// <summary>
+    /// Person that is responsible for the customer.
+    /// </summary>
+    public string? AccountOwner { get; set; }
 }

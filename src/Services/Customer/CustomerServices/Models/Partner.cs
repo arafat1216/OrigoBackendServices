@@ -51,5 +51,11 @@ namespace CustomerServices.Models
             Organization = organization;
             AddDomainEvent(new PartnerCreatedDomainEvent(this));
         }
+        public Partner(Organization organization, Guid partnerId)
+        {
+            ExternalId = partnerId;
+            Organization = organization;
+            AddDomainEvent(new PartnerCreatedDomainEvent(this));
+        }
     }
 }

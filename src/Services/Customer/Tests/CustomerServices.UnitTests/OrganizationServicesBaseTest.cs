@@ -22,7 +22,9 @@ namespace CustomerServices.UnitTests
         protected readonly Guid CUSTOMER_FIVE_ID = new("94e47c5b-9486-4017-8bab-252422b1262a");
         protected readonly Guid PARTNER_CUSTOMER_ID = new("ea8db27c-560f-4c42-8787-9646b6d0509f");
         protected readonly Guid TECHSTEP_CUSTOMER_ID = new("c601dd7f-9930-46e2-944a-d994855663da");
-        protected Guid TECHSTEP_PARTNER_ID;
+        protected readonly Guid TECHSTEP_PARTNER_ID = new("d20ec73e-42d4-49d5-b5e2-82e061cf59f0");
+        protected readonly Guid PARTNER_ID = new("a28e408f-00c3-4ee9-9aee-165c32c7e912");
+      
 
         protected readonly Guid USER_ONE_ID = new Guid("42803f8e-5608-4beb-a3e6-029b8e229d91");
         private readonly Guid USER_TWO_ID = new Guid("39349c24-6e47-4a5e-9bab-7b65f438fac5");
@@ -60,48 +62,45 @@ namespace CustomerServices.UnitTests
                 new ContactPerson("Børge", "Astrup","the@boss.com","+4799999991"),
                 new OrganizationPreferences(TECHSTEP_CUSTOMER_ID,EMPTY_CALLER_ID,"www.techstep.com","www.techstep.com/logo",null,true,"nb",0),
                 new Location("TECHSTEP NORWAY","Head office", "Brynsalléen", "4", "0667", "Oslo", "nb"),
-                null,true,15,"payroll@techstep.com",false);
+                null,true,15, null, "", "payroll@techstep.com",false);
             var partnerOrganization = new Organization(PARTNER_CUSTOMER_ID, null, "PARTNER", "22222222222",
               new Address("Billingstadsletta 19B", "1396", "Oslo", "no"),
               new ContactPerson("Svein", "Hansen", "le@boss.com", "+4799999992"),
               new OrganizationPreferences(PARTNER_CUSTOMER_ID, EMPTY_CALLER_ID, "www.mytos.com", "www.mytos.com/logo", null, true, "nb", 0),
               new Location("MYTOS", "R&D office", "Billingstadsletta", "19B", "1396", "Oslo", "nb"),
-              null, true, 15, "payroll@mytos.com", false);
+              null, true, 15, null, null, "payroll@mytos.com", false);
 
-            var techstepPartner = new Partner(techstepOrganization);
-            var partner = new Partner(partnerOrganization);
+            var techstepPartner = new Partner(techstepOrganization, TECHSTEP_PARTNER_ID);
+            var partner = new Partner(partnerOrganization,PARTNER_ID);
             context.Add(techstepPartner);
             context.Add(partner);
-            //To set the partner id in techstep configuration
-            TECHSTEP_PARTNER_ID = techstepPartner.ExternalId;
-            
             var customerOne = new Organization(CUSTOMER_ONE_ID, null, "COMPANY ONE", "999888777",
                 new Address("My Way 1", "1111", "My City", "NO"),
                 new ContactPerson("JOHN", "DOE", "john.doe@example.com", "99999999"),
                 new OrganizationPreferences(CUSTOMER_ONE_ID, USER_ONE_ID, "webPage 1", "logoUrl 1", "organizationNotes 1", true, "nb", 0),
                 new Location("COMPANY ONE", "Location of COMPANY ONE", "My Way 1A", "My Way 1B", "0585", "Oslo", "NO"),
-                null, true, 1, "");
+                null, true, 1, null, null ,"");
 
             var customerTwo = new Organization(CUSTOMER_TWO_ID, null, "COMPANY TWO", "999777666",
                 new Address("My Way 2", "1111", "My City", "NO"),
                 new ContactPerson("Ola", "Nordmann", "ola.nordmann@example.com", "99999998"),
                 new OrganizationPreferences(CUSTOMER_TWO_ID, USER_ONE_ID, "webPage 2", "logoUrl 2", "organizationNotes 2", true, "nb", 0),
                 new Location("name", "description", "My Way 2A", "My Way 2B", "0585", "Oslo", "NO"),
-                null, true, 1, "",true);
+                null, true, 1, null,null,"",true);
 
             var customerThree = new Organization(CUSTOMER_THREE_ID, CUSTOMER_ONE_ID, "COMPANY THREE", "999666555",
                 new Address("My Way 3", "1111", "My Other City", "NO"),
                 new ContactPerson("Kari", "Nordmann", "kari.nordmann@example.com", "99999997"),
                 new OrganizationPreferences(CUSTOMER_THREE_ID, USER_ONE_ID, "webPage 3", "logoUrl 3", "organizationNotes 3", true, "nb", 0),
                 new Location("name", "description", "My Way 3A", "My Way 3B", "0585", "Oslo", "NO"),
-                partner, true, 1, "");
+                partner, true, 1, null, null, "");
 
             var customerFour = new Organization(CUSTOMER_FOUR_ID, null, "COMPANY FOUR", "999555444",
                 new Address("My Way 4", "1111", "My City", "NO"),
                 new ContactPerson("Petter", "Smart", "petter.smart@example.com", "99999996"),
                 new OrganizationPreferences(CUSTOMER_FOUR_ID, USER_ONE_ID, "webPage 4", "logoUrl 4", "organizationNotes 4", true, "nb", 0),
                 new Location("name", "description", "My Way 4A", "My Way 4B", "0585", "Oslo", "NO"),
-                techstepPartner, true, 1, "",true);
+                techstepPartner, true, 1, null, null, "",true);
             customerFour.AddTechstepCustomerId(123456700);
             customerFour.InitiateOnboarding();
 
@@ -110,7 +109,7 @@ namespace CustomerServices.UnitTests
                new ContactPerson("Donald", "Duck", "donald.duck@example.com", "99999995"),
                new OrganizationPreferences(CUSTOMER_FIVE_ID, USER_ONE_ID, "webPage 5", "logoUrl 5", "organizationNotes 5", true, "nb", 0),
                new Location("name", "description", "My Way 5A", "My Way 5B", "0585", "Oslo", "NO"),
-               null, true, 1, "");
+               null, true, 1, null, null, "");
             customerFive.AddTechstepCustomerId(123456789);
 
 

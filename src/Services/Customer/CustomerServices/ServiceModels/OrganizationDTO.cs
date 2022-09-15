@@ -27,6 +27,7 @@ namespace CustomerServices.ServiceModels
             LastDayForReportingSalaryDeduction = organization.LastDayForReportingSalaryDeduction;
             PayrollContactEmail = organization.PayrollContactEmail;
             AccountOwner = organization.AccountOwner;
+            TechstepCustomerId = organization.TechstepCustomerId;
 
             if (organization.ChildOrganizations is not null && organization.ChildOrganizations.Count != 0)
             {
@@ -89,5 +90,6 @@ namespace CustomerServices.ServiceModels
         /// </summary>
         public string StatusName { get; set; }
         public string AccountOwner { get; set; } = string.Empty;
+        public long? TechstepCustomerId { get; set; }
     }
 }

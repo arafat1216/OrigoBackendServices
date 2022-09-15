@@ -145,7 +145,7 @@ namespace CustomerServices.Models
         public Organization(Guid organizationId, Guid? parentId, string companyName, string orgNumber,
             Address companyAddress, ContactPerson organizationContactPerson,
             OrganizationPreferences organizationPreferences, Location organizationLocation, Partner? partner,
-            bool isCustomer, int? lastSalaryReportingDay, string payrollEmail = "", bool addUsersToOkta = false)
+            bool isCustomer, int? lastSalaryReportingDay, long? techstepCustomerId, string? accountOwner, string payrollEmail = "", bool addUsersToOkta = false)
         {
             Name = companyName;
             ParentId = parentId;
@@ -163,6 +163,8 @@ namespace CustomerServices.Models
             Locations.Add(organizationLocation);
             LastDayForReportingSalaryDeduction = lastSalaryReportingDay;
             PayrollContactEmail = payrollEmail;
+            TechstepCustomerId = techstepCustomerId;
+            AccountOwner = accountOwner ?? string.Empty;
             AddDomainEvent(new CustomerCreatedDomainEvent(this));
         }
 

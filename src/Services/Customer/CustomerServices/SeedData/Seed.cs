@@ -54,7 +54,9 @@ namespace CustomerServices.SeedData
                 ),
                  partner: null,
                  isCustomer: true,
-                 lastSalaryReportingDay: 1
+                 lastSalaryReportingDay: 1,
+                 accountOwner: null,
+                 techstepCustomerId: null
                 );
 
             Organization organization2 = new Organization(
@@ -94,7 +96,9 @@ namespace CustomerServices.SeedData
                 ),
                 partner: null,
                 isCustomer: true,
-                 lastSalaryReportingDay: 1
+                lastSalaryReportingDay: 1,
+                accountOwner: null,
+                techstepCustomerId: null
                 );
             #endregion
 

@@ -602,7 +602,7 @@ public class UserServicesTests : OrganizationServicesBaseTest
         var organizationId = Guid.NewGuid();
         var preferences = new OrganizationPreferences(organizationId, Guid.Empty, null, null, null, false, "", 1);
         var organization = new Organization(organizationId, null, "C1", "1", new Address(), new ContactPerson(),
-            preferences, new Location("A", "D", "A1", "A2", "P", "C", "CO"), null, true, 1);
+            preferences, new Location("A", "D", "A1", "A2", "P", "C", "CO"), null, true, 1, null, "");
 
         mockRepository.Setup(o => o.GetOrganizationAsync(organizationId,
             It.IsAny<Expression<Func<Organization, bool>>?>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(),

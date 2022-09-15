@@ -20,7 +20,7 @@ namespace CustomerServices.UnitTests
             var location = new Location(string.Empty, string.Empty, string.Empty, string.Empty,
                 string.Empty, string.Empty, string.Empty);
             var organization = new Organization(customerId, null, "COMPANY A", "999999999", new Address(),
-                new ContactPerson(), organizationPreferences, location, null, true, 1, "");
+                new ContactPerson(), organizationPreferences, location, null, true, 1, null, null, "");
             var l1DeptId = Guid.NewGuid();
             var topLevelDepartment = new Department("L1", "", "", organization, l1DeptId, Guid.Empty);
             organization.AddDepartment(topLevelDepartment, Guid.Empty);

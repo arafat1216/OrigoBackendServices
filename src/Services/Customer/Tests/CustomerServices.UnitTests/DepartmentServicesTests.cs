@@ -46,7 +46,7 @@ public class DepartmentServicesTests : OrganizationServicesBaseTest
         const string DEPARTMENT_DESCRIPTION = "DEPT_DEC";
         var organizationRepositoryMock = new Mock<IOrganizationRepository>();
         var organization = new Organization(customerId, null, "C1", "1", new Address(),
-            new ContactPerson(), new OrganizationPreferences(customerId, Guid.Empty, null, null, null, false, "", 1), new Location("A", "D", "A1", "A2", "P", "C", "CO", RecipientType.Organization), null, true,1, "", false);
+            new ContactPerson(), new OrganizationPreferences(customerId, Guid.Empty, null, null, null, false, "", 1), new Location("A", "D", "A1", "A2", "P", "C", "CO", RecipientType.Organization), null, true,1, null, null, "", false);
         organizationRepositoryMock
             .Setup(o => o.GetOrganizationAsync(customerId, It.IsAny<Expression<Func<Organization, bool>>?>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(organization);
         var existingDepartment = new Department(DEPARTMENT_NAME, COST_CENTER_NAME, DEPARTMENT_DESCRIPTION, organization, departmentId, Guid.Empty);

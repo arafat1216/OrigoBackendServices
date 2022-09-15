@@ -59,5 +59,13 @@
         /// Should new users be added to Okta for this organization.
         /// </summary>
         public bool? AddUsersToOkta { get; set; }
+        /// <summary>
+        /// Customers Techstep Id
+        /// </summary>
+        public long? TechstepCustomerId { get; set; }
+        /// <summary>
+        /// The responsible owner for this customer   
+        /// </summary>
+        public string? AccountOwner { get; set; }
     }
 }
