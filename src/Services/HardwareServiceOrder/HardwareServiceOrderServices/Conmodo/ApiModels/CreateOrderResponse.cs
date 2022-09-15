@@ -13,12 +13,37 @@ namespace HardwareServiceOrderServices.Conmodo.ApiModels
         [JsonPropertyName("dealerId")]
         public string DealerId { get; set; }
 
+        // On some orders, it seems like Conmodo is returning the same model, but with the "DealerId" incorrectly named "DeltaDealerID"..
+        // We add this as a setter, so we can record the values if we have an alternate property..
+        [JsonPropertyName("deltaDealerID")]
+        public int DeltaDealerID
+        {
+            set
+            {
+                if (string.IsNullOrEmpty(DealerId))
+                    DealerId = value.ToString();
+            }
+        }
+
         /// <summary>
         ///     Conmodo's order number
         /// </summary>
         [Required]
         [JsonPropertyName("orderNumber")]
         public int OrderNumber { get; set; }
+
+        // On some orders, it seems like Conmodo is returning the same model, but with the "DealerId" incorrectly named "DeltaDealerID"..
+        // We add this as a setter, so we can record the values if we have an alternate property..
+        [JsonPropertyName("deltaOrderNumber")]
+        public int DeltaOrderNumber
+        {
+            set
+            {
+                if (OrderNumber == null || OrderNumber == default || OrderNumber == 0)
+                    OrderNumber = value;
+            }
+        }
+
 
         /// <summary>
         ///     URL for printing the order label

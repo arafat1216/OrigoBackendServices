@@ -136,6 +136,12 @@ namespace HardwareServiceOrderServices.Conmodo
         {
             var response = await _httpClient.PostAsJsonAsync(url, data);
 
+#if DEBUG
+#pragma warning disable S1481 // Unused local variables should be removed
+            string rawResponse = await response.Content.ReadAsStringAsync();
+#pragma warning restore S1481 // Unused local variables should be removed
+#endif
+
             if (response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadFromJsonAsync<TResponse>();

@@ -207,6 +207,7 @@ namespace OrigoApiGateway.Services
 
 #if DEBUG
 #pragma warning disable S1481 // Unused local variables should be removed
+            string? requestBodyAsString = await request.Content.ReadAsStringAsync();
             string? responseBodyAsString = await response.Content.ReadAsStringAsync();
 #pragma warning restore S1481 // Unused local variables should be removed
 #endif
