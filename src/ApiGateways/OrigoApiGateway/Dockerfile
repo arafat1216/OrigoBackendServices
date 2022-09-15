@@ -37,32 +37,30 @@ COPY /src/ApiGateways/OrigoApiGateway/. ApiGateways/OrigoApiGateway/.
 
 WORKDIR "/src/ApiGateways/OrigoApiGateway"
 
-RUN if [ -z "RUN_LOCAL" ] ; then \
-	# Provide extra parameters if this is a PR
-	if [ -z "$PULL_REQUEST_KEY" ] ; then \
-	  dotnet sonarscanner begin \
-		/k:"${SONAR_PROJECT_KEY}" \
-		/o:"${SONAR_ORGANIZATION_KEY}" \
-		/d:sonar.host.url="${SONAR_HOST_URL}" \
-		/d:sonar.login="${SONAR_TOKEN}" \
-		/d:sonar.verbose=true \
-		/d:sonar.coverageReportPaths=/CodeCoverage/SonarQube.xml \
-		/d:sonar.cs.xunit.reportsPaths=/**/TestResults/**/*.trx \
-		/d:sonar.sourceEncoding=UTF-8; \
-	else \
-	  dotnet sonarscanner begin \
-		/k:"${SONAR_PROJECT_KEY}" \
-		/o:"${SONAR_ORGANIZATION_KEY}" \
-		/d:sonar.pullrequest.base=trunk \
-		/d:sonar.pullrequest.key="${PULL_REQUEST_KEY}" \
-		/d:sonar.pullrequest.branch="${PULL_REQUEST_SOURCEBRANCH}" \
-		/d:sonar.host.url="${SONAR_HOST_URL}" \
-		/d:sonar.login="${SONAR_TOKEN}" \
-		/d:sonar.verbose=true \
-		/d:sonar.coverageReportPaths=/CodeCoverage/SonarQube.xml \
-		/d:sonar.cs.xunit.reportsPaths=/**/TestResults/**/*.trx \
-		/d:sonar.sourceEncoding=UTF-8; \
-	fi \
+# Provide extra parameters if this is a PR
+RUN if [ -z "$PULL_REQUEST_KEY" ] ; then \
+  dotnet sonarscanner begin \
+	/k:"${SONAR_PROJECT_KEY}" \
+	/o:"${SONAR_ORGANIZATION_KEY}" \
+	/d:sonar.host.url="${SONAR_HOST_URL}" \
+	/d:sonar.login="${SONAR_TOKEN}" \
+	/d:sonar.verbose=true \
+	/d:sonar.coverageReportPaths=/CodeCoverage/SonarQube.xml \
+	/d:sonar.cs.xunit.reportsPaths=/**/TestResults/**/*.trx \
+	/d:sonar.sourceEncoding=UTF-8; \
+else \
+	dotnet sonarscanner begin \
+	/k:"${SONAR_PROJECT_KEY}" \
+	/o:"${SONAR_ORGANIZATION_KEY}" \
+	/d:sonar.pullrequest.base=trunk \
+	/d:sonar.pullrequest.key="${PULL_REQUEST_KEY}" \
+	/d:sonar.pullrequest.branch="${PULL_REQUEST_SOURCEBRANCH}" \
+	/d:sonar.host.url="${SONAR_HOST_URL}" \
+	/d:sonar.login="${SONAR_TOKEN}" \
+	/d:sonar.verbose=true \
+	/d:sonar.coverageReportPaths=/CodeCoverage/SonarQube.xml \
+	/d:sonar.cs.xunit.reportsPaths=/**/TestResults/**/*.trx \
+	/d:sonar.sourceEncoding=UTF-8; \
 fi
   
 RUN dotnet build \
@@ -113,9 +111,7 @@ RUN reportgenerator \
 	-reporttypes:"SonarQube;HtmlInline_AzurePipelines;HtmlInline_AzurePipelines_Dark;Cobertura" \
 	-verbosity:Verbose
 
-RUN if [ -z "RUN_LOCAL" ] ; then \
-	dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"; \
-fi
+RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"; 
 
 FROM build AS publish
 WORKDIR "/src/ApiGateways/OrigoApiGateway/OrigoApiGateway"
