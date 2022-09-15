@@ -420,7 +420,7 @@ namespace OrigoApiGateway.Services
                      asset.AssetStatus == AssetLifecycleStatus.Active ||
                      asset.AssetStatus == AssetLifecycleStatus.Available))
                 {
-                    throw new ArgumentException("This asset does not have correct life cycle");
+                    throw new ArgumentException("This Asset does not have correct life-cycle-status to create a Service Order");
                 }
 
                 dto.AssetInfo = new AssetInfo
