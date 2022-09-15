@@ -283,7 +283,6 @@ namespace OrigoApiGateway.Controllers
         [HttpGet("organization/{organizationId:Guid}/orders/{serviceOrderId:Guid}")]
         [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(HardwareServiceOrder))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "Returned if the ID was not found.")]
         public async Task<IActionResult> GetServiceOrderByIdAndOrganizationAsync([FromRoute] Guid organizationId, [FromRoute] Guid serviceOrderId)
         {
             try
