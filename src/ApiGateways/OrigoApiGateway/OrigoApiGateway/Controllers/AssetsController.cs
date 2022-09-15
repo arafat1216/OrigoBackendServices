@@ -334,12 +334,7 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                // Only admin or manager roles are allowed to see all assets
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role == PredefinedRole.EndUser.ToString())
-                {
-                    return Forbid();
-                }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;

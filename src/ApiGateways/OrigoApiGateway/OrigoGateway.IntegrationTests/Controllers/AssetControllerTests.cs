@@ -1,22 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using Common.Enums;
 using Common.Interfaces;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
+using Moq.Protected;
 using OrigoApiGateway.Controllers;
+using OrigoApiGateway.Mappings;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
 using OrigoApiGateway.Services;
 using OrigoGateway.IntegrationTests.Helpers;
 using Xunit;
 using Xunit.Abstractions;
+using Services = OrigoApiGateway.Services;
 
 namespace OrigoGateway.IntegrationTests.Controllers;
 
@@ -301,4 +309,80 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
 
     }
 
+    [Fact]
+    public async Task GetDisposeSettingByCustomer_EndUser()
+    {
+        var organizationId = Guid.Parse("6c514552-ea67-48c8-91ec-83c2b16248ee");
+        var departmentId = Guid.NewGuid();
+
+        var email = "manager@test.io";
+        var permissionsIdentity = new ClaimsIdentity();
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, PredefinedRole.EndUser.ToString()));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadAsset"));
+        permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+        permissionsIdentity.AddClaim(new Claim("AccessList", departmentId.ToString()));
+
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services =>
+            {
+                var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                services.AddSingleton(userPermissionServiceMock.Object);
+
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                    options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                    TestAuthenticationHandler.DefaultScheme, options => {
+                        options.Email = email;
+                    });
+
+                var mockFactory = new Mock<IHttpClientFactory>();
+                var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+                mockHttpMessageHandler.Protected()
+                    .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                        ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                        {
+                            StatusCode = HttpStatusCode.OK,
+                            Content = new StringContent("null")
+                        });
+                var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+                mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+                var options = new AssetConfiguration { ApiPath = @"/assets" };
+                var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+                optionsMock.Setup(o => o.Value).Returns(options);
+
+                var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+                var mappingConfig = new MapperConfiguration(mc =>
+                {
+                    mc.AddMaps(Assembly.GetAssembly(typeof(NewDisposeSettingProfile)));
+                });
+                var _mapper = mappingConfig.CreateMapper();
+                var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object,
+                    _mapper);
+                var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
+                var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object,
+                    departmentOptionsMock.Object, _mapper);
+                var userPermissionOptionsMock = new Mock<IOptions<UserPermissionsConfigurations>>();
+                var userPermissionService = new UserPermissionService(Mock.Of<ILogger<UserPermissionService>>(),
+                    mockFactory.Object, userPermissionOptionsMock.Object, _mapper);
+
+                var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), mockFactory.Object,
+                    optionsMock.Object, userService, userPermissionService, _mapper, departmentService);
+                services.AddSingleton<IAssetServices>(x => assetService);
+            });
+        }).CreateClient();
+
+
+        var response = await client.GetAsync($"/origoapi/v1.0/assets/customers/{organizationId}/dispose-setting");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+    }
 }
