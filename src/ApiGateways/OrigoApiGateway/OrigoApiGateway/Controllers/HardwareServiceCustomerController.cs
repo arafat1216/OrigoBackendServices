@@ -51,6 +51,15 @@ namespace OrigoApiGateway.Controllers
             _assetServices = assetServices;
         }
 
+        private Guid GetCallerId()
+        {
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            if (actor is null)
+                throw new FormatException();
+
+            return Guid.Parse(actor);
+        }
+
 
         /// <summary>
         ///     Checks if the authenticated user should have access to the given organization ID.
@@ -241,19 +250,25 @@ namespace OrigoApiGateway.Controllers
         /// <param name="userId"> When provided, filters the results to only contain this user. </param>
         /// <param name="serviceTypeId"> When provided, filters the results to only contain this service-type. </param>
         /// <param name="activeOnly"> 
-        ///     When <c><see langword="true"/></c>, only active/ongoing service-orders are retrieved. When <c><see langword="false"/></c>, the filter is ignored. </param>
+        ///     When <c><see langword="true"/></c>, only active/ongoing service-orders are retrieved. This takes precedence over <paramref name="userId"/>. 
+        ///     When <c><see langword="false"/></c>, the filter is ignored. </param>
+        /// <param name="myOrders"> When <see langword="true"/>, only the requester's own orders are retrieved.  When <c><see langword="false"/></c>, the filter is ignored. </param>
         /// <param name="page"> The paginated page that should be retrieved. </param>
         /// <param name="limit"> The number of items to retrieve per <paramref name="page"/>. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet("organization/{organizationId:Guid}/orders")]
         [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(PagedModel<HardwareServiceOrder>))]
-        public async Task<ActionResult> GetAllServiceOrdersForOrganizationAsync([FromRoute] Guid organizationId, [FromQuery] Guid? userId, [FromQuery] int? serviceTypeId, [FromQuery] bool activeOnly = false, [FromQuery] int page = 1, [FromQuery] int limit = 25)
+        public async Task<ActionResult> GetAllServiceOrdersForOrganizationAsync([FromRoute] Guid organizationId, [FromQuery] Guid? userId, [FromQuery] int? serviceTypeId, [FromQuery] bool activeOnly = false, [FromQuery] bool myOrders = false, [FromQuery] int page = 1, [FromQuery] int limit = 25)
         {
             try
             {
                 if (!AuthenticatedUserHasAccessToOrganization(organizationId))
                     return Forbid();
+
+                // Frontend don't always have the user ID, so we have a special parameter that let's us know to filter the userID to the current user.
+                if (myOrders)
+                    userId = GetCallerId();
 
                 PagedModel<HardwareServiceOrder> results = await _hardwareServiceOrderService.GetAllServiceOrdersForOrganizationAsync(organizationId, userId, serviceTypeId, activeOnly, page, limit);
                 return Ok(results);
@@ -262,7 +277,7 @@ namespace OrigoApiGateway.Controllers
             {
                 switch (ex.StatusCode)
                 {
-                    case System.Net.HttpStatusCode.NotFound:
+                    case HttpStatusCode.NotFound:
                         return Unauthorized();
                     default:
                         throw;
@@ -301,7 +316,7 @@ namespace OrigoApiGateway.Controllers
             {
                 switch (ex.StatusCode)
                 {
-                    case System.Net.HttpStatusCode.NotFound:
+                    case HttpStatusCode.NotFound:
                         return Forbid();
                     default:
                         throw;
