@@ -117,5 +117,15 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend
         [Required]
         [SwaggerSchema(ReadOnly = true)]
         public IEnumerable<ServiceEvent> ServiceEvents { get; set; }
+
+        /// <summary>
+        ///     A timestamp for when the order was initially created.
+        /// </summary>
+        public DateTimeOffset? DateCreated { get; init; }
+
+        /// <summary>
+        ///     A timestamp for when the order was last updated.
+        /// </summary>
+        public DateTimeOffset? DateUpdated { get; init; }
     }
 }
