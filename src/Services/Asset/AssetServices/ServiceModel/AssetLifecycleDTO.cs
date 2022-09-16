@@ -37,5 +37,4 @@ public record AssetLifecycleDTO
     public bool? IsPersonal { get; set; }
     public bool? IsActiveState { get; set; }
     public string? Source { get; set; }
-    public IList<long>? Imei { get; init; }
 }
