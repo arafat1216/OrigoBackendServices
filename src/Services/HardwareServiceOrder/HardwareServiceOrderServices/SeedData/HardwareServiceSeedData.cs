@@ -69,6 +69,7 @@ namespace HardwareServiceOrderServices.SeedData
             builder.Entity<ServiceProviderServiceType>(entity =>
             {
                 entity.HasData(new { Id = 1, ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo, ServiceTypeId = (int)ServiceTypeEnum.SUR, CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
+                entity.HasData(new { Id = 2, ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo, ServiceTypeId = (int)ServiceTypeEnum.Remarketing, CreatedBy = _systemUserId, UpdatedBy = _systemUserId, IsDeleted = false });
             });
         }
 
