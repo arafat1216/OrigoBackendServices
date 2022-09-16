@@ -32,7 +32,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
              * DB table configuration (keys, constraints, indexing, etc.)
              */
 
-            builder.ToTable("CustomerSettings");
+            builder.ToTable("CustomerSettings", e => e.IsTemporal());
 
             builder.HasAlternateKey(e => e.CustomerId);
 

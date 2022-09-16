@@ -1,4 +1,5 @@
 ﻿using HardwareServiceOrderServices.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
@@ -21,6 +22,8 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
              * DB table configuration (keys, constraints, indexing, etc.)
              */
 
+            builder.ToTable(auditable => auditable.IsTemporal());
+
             builder.HasAlternateKey(x => new { x.CustomerServiceProviderId, x.ServiceOrderAddonId });
 
 
@@ -31,12 +34,12 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             builder.HasOne(e => e.CustomerServiceProvider)
                    .WithMany()
                    .HasForeignKey(x => x.CustomerServiceProviderId)
-                   .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.NoAction);
+                   .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne(e => e.ServiceOrderAddon)
                    .WithMany()
                    .HasForeignKey(e => e.ServiceOrderAddonId)
-                   .OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.NoAction);
+                   .OnDelete(DeleteBehavior.NoAction);
 
         }
     }

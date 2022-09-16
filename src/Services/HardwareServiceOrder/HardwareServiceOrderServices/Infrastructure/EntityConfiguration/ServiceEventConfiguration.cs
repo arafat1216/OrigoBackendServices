@@ -22,7 +22,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
              * DB table configuration (keys, constraints, indexing, etc.)
              */
 
-            builder.ToTable("ServiceEvents");
+            builder.ToTable("ServiceEvents", e => e.IsTemporal());
 
 
             /*

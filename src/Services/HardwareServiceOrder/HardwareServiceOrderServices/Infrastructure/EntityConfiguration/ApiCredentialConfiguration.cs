@@ -23,6 +23,8 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
              * DB table configuration (keys, constraints, indexing, etc.)
              */
 
+            builder.ToTable(auditable => auditable.IsTemporal());
+
             builder.HasIndex(x => new { x.CustomerServiceProviderId, x.ServiceTypeId })
                    .IsUnique(true)
                    .HasFilter(null);

@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Text.Json;
-using YamlDotNet.Core.Tokens;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
@@ -21,7 +20,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             // Call the parent that configures the shared properties from the inherited 'EntityV2' entity
             base.Configure(builder);
 
-            var comparer = new ValueComparer<string>(
+            var toUpperCaseComparer = new ValueComparer<string>(
                (l, r) => string.Equals(l, r, StringComparison.OrdinalIgnoreCase),
                v => v.ToUpperInvariant().GetHashCode(),
                v => v
@@ -72,7 +71,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
                        .HasMaxLength(2)
                        .IsFixedLength()
                        .IsUnicode(false).Metadata
-                       .SetValueComparer(comparer);
+                       .SetValueComparer(toUpperCaseComparer);
             });
 
 
@@ -90,6 +89,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             {
                 // Convert the HashSet to a flat item so we don't need a separate table for the values
                 builder.Property(e => e.Imei)
+                       .HasComment("A JSON-serialized list that contains all the device's IMEI numbers.")
                        .HasConversion(
                             v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)default),
                             v => JsonSerializer.Deserialize<HashSet<string>?>(v, (JsonSerializerOptions?)default),
@@ -102,6 +102,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 
                 // Convert the List to a flat item so we don't need a separate table for the values
                 builder.Property(propertyExpression: e => e.Accessories)
+                       .HasComment("A JSON-serialized list detailing what accessories, if any, was included in the shipment.")
                        .HasConversion(
                             v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)default),
                             v => JsonSerializer.Deserialize<List<string>?>(v, (JsonSerializerOptions?)default),
@@ -123,6 +124,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
             {
                 // Convert the HashSet to a flat item so we don't need a separate table for the values
                 builder.Property(e => e.Imei)
+                       .HasComment("A JSON-serialized list that contains all the device's IMEI numbers. In most cases this will be null, as we generally only record the value if it's provided, and the value has changed.")
                        .HasConversion(
                             v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)default),
                             v => JsonSerializer.Deserialize<HashSet<string>?>(v, (JsonSerializerOptions?)default),
@@ -135,6 +137,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 
                 // Convert the List to a flat item so we don't need a separate table for the values
                 builder.Property(propertyExpression: e => e.Accessories)
+                       .HasComment("A JSON-serialized list detailing what accessories, if any, was included in the shipment. In most cases this will be null, as we generally only record the value if it's provided, and the value has changed.")
                        .HasConversion(
                             v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)default),
                             v => JsonSerializer.Deserialize<List<string>?>(v, (JsonSerializerOptions?)default),

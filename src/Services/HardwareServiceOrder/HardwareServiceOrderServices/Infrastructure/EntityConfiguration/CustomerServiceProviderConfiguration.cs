@@ -1,7 +1,6 @@
 ﻿using HardwareServiceOrderServices.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 {
@@ -23,7 +22,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
              * DB table configuration (keys, constraints, indexing, etc.)
              */
 
-            builder.ToTable("CustomerServiceProvider");
+            builder.ToTable("CustomerServiceProvider", e => e.IsTemporal());
             builder.HasComment("Configures a customer's service-provider settings.");
 
             builder.HasAlternateKey(x => new { x.CustomerId, x.ServiceProviderId });

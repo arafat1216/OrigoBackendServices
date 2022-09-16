@@ -22,6 +22,8 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
              * Configure the database-table.
              */
 
+            builder.ToTable(e => e.IsTemporal());
+
             builder.HasComment("The service-order addons that is offered by a given service-provider.");
 
 

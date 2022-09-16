@@ -1,4 +1,5 @@
 ﻿using HardwareServiceOrderServices.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
@@ -17,10 +18,17 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
 
 
             /*
+             * Configure the database-table.
+             */
+
+            builder.ToTable(e => e.IsTemporal());
+
+
+            /*
              * Configure relationships
              */
 
-            
+
         }
     }
 }

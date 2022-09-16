@@ -22,6 +22,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
              * Configure the database-table.
              */
 
+            builder.ToTable(e => e.IsTemporal());
             builder.HasComment("Determines what service-types is available for a given service-provider.");
             builder.HasAlternateKey(e => new { e.ServiceProviderId, e.ServiceTypeId }); // The alternate key is what we will be using.
 
