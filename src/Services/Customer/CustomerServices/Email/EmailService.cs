@@ -64,7 +64,7 @@ namespace CustomerServices.Email
         public async Task InvitationEmailToUserAsync(InvitationMail emailData, string languageCode)
         {
             //Adds the link url to Origo based on enviorment
-            emailData.OrigoUrl = _emailConfiguration.OrigoBaseUrl;
+            emailData.OrigoBaseUrl = _emailConfiguration.OrigoBaseUrl;
 
             var template = _resourceManager.GetString(InvitationMail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(emailData);
