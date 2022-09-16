@@ -71,6 +71,7 @@ namespace HardwareServiceOrderServices.Infrastructure
             modelBuilder.ApplyConfiguration(new ServiceOrderAddonConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new ApiCredentialConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new CustomerServiceProviderServiceOrderAddonConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new ServiceEventConfiguration(_isSQLite));
 
 
             // Add mandatory (production ready) seeding-data
