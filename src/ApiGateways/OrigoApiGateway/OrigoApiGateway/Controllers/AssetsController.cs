@@ -2052,7 +2052,7 @@ namespace OrigoApiGateway.Controllers
         }
         [Route("customers/{organizationId:guid}/deactivate")]
         [HttpPatch]
-        [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<HardwareSuperType>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
         public async Task<ActionResult> DeactivateAssetStatusOnAssetLifecycle(Guid organizationId, [FromBody] ChangeAssetStatus assetLifecycles)

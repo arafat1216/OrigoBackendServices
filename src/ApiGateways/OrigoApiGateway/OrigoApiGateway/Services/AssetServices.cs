@@ -1766,7 +1766,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<OrigoAsset>> DeactivateAssetStatusOnAssetLifecycle(Guid customerId, ChangeAssetStatusDTO changedAssetStatus)
+        public async Task<IList<HardwareSuperType>> DeactivateAssetStatusOnAssetLifecycle(Guid customerId, ChangeAssetStatusDTO changedAssetStatus)
         {
             try
             {
@@ -1774,26 +1774,13 @@ namespace OrigoApiGateway.Services
 
 
                 var assetLifecycles = await response.Content.ReadFromJsonAsync<IList<AssetDTO>>();
+
                 if (assetLifecycles == null)
                 {
                     return null;
                 }
 
-                IList<OrigoAsset> assets = new List<OrigoAsset>();
-                OrigoAsset result = null;
-                foreach (var assetLifecycle in assetLifecycles)
-                {
-                    if (assetLifecycle != null)
-                    {
-                        if (assetLifecycle.AssetCategoryId == 1)
-                            result = _mapper.Map<OrigoMobilePhone>(assetLifecycle);
-                        else
-                            result = _mapper.Map<OrigoTablet>(assetLifecycle);
-                        assets.Add(result);
-                    }
-                }
-
-                return assets;
+                return _mapper.Map<IList<HardwareSuperType>>(assetLifecycles);
             }
             catch (HttpRequestException exception)
             {

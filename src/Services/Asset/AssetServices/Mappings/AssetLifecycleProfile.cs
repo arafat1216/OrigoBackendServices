@@ -12,8 +12,8 @@ public class AssetLifecycleProfile : Profile
     public AssetLifecycleProfile()
     {
         CreateMap<AssetLifecycle, MobilePhone>();
-        CreateMap<User, UserDTO>();
         CreateMap<Asset, AssetDTO>();
+        CreateMap<User, UserDTO>();
         CreateMap<HardwareAsset, AssetDTO>();
         CreateMap<MobilePhone, AssetDTO>().IncludeBase<HardwareAsset, AssetDTO>().IncludeBase<Asset, AssetDTO>()
             .ForMember(dest => dest.Imeis, opts => opts.MapFrom(src => src.Imeis.Select(i => i.Imei).ToList()));

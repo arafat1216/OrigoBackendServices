@@ -50,7 +50,7 @@ namespace OrigoApiGateway.Services
         Task<DisposeSetting> GetDisposeSettingByCustomer(Guid customerId);
         Task<DisposeSetting> SetDisposeSettingForCustomerAsync(Guid customerId, NewDisposeSetting setting, Guid callerId);
         Task<IList<OrigoAsset>> ActivateAssetStatusOnAssetLifecycle(Guid customerId, ChangeAssetStatusDTO changedAssetStatus);
-        Task<IList<OrigoAsset>> DeactivateAssetStatusOnAssetLifecycle(Guid customerId, ChangeAssetStatusDTO changedAssetStatus);
+        Task<IList<HardwareSuperType>> DeactivateAssetStatusOnAssetLifecycle(Guid customerId, ChangeAssetStatusDTO changedAssetStatus);
         Task<IList<ReturnLocation>> GetReturnLocationsByCustomer(Guid customerId);
         Task<ReturnLocation> AddReturnLocationsByCustomer(Guid customerId, NewReturnLocation data, IList<Location> officeLocation, Guid callerId);
         Task<ReturnLocation> UpdateReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, NewReturnLocation data, Guid callerId);

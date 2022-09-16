@@ -2,6 +2,7 @@ using AssetServices.Attributes;
 using AssetServices.Email;
 using AssetServices.Exceptions;
 using AssetServices.Infrastructure;
+using AssetServices.Mappings;
 using AssetServices.Models;
 using AssetServices.ServiceModel;
 using AssetServices.Utility;
@@ -31,7 +32,7 @@ public class AssetServicesTests : AssetBaseTest
     {
         if (_mapper == null)
         {
-            var mappingConfig = new MapperConfiguration(mc => { mc.AddMaps(Assembly.GetAssembly(typeof(AssetDTO))); });
+            var mappingConfig = new MapperConfiguration(mc => { mc.AddMaps(Assembly.GetAssembly(typeof(AssetLifecycleProfile))); });
             _mapper = mappingConfig.CreateMapper();
         }
     }
@@ -1885,6 +1886,23 @@ public class AssetServicesTests : AssetBaseTest
         Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.Repair);
 
 
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task DeactivateAssetLifecycleStatus_MapImeiToViewModel()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+        ChangeAssetStatus change = new ChangeAssetStatus { AssetLifecycleId = new List<Guid> { ASSETLIFECYCLE_ONE_ID}, CallerId = Guid.NewGuid() };
+        // Act & Assert
+        var activateAssets = await assetService.DeactivateAssetLifecycleStatus(COMPANY_ID, change);
+        Assert.NotNull(activateAssets);
+        Assert.Equal(1, activateAssets.Count);
+        Assert.All(activateAssets, assetLifecycle => Assert.Equal(1,assetLifecycle.Asset.Imeis.Count));
+        Assert.All(activateAssets, assetLifecycle => Assert.All(assetLifecycle.Asset.Imeis, imei => Assert.Equal(500119468586675, imei)));
     }
 
 }

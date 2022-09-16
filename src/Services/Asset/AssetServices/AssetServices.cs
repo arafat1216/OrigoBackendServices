@@ -1185,7 +1185,6 @@ public class AssetServices : IAssetServices
         {
             return new List<AssetLifecycleDTO>();
         }
-
         foreach (var assetLifecycle in assetLifecycles)
         {
             assetLifecycle.SetInactiveStatus(assetLifecyclesId.CallerId);

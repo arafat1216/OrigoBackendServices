@@ -10,6 +10,7 @@ namespace OrigoApiGateway.Mappings
         {
             CreateMap<AssetDTO, OrigoMobilePhone>();
             CreateMap<AssetDTO, OrigoTablet>();
+            CreateMap<AssetDTO, HardwareSuperType>();
         }
     }
 }

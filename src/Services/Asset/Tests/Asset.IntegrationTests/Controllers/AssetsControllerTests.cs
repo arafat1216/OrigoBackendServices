@@ -2383,6 +2383,30 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         Assert.NotNull(assetsCounter);
         Assert.Equal(AssetLifecycleStatus.Inactive, assetsCounter?[0].AssetStatus);
     }
+    [Fact]
+    public async Task DeactivateAssetLifecycleStatus_MappingImeis()
+    {
+        var requestGetAssetLifeCycle = $"/api/v1/Assets/{_assetOne}/customers/{_customerId}";
+        var responseGetAssetLifeCycle = await _httpClient.GetAsync(requestGetAssetLifeCycle);
+        Assert.Equal(HttpStatusCode.OK, responseGetAssetLifeCycle.StatusCode);
+        var assetLifeCycle = await responseGetAssetLifeCycle.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
+
+        Assert.NotNull(assetLifeCycle);
+        Assert.Equal(_assetOne, assetLifeCycle?.Id);
+        Assert.Equal(1, assetLifeCycle?.Imei.Count);
+        Assert.All(assetLifeCycle.Imei, imei => Assert.Equal(500119468586675, imei));
+
+        var request = $"/api/v1/Assets/customers/{_customerId}/deactivate";
+        var body = new ChangeAssetStatus { AssetLifecycleId = new List<Guid> { _assetOne }, CallerId = _callerId };
+        var response = await _httpClient.PostAsJsonAsync(request, body);
+
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var assetsCounter = await response.Content.ReadFromJsonAsync<IList<API.ViewModels.Asset>>();
+        Assert.NotNull(assetsCounter);
+        Assert.All(assetsCounter, assetLifecycle => Assert.Equal(1, assetLifecycle.Imei.Count));
+        Assert.All(assetsCounter, assetLifecycle => Assert.All(assetLifecycle.Imei, imei => Assert.Equal(500119468586675, imei)));
+    }
 
 
     [Fact]
