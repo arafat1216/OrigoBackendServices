@@ -23,6 +23,7 @@ using System.Reflection;
 using Common.Infrastructure;
 using System.Resources;
 using Common.Configuration;
+using CustomerServices.Email.Configuration;
 
 namespace Customer.API
 {
@@ -124,7 +125,7 @@ namespace Customer.API
             services.AddScoped<IWebshopService, WebshopService>();
             services.AddScoped<IFeatureFlagServices, FeatureFlagServices>();
             services.AddScoped<ErrorExceptionFilter>();
-            services.Configure<EmailConfiguration>(Configuration.GetSection("Email"));
+            services.Configure<EmailConfigurationCustomer>(Configuration.GetSection("Email"));
             services.AddSingleton<IEmailService, EmailService>();
             services.AddSingleton<IFlatDictionaryProvider, FlatDictionary>();
 

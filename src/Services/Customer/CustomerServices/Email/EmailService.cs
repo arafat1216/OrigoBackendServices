@@ -1,5 +1,6 @@
-﻿using Common.Configuration;
+﻿
 using Common.Utilities;
+using CustomerServices.Email.Configuration;
 using CustomerServices.Email.Models;
 using Microsoft.Extensions.Options;
 using System;
@@ -14,14 +15,14 @@ namespace CustomerServices.Email
 {
     public class EmailService : IEmailService
     {
-        private readonly EmailConfiguration _emailConfiguration;
+        private readonly EmailConfigurationCustomer _emailConfiguration;
         private readonly IHttpClientFactory _httpClientFactory;
         private HttpClient _httpClient => _httpClientFactory.CreateClient("emailservices");
         private readonly IFlatDictionaryProvider _flatDictionaryProvider;
         private readonly ResourceManager _resourceManager;
 
         public EmailService(
-            IOptions<EmailConfiguration> emailConfiguration,
+            IOptions<EmailConfigurationCustomer> emailConfiguration,
             IFlatDictionaryProvider flatDictionaryProvider,
             ResourceManager resourceManager, IHttpClientFactory httpClientFactory)
         {

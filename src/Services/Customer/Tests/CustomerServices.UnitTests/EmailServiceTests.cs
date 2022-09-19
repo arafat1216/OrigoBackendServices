@@ -10,24 +10,24 @@ using Xunit;
 using System;
 using System.Net.Http;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Configuration;
 using System.IO;
 using CustomerServices.Email.Models;
 using System.Collections.Generic;
 using Moq.Protected;
 using System.Threading;
 using System.Net;
+using CustomerServices.Email.Configuration;
 
 namespace CustomerServices.UnitTests
 {
     public class EmailServiceTests
     {
-        private EmailConfiguration _config;
+        private EmailConfigurationCustomer _config;
 
 
         public EmailServiceTests()
         {
-            _config = new EmailConfiguration()
+            _config = new EmailConfigurationCustomer()
             {
                 OrigoBaseUrl = "https://origov2dev.mytos.no/en",
                 LoginPath = "/login",
@@ -62,7 +62,7 @@ namespace CustomerServices.UnitTests
             var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
             mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
-            var mockIOption = new Mock<IOptions<EmailConfiguration>>();
+            var mockIOption = new Mock<IOptions<EmailConfigurationCustomer>>();
             mockIOption.Setup(ap => ap.Value).Returns(_config);
 
             var resourceManger = new ResourceManager("CustomerServices.Resources.Customer", Assembly.GetAssembly(typeof(EmailService))!);
