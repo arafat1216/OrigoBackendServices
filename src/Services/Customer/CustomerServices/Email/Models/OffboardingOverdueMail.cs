@@ -29,6 +29,10 @@ namespace CustomerServices.Email.Models
         /// </summary>
         public Guid UserId { get; set; }
         /// <summary>
+        /// Link to the user detail view for the user that is overdue
+        /// </summary>
+        public string UserDetailViewUrl { get; set; }
+        /// <summary>
         /// Subject of the email
         /// </summary>
         public string Subject { get; set; } = "Offboarding Overdue";

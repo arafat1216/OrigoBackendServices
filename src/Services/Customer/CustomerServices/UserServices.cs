@@ -533,7 +533,6 @@ namespace CustomerServices
                 {
                     FirstName = $"{user.FirstName}",
                     LastBuyoutDay = user.LastDayForReportingSalaryDeduction!.Value.ToShortDateString(),
-                    MyPageLink = "https://www.example.com/",
                     Recipient = new List<string>() { user.Email }
                 }, string.IsNullOrEmpty(user.UserPreference!.Language) ? "EN" : user.UserPreference!.Language);
             }
@@ -542,7 +541,6 @@ namespace CustomerServices
                 await _emailService.OffboardingInitiatedWithoutBuyoutEmailToUserAsync(new Email.Models.OffboardingInitiatedWithoutBuyout
                 {
                     FirstName = $"{user.FirstName}",
-                    MyPageLink = "https://www.example.com/",
                     Recipient = new List<string>() { user.Email }
                 }, string.IsNullOrEmpty(user.UserPreference!.Language) ? "EN" : user.UserPreference!.Language);
             }

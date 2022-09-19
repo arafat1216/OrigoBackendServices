@@ -13,5 +13,8 @@
         public string AzureStorageConnectionString { get; set; }
         public string TemplateContainer { get; set; }
         public string OrigoBaseUrl { get; set; }
+        public string LoginPath { get; set; }
+        public string UserDetailViewPath { get; set; }
+        public string MyPagePath { get; set; }
     }
 }

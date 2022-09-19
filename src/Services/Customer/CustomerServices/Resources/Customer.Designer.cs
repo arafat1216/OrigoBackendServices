@@ -61,17 +61,15 @@ namespace CustomerServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;br&gt;Hello {{FirstName}}!&lt;/br&gt;
-        ///&lt;/br&gt;
+        ///   Looks up a localized string similar to ### Hello {{FirstName}}!
+        ///
         ///In regards of your offboarding, you have some tasks to complete in Origo before you leave.
-        ///&lt;/br&gt;
-        ///&lt;/br&gt;
-        ///1. Choose wether you would like to Buyout or Return your asset to company. If you choose Buyout, this need to be done before {{LastBuyoutDay}}, in order to do a salary deduction. After this date, only Return will be available. Visit Origo to see yourBuyout price.
-        ///&lt;/br&gt;
-        ///&lt;/br&gt;
+        ///
+        ///1. Choose whether you would like to *Buyout* or *Return* your asset to company. If you choose *Buyout*, this need to be done before {{LastBuyoutDay}}, in order to do a salary deduction. After this date, only *Return* will be available. Visit Origo to see your buyout price.
+        ///
         ///Please follow the steps provided in the portal
-        ///&lt;/br&gt;
-        ///[Start Offboarding]({{MyPageLink}} [rest of string was truncated]&quot;;.
+        ///
+        ///[Start Offboarding]({{MyPageLink}}).
         /// </summary>
         internal static string OffboardingInitiatedWithBuyout {
             get {
@@ -80,16 +78,13 @@ namespace CustomerServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;br&gt;Hello {{FirstName}}!&lt;/br&gt;
-        ///&lt;/br&gt;
+        ///   Looks up a localized string similar to ### Hello {{FirstName}}!
         ///In regards of your offboarding, you have some tasks to complete in Origo before you leave.
-        ///&lt;/br&gt;
-        ///&lt;/br&gt;
+        ///
         ///1. Return your assets to company
-        ///&lt;/br&gt;
-        ///&lt;/br&gt;
+        ///
         ///Please follow the steps provided in the portal
-        ///&lt;/br&gt;
+        ///
         ///[Start Offboarding]({{MyPageLink}}).
         /// </summary>
         internal static string OffboardingInitiatedWithoutBuyout {
@@ -99,16 +94,16 @@ namespace CustomerServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;br&gt;Hello!&lt;/br&gt;
-        ///&lt;/br&gt;
+        ///   Looks up a localized string similar to ### Hello!
         ///A user has been granted the status &quot;Offboarding Overdue&quot;.
-        ///&lt;/br&gt;
-        ///&lt;strong&gt;Name :&lt;/strong&gt; {{UserName}} 
-        ///&lt;strong&gt;Last WorkingDay :&lt;/strong&gt; {{LastWorkingDays}} 
-        ///&lt;/br&gt;
-        ///&lt;p&gt;The user has now lost access to Origo, and will no longer be able to complete task(s), Please enter Origo to complete task(s)&lt;br&gt;
-        ///&lt;/br&gt;
-        ///&lt;a href=&quot;https://origov2dev.mytos.no/en/my-business/{{CustomerId}}/users/{{UserId}}/view&quot;&gt;View User&lt;/a&gt;.
+        ///
+        ///**Name**: {{UserName}} 
+        ///
+        ///**Last WorkingDay**: {{LastWorkingDays}} 
+        ///
+        ///The user has now lost access to Origo, and will no longer be able to complete task(s), Please enter Origo to complete task(s)
+        ///
+        ///[View User]({{UserDetailViewUrl}}).
         /// </summary>
         internal static string OffboardingOverdued {
             get {

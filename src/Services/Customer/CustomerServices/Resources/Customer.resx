@@ -118,42 +118,37 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="OffboardingInitiatedWithBuyout" xml:space="preserve">
-    <value>&lt;br&gt;Hello {{FirstName}}!&lt;/br&gt;
-&lt;/br&gt;
+    <value>### Hello {{FirstName}}!
+
 In regards of your offboarding, you have some tasks to complete in Origo before you leave.
-&lt;/br&gt;
-&lt;/br&gt;
-1. Choose wether you would like to Buyout or Return your asset to company. If you choose Buyout, this need to be done before {{LastBuyoutDay}}, in order to do a salary deduction. After this date, only Return will be available. Visit Origo to see yourBuyout price.
-&lt;/br&gt;
-&lt;/br&gt;
+
+1. Choose whether you would like to *Buyout* or *Return* your asset to company. If you choose *Buyout*, this need to be done before {{LastBuyoutDay}}, in order to do a salary deduction. After this date, only *Return* will be available. Visit Origo to see your buyout price.
+
 Please follow the steps provided in the portal
-&lt;/br&gt;
+
 [Start Offboarding]({{MyPageLink}})</value>
   </data>
   <data name="OffboardingInitiatedWithoutBuyout" xml:space="preserve">
-    <value>&lt;br&gt;Hello {{FirstName}}!&lt;/br&gt;
-&lt;/br&gt;
+    <value>### Hello {{FirstName}}!
 In regards of your offboarding, you have some tasks to complete in Origo before you leave.
-&lt;/br&gt;
-&lt;/br&gt;
+
 1. Return your assets to company
-&lt;/br&gt;
-&lt;/br&gt;
+
 Please follow the steps provided in the portal
-&lt;/br&gt;
+
 [Start Offboarding]({{MyPageLink}})</value>
   </data>
   <data name="OffboardingOverdued" xml:space="preserve">
-    <value>&lt;br&gt;Hello!&lt;/br&gt;
-&lt;/br&gt;
+    <value>### Hello!
 A user has been granted the status "Offboarding Overdue".
-&lt;/br&gt;
-&lt;strong&gt;Name :&lt;/strong&gt; {{UserName}} 
-&lt;strong&gt;Last WorkingDay :&lt;/strong&gt; {{LastWorkingDays}} 
-&lt;/br&gt;
-&lt;p&gt;The user has now lost access to Origo, and will no longer be able to complete task(s), Please enter Origo to complete task(s)&lt;br&gt;
-&lt;/br&gt;
-&lt;a href="https://origov2dev.mytos.no/en/my-business/{{CustomerId}}/users/{{UserId}}/view"&gt;View User&lt;/a&gt;</value>
+
+**Name**: {{UserName}} 
+
+**Last WorkingDay**: {{LastWorkingDays}} 
+
+The user has now lost access to Origo, and will no longer be able to complete task(s), Please enter Origo to complete task(s)
+
+[View User]({{UserDetailViewUrl}})</value>
   </data>
   <data name="OrigoInvitation" xml:space="preserve">
     <value>### Hello {{FirstName}}!
