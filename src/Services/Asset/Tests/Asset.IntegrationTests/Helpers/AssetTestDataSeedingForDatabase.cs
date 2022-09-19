@@ -27,10 +27,11 @@ internal static class AssetTestDataSeedingForDatabase
     public static readonly Guid ASSETLIFECYCLE_NINE_ID = new("b1378497-87f5-4204-bd8a-ab1be0b3536c");
     public static readonly Guid ASSETLIFECYCLE_TEN_ID = new("1b16d251-8bdf-4577-addb-691ac0a04bcb");
 
-    public static readonly Guid ASSETLIFECYCLE_ELEVEN_ID = new("1b16d251-8bdf-4577-addb-691ac0a04bcb");
-    public static readonly Guid ASSETLIFECYCLE_TVELVE_ID = new("1b16d251-8bdf-4577-addb-691ac0a04bcb");
-    public static readonly Guid ASSETLIFECYCLE_THIRTEEN_ID = new("1b16d251-8bdf-4577-addb-691ac0a04bcb");
-    public static readonly Guid ASSETLIFECYCLE_FOURTEEN_ID = new("1b16d251-8bdf-4577-addb-691ac0a04bcb");
+    public static readonly Guid ASSETLIFECYCLE_ELEVEN_ID = new("b5fdc307-6f52-4f0e-9159-e86cac9164a5");
+    public static readonly Guid ASSETLIFECYCLE_TVELVE_ID = new("8f4b0019-198c-461b-922f-8cd515f46fc5");
+    public static readonly Guid ASSETLIFECYCLE_THIRTEEN_ID = new("d924c8eb-b9ee-4cfa-acdb-e8fa494b5ebf");
+    public static readonly Guid ASSETLIFECYCLE_FOURTEEN_ID = new("1dc6c54b-3d3b-4192-aa0b-5987f43d132b");
+    public static readonly Guid ASSETLIFECYCLE_FIFTEEN_ID = new("4ac36528-5a67-4b38-86f8-5b505be41023");
 
     public static readonly Guid LABEL_ONE_ID = new("D4535FA6-9EBB-4DCF-AB62-21BE01001345");
     public static readonly Guid LABEL_TWO_ID = new("6031CDA2-C1CC-4593-A450-9EE6F47951D0");
@@ -232,7 +233,14 @@ internal static class AssetTestDataSeedingForDatabase
         assetLifecycleFourteen.MakeAssetExpiresSoon(CALLER_ID);
         assetLifecycleFourteen.MakeReturnRequest(CALLER_ID);
 
-
+        //Inactive
+        var assetLifecycleFifteen = new AssetLifecycle(ASSETLIFECYCLE_FIFTEEN_ID)
+        {
+            CustomerId = COMPANY_ID,
+            Alias = "alias_15",
+            AssetLifecycleStatus = AssetLifecycleStatus.Inactive,
+            AssetLifecycleType = LifecycleType.NoLifecycle
+        };
         var disposeSetting = new DisposeSetting(Guid.Empty);
         var returnLocation = new ReturnLocation("Return Location","Return to Mr. on 3rd Floor",Guid.NewGuid());
         disposeSetting.AddReturnLocation(returnLocation, COMPANY_ID, Guid.Empty);
@@ -246,7 +254,7 @@ internal static class AssetTestDataSeedingForDatabase
         dbContext.Users.AddRange(userOne);
         dbContext.Assets.AddRange(assetOne, assetTwo, assetThree,assetFour ,assetFive);
         dbContext.AssetLifeCycles.AddRange(assetLifecycleOne, assetLifecycleTwo, assetLifecycleThree,
-            assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleSeven, assetLifecycleEight, assetLifecycleNine, assetLifecycleTen, assetLifecycleEleven, assetLifecycleTwelve, assetLifecycleThirteen, assetLifecycleFourteen);
+            assetLifecycleFour, assetLifecycleFive, assetLifecycleSix, assetLifecycleSeven, assetLifecycleEight, assetLifecycleNine, assetLifecycleTen, assetLifecycleEleven, assetLifecycleTwelve, assetLifecycleThirteen, assetLifecycleFourteen, assetLifecycleFifteen);
         dbContext.CustomerSettings.AddRange(customerSettingOne, customerSettingTwo);
 
         var label = new CustomerLabel(COMPANY_ID, CALLER_ID, new Label("CompanyOne", LabelColor.Lightblue));

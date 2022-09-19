@@ -180,7 +180,8 @@ namespace AssetServices.Infrastructure
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.BoughtByUser ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Recycled ||
                                     al.AssetLifecycleStatus == AssetLifecycleStatus.Discarded ||
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Returned);
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Returned || 
+                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Inactive);
 
             }
             if (endPeriodMonth.HasValue)
