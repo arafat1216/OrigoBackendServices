@@ -491,6 +491,30 @@ public class UserServicesTests
 
     [Fact]
     [Trait("Category", "UnitTest")]
+    public async Task GetAllUsers_OffboardUsers()
+    {
+        // Arrange
+        await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
+        var customerRepository =
+            new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var userPermissionServices = Mock.Of<IUserPermissionServices>();
+        var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), customerRepository,
+            Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
+
+        // Act
+        var user = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_TWO_ID, null, null, new List<int> { 6,7,8 }, new CancellationToken());
+
+        Assert.Equal(1, user.Items.Count);
+        Assert.Contains("Jhon", user.Items[0].FirstName);
+        Assert.Contains("Cena", user.Items[0].LastName);
+        Assert.Contains("jhoncena@wwe.com", user.Items[0].Email);
+        Assert.Contains("+4790000001", user.Items[0].MobileNumber);
+        Assert.Equal(DateTime.UtcNow.Date, user.Items[0].LastWorkingDay!.Value.Date);
+        Assert.IsType<PagedModel<UserDTO>>(user);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
     public async Task AddUserForCustomer_CustomerNotFoundException()
     {
         // Arrange

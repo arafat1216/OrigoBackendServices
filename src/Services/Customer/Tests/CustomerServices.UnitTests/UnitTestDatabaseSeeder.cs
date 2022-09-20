@@ -155,6 +155,9 @@ public class UnitTestDatabaseSeeder
             "X", userPreferences3, EMPTY_CALLER_ID);
         userSeven.ChangeUserStatus("123", UserStatus.OnboardInitiated);
 
+        var userEight = new User(customerTwo, USER_SEVEN_ID, "Jhon", "Cena", "jhoncena@wwe.com", "+4790000001",
+            "X", userPreferences3, EMPTY_CALLER_ID);
+        userEight.OffboardingInitiated(DateTime.UtcNow, Guid.Empty);
 
         var role1 = new Role("admin");
         var managerRole = new Role("Manager");
@@ -167,7 +170,7 @@ public class UnitTestDatabaseSeeder
 
         context.AddRange(role1, managerRole);
         context.AddRange(userPermissions, managerPermissions, managerPermissionsTwo);
-        context.AddRange(userOne, userTwo, userThree, userFour, userFive, userSix, userSeven);
+        context.AddRange(userOne, userTwo, userThree, userFour, userFive, userSix, userSeven, userEight);
 
         context.SaveChanges();
     }

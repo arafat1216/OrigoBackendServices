@@ -351,6 +351,8 @@ namespace CustomerServices.Infrastructure
                             Id = u.UserId,
                             UserStatus = (int)u.UserStatus,
                             UserStatusName = u.UserStatus.ToString(),
+                            LastWorkingDay = u.LastWorkingDay,
+                            LastDayForReportingSalaryDeduction = u.LastDayForReportingSalaryDeduction,
                             ManagerOf = u.ManagesDepartments.Select(a => new ManagerOfDTO { DepartmentId = a.ExternalDepartmentId, DepartmentName = a.Name }).ToList()
                         });
 
