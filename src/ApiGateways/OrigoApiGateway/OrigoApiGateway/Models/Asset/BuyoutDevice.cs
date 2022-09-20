@@ -7,8 +7,5 @@
     {
         [Required]
         public Guid AssetId { get; set; }
-
-        [EmailAddress]
-        public string PayrollContactEmail { get; set; } = string.Empty;
     }
 }

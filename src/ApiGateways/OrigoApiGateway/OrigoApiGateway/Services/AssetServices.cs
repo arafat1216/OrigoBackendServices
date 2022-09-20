@@ -863,13 +863,13 @@ namespace OrigoApiGateway.Services
 
                 if(existingAsset.AssetHolderId == null)
                 {
-                    throw new Exception("No Asset Contract Holder found!!!");
+                    throw new PendingBuyoutException("No Asset Contract Holder found!!!", _logger);
                 }
                 else
                 {
                     var user = await _userServices.GetUserAsync(existingAsset.AssetHolderId.Value);
-                    if(user.UserStatus != (int)UserStatus.OffboardInitiated || user.UserStatus != (int)UserStatus.OffboardOverdue)
-                        throw new Exception("User is not Offboarding!!!");
+                    if(user.UserStatus != (int)UserStatus.OffboardInitiated && user.UserStatus != (int)UserStatus.OffboardOverdue)
+                        throw new PendingBuyoutException("User is not Offboarding!!!", _logger);
 
                     buyoutDTO.User = new EmailPersonAttributeDTO()
                     {
@@ -878,7 +878,7 @@ namespace OrigoApiGateway.Services
                         PreferedLanguage = user.UserPreference.Language
                     };
                     if (user.LastWorkingDay == null)
-                        throw new Exception("User does not have LastWorkingDay set!!!");
+                        throw new PendingBuyoutException("User does not have LastWorkingDay set!!!", _logger);
 
                     buyoutDTO.LasWorkingDay = user.LastWorkingDay.Value;
                 }

@@ -1020,15 +1020,26 @@ namespace OrigoApiGateway.Controllers
                 };
                 return Ok(JsonSerializer.Serialize<object>(updatedAssets, options));
             }
-            catch (BadHttpRequestException ex)
-            {
-                _logger.LogError("{0}", ex.Message);
-                return BadRequest(ex.Message);
-            }
             catch (ResourceNotFoundException ex)
             {
                 _logger.LogError("{0}", ex.Message);
                 return NotFound(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return Unauthorized(ex.Message);
+            }
+
+            catch (PendingBuyoutException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (BadHttpRequestException ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {

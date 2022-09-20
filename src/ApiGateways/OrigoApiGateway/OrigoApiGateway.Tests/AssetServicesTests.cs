@@ -9,6 +9,7 @@ using AutoMapper;
 using Common.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Moq;
 using Moq.Protected;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Mappings;
@@ -628,6 +629,375 @@ public class AssetServicesTests
         Assert.True(asset.AssetStatus == AssetLifecycleStatus.Available);
     }
 
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task PendingBuyoutDeviceAsync_ByEndUser()
+    {
+        // Arrange
+        const string CUSTOMER_ID = "cab4bb77-3471-4ab3-ae5e-2d4fce450f36";
+
+
+        var mockFactory = new Mock<IHttpClientFactory>();
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        mockHttpMessageHandler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync",
+            ItExpr.Is<HttpRequestMessage>(x =>
+                x.RequestUri != null && x.RequestUri.ToString().Contains("/pending-buyout") &&
+                x.Method == HttpMethod.Post), ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(@"
+                        {
+                            ""id"": ""80665d26-90b4-4a3a-a20d-686b64466f32"",
+                            ""organizationId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                            ""alias"": ""alias_2"",
+                            ""note"": """",
+                            ""description"": """",
+                            ""assetTag"": """",
+                            ""assetCategoryId"": 1,
+                            ""assetCategoryName"": ""Mobile phone"",
+                            ""brand"": ""Samsung"",
+                            ""productName"": ""Samsung Galaxy S21"",
+                            ""lifecycleType"": 2,
+                            ""lifecycleName"": ""Transactional"",
+                            ""paidByCompany"": 0,
+                            ""currencyCode"": 0,
+                            ""bookValue"": 0,
+                            ""buyoutPrice"": 0.00,
+                            ""purchaseDate"": ""0001-01-01T00:00:00"",
+                            ""createdDate"": ""2022-05-10T08:11:17.9941683Z"",
+                            ""managedByDepartmentId"": ""6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72"",
+                            ""assetHolderId"": null,
+                            ""assetStatus"": 16,
+                            ""assetStatusName"": ""PendingBuyout"",
+                            ""labels"": [],
+                            ""serialNumber"": ""123456789012399"",
+                            ""imei"": [
+                                512217111821626
+                            ],
+                            ""macAddress"": ""840F1D0C06AD"",
+                            ""orderNumber"": """",
+                            ""productId"": """",
+                            ""invoiceNumber"": """",
+                            ""transactionId"": """",
+                            ""isPersonal"": false
+                        }
+                    ")
+                });
+        mockHttpMessageHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync",
+                ItExpr.Is<HttpRequestMessage>(x => x.RequestUri != null && x.Method == HttpMethod.Get),
+                ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(@"
+                        {
+                          ""id"": ""4e7413da-54c9-4f79-b882-f66ce48e5074"",
+                          ""organizationId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                          ""alias"": ""alias_0"",
+                          ""note"": """",
+                          ""description"": """",
+                          ""assetTag"": """",
+                          ""assetCategoryId"": 1,
+                          ""assetCategoryName"": ""Mobile phone"",
+                          ""brand"": ""Samsung"",
+                          ""productName"": ""Samsung Galaxy S20"",
+                          ""lifecycleType"": 2,
+                          ""lifecycleName"": ""Transactional"",
+                          ""paidByCompany"": 0,
+                          ""bookValue"": 0,
+                          ""buyoutPrice"": 0,
+                          ""purchaseDate"": ""0001-01-01T00:00:00"",
+                          ""createdDate"": ""2022-05-11T21:30:02.1795951Z"",
+                          ""managedByDepartmentId"": null,
+                          ""assetHolderId"": ""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",
+                          ""assetStatus"": 6,
+                          ""assetStatusName"": ""InUse"",
+                          ""labels"": [
+                            {
+                              ""id"": ""c553ae5b-6a3f-49c2-8d3e-8644d8f7e975"",
+                              ""text"": ""Label1"",
+                              ""color"": 0,
+                              ""colorName"": ""Blue""
+                            },
+                            {
+                              ""id"": ""fa0c43b6-1101-4698-bad9-2fb58b2032b3"",
+                              ""text"": ""CompanyOne"",
+                              ""color"": 2,
+                              ""colorName"": ""Lightblue""
+                            }
+                          ],
+                          ""serialNumber"": ""123456789012345"",
+                          ""imei"": [
+                            500119468586675
+                          ],
+                          ""macAddress"": ""B26EDC46046B"",
+                          ""orderNumber"": """",
+                          ""productId"": """",
+                          ""invoiceNumber"": """",
+                          ""transactionId"": """",
+                          ""isPersonal"": true,
+                          ""source"": ""Unknown""
+                        }
+                    ")
+                });
+        mockHttpMessageHandler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync",
+            ItExpr.Is<HttpRequestMessage>(x =>
+                x.RequestUri != null && x.RequestUri.ToString().Contains("/users/") && x.Method == HttpMethod.Get),
+            ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(@"
+                        {
+                          ""id"": ""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",
+                          ""firstName"": ""Kari"",
+                          ""lastName"": ""Normann"",
+                          ""email"": ""kari@normann.no"",
+                          ""mobileNumber"": ""+4790603360"",
+                          ""employeeId"": ""EID:909091"",
+                          ""userPreference"": {
+                            ""language"": ""no""
+                          },
+                          ""organizationName"": ""ORGANIZATION ONE"",
+                          ""userStatusName"": ""Deactivated"",
+                          ""userStatus"": 6,
+                          ""assignedToDepartment"": ""00000000-0000-0000-0000-000000000000"",
+                          ""departmentName"": null,
+                          ""role"": ""EndUser"",
+                          ""managerOf"": []
+                        }
+                    ")
+            });
+
+
+        var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+        mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+        var options = new AssetConfiguration { ApiPath = @"/assets" };
+        var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+        optionsMock.Setup(o => o.Value).Returns(options);
+
+        var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+        userOptionsMock.Setup(o => o.Value).Returns(new UserConfiguration { ApiPath = @"/organizations" });
+
+        var userId = Guid.Parse("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
+
+        var userService = new Mock<IUserServices>();
+        var user = new OrigoUser
+        {
+            Id = userId,
+            Email = "kari@normann.no",
+            FirstName = "Kari",
+            UserPreference = new UserPreference { Language = "en" },
+            UserStatus = 6,
+            LastWorkingDay = DateTime.UtcNow
+        };
+        userService.Setup(o => o.GetUserAsync(userId)).ReturnsAsync(user);
+
+
+        var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
+        var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object,
+            departmentOptionsMock.Object, _mapper);
+
+
+        var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), mockFactory.Object,
+            optionsMock.Object, userService.Object, new Mock<IUserPermissionService>().Object, _mapper,
+            departmentService);
+
+        var postData = new MakeAssetAvailable { AssetLifeCycleId = Guid.Parse("80665d26-90b4-4a3a-a20d-686b64466f32") };
+
+        // Act
+
+        var asset = await assetService.PendingBuyoutDeviceAsync(new Guid(CUSTOMER_ID), Guid.Parse("80665d26-90b4-4a3a-a20d-686b64466f32"), PredefinedRole.EndUser.ToString(), new List<Guid?>(), "NOK", Guid.Parse("{6d16a4cb-4733-44de-b23b-0eb9e8ae6590}"));
+
+        // Assert
+        Assert.True(asset.AssetStatus == AssetLifecycleStatus.PendingBuyout);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task PendingBuyoutDeviceAsync_ByDepartmentManager()
+    {
+        // Arrange
+        const string CUSTOMER_ID = "cab4bb77-3471-4ab3-ae5e-2d4fce450f36";
+        var DEPT_ID = Guid.NewGuid();
+
+
+        var mockFactory = new Mock<IHttpClientFactory>();
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        mockHttpMessageHandler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync",
+            ItExpr.Is<HttpRequestMessage>(x =>
+                x.RequestUri != null && x.RequestUri.ToString().Contains("/pending-buyout") &&
+                x.Method == HttpMethod.Post), ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(@"
+                        {
+                            ""id"": ""80665d26-90b4-4a3a-a20d-686b64466f32"",
+                            ""organizationId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                            ""alias"": ""alias_2"",
+                            ""note"": """",
+                            ""description"": """",
+                            ""assetTag"": """",
+                            ""assetCategoryId"": 1,
+                            ""assetCategoryName"": ""Mobile phone"",
+                            ""brand"": ""Samsung"",
+                            ""productName"": ""Samsung Galaxy S21"",
+                            ""lifecycleType"": 2,
+                            ""lifecycleName"": ""Transactional"",
+                            ""paidByCompany"": 0,
+                            ""currencyCode"": 0,
+                            ""bookValue"": 0,
+                            ""buyoutPrice"": 0.00,
+                            ""purchaseDate"": ""0001-01-01T00:00:00"",
+                            ""createdDate"": ""2022-05-10T08:11:17.9941683Z"",
+                            ""managedByDepartmentId"": """+ DEPT_ID.ToString() + @""",
+                            ""assetHolderId"": null,
+                            ""assetStatus"": 16,
+                            ""assetStatusName"": ""PendingBuyout"",
+                            ""labels"": [],
+                            ""serialNumber"": ""123456789012399"",
+                            ""imei"": [
+                                512217111821626
+                            ],
+                            ""macAddress"": ""840F1D0C06AD"",
+                            ""orderNumber"": """",
+                            ""productId"": """",
+                            ""invoiceNumber"": """",
+                            ""transactionId"": """",
+                            ""isPersonal"": false
+                        }
+                    ")
+                });
+        mockHttpMessageHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync",
+                ItExpr.Is<HttpRequestMessage>(x => x.RequestUri != null && x.Method == HttpMethod.Get),
+                ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(@"
+                        {
+                          ""id"": ""4e7413da-54c9-4f79-b882-f66ce48e5074"",
+                          ""organizationId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                          ""alias"": ""alias_0"",
+                          ""note"": """",
+                          ""description"": """",
+                          ""assetTag"": """",
+                          ""assetCategoryId"": 1,
+                          ""assetCategoryName"": ""Mobile phone"",
+                          ""brand"": ""Samsung"",
+                          ""productName"": ""Samsung Galaxy S20"",
+                          ""lifecycleType"": 2,
+                          ""lifecycleName"": ""Transactional"",
+                          ""paidByCompany"": 0,
+                          ""bookValue"": 0,
+                          ""buyoutPrice"": 0,
+                          ""purchaseDate"": ""0001-01-01T00:00:00"",
+                          ""createdDate"": ""2022-05-11T21:30:02.1795951Z"",
+                          ""managedByDepartmentId"": """ + DEPT_ID.ToString() + @""",
+                          ""assetHolderId"": ""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",
+                          ""assetStatus"": 6,
+                          ""assetStatusName"": ""InUse"",
+                          ""labels"": [
+                            {
+                              ""id"": ""c553ae5b-6a3f-49c2-8d3e-8644d8f7e975"",
+                              ""text"": ""Label1"",
+                              ""color"": 0,
+                              ""colorName"": ""Blue""
+                            },
+                            {
+                              ""id"": ""fa0c43b6-1101-4698-bad9-2fb58b2032b3"",
+                              ""text"": ""CompanyOne"",
+                              ""color"": 2,
+                              ""colorName"": ""Lightblue""
+                            }
+                          ],
+                          ""serialNumber"": ""123456789012345"",
+                          ""imei"": [
+                            500119468586675
+                          ],
+                          ""macAddress"": ""B26EDC46046B"",
+                          ""orderNumber"": """",
+                          ""productId"": """",
+                          ""invoiceNumber"": """",
+                          ""transactionId"": """",
+                          ""isPersonal"": true,
+                          ""source"": ""Unknown""
+                        }
+                    ")
+                });
+        mockHttpMessageHandler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync",
+            ItExpr.Is<HttpRequestMessage>(x =>
+                x.RequestUri != null && x.RequestUri.ToString().Contains("/users/") && x.Method == HttpMethod.Get),
+            ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(@"
+                        {
+                          ""id"": ""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",
+                          ""firstName"": ""Kari"",
+                          ""lastName"": ""Normann"",
+                          ""email"": ""kari@normann.no"",
+                          ""mobileNumber"": ""+4790603360"",
+                          ""employeeId"": ""EID:909091"",
+                          ""userPreference"": {
+                            ""language"": ""no""
+                          },
+                          ""organizationName"": ""ORGANIZATION ONE"",
+                          ""userStatusName"": ""Deactivated"",
+                          ""userStatus"": 6,
+                          ""assignedToDepartment"": ""00000000-0000-0000-0000-000000000000"",
+                          ""departmentName"": null,
+                          ""role"": ""EndUser"",
+                          ""managerOf"": []
+                        }
+                    ")
+            });
+
+
+        var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+        mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+        var options = new AssetConfiguration { ApiPath = @"/assets" };
+        var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+        optionsMock.Setup(o => o.Value).Returns(options);
+
+        var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
+        userOptionsMock.Setup(o => o.Value).Returns(new UserConfiguration { ApiPath = @"/organizations" });
+
+        var userId = Guid.Parse("6d16a4cb-4733-44de-b23b-0eb9e8ae6590");
+
+        var userService = new Mock<IUserServices>();
+        var user = new OrigoUser
+        {
+            Id = userId,
+            Email = "kari@normann.no",
+            FirstName = "Kari",
+            UserPreference = new UserPreference { Language = "en" },
+            UserStatus = 6,
+            LastWorkingDay = DateTime.UtcNow
+        };
+        userService.Setup(o => o.GetUserAsync(userId)).ReturnsAsync(user);
+
+
+        var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
+        var departmentService = new Mock<IDepartmentsServices>();
+        departmentService.Setup(o => o.GetDepartmentAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).ReturnsAsync(new OrigoDepartment()
+        {
+            DepartmentId = DEPT_ID
+        });
+
+
+        var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), mockFactory.Object,
+            optionsMock.Object, userService.Object, new Mock<IUserPermissionService>().Object, _mapper,
+            departmentService.Object);
+
+        var postData = new MakeAssetAvailable { AssetLifeCycleId = Guid.Parse("80665d26-90b4-4a3a-a20d-686b64466f32") };
+
+        // Act
+
+        var asset = await assetService.PendingBuyoutDeviceAsync(new Guid(CUSTOMER_ID), Guid.Parse("80665d26-90b4-4a3a-a20d-686b64466f32"), PredefinedRole.DepartmentManager.ToString(), new List<Guid?>() { DEPT_ID }, "NOK", Guid.Parse("{6d16a4cb-4733-44de-b23b-0eb9e8ae6590}"));
+
+        // Assert
+        Assert.True(asset.AssetStatus == AssetLifecycleStatus.PendingBuyout);
+    }
     [Fact]
     [Trait("Category", "UnitTest")]
     public async Task GetLifeCycleSettingByCustomer()
