@@ -60,6 +60,15 @@ namespace OrigoApiGateway.Controllers
             return Guid.Parse(actor);
         }
 
+        /// <summary>
+        /// Getting the Role of the Currently LoggedIn/Authenticated User
+        /// </summary>
+        /// <returns>Returns User Role(<see cref="PredefinedRole"/>) or null</returns>
+        private string? GetUserRole()
+        {
+            return HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+        }
+
 
         /// <summary>
         ///     Checks if the authenticated user should have access to the given organization ID.
@@ -269,6 +278,8 @@ namespace OrigoApiGateway.Controllers
                 // Frontend don't always have the user ID, so we have a special parameter that let's us know to filter the userID to the current user.
                 if (myOrders)
                     userId = GetCallerId();
+                else if (GetUserRole() == PredefinedRole.EndUser.ToString()) //Todo: Need to check whether this logic should be exported to a separate method
+                    userId = GetCallerId();
 
                 PagedModel<HardwareServiceOrder> results = await _hardwareServiceOrderService.GetAllServiceOrdersForOrganizationAsync(organizationId, userId, serviceTypeId, activeOnly, page, limit);
                 return Ok(results);
@@ -306,6 +317,10 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
 
                 var result = await _hardwareServiceOrderService.GetServiceOrderByIdAndOrganizationAsync(organizationId, serviceOrderId);
+                
+                //Todo: Need to check whether this logic should be exported to a separate method
+                if (GetUserRole() == PredefinedRole.EndUser.ToString() && result?.Owner.UserId != GetCallerId())
+                    return Forbid();
 
                 if (result is null)
                     return Forbid();
