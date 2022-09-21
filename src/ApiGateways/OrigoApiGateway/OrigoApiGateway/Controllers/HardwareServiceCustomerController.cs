@@ -257,7 +257,7 @@ namespace OrigoApiGateway.Controllers
         /// <param name="limit"> The number of items to retrieve per <paramref name="page"/>. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet("organization/{organizationId:Guid}/orders")]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager,EndUser")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(PagedModel<HardwareServiceOrder>))]
         public async Task<ActionResult> GetAllServiceOrdersForOrganizationAsync([FromRoute] Guid organizationId, [FromQuery] Guid? userId, [FromQuery] int? serviceTypeId, [FromQuery] bool activeOnly = false, [FromQuery] bool myOrders = false, [FromQuery] int page = 1, [FromQuery] int limit = 25)
         {
@@ -296,7 +296,7 @@ namespace OrigoApiGateway.Controllers
         /// <param name="serviceOrderId"> The service-order ID that should be retrieved. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet("organization/{organizationId:Guid}/orders/{serviceOrderId:Guid}")]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager,EndUser")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(HardwareServiceOrder))]
         public async Task<IActionResult> GetServiceOrderByIdAndOrganizationAsync([FromRoute] Guid organizationId, [FromRoute] Guid serviceOrderId)
         {
