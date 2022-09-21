@@ -424,6 +424,7 @@ namespace OrigoApiGateway.Services
                     throw new ArgumentException("This Asset does not have correct life-cycle-status to create a Service Order");
                 }
 
+                var imei = asset.Imei.FirstOrDefault();
                 dto.AssetInfo = new AssetInfo
                 {
                     AssetCategoryId = asset.AssetCategoryId,
@@ -431,7 +432,7 @@ namespace OrigoApiGateway.Services
                     Brand = asset.Brand,
                     Model = asset.ProductName,
                     PurchaseDate = DateOnly.FromDateTime(asset.PurchaseDate),
-                    Imei = $"{asset.Imei.FirstOrDefault()}",
+                    Imei = imei == 0 ? null : $"{imei}",
                     SerialNumber = asset.SerialNumber
                 };
 
