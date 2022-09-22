@@ -250,6 +250,61 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
             Assert.Equal((int)ServiceTypeEnum.SUR, hardwareServiceOrder?.ServiceTypeId);
             Assert.Equal(_customerId, hardwareServiceOrder?.CustomerId);
         }
+        
+        [Fact]
+        public async Task CreateHardwareRepairOrder_With_WrongImei()
+        {
+            var body = new NewHardwareServiceOrder
+            {
+                ErrorDescription = "Something is not working! Fix plz!",
+                OrderedBy = new ContactDetailsExtended
+                {
+                    FirstName = "John",
+                    LastName = "Doe",
+                    UserId = _userId,
+                    Email = "user@domain.com",
+                    PartnerId = Guid.NewGuid(),
+                    PartnerName = "Partner AS",
+                    PartnerOrganizationNumber = "123456789",
+                    OrganizationId = Guid.NewGuid(),
+                    OrganizationName = "Customer AS",
+                    OrganizationNumber = "987654321",
+                    PhoneNumber = "+4790000000"
+                },
+                AssetInfo = new()
+                {
+                    Imei = "0",
+                    AssetCategoryId = 1,
+                    Model = "Model",
+                    Brand = "Brand",
+                    PurchaseDate = DateOnly.Parse("2020-01-01"),
+                    SerialNumber = "S/N-123456",
+                    AssetLifecycleId = Guid.NewGuid(),
+                    AssetName = "AssetName",
+                    Accessories = new List<string>
+                    {
+                        "Charger"
+                    }
+                },
+                DeliveryAddress = new()
+                {
+                    RecipientType = HardwareServiceOrderServices.Models.RecipientTypeEnum.Personal,
+                    Recipient = "Recipient",
+                    Address1 = "Address1",
+                    Address2 = "Address2",
+                    PostalCode = "0275",
+                    City = "City",
+                    Country = "NO"
+                },
+                ServiceProviderId = (int)ServiceProviderEnum.ConmodoNo,
+                ServiceTypeId = (int)ServiceTypeEnum.SUR,
+                UserSelectedServiceOrderAddonIds = new HashSet<int>(){ (int)ServiceOrderAddonsEnum.CONMODO_PACKAGING }
+            };
+
+            var request = $"/api/v1/hardware-repair/{_customerId}/orders";
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
 
     }
 }
