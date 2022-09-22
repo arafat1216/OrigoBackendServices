@@ -417,7 +417,8 @@ public class AssetServices : IAssetServices
                 {
                     FirstName = string.Empty,
                     Recipients = data.Managers.Select(x=>x.Email).ToList(),
-                    AssetsLink = "https://www.example.com/"
+                    CustomerId = customerId.ToString(),
+                    AssetLifecycleId = assetLifecycle.ExternalId.ToString(),
                 }, "en");
             }
         }
@@ -801,7 +802,9 @@ public class AssetServices : IAssetServices
             {
                 FirstName = assignAssetDTO.NewUser.Name,
                 Recipient = assignAssetDTO.NewUser.Email,
-                AssetLink = "https://www.example.com/"
+                CustomerId = customerId.ToString(),
+                AssetLifecycleId = assetLifecycle.ExternalId.ToString()
+
             }, string.IsNullOrEmpty(assignAssetDTO.NewUser.PreferedLanguage) ? "en" : assignAssetDTO.NewUser.PreferedLanguage);
         }
 

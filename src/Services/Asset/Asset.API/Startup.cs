@@ -4,6 +4,7 @@ using System.Resources;
 using Asset.API.Filters;
 using AssetServices;
 using AssetServices.Email;
+using AssetServices.Email.Configuration;
 using AssetServices.Infrastructure;
 using AssetServices.Mappings;
 using AssetServices.Models;
@@ -76,7 +77,7 @@ namespace Asset.API
             services.AddScoped<IAssetServices, AssetServices.AssetServices>();
             services.AddScoped<IAssetTestDataService, AssetTestDataService>();
             services.AddScoped<IAssetLifecycleRepository, AssetLifecycleRepository>();
-            services.Configure<EmailConfiguration>(Configuration.GetSection("Email"));
+            services.Configure<EmailConfigurationAsset>(Configuration.GetSection("Email"));
             services.AddSingleton<IEmailService, EmailService>();
             services.AddSingleton<IFlatDictionaryProvider, FlatDictionary>();
             services.AddScoped<ErrorExceptionFilter>();

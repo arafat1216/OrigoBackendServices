@@ -15,6 +15,14 @@
         /// </summary>
         public string Recipient { get; set; }
         /// <summary>
+        /// Customer id to be insurted in to the link for the asset lifecycle.
+        /// </summary>
+        public string CustomerId { get; set; }
+        /// <summary>
+        /// Asset Lifecycle id to be insurted in to the link for the asset lifecycle.
+        /// </summary>
+        public string AssetLifecycleId { get; set; }
+        /// <summary>
         /// Subject of the email
         /// </summary>
         public string Subject { get; set; } = "New Asset";

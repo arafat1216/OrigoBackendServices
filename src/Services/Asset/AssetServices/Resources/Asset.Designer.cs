@@ -61,13 +61,13 @@ namespace AssetServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An employee have decided to buyout an asset from your company. There will NOT be any set up for an automactic salary deduction for this. Please make the salary deduction at nexy payrpll
-        ///&lt;/br&gt;
+        ///   Looks up a localized string similar to An employee has decided to buyout an asset from your company. There will NOT be any set up for an automatic salary deduction for this. Please make the salary deduction at next payroll.
+        ///
         ///### Details:
         ///User: {{UserName}}
         ///Asset: {{AssetName}} ({{AssetId}})
         ///Buyout Date: {{BuyoutDate}}
-        ///Buyour Price: {{BuyoutPrice}}.
+        ///Buyout Price: {{BuyoutPrice}}.
         /// </summary>
         internal static string AssetBuyout {
             get {
@@ -76,32 +76,7 @@ namespace AssetServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello {{FirstName}}!  
-        ///
-        ///Your Manager has chosen Return on the following asset:  
-        ///
-        ///### Asset: {{AssetName}} ({{AssetId})  
-        ///###Date: {{ReturnDate}}  
-        ///
-        ///Important! Please remember to delete all company files from your device..
-        /// </summary>
-        internal static string ManagerOnBehalfReturn {
-            get {
-                return ResourceManager.GetString("ManagerOnBehalfReturn", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Asset Return.
-        /// </summary>
-        internal static string ManagerOnBehalfReturn_Subject {
-            get {
-                return ResourceManager.GetString("ManagerOnBehalfReturn_Subject", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///   Looks up a localized string similar to ### Hello {{FirstName}}!
         ///
         ///In regards of your offboarding, {{ManagerName}} has chosen buyout on the following asset:
         ///
@@ -134,10 +109,35 @@ namespace AssetServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello {{FirstName}}!
-        ///&lt;/br&gt;
+        ///   Looks up a localized string similar to Hello {{FirstName}}!  
+        ///
+        ///Your Manager has chosen Return on the following asset:  
+        ///
+        ///### Asset: {{AssetName}} ({{AssetId})  
+        ///### Date: {{ReturnDate}}  
+        ///
+        ///Important! Please remember to delete all company files from your device..
+        /// </summary>
+        internal static string ManagerOnBehalfReturn {
+            get {
+                return ResourceManager.GetString("ManagerOnBehalfReturn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Asset Return.
+        /// </summary>
+        internal static string ManagerOnBehalfReturn_Subject {
+            get {
+                return ResourceManager.GetString("ManagerOnBehalfReturn_Subject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ### Hello {{FirstName}}!
+        ///
         ///You have assets pending return. As a manager you need to confirm when you have received the asset to complete and end the lifecyce.
-        ///&lt;/br&gt;
+        ///
         ///[View Assets]({{AssetsLink}}).
         /// </summary>
         internal static string PendingReturn {
@@ -147,10 +147,10 @@ namespace AssetServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello {{FirstName}}!
-        ///&lt;/br&gt;
+        ///   Looks up a localized string similar to ### Hello {{FirstName}}!
+        ///
         ///An asset was successfully reassigned from your department.
-        ///&lt;/br&gt;
+        ///
         ///[View Asset]({{AssetLink}}).
         /// </summary>
         internal static string ReassignedToUser {
@@ -160,31 +160,24 @@ namespace AssetServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello {{FirstName}}!
-        ///&lt;/br&gt;
-        ///An asset have been reported {{ReportType}}.and has been set to inactive.
-        ///&lt;/br&gt;
+        ///   Looks up a localized string similar to ### Hello {{FirstName}}!
+        ///
+        ///An asset has been reported {{ReportType}}.and has been set to inactive.
+        ///
         ///### Asset:
         ///{{AssetName}} ({{AssetId})
-        ///&lt;/br&gt;
         ///### Report Date:
         ///{{ReportDate}}
-        ///&lt;/br&gt;
         ///### Reported by:
         ///{{ReportedBy}}
-        ///&lt;/br&gt;
         ///### What happened with the asset?
         ///{{ReportType}}
-        ///&lt;/br&gt;
         ///### How did it happen?
         ///{{Description}}
-        ///&lt;/br&gt;
         ///### In What time period did it happen?
         ///{{DateFrom}} To {{DateTo}}
-        ///&lt;/br&gt;
         ///### Where did it happen?
-        ///{{Address}}
-        ///&lt;/br&gt;.
+        ///{{Address}}.
         /// </summary>
         internal static string ReportAsset {
             get {
@@ -193,12 +186,10 @@ namespace AssetServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello!
-        ///&lt;/br&gt;
+        ///   Looks up a localized string similar to ### Hello!
         ///An asset was successfully unassigned from your department.
-        ///&lt;/br&gt;
-        ///This means you are no longer responsible for this asset, and it is therefore no longer visible to you.
-        ///&lt;/br&gt;.
+        ///
+        ///This means you are no longer responsible for this asset, and it is therefore no longer visible to you..
         /// </summary>
         internal static string UnassignedFromManager {
             get {
@@ -207,12 +198,11 @@ namespace AssetServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello {{FirstName}}!
-        ///&lt;/br&gt;
+        ///   Looks up a localized string similar to ### Hello {{FirstName}}!
+        ///
         ///An asset was successfully unassigned from you.
-        ///&lt;/br&gt;
-        ///This means you are no longer responsible for this asset, and it is therefore no longer visible to you.
-        ///&lt;/br&gt;.
+        ///
+        ///This means you are no longer responsible for this asset, and it is therefore no longer visible to you..
         /// </summary>
         internal static string UnassignedFromUser {
             get {

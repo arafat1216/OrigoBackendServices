@@ -1,4 +1,5 @@
-﻿using AssetServices.Email.Model;
+﻿using AssetServices.Email.Configuration;
+using AssetServices.Email.Model;
 using AssetServices.Exceptions;
 using Common.Configuration;
 using Common.Utilities;
@@ -17,7 +18,7 @@ namespace AssetServices.Email
 {
     public class EmailService : IEmailService
     {
-        private readonly EmailConfiguration _emailConfiguration;
+        private readonly EmailConfigurationAsset _emailConfiguration;
         private readonly IHttpClientFactory _httpClientFactory;
         private HttpClient _httpClient => _httpClientFactory.CreateClient("emailservices");
         private readonly IFlatDictionaryProvider _flatDictionaryProvider;
@@ -25,7 +26,7 @@ namespace AssetServices.Email
         private readonly ILogger<EmailService> _logger;
 
         public EmailService(
-            IOptions<EmailConfiguration> emailConfiguration,
+            IOptions<EmailConfigurationAsset> emailConfiguration,
             IFlatDictionaryProvider flatDictionaryProvider,
             ResourceManager resourceManager, IHttpClientFactory httpClientFactory,
             ILogger<EmailService> logger)
@@ -81,6 +82,8 @@ namespace AssetServices.Email
         }
         public async Task ReAssignedToUserEmailAsync(ReAssignedToUserNotification emailData, string languageCode)
         {
+            emailData.AssetLink = _emailConfiguration.OrigoBaseUrl + _emailConfiguration.AssetPath;
+
             var template = _resourceManager.GetString(ReAssignedToUserNotification.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(emailData);
             await SendAsync(emailData.Subject, template, new List<string> { emailData.Recipient }, variables);
@@ -93,6 +96,8 @@ namespace AssetServices.Email
         }
         public async Task PendingReturnEmailAsync(PendingReturnNotification emailData, string languageCode)
         {
+            emailData.AssetLink = _emailConfiguration.OrigoBaseUrl + _emailConfiguration.AssetPath;
+
             var template = _resourceManager.GetString(PendingReturnNotification.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(emailData);
             await SendAsync(emailData.Subject, template, emailData.Recipients, variables);
