@@ -5,6 +5,9 @@ using AutoMapper;
 using Common.Enums;
 using Common.Utilities;
 using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement;
+using SubscriptionManagementServices.Email;
+using SubscriptionManagementServices.Email.Models;
 using SubscriptionManagementServices.Exceptions;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
@@ -22,6 +25,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
     private readonly TransferSubscriptionDateConfiguration _transferSubscriptionDateConfiguration;
     private readonly IEmailService _emailService;
     private readonly IDateTimeProvider _today;
+    private readonly IFeatureManager _featureManager;
 
 
     public SubscriptionManagementService(ISubscriptionManagementRepository<ISubscriptionOrder> subscriptionManagementRepository,
@@ -30,7 +34,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         IOptions<TransferSubscriptionDateConfiguration> transferSubscriptionOrderConfigurationOptions,
         IMapper mapper,
         IEmailService emailService,
-        IDateTimeProvider dateTimeProvider)
+        IDateTimeProvider dateTimeProvider, IFeatureManager featureManager)
     {
         _subscriptionManagementRepository = subscriptionManagementRepository;
         _customerSettingsRepository = customerSettingsRepository;
@@ -39,6 +43,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         _transferSubscriptionDateConfiguration = transferSubscriptionOrderConfigurationOptions.Value;
         _emailService = emailService;
         _today = dateTimeProvider;
+        _featureManager = featureManager;
     }
 
     public async Task<TransferToBusinessSubscriptionOrderDTOResponse> TransferPrivateToBusinessSubscriptionOrderAsync(
@@ -184,8 +189,35 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             order.CallerId);
         var subscriptionOrder = await _subscriptionManagementRepository.AddSubscriptionOrder(transferToBusinessSubscriptionOrder);
 
-        var variables = new Dictionary<string, string>
+        var isMailImprovmentEnabled = await _featureManager.IsEnabledAsync("MailImprovmentEnabled");
+
+        if (isMailImprovmentEnabled)
         {
+            await _emailService.TransferToBusinessMailSendAsync(new TransferToBusinessMail
+            {
+                SubscriptionOrderId = subscriptionOrder.SubscriptionOrderId.ToString(),
+                PrivateSubscription = new PrivateSubscriptionMail(transferToBusinessSubscriptionOrder.PrivateSubscription),
+                BusinessSubscription = new BusinessSubscriptionMail(transferToBusinessSubscriptionOrder.BusinessSubscription),
+                MobileNumber = transferToBusinessSubscriptionOrder.MobileNumber,
+                OperatorName = newOperatorName,
+                SubscriptionProductName = transferToBusinessSubscriptionOrder.SubscriptionProductName,
+                DataPackage = transferToBusinessSubscriptionOrder.DataPackageName ?? string.Empty,
+                OrderExecutionDate = transferToBusinessSubscriptionOrder.OrderExecutionDate.ToShortDateString(),
+                UserReferences = order.CustomerReferenceFields == null || !order.CustomerReferenceFields.Any() ? string.Empty
+                    : string.Join(", ", order.CustomerReferenceFields.Where(c => c.Type == "User").Select(c => $"{c.Name}:{c.Value}").ToArray()),
+                OperatorAccount = $"{transferToBusinessSubscriptionOrder.OperatorAccountName} - {transferToBusinessSubscriptionOrder.OperatorAccountNumber}",
+                OperatorAccountPayer = $"{transferToBusinessSubscriptionOrder.OperatorAccountPayer} ({transferToBusinessSubscriptionOrder.OrganizationNumberPayer})",
+                OperatorAccountOwner = $"{transferToBusinessSubscriptionOrder.OperatorAccountOwner} ({transferToBusinessSubscriptionOrder.OrganizationNumberOwner})",
+                SimCardNumber = transferToBusinessSubscriptionOrder.SimCardNumber ?? string.Empty,
+                SIMCardAction = transferToBusinessSubscriptionOrder.SimCardAction,
+                SIMCardAddress = $"{order.SimCardAddress?.FirstName} {order.SimCardAddress?.LastName}, {order.SimCardAddress?.Address}, {order.SimCardAddress?.PostalCode} {order.SimCardAddress?.PostalPlace}"
+            }, "EN");
+            
+        }
+        else 
+        {
+            var variables = new Dictionary<string, string>
+            {
             { "OperatorName", newOperatorName },
             { "OperatorAccount", $"{transferToBusinessSubscriptionOrder.OperatorAccountName} - { transferToBusinessSubscriptionOrder.OperatorAccountNumber }" },
             { "OperatorAccountPayer", $"{transferToBusinessSubscriptionOrder.OperatorAccountPayer} ({ transferToBusinessSubscriptionOrder.OrganizationNumberPayer })" },
@@ -194,10 +226,11 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             { "SimcardAddress", $"{order.SimCardAddress?.FirstName} {order.SimCardAddress?.LastName}, {order.SimCardAddress?.Address}, {order.SimCardAddress?.PostalCode} {order.SimCardAddress?.PostalPlace}" },
             { "UserReferences", order.CustomerReferenceFields == null || !order.CustomerReferenceFields.Any() ? string.Empty
                     : string.Join(", ", order.CustomerReferenceFields.Where(c => c.Type == "User").Select(c => $"{c.Name}:{c.Value}").ToArray()) }
-        };
+            };
 
 
-        await _emailService.SendAsync(OrderTypes.TransferToBusiness.ToString(), subscriptionOrder.SubscriptionOrderId, order, variables);
+            await _emailService.SendAsync(OrderTypes.TransferToBusiness.ToString(), subscriptionOrder.SubscriptionOrderId, order, variables);
+        }
 
         var operatorSettings = customerSettings.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == newOperatorName);
 
@@ -220,6 +253,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
     public async Task<TransferToPrivateSubscriptionOrderDTOResponse> TransferToPrivateSubscriptionOrderAsync(
         Guid organizationId, TransferToPrivateSubscriptionOrderDTO subscriptionOrder)
     {
+     
         var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
         if (customerSettings != null)
         {
@@ -255,7 +289,26 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         order.OrganizationId = organizationId;
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(order);
 
-        await _emailService.SendAsync(OrderTypes.TransferToPrivate.ToString(), added.SubscriptionOrderId, order, new Dictionary<string, string> { { "OperatorName", subscriptionOrder.OperatorName } });
+        var isMailImprovmentEnabled = await _featureManager.IsEnabledAsync("MailImprovmentEnabled");
+
+        if (isMailImprovmentEnabled)
+        {
+            await _emailService.TransferToPrivateMailSendAsync(new TransferToPrivateMail
+            {
+                SubscriptionOrderId = added.SubscriptionOrderId.ToString(),
+                UserInfo = new PrivateSubscriptionMail(order.UserInfo),
+                OperatorName = subscriptionOrder.OperatorName,
+                MobileNumber = subscriptionOrder.MobileNumber,
+                NewSubscription = order.NewSubscription,
+                OrderExecutionDate = order.OrderExecutionDate.ToShortDateString(),
+            }, "EN");
+        }
+        else
+        {
+            await _emailService.SendAsync(OrderTypes.TransferToPrivate.ToString(), added.SubscriptionOrderId, order, new Dictionary<string, string> { { "OperatorName", subscriptionOrder.OperatorName } });
+
+        }
+
         var mapped = _mapper.Map<TransferToPrivateSubscriptionOrderDTOResponse>(added);
         var operatorSettings = customerSettings?.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == subscriptionOrder.OperatorName);
         if (operatorSettings != null && mapped != null)
@@ -325,7 +378,24 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(changeSubscriptionOrder);
 
-        await _emailService.SendAsync(OrderTypes.ChangeSubscription.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", subscriptionOrder.OperatorName } });
+        var isMailImprovmentEnabled = await _featureManager.IsEnabledAsync("MailImprovmentEnabled");
+
+        if (isMailImprovmentEnabled)
+        {
+            await _emailService.ChangeSubscriptionMailSendAsync(new ChangeSubscriptionMail
+            {
+                MobileNumber = subscriptionOrder.MobileNumber,
+                OperatorName = subscriptionOrder.OperatorName,
+                PackageName = subscriptionOrder.PackageName ?? string.Empty,
+                ProductName = subscriptionOrder.ProductName,
+                SubscriptionOrderId = added.SubscriptionOrderId.ToString()
+            }, "EN");
+        }
+        else
+        {
+            await _emailService.SendAsync(OrderTypes.ChangeSubscription.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", subscriptionOrder.OperatorName } });
+
+        }
         var mapped = _mapper.Map<ChangeSubscriptionOrderDTO>(added);
         mapped.OperatorId = @operator.Id;
 
@@ -352,7 +422,23 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             subscriptionOrder.DateOfTermination, @operator.OperatorName, organizationId, subscriptionOrder.CallerId);
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(cancelSubscriptionOrder);
 
-        await _emailService.SendAsync(OrderTypes.CancelSubscription.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
+        var isMailImprovmentEnabled = await _featureManager.IsEnabledAsync("MailImprovmentEnabled");
+
+        if (isMailImprovmentEnabled)
+        {
+            await _emailService.CancelSubscriptionMailSendAsync(new CancelSubscriptionMail
+            {
+                MobileNumber = subscriptionOrder.MobileNumber,
+                OperatorName = @operator.OperatorName,
+                SubscriptionOrderId = added.SubscriptionOrderId.ToString(),
+                DateOfTermination = subscriptionOrder.DateOfTermination.ToShortDateString()
+            }, "EN");
+        }
+        else
+        {
+           await _emailService.SendAsync(OrderTypes.CancelSubscription.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
+
+        }
         var cancelMapped = _mapper.Map<CancelSubscriptionOrderDTO>(added);
         cancelMapped.OperatorId = @operator.Id;
 
@@ -370,8 +456,26 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             subscriptionOrder.Address.Postcode, subscriptionOrder.Address.City, subscriptionOrder.Address.Country, @operator.OperatorName, subscriptionOrder.Quantity, organizationId, subscriptionOrder.CallerId);
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(orderSimSubscriptionOrder);
 
-        await _emailService.SendAsync(OrderTypes.OrderSim.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
+        var isMailImprovmentEnabled = await _featureManager.IsEnabledAsync("MailImprovmentEnabled");
 
+        if (isMailImprovmentEnabled)
+        {
+            await _emailService.OrderSimMailSendAsync(new OrderSimMail
+            {
+                SendToName = subscriptionOrder.SendToName,
+                Street = subscriptionOrder.Address.Street,
+                Postcode = subscriptionOrder.Address.Postcode,
+                City = subscriptionOrder.Address.City,
+                Country = subscriptionOrder.Address.Country,
+                OperatorName = @operator.OperatorName,
+                Quantity = subscriptionOrder.Quantity.ToString(),
+                SubscriptionOrderId = added.SubscriptionOrderId.ToString()
+            }, "EN");
+        }
+        else
+        {
+           await _emailService.SendAsync(OrderTypes.OrderSim.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
+        }
         var mapped = _mapper.Map<OrderSimSubscriptionOrderDTO>(added);
         mapped.OperatorId = @operator.Id;
 
@@ -399,8 +503,23 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
         var added = await _subscriptionManagementRepository.AddSubscriptionOrder(newActivateSimOrder);
 
-        await _emailService.SendAsync(OrderTypes.ActivateSim.ToString(), added.SubscriptionOrderId, simOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
+        var isMailImprovmentEnabled = await _featureManager.IsEnabledAsync("MailImprovmentEnabled");
 
+        if (isMailImprovmentEnabled)
+        {
+            await _emailService.ActivateSimMailSendAsync(new ActivateSimMail
+            {
+                MobileNumber = newActivateSimOrder.MobileNumber,
+                SimCardNumber = newActivateSimOrder.SimCardNumber,
+                SimCardType = newActivateSimOrder.SimCardType,
+                SubscriptionOrderId = added.SubscriptionOrderId.ToString(),
+                OperatorName = newActivateSimOrder.OperatorName
+            }, "EN");
+        }
+        else
+        {
+           await _emailService.SendAsync(OrderTypes.ActivateSim.ToString(), added.SubscriptionOrderId, simOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
+        }
         var mapped = _mapper.Map<ActivateSimOrderDTO>(newActivateSimOrder);
         mapped.OperatorId = @operator.Id;
 
@@ -504,47 +623,79 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
         var subscriptionOrder = await _subscriptionManagementRepository.AddSubscriptionOrder(newSubscription);
 
-        // TODO: This is a dirty "quickfix" for adding in some of the missing values to the email. This needs to be properly redone ASAP!
-        Dictionary<string, string> emailVariables = new()
+        var isMailImprovmentEnabled = await _featureManager.IsEnabledAsync("MailImprovmentEnabled");
+
+        if (isMailImprovmentEnabled)
         {
-            { "PrivateSubscription.FirstName", newSubscription.PrivateSubscription?.FirstName ?? "N/A" },
-            { "PrivateSubscription.LastName", newSubscription.PrivateSubscription?.LastName ?? "N/A" },
-            { "PrivateSubscription.BirthDate", newSubscription.PrivateSubscription?.BirthDate.ToString("yyyy-MM-dd") ?? "N/A" },
-            { "PrivateSubscription.Address", newSubscription.PrivateSubscription?.Address ?? "N/A" },
-            { "PrivateSubscription.PostalCode", newSubscription.PrivateSubscription?.PostalCode ?? "N/A" },
-            { "PrivateSubscription.PostalPlace", newSubscription.PrivateSubscription?.PostalPlace ?? "N/A" },
-            { "PrivateSubscription.Country", newSubscription.PrivateSubscription?.Country ?? "N/A" },
-            { "PrivateSubscription.Email", newSubscription.PrivateSubscription?.Email ?? "N/A" },
+            await _emailService.NewSubscriptionMailSendAsync(new NewSubscriptionMail
+            {
+                PrivateSubscription = new PrivateSubscriptionMail(newSubscription.PrivateSubscription),
+                BusinessSubscription = new BusinessSubscriptionMail(newSubscription.BusinessSubscription),
+                OperatorName = @operator.OperatorName,
+                OperatorAccountPayer = newSubscription.OperatorAccountPayer ?? "N/A",
+                OperatorAccountOwner = newSubscription.OperatorAccountOwner ?? "N/A",
+                OperatorAccountName = newSubscription.OperatorAccountName ?? "N/A",
+                SimCardAction = newSubscription.SimCardAction,
+                SimCardNumber = newSubscription.SimCardNumber ?? "N/A",
+                SimCardAddress = new SimCardAddress
+                {
+                    Address = newSubscription.SimCardReceiverAddress ?? "N/A",
+                    Country = newSubscription.SimCardReceiverCountry ?? "N/A",
+                    FirstName = newSubscription.SimCardReceiverFirstName ?? "N/A",
+                    LastName = newSubscription.SimCardReceiverLastName ?? "N/A",
+                    PostalCode = newSubscription.SimCardReceiverPostalCode ?? "N/A",
+                    PostalPlace = newSubscription.SimCardReceiverPostalPlace ?? "N/A"
+                },
+                SubscriptionProductName = newSubscription.SubscriptionProductName,
+                SubscriptionAddOnProducts = string.Join(", ", newSubscriptionOrder.AddOnProducts),
+                OrderExecutionDate = newSubscription.OrderExecutionDate.ToShortDateString(),
+                CustomerReferenceFields = newSubscription.CustomerReferenceFields,
+                DataPackage = newSubscription.DataPackageName ?? "N/A"
+            }, "EN");
+        }
+        else
+        {
+            // TODO: This is a dirty "quickfix" for adding in some of the missing values to the email. This needs to be properly redone ASAP!
+            Dictionary<string, string> emailVariables = new()
+            {
+                { "PrivateSubscription.FirstName", newSubscription.PrivateSubscription?.FirstName ?? "N/A" },
+                { "PrivateSubscription.LastName", newSubscription.PrivateSubscription?.LastName ?? "N/A" },
+                { "PrivateSubscription.BirthDate", newSubscription.PrivateSubscription?.BirthDate.ToString("yyyy-MM-dd") ?? "N/A" },
+                { "PrivateSubscription.Address", newSubscription.PrivateSubscription?.Address ?? "N/A" },
+                { "PrivateSubscription.PostalCode", newSubscription.PrivateSubscription?.PostalCode ?? "N/A" },
+                { "PrivateSubscription.PostalPlace", newSubscription.PrivateSubscription?.PostalPlace ?? "N/A" },
+                { "PrivateSubscription.Country", newSubscription.PrivateSubscription?.Country ?? "N/A" },
+                { "PrivateSubscription.Email", newSubscription.PrivateSubscription?.Email ?? "N/A" },
 
-            { "BusinessSubscription.Name", newSubscription.BusinessSubscription?.Name ?? string.Empty },
-            { "BusinessSubscription.OrganizationNumber", newSubscription.BusinessSubscription?.OrganizationNumber ?? customerOperatorAccount?.ConnectedOrganizationNumber ?? "N/A" },
-            { "BusinessSubscription.Address", newSubscription.BusinessSubscription?.Address ?? "N/A" },
-            { "BusinessSubscription.PostalCode", newSubscription.BusinessSubscription?.PostalCode ?? "N/A" },
-            { "BusinessSubscription.PostalPlace", newSubscription.BusinessSubscription?.PostalPlace ?? "N/A" },
-            { "BusinessSubscription.Country", newSubscription.BusinessSubscription?.Country ?? "N/A" },
+                { "BusinessSubscription.Name", newSubscription.BusinessSubscription?.Name ?? string.Empty },
+                { "BusinessSubscription.OrganizationNumber", newSubscription.BusinessSubscription?.OrganizationNumber ?? customerOperatorAccount?.ConnectedOrganizationNumber ?? "N/A" },
+                { "BusinessSubscription.Address", newSubscription.BusinessSubscription?.Address ?? "N/A" },
+                { "BusinessSubscription.PostalCode", newSubscription.BusinessSubscription?.PostalCode ?? "N/A" },
+                { "BusinessSubscription.PostalPlace", newSubscription.BusinessSubscription?.PostalPlace ?? "N/A" },
+                { "BusinessSubscription.Country", newSubscription.BusinessSubscription?.Country ?? "N/A" },
 
-            { "OperatorName", @operator.OperatorName },
-            { "OperatorAccountPayer", newSubscription.OperatorAccountPayer ?? "N/A" },
-            { "OperatorAccountName", newSubscription.OperatorAccountName ?? "N/A" },
-            { "SimCardAction", newSubscription.SimCardAction },
-            { "SimCardNumber", newSubscription.SimCardNumber ?? "N/A" },
+                { "OperatorName", @operator.OperatorName },
+                { "OperatorAccountPayer", newSubscription.OperatorAccountPayer ?? "N/A" },
+                { "OperatorAccountName", newSubscription.OperatorAccountName ?? "N/A" },
+                { "SimCardAction", newSubscription.SimCardAction },
+                { "SimCardNumber", newSubscription.SimCardNumber ?? "N/A" },
 
-            { "SimCardAddress.FirstName", newSubscription.SimCardReceiverFirstName ?? "N/A" },
-            { "SimCardAddress.LastName", newSubscription.SimCardReceiverLastName ?? "N/A" },
-            { "SimCardAddress.Address", newSubscription.SimCardReceiverAddress ?? "N/A" },
-            { "SimCardAddress.PostalCode", newSubscription.SimCardReceiverPostalCode ?? "N/A" },
-            { "SimCardAddress.PostalPlace", newSubscription.SimCardReceiverPostalPlace ?? "N/A" },
-            { "SimCardAddress.Country", newSubscription.SimCardReceiverCountry ?? "N/A" },
+                { "SimCardAddress.FirstName", newSubscription.SimCardReceiverFirstName ?? "N/A" },
+                { "SimCardAddress.LastName", newSubscription.SimCardReceiverLastName ?? "N/A" },
+                { "SimCardAddress.Address", newSubscription.SimCardReceiverAddress ?? "N/A" },
+                { "SimCardAddress.PostalCode", newSubscription.SimCardReceiverPostalCode ?? "N/A" },
+                { "SimCardAddress.PostalPlace", newSubscription.SimCardReceiverPostalPlace ?? "N/A" },
+                { "SimCardAddress.Country", newSubscription.SimCardReceiverCountry ?? "N/A" },
 
-            { "SubscriptionProductName", newSubscription.SubscriptionProductName },
-            { "DataPackageName", newSubscription.DataPackageName ?? "N/A" },
-            { "SubscriptionAddOnProducts", string.Join(", ", newSubscriptionOrder.AddOnProducts) },
-            { "OrderExecutionDate", newSubscription.ExecutionDate.ToString("yyyy-MM-dd") },
+                { "SubscriptionProductName", newSubscription.SubscriptionProductName },
+                { "DataPackageName", newSubscription.DataPackageName ?? "N/A" },
+                { "SubscriptionAddOnProducts", string.Join(", ", newSubscriptionOrder.AddOnProducts) },
+                { "OrderExecutionDate", newSubscription.ExecutionDate.ToString("yyyy-MM-dd") },
 
-            { "CustomerReferenceFields", newSubscription.CustomerReferenceFields }
-        };
-
-        await _emailService.SendAsync(OrderTypes.NewSubscription.ToString(), subscriptionOrder.SubscriptionOrderId, emailVariables);
+                { "CustomerReferenceFields", newSubscription.CustomerReferenceFields }
+            };
+            await _emailService.SendAsync(OrderTypes.NewSubscription.ToString(), subscriptionOrder.SubscriptionOrderId, emailVariables);
+        }
         var mapped = _mapper.Map<NewSubscriptionOrderDTO>(subscriptionOrder);
 
         if (mapped != null)

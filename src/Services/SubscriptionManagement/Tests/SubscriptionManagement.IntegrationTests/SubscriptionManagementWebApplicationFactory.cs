@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using SubscriptionManagement.IntegrationTests.Controllers;
-using SubscriptionManagementServices;
+using SubscriptionManagementServices.Email;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.Types;

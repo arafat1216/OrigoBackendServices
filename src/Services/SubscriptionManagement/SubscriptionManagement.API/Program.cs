@@ -1,16 +1,19 @@
-using Common.Configuration;
 using Common.Logging;
 using Common.Utilities;
 using Dapr.Client;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.FeatureManagement;
 using SubscriptionManagement.API.Filters;
 using SubscriptionManagementServices;
+using SubscriptionManagementServices.Email;
+using SubscriptionManagementServices.Email.Configuration;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.Utilities;
 using System.Reflection;
+using System.Resources;
 
 var apiVersion = new ApiVersion(1, 0);
 
@@ -70,7 +73,7 @@ builder.Services.AddSwaggerGen(config =>
 
 builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.Configure<TransferSubscriptionDateConfiguration>(builder.Configuration.GetSection("TransferSubscriptionOrderConfiguration"));
-builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("Email"));
+builder.Services.Configure<EmailConfigurationSubscriptionManagement>(builder.Configuration.GetSection("Email"));
 builder.Services.AddScoped<IFunctionalEventLogService, FunctionalEventLogService>();
 builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
 builder.Services.AddScoped<ISubscriptionManagementRepository<ISubscriptionOrder>, SubscriptionManagementRepository<ISubscriptionOrder>>();
@@ -83,6 +86,8 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IFlatDictionaryProvider, FlatDictionary>();
 builder.Services.AddScoped<IDateTimeProvider, DateTimeProvider>();
 builder.Services.AddMediatR(typeof(SubscriptionManagementContext));
+builder.Services.AddSingleton(s => new ResourceManager("SubscriptionManagementServices.Resources.SubscriptionManagement", Assembly.GetAssembly(typeof(EmailService))));
+builder.Services.AddFeatureManagement();
 
 builder.Services.AddHttpClient("emailservices", c => { c.BaseAddress = new Uri("http://emailnotificationservices"); })
                 .AddHttpMessageHandler(() => new InvocationHandler());

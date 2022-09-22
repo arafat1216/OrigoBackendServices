@@ -8,8 +8,11 @@ using Common.Logging;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement;
 using Moq;
 using SubscriptionManagementServices;
+using SubscriptionManagementServices.Email;
+using SubscriptionManagementServices.Email.Models;
 using SubscriptionManagementServices.Exceptions;
 using SubscriptionManagementServices.Infrastructure;
 using SubscriptionManagementServices.Models;
@@ -59,7 +62,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
                 MinDaysForNewOperator = 4,
                 MaxDaysForAll = 30,
                 MinDaysForCurrentOperator = 2
-            }), _mapper, new Mock<IEmailService>().Object, mockDateTimeNow.Object);
+            }), _mapper, new Mock<IEmailService>().Object, mockDateTimeNow.Object, Mock.Of<IFeatureManager>());
 
         _customerSettingsService = new CustomerSettingsService(customerSettingsRepository, operatorRepository, _mapper);
     }
@@ -393,7 +396,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
         Assert.NotNull(order.PrivateSubscription);
         Assert.Null(order.BusinessSubscription);
     }
-
+ 
     [Fact]
     [Trait("Category", "UnitTest")]
     public async Task TransferSubscription_Diff_Operator_New_SIM()
@@ -967,7 +970,7 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
               MinDaysForNewOperator = 4,
               MaxDaysForAll = 30,
               MinDaysForCurrentOperator = 2
-          }), _mapper, new Mock<IEmailService>().Object, mockDateTimeNow.Object);
+          }), _mapper, new Mock<IEmailService>().Object, mockDateTimeNow.Object, Mock.Of<IFeatureManager>());
 
         var cancelSubscriptionOrder = new NewCancelSubscriptionOrder()
         {
@@ -977,6 +980,80 @@ public class SubscriptionManagementServiceTests : SubscriptionManagementServiceB
             CallerId = Guid.NewGuid()
         };
         var cancelSub = await subscriptionManagementService.CancelSubscriptionOrder(ORGANIZATION_ONE_ID, cancelSubscriptionOrder);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task CancelSubscriptionOrder_FeatureFlagMailImprovmentEnabledIsFalse_VerifyEmailServiceSendAsyncIsCalled()
+    {
+        using var context = new SubscriptionManagementContext(ContextOptions);
+        var subscriptionManagementRepository = new SubscriptionManagementRepository<ISubscriptionOrder>(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var operatorRepository = new OperatorRepository(context);
+     
+
+        var mockDateTimeNow = new Mock<IDateTimeProvider>();
+        mockDateTimeNow.Setup(x => x.GetNow()).Returns(new DateTime(2022, 08, 12));
+
+        var emailMock = new Mock<IEmailService>();
+        var mockFeature = new Mock<IFeatureManager>();
+        mockFeature.Setup(a => a.IsEnabledAsync("MailImprovmentEnabled")).ReturnsAsync(false);
+
+        var subscriptionManagementService = new SubscriptionManagementService(subscriptionManagementRepository,
+          new Mock<ICustomerSettingsRepository>().Object,
+          operatorRepository,
+          Options.Create(new TransferSubscriptionDateConfiguration
+          {
+              MinDaysForNewOperatorWithSIM = 10,
+              MinDaysForNewOperator = 4,
+              MaxDaysForAll = 30,
+              MinDaysForCurrentOperator = 2
+          }), _mapper, emailMock.Object, mockDateTimeNow.Object, mockFeature.Object);
+
+        var cancelSubscriptionOrder = new NewCancelSubscriptionOrder()
+        {
+            MobileNumber = "+4791111111",
+            DateOfTermination = new DateTime(2022, 09, 14),
+            OperatorId = 1,
+            CallerId = Guid.NewGuid()
+        };
+        var cancelSub = await subscriptionManagementService.CancelSubscriptionOrder(ORGANIZATION_ONE_ID, cancelSubscriptionOrder);
+        emailMock.Verify(e => e.SendAsync(It.IsAny<string>(), It.IsAny<Guid>(),It.IsAny<object>(),It.IsAny<Dictionary<string,string>>()),Times.Once);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task CancelSubscriptionOrder_FeatureFlagMailImprovmentEnabledIsTrue_VerifyEmailServiceCancelSubscriptionMailSendAsyncIsCalled()
+    {
+        using var context = new SubscriptionManagementContext(ContextOptions);
+        var subscriptionManagementRepository = new SubscriptionManagementRepository<ISubscriptionOrder>(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var operatorRepository = new OperatorRepository(context);
+
+
+        var mockDateTimeNow = new Mock<IDateTimeProvider>();
+        mockDateTimeNow.Setup(x => x.GetNow()).Returns(new DateTime(2022, 08, 12));
+
+        var emailMock = new Mock<IEmailService>();
+        var mockFeature = new Mock<IFeatureManager>();
+        mockFeature.Setup(a => a.IsEnabledAsync("MailImprovmentEnabled")).ReturnsAsync(true);
+
+        var subscriptionManagementService = new SubscriptionManagementService(subscriptionManagementRepository,
+          new Mock<ICustomerSettingsRepository>().Object,
+          operatorRepository,
+          Options.Create(new TransferSubscriptionDateConfiguration
+          {
+              MinDaysForNewOperatorWithSIM = 10,
+              MinDaysForNewOperator = 4,
+              MaxDaysForAll = 30,
+              MinDaysForCurrentOperator = 2
+          }), _mapper, emailMock.Object, mockDateTimeNow.Object, mockFeature.Object);
+
+        var cancelSubscriptionOrder = new NewCancelSubscriptionOrder()
+        {
+            MobileNumber = "+4791111111",
+            DateOfTermination = new DateTime(2022, 09, 14),
+            OperatorId = 1,
+            CallerId = Guid.NewGuid()
+        };
+        var cancelSub = await subscriptionManagementService.CancelSubscriptionOrder(ORGANIZATION_ONE_ID, cancelSubscriptionOrder);
+        emailMock.Verify(e => e.CancelSubscriptionMailSendAsync(It.IsAny<CancelSubscriptionMail>(), It.IsAny<string>()),Times.Once);
     }
 
     [Theory]
