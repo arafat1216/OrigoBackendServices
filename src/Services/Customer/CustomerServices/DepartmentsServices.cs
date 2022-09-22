@@ -17,15 +17,15 @@ namespace CustomerServices
     {
         private readonly ILogger<DepartmentsServices> _logger;
         private readonly IOrganizationRepository _customerRepository;
-        private readonly IUserPermissionServices _userPermissionRepository;
+        private readonly IUserPermissionServices _userPermissionServices;
         private readonly IMapper _mapper;
 
-        public DepartmentsServices(ILogger<DepartmentsServices> logger, IOrganizationRepository customerRepository, IMapper mapper, IUserPermissionServices userPermissionRepository)
+        public DepartmentsServices(ILogger<DepartmentsServices> logger, IOrganizationRepository customerRepository, IMapper mapper, IUserPermissionServices userPermissionServices)
         {
             _logger = logger;
             _customerRepository = customerRepository;
             _mapper = mapper;
-            _userPermissionRepository = userPermissionRepository;
+            _userPermissionServices = userPermissionServices;
         }
 
         public async Task<DepartmentDTO> GetDepartmentAsync(Guid customerId, Guid departmentId)
@@ -53,7 +53,7 @@ namespace CustomerServices
             var department = new Department(name, costCenterId, description, customer, newDepartmentId, callerId, parentDepartment: parentDepartment);
             customer.AddDepartment(department, callerId);
 
-            //If department is a subdepartment and has no managers then the managers of the parentdepartment should have accsess
+            //If department is a sub department and has no managers then the managers of the parent department should have access
             if (!departmentManagers.Any() && parentDepartment != null)
             {
                if(parentDepartment.Managers.Any()) departmentManagers = parentDepartment.Managers.Select(a => a.UserId).ToList();
@@ -66,9 +66,9 @@ namespace CustomerServices
                 {
                     var user = await _customerRepository.GetUserAsync(customerId, manager);
                     if (user == null) continue;
-                    var userPermission = await _userPermissionRepository.GetUserPermissionsAsync(user.Email);
+                    var userPermission = await _userPermissionServices.GetUserPermissionsAsync(user.Email);
                     if (userPermission == null) continue;
-                    var role = userPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString() || a.Role.Name == PredefinedRole.Manager.ToString());
+                    var role = userPermission.FirstOrDefault(a => a.Role == PredefinedRole.DepartmentManager.ToString() || a.Role == PredefinedRole.Manager.ToString());
                     if (role == null) continue;
                     customer.AddDepartmentManager(department, user, callerId);
                     managersToBeAdded.Add(user);
@@ -132,9 +132,9 @@ namespace CustomerServices
                 {
                     var user = await _customerRepository.GetUserAsync(customerId, manager);
                     if (user == null) continue;
-                    var userPermission = await _userPermissionRepository.GetUserPermissionsAsync(user.Email);
+                    var userPermission = await _userPermissionServices.GetUserPermissionsAsync(user.Email);
                     if (userPermission == null) continue;
-                    var role = userPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString() || a.Role.Name == PredefinedRole.Manager.ToString());
+                    var role = userPermission.FirstOrDefault(a => a.Role == PredefinedRole.DepartmentManager.ToString() || a.Role == PredefinedRole.Manager.ToString());
                     if (role == null) continue;
                     customer.AddDepartmentManager(departmentToUpdate, user, callerId);
                     managersToBeAdded.Add(user);
@@ -176,7 +176,7 @@ namespace CustomerServices
                     allDepartmentGuids.AddRange(departmentIdsWithSubDepartments);
                 }
 
-                await _userPermissionRepository.UpdateAccessListAsync(updatedUser, allDepartmentGuids, callerId);
+                await _userPermissionServices.UpdateAccessListAsync(updatedUser, allDepartmentGuids, callerId);
             }
         }
 

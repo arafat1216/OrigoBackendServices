@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿#nullable enable
+using AutoMapper;
 using Common.Enums;
 using Common.Extensions;
 using Common.Logging;
@@ -23,15 +24,16 @@ namespace CustomerServices
         private readonly IFunctionalEventLogService _functionalEventLogService;
         private readonly IMediator _mediator;
         private readonly IMapper _mapper;
+        private readonly IOrganizationServices _organizationServices;
 
         public UserPermissionServices(CustomerContext customerContext,
-            IFunctionalEventLogService functionalEventLogService, IMediator mediator, IMapper mapper)
+            IFunctionalEventLogService functionalEventLogService, IMediator mediator, IMapper mapper, IOrganizationServices organizationServices)
         {
             _customerContext = customerContext;
             _functionalEventLogService = functionalEventLogService;
             _mediator = mediator;
             _mapper = mapper;
-
+            _organizationServices = organizationServices;
         }
 
         /// <summary>
@@ -63,11 +65,46 @@ namespace CustomerServices
             });
         }
 
-        public async Task<IList<UserPermissions>> GetUserPermissionsAsync(string userName)
+        private async Task<IList<UserPermissions>> GetUserPermissionEntitiesAsync(string userName)
         {
-            return await _customerContext.UserPermissions.Include(up => up.Role).ThenInclude(r => r.GrantedPermissions)
+            return await _customerContext.UserPermissions.Include(up => up.Role)
+                .ThenInclude(r => r.GrantedPermissions).ThenInclude(p => p.Permissions).Include(up => up.User)
+                .Where(up => up.User.Email == userName).ToListAsync();
+        }
+
+        public async Task<IList<UserPermissionsDTO>?> GetUserPermissionsAsync(string userName)
+        {
+            var userPermissions = await _customerContext.UserPermissions.Include(up => up.Role).ThenInclude(r => r.GrantedPermissions)
                 .ThenInclude(p => p.Permissions).Include(up => up.User).Where(up => up.User.Email == userName)
                 .ToListAsync();
+            var returnedUserPermissions = new List<UserPermissionsDTO>();
+            foreach (var userPermission in userPermissions)
+            {
+                if (userPermission.User.UserStatus == UserStatus.Invited)
+                    await InitiateOnboarding(userPermission.User);
+
+                var permissionNames = new List<string>();
+                foreach (var roleGrantedPermission in userPermission.Role.GrantedPermissions)
+                {
+                    permissionNames.AddRange(roleGrantedPermission.Permissions.Select(p => p.Name));
+                }
+
+                if (userPermission.Role.Name == "PartnerAdmin" && userPermission.AccessList.Count > 0)
+                {
+                    var customersForPartner =
+                        await _organizationServices.GetOrganizationsAsync(false, true,
+                            userPermission.AccessList.FirstOrDefault());
+                    foreach (var customer in customersForPartner)
+                    {
+                        userPermission.AccessList.Add(customer.OrganizationId);
+                    }
+                }
+
+                returnedUserPermissions.Add(new UserPermissionsDTO(permissionNames, userPermission.AccessList.ToList(),
+                    userPermission.Role.Name, userPermission.User.UserId));
+            }
+
+            return returnedUserPermissions;
         }
 
         public async Task<IList<UserPermissions>> GetUserAdminsAsync()
@@ -89,26 +126,28 @@ namespace CustomerServices
 
         }
 
-        public async Task UpdateAccessListAsync(User user, List<Guid> accessList, Guid callerId)
+        public async Task UpdateAccessListAsync(User user, List<Guid> accessList, Guid callerId, bool removeMissing = false)
         {
-            var userPermissions = await GetUserPermissionsAsync(user.Email);
+            var userPermissions = await GetUserPermissionEntitiesAsync(user.Email);
             if (userPermissions.Any() && accessList.Any())
             {
                 var userPermission = userPermissions.First();
-                foreach (var access in accessList)
+                foreach (var access in accessList.Where(access => !userPermission.AccessList.Contains(access)))
                 {
-                    if (userPermission.AccessList.Contains(access)) continue;
                     userPermission.AddAccess(access, callerId);
                     _customerContext.Entry(userPermission).State = EntityState.Modified;
                 }
 
-                foreach (var existingPermissionAccess in  userPermission.AccessList.ToList())
+                if (removeMissing)
                 {
-                    if (accessList.Contains(existingPermissionAccess)) continue;
-                    userPermission.RemoveAccess(existingPermissionAccess, callerId);
-                    _customerContext.Entry(userPermission).State = EntityState.Modified;
+                    foreach (var existingPermissionAccess in userPermission.AccessList.ToList().Where(existingPermissionAccess => !accessList.Contains(existingPermissionAccess)))
+                    {
+                        userPermission.RemoveAccess(existingPermissionAccess, callerId);
+                        _customerContext.Entry(userPermission).State = EntityState.Modified;
+                    }
                 }
             }
+            await SaveEntitiesAsync();
         }
 
 
@@ -124,21 +163,18 @@ namespace CustomerServices
         // TODO: Add full and proper docs.
         /// <exception cref="InvalidRoleNameException"></exception>
         /// <exception cref="UserNameDoesNotExistException"></exception>
-        public async Task<UserPermissions> AssignUserPermissionsAsync(string userName, string roleName,
+        public async Task<UserPermissionsDTO?> AssignUserPermissionsAsync(string userName, string roleName,
             IList<Guid> accessList, Guid callerId)
         {
             if (!Enum.TryParse(roleName, out PredefinedRole roleType))
             {
                 throw new InvalidRoleNameException();
             }
-
             var user = await _customerContext.Users.FirstOrDefaultAsync(u => u.Email.Trim().ToLower() == userName.Trim().ToLower());
-
-
             if (user == null)
                 throw new UserNameDoesNotExistException();
 
-            var userPermissions = await GetUserPermissionsAsync(userName);
+            var userPermissions = await GetUserPermissionEntitiesAsync(userName);
 
             if (roleType is PredefinedRole.DepartmentManager or PredefinedRole.Manager &&
                 accessList.Count == 0) // Check if the lists contains at least one id.
@@ -167,7 +203,6 @@ namespace CustomerServices
                     }
                 }
             }
-
 
             var addNew = false; // Check if we need to add this permission or update it.
             if (userPermission == null)
@@ -204,7 +239,7 @@ namespace CustomerServices
             }
 
             await SaveEntitiesAsync();
-            return userPermission;
+            return _mapper.Map<UserPermissionsDTO>(userPermission);
         }
 
         // TODO: Add full and proper docs.
@@ -222,7 +257,7 @@ namespace CustomerServices
             if (user == null)
                 throw new UserNameDoesNotExistException();
 
-            var userPermissions = await GetUserPermissionsAsync(userName);
+            var userPermissions = await GetUserPermissionEntitiesAsync(userName);
             var userPermission = userPermissions.FirstOrDefault(p => p.Role.Id == (int)roleType);
             if (userPermission != null)
             {
@@ -261,12 +296,12 @@ namespace CustomerServices
             await SaveEntitiesAsync();
         }
 
-        public async Task<UsersPermissionsDTO> AssignUsersPermissionsAsync(NewUsersPermission newUserPermission, Guid callerId)
+        public async Task<UsersPermissionsAddedDTO> AssignUsersPermissionsAsync(NewUsersPermission newUserPermission, Guid callerId)
         {
             //List of error messages with cause of failure for user(s)
             List<string> errorMessages = new List<string>();
 
-            UsersPermissionsDTO usersPermissions = new UsersPermissionsDTO
+            UsersPermissionsAddedDTO usersPermissionsAdded = new UsersPermissionsAddedDTO
             {
                 UserPermissions = new List<NewUserPermissionDTO>()
             };
@@ -285,9 +320,9 @@ namespace CustomerServices
                 {
                     var user = await _customerContext.Users.FirstOrDefaultAsync(u => u.UserId == userPermission.UserId);
                     if (user == null) throw new UserNotFoundException($"Could not find user with id {userPermission.UserId}");
-                    var assigne = await AssignUserPermissionsAsync(user.Email, userPermission.Role, userPermission.AccessList, callerId);
-                    var dto = _mapper.Map<NewUserPermissionDTO>(assigne);
-                    usersPermissions.UserPermissions.Add(dto);
+                    var assignedUser = await AssignUserPermissionsAsync(user.Email, userPermission.Role, userPermission.AccessList, callerId);
+                    var dto = _mapper.Map<NewUserPermissionDTO>(assignedUser);
+                    usersPermissionsAdded.UserPermissions.Add(dto);
 
                 }
                 catch (InvalidRoleNameException)
@@ -304,15 +339,15 @@ namespace CustomerServices
                 }
             }
 
-            usersPermissions.ErrorMessages = errorMessages;
+            usersPermissionsAdded.ErrorMessages = errorMessages;
 
-            return usersPermissions;
+            return usersPermissionsAdded;
         }
         /// <summary>
         /// Handles change in user status for the user. Should get OnboardInitiated if the user have the status Invited.
         /// </summary>
         /// <param name="user">User object to get OnboardInitiated user status.</param>
-        public async Task InitiateOnboarding(User user)
+        private async Task InitiateOnboarding(User user)
         {
             user.OnboardingInitiated();
             await SaveEntitiesAsync();

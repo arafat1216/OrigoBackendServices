@@ -320,7 +320,7 @@ namespace Customer.API.IntegrationTests.Controllers
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            //Get accsesslist
+            //Get access list
             var responsePermissions = await httpClient.GetAsync(requestPermissions);
 
             var permission = await responsePermissions.Content.ReadFromJsonAsync<List<UserPermissions>>();

@@ -10,13 +10,13 @@ namespace Customer.API.Mappings
     public class UsersPermissionsProfile : Profile
     {
         /// <summary>
-        /// Between service models and viewmodels
+        /// Between service models and view models
         /// </summary>
         public UsersPermissionsProfile()
         {
-            CreateMap<UsersPermissionsDTO, UsersPermissions>();
+            CreateMap<UsersPermissionsAddedDTO, UsersPermissions>();
+            CreateMap<UserPermissionsDTO, UserPermissions>();
             CreateMap<NewUserPermissionDTO, UserPermission>();
-
         }
     }
 }

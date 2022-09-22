@@ -33,7 +33,9 @@ namespace CustomerServices.Models
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.Now;
             if (AccessList.Remove(accessId))
-            AddDomainEvent(new UserAccessRemovedDomainEvent(User.UserId, accessId, AccessList));
+            {
+                AddDomainEvent(new UserAccessRemovedDomainEvent(User.UserId, accessId, AccessList));
+            }
         }
 
         public void AddAccess(Guid accessId,Guid callerId)

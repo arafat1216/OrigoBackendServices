@@ -221,7 +221,7 @@ public class UserServicesTests
         var organizationRepository =
             new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var userPermissionService = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(),
-            Mock.Of<IMediator>(), Mock.Of<IMapper>());
+            Mock.Of<IMediator>(), _mapper, Mock.Of<IOrganizationServices>());
 
         var emailMock = new Mock<IEmailService>();
         var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository,
@@ -327,7 +327,7 @@ public class UserServicesTests
         // Arrange
         await using var context = new CustomerContext(ContextOptions);
         var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(),
-            Mock.Of<IMediator>(), _mapper);
+            Mock.Of<IMediator>(), _mapper, Mock.Of<IOrganizationServices>());
 
         // Act
         var permission = await userPermissionServices.AssignUserPermissionsAsync("jane@doe.com", "DepartmentManager",
@@ -346,7 +346,7 @@ public class UserServicesTests
         var organizationRepository =
             new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(),
-            Mock.Of<IMediator>(), _mapper);
+            Mock.Of<IMediator>(), _mapper, Mock.Of<IOrganizationServices>());
         var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository,
             Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
 

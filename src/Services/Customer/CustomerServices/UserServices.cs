@@ -58,7 +58,7 @@ namespace CustomerServices
                 return string.Empty;
             }
 
-            return userPermissions.FirstOrDefault() == null ? string.Empty : userPermissions.FirstOrDefault()!.Role.Name;
+            return userPermissions.FirstOrDefault() == null ? string.Empty : userPermissions.FirstOrDefault()!.Role;
         }
 
         public async Task<User> GetUserAsync(Guid customerId, Guid userId)
@@ -132,18 +132,18 @@ namespace CustomerServices
                         userWithEmail.ChangeMobileNumber(mobileNumber, callerId);
                     }
 
-                    UserPermissions? currentUserPermission = null;
+                    UserPermissionsDTO? currentUserPermission = null;
                     var usersRole = await _userPermissionServices.GetUserPermissionsAsync(userWithEmail.Email);
                     if (usersRole != null)
                     {
-                        currentUserPermission = usersRole.FirstOrDefault(a => a.Role.Name == role);
+                        currentUserPermission = usersRole.FirstOrDefault(a => a.Role == role);
                     }
 
-                    if (role != null)
+                    if (!string.IsNullOrEmpty(role))
                     {
                         try
                         {
-                            //New role - only add the role if the user dont have the role already
+                            //New role - only add the role if the user doesn't have the role already
                             if (currentUserPermission == null) currentUserPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid>() { customerId }, callerId);
                         }
                         catch (InvalidRoleNameException)
@@ -183,7 +183,7 @@ namespace CustomerServices
                     var activatedUserMapped = _mapper.Map<UserDTO>(userWithEmail);
                     if (currentUserPermission != null)
                     {
-                        activatedUserMapped.Role = currentUserPermission.Role.Name;
+                        activatedUserMapped.Role = currentUserPermission.Role;
                     }
                     else
                     {
@@ -228,14 +228,14 @@ namespace CustomerServices
             var mappedNewUserDTO = _mapper.Map<UserDTO>(newUser);
 
             //Add user permission if role is added in the request - type of role gets checked in AssignUserPermissionAsync
-            UserPermissions? userPermission;
+            UserPermissionsDTO? userPermission;
 
-            if (role != null)
+            if (!string.IsNullOrEmpty(role))
             {
                 try
                 {
 
-                    userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid>() { customerId }, callerId);
+                    userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid> { customerId }, callerId);
                 }
                 catch (InvalidRoleNameException)
                 {
@@ -248,14 +248,7 @@ namespace CustomerServices
                 userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, PredefinedRole.EndUser.ToString(), new List<Guid>() { customerId }, callerId);
             }
 
-            if (userPermission != null)
-            {
-                mappedNewUserDTO.Role = userPermission.Role.Name.ToString();
-            }
-            else
-            {
-                mappedNewUserDTO.Role = null;
-            }
+            mappedNewUserDTO.Role = userPermission?.Role;
 
 
             return mappedNewUserDTO;
@@ -384,7 +377,7 @@ namespace CustomerServices
                 userPreference.Language != user.UserPreference?.Language)
                 user.ChangeUserPreferences(userPreference, callerId);
 
-            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+            var userDTO = _mapper.Map<UserDTO>(user);
             if (userDTO == null)
             {
                 return null;
@@ -433,7 +426,7 @@ namespace CustomerServices
                 user.ChangeUserPreferences(userPreference, callerId);
             }
 
-            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+            var userDTO = _mapper.Map<UserDTO>(user);
             if (userDTO == null)
             {
                 return null;
@@ -510,7 +503,7 @@ namespace CustomerServices
             user.AssignDepartment(department, callerId);
 
             //Get the users role and deparrtment name and assign it to the users DTO
-            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+            var userDTO = _mapper.Map<UserDTO>(user);
             userDTO.Role = await GetRoleNameForUser(user.Email);
             userDTO.DepartmentName = department.Name;
 
@@ -641,8 +634,8 @@ namespace CustomerServices
 
             //Check if user have department role for other departments
             var usersPermission = await _userPermissionServices.GetUserPermissionsAsync(user.Email);
-            UserPermissions managerPermission = null;
-            if (usersPermission != null) managerPermission = usersPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString() || a.Role.Name == PredefinedRole.Manager.ToString());
+            UserPermissionsDTO managerPermission = null;
+            if (usersPermission != null) managerPermission = usersPermission.FirstOrDefault(a => a.Role == PredefinedRole.DepartmentManager.ToString() || a.Role == PredefinedRole.Manager.ToString());
 
             //User needs to have the role as department manager before getting assigned as a manager for a department
             if (managerPermission == null) throw new MissingRolePermissionsException();
@@ -653,16 +646,7 @@ namespace CustomerServices
             //add user as manager for the department
             user.AssignManagerToDepartment(department, callerId);
             await _organizationRepository.SaveEntitiesAsync();
-
-            foreach (var access in accessList)
-            {
-                if (!managerPermission.AccessList.Contains(access))
-                {
-                    managerPermission.AddAccess(access, callerId);
-                }
-            }
-
-            await _userPermissionServices.UpdatePermission(managerPermission);
+            await _userPermissionServices.UpdateAccessListAsync(user, accessList, callerId);
         }
 
         public async Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
@@ -682,15 +666,15 @@ namespace CustomerServices
             user.UnassignManagerFromDepartment(department, callerId);
             await _organizationRepository.SaveEntitiesAsync();
 
-            //Find subdepartments of the department 
+            //Find sub departments of the department 
             var subDepartmentsList = department.SubDepartments(departments);
-            List<Guid> accessList = subDepartmentsList.Select(a => a.ExternalDepartmentId).ToList();
+            var accessListForDepartmentsToBeRemoved = subDepartmentsList.Select(a => a.ExternalDepartmentId).ToList();
 
             //Check if user have permissions for department
             var usersPermission = await _userPermissionServices.GetUserPermissionsAsync(user.Email);
             if (usersPermission == null) return;
 
-            var managerPermission = usersPermission.FirstOrDefault(a => a.Role.Name == PredefinedRole.DepartmentManager.ToString() || a.Role.Name == PredefinedRole.Manager.ToString());
+            var managerPermission = usersPermission.FirstOrDefault(a => a.Role == PredefinedRole.DepartmentManager.ToString() || a.Role == PredefinedRole.Manager.ToString());
 
             //User needs to have the role as department manager before getting assigned as a manager for a department
             if (managerPermission == null) throw new MissingRolePermissionsException();
@@ -698,14 +682,11 @@ namespace CustomerServices
             //Check if user has department manager role for given customer
             if (!managerPermission.AccessList.Contains(customerId)) throw new MissingRolePermissionsException();
 
-            foreach (var access in accessList)
-            {
-                managerPermission.RemoveAccess(access, callerId);
-            }
-            await _userPermissionServices.UpdatePermission(managerPermission);
+            var updatedAccessList = managerPermission.AccessList.Where(accessId => !accessListForDepartmentsToBeRemoved.Contains(accessId)).ToList();
+            await _userPermissionServices.UpdateAccessListAsync(user, updatedAccessList, callerId, true);
 
-            //add EndUser role if this is the only department 
-            if (managerPermission.AccessList.Count > 0 && managerPermission.AccessList.All(a => a == customerId))
+            // Add EndUser role if no departments are left in the access list.
+            if (updatedAccessList.Count > 0 && updatedAccessList.All(a => a == customerId))
             {
                 var endUserPermission = await _userPermissionServices.AssignUserPermissionsAsync(user.Email, PredefinedRole.EndUser.ToString(), new List<Guid> { customerId }, callerId);
 
@@ -726,7 +707,7 @@ namespace CustomerServices
             user.UnassignDepartment(department, callerId);
 
             //Get the users role and assign it to the users DTO
-            UserDTO userDTO = _mapper.Map<UserDTO>(user);
+            var userDTO = _mapper.Map<UserDTO>(user);
             userDTO.Role = await GetRoleNameForUser(user.Email);
 
             await _organizationRepository.SaveEntitiesAsync();
