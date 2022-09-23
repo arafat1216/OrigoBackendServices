@@ -17,7 +17,7 @@ namespace CustomerServices.ServiceModels
         /// </summary>
         public string Role { get; set; }
         /// <summary>
-        /// The list of guids to be used to check accsess
+        /// The list of guids to be used to check access
         /// </summary>
         public IList<Guid> AccessList { get; set; }
     }

@@ -182,6 +182,12 @@ namespace CustomerServices
                 return null;
             }
 
+            if (roleType is PredefinedRole.PartnerAdmin &&
+                accessList.Count == 0) // Check if the lists contains at least one id.
+            {
+                return null;
+            }
+
 
             var userPermission = userPermissions.FirstOrDefault(p => p.Role.Name == roleType.ToString());
             //Update permission and remove if the user have more then one permission - users should only have one userPermission
