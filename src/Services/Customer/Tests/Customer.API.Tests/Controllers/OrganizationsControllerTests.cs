@@ -849,6 +849,18 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.NotEmpty(organization.AccountOwner);
             Assert.Equal("Rolf Sjødal",organization.AccountOwner);
         }
+        [Fact]
+        public async Task GetOrganizations_PartnerAccess()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var getRequestUri = $"/api/v1/organizations/true/?partnerId={_techstepPartnerId}";
+            var organization = await httpClient.GetFromJsonAsync<IList<OrganizationDTO>>(getRequestUri);
+            Assert.NotNull(organization);
+            Assert.Equal(1,organization.Count);
+            Assert.All(organization, org => Assert.Equal("ORGANIZATION THREE", org.Name));
+            Assert.All(organization, org => Assert.Equal(_techstepPartnerId, org.PartnerId));
+        }
 
     }
 }

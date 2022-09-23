@@ -231,7 +231,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
 
             var postData = @"{
-                                ""organizationId"": """+ organizationId + @""",
+                                ""organizationId"": """ + organizationId + @""",
                                 ""name"": ""Anne Petra Østli"",
                                 ""organizationNumber"": ""123456789"",
                                 ""address"": {
@@ -384,6 +384,270 @@ namespace OrigoGateway.IntegrationTests.Controllers
             var response = await client.PatchAsync($"/origoapi/v1.0/customers", content);
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+        public static IEnumerable<object[]> GetOrganizationsRoleAndAccesslist =>
+      new List<object[]>
+      {
+            new object[] { "enduser@test.io", "EndUser", HttpStatusCode.Forbidden },
+            new object[] { "manager@test.io", "Manager", HttpStatusCode.Forbidden },
+            new object[] { "departmentmanager@test.io", "DepartmentManager", HttpStatusCode.Forbidden },
+            new object[] { "admin@test.io", "Admin", HttpStatusCode.Forbidden },
+            new object[] { "groupadmin@test.io", "GroupAdmin", HttpStatusCode.Forbidden },
+            new object[] { "customeradmin@test.io", "CustomerAdmin", HttpStatusCode.Forbidden },
+            new object[] { "systemadmin@test.io", "SystemAdmin", HttpStatusCode.OK},
+            new object[] { "partnerAdmin@test.io", "PartnerAdmin", HttpStatusCode.OK },
+            new object[] { "partnerAdmin@test.io", "PartnerReadOnlyAdmin", HttpStatusCode.Forbidden }
+      };
+
+        [Theory]
+        [MemberData(nameof(GetOrganizationsRoleAndAccesslist))]
+        public async Task Get_SecurePageAccessibleOnlyForPartnerAdminAndSystemAdmin(string email, string role, HttpStatusCode expected)
+        {
+            var partnerId = Guid.NewGuid();
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, role));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", partnerId.ToString()));
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+
+                    var customerService = new Mock<ICustomerServices>();
+                    var organizations = new List<Organization> { new Organization { PartnerId = partnerId } };
+                    customerService.Setup(_ => _.GetCustomersAsync(partnerId)).ReturnsAsync(organizations);
+                    services.AddSingleton(customerService.Object);
+                });
+
+
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.GetAsync($"/origoapi/v1.0/customers/?partnerId={partnerId}");
+
+            Assert.Equal(expected, response.StatusCode);
+        }
+        [Fact]
+        public async Task Get_PartnerAdminQueryparameterIsWrong_ShouldBeOverwrittenWithRightPartnerId()
+        {
+            var partnerId = Guid.NewGuid();
+            var notPartnerId = Guid.NewGuid();
+            var email = "partnerAdmin@test.io";
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "PartnerAdmin"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", partnerId.ToString()));
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+
+                    var customerService = new Mock<ICustomerServices>();
+                    var organizations = new List<Organization> { new Organization { PartnerId = partnerId } };
+                    customerService.Setup(_ => _.GetCustomersAsync(partnerId)).ReturnsAsync(organizations);
+                    services.AddSingleton(customerService.Object);
+                });
+
+
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.GetAsync($"/origoapi/v1.0/customers/?partnerId={notPartnerId}");
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+        [Fact]
+        public async Task GetOrganization_PartnerAdminOrganizationIdNotInAccessList()
+        {
+            var partnerId = Guid.NewGuid();
+            var organizationId = Guid.NewGuid();
+            var differentOrganizationId = Guid.NewGuid();
+            var email = "partnerAdmin@test.io";
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "PartnerAdmin"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", partnerId.ToString()));
+            permissionsIdentity.AddClaim(new Claim("AccessList", differentOrganizationId.ToString()));
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+                });
+
+
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.GetAsync($"/origoapi/v1.0/customers/{organizationId}");
+
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+        [Fact]
+        public async Task GetOrganization_PartnerAdminOrganizationIdIsInAccessList()
+        {
+            var partnerId = Guid.NewGuid();
+            var organizationId = Guid.NewGuid();
+            var differentOrganizationId = Guid.NewGuid();
+            var email = "partnerAdmin@test.io";
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "PartnerAdmin"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", partnerId.ToString()));
+            permissionsIdentity.AddClaim(new Claim("AccessList", differentOrganizationId.ToString()));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+
+                    var customerService = new Mock<ICustomerServices>();
+                    var organizations = new Organization { OrganizationId = organizationId, PartnerId = partnerId };
+                    customerService.Setup(_ => _.GetCustomerAsync(organizationId)).ReturnsAsync(organizations);
+                    services.AddSingleton(customerService.Object);
+                });
+
+
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.GetAsync($"/origoapi/v1.0/customers/{organizationId}");
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+        [Fact]
+        public async Task CreateCustomer_PartnerAdminForbidden_NotPartnerIdForCustomer()
+        {
+            var partnerId = Guid.NewGuid();
+            var organizationId = Guid.NewGuid();
+            var differentOrganizationId = Guid.NewGuid();
+            var email = "partnerAdmin@test.io";
+            var created = new NewOrganization { PartnerId = null };
+
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "PartnerAdmin"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanCreateCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", partnerId.ToString()));
+            permissionsIdentity.AddClaim(new Claim("AccessList", differentOrganizationId.ToString()));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+                });
+
+
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.PostAsJsonAsync($"/origoapi/v1.0/customers", created);
+
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+        [Fact]
+        public async Task CreateCustomer_PartnerAdminAddsWithDiffrentPartnerId()
+        {
+            var partnerId = Guid.NewGuid();
+            var notPartnerId = Guid.NewGuid();
+            var email = "partnerAdmin@test.io";
+            var created = new NewOrganization { PartnerId = notPartnerId };
+
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "PartnerAdmin"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanCreateCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", partnerId.ToString()));
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+                });
+
+
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.PostAsJsonAsync($"/origoapi/v1.0/customers", created);
+
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
     }
 }

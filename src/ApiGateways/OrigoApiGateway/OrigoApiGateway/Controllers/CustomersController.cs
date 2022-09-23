@@ -53,11 +53,24 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
-        [Authorize(Roles = "SystemAdmin")]
         public async Task<ActionResult<IList<Organization>>> Get([FromQuery] Guid? partnerId = null)
         {
             try
             {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role != PredefinedRole.SystemAdmin.ToString() && role != PredefinedRole.PartnerAdmin.ToString()) return Forbid();
+                if(role == PredefinedRole.PartnerAdmin.ToString())
+                {
+                    var access = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (Guid.TryParse(access, out var parsedGuid))
+                    {
+                        partnerId = parsedGuid;
+                    }
+                    else return Forbid();
+                        
+                }
+
                 var customers = await CustomerServices.GetCustomersAsync(partnerId);
 
                 return customers != null ? Ok(customers) : NotFound();
@@ -73,7 +86,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
-        public async Task<ActionResult<IList<Organization>>> Get(Guid organizationId)
+        public async Task<ActionResult<Organization>> Get(Guid organizationId)
         {
             try
             {
@@ -81,7 +94,7 @@ namespace OrigoApiGateway.Controllers
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
                     {
                         return Forbid();
@@ -111,7 +124,15 @@ namespace OrigoApiGateway.Controllers
                 {
                     return Forbid();
                 }
+                if(role == PredefinedRole.PartnerAdmin.ToString())
+                {
+                    var access = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (Guid.TryParse(access, out var parsedGuid))
+                    {
+                        if (newCustomer.PartnerId == null || newCustomer.PartnerId != parsedGuid) return Forbid();
 
+                    }
+                }
 
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 Guid.TryParse(actor, out Guid callerId);
