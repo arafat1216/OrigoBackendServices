@@ -115,7 +115,9 @@ namespace CustomerServices.Infrastructure
                                             .Select(group => new OrganizationUserCount()
                                             {
                                                 OrganizationId = group.Key,
-                                                Count = group.Where(u => u.UserStatus == Common.Enums.UserStatus.Activated).Count(),
+                                                Count = group.Where(u => u.UserStatus != Common.Enums.UserStatus.Deactivated &&
+                                                                         u.UserStatus != Common.Enums.UserStatus.OffboardCompleted &&
+                                                                         u.UserStatus != Common.Enums.UserStatus.OffboardOverdue).Count(),
                                                 NotOnboarded = group.Where(u => u.UserStatus == Common.Enums.UserStatus.Invited ||
                                                                            u.UserStatus == Common.Enums.UserStatus.OnboardInitiated ||
                                                                            u.UserStatus == Common.Enums.UserStatus.AwaitingConfirmation ||

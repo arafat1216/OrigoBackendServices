@@ -1016,7 +1016,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var userCount = await response.Content.ReadFromJsonAsync<CustomerServices.Models.OrganizationUserCount>();
 
-            Assert.Equal(1, userCount?.Count);
+            Assert.Equal(2, userCount?.Count);
             Assert.Equal(1, userCount?.NotOnboarded);
             Assert.Equal(_customerId, userCount?.OrganizationId);
 

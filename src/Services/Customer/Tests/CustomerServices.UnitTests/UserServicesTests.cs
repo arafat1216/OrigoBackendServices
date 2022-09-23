@@ -707,7 +707,7 @@ public class UserServicesTests
             new[] { UnitTestDatabaseSeeder.DEPARTMENT_ONE_ID, UnitTestDatabaseSeeder.DEPARTMENT_TWO_ID }, null);
 
         Assert.Equal(1, count.NotOnboarded);
-        Assert.Equal(1, count.Count);
+        Assert.Equal(2, count.Count);
         Assert.Equal(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, count.OrganizationId);
     }
 
