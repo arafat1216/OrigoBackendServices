@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Common.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response;
@@ -35,6 +37,31 @@ namespace OrigoApiGateway.Controllers
         {
             _hardwareServiceOrderService = hardwareServiceOrderService;
             _assetServices = assetServices;
+        }
+
+        /// <summary>
+        ///     Checks if the authenticated user should have access to the given organization ID.
+        /// </summary>
+        /// <param name="organizationId"> The organization we are checking for access. </param>
+        /// <returns> Returns <see langword="true"/> if the user has access. Otherwise it returns <see langword="false"/>. </returns>
+        private bool AuthenticatedUserHasAccessToOrganization(Guid organizationId)
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+
+            // Note:    For security reasons, we should always do "true" checks rather then "false" checks when granting
+            //          access, as we'd much rather let someone be rejected then allowed if we were to make a mistake.
+            if (role == PredefinedRole.SystemAdmin.ToString())
+            {
+                return true;
+            }
+
+            if (accessList.Contains(organizationId.ToString()))
+            {
+                return true;
+            }
+
+            return false;
         }
 
 
@@ -74,6 +101,9 @@ namespace OrigoApiGateway.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(IEnumerable<CustomerServiceProvider>))]
         public async Task<ActionResult> GetCustomerServiceProvidersAsync([FromRoute] Guid organizationId, [FromQuery] bool includeApiCredentialIndicators = false, [FromQuery] bool includeActiveServiceOrderAddons = false)
         {
+            if (!AuthenticatedUserHasAccessToOrganization(organizationId))
+                return Forbid();
+
             var result = await _hardwareServiceOrderService.GetCustomerServiceProvidersAsync(organizationId, includeApiCredentialIndicators, includeActiveServiceOrderAddons);
             return Ok(result);
         }
@@ -98,6 +128,9 @@ namespace OrigoApiGateway.Controllers
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         public async Task<ActionResult> AddOrUpdateApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromBody] NewApiCredential apiCredential)
         {
+            if (!AuthenticatedUserHasAccessToOrganization(organizationId))
+                return Forbid();
+
             await _hardwareServiceOrderService.AddOrUpdateApiCredentialAsync(organizationId, serviceProviderId, apiCredential);
             return NoContent();
         }
@@ -117,6 +150,9 @@ namespace OrigoApiGateway.Controllers
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         public async Task<ActionResult> DeleteApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromQuery] int? serviceTypeId)
         {
+            if (!AuthenticatedUserHasAccessToOrganization(organizationId))
+                return Forbid();
+
             await _hardwareServiceOrderService.DeleteApiCredentialsAsync(organizationId, serviceProviderId, serviceTypeId);
             return NoContent();
         }
@@ -139,6 +175,9 @@ namespace OrigoApiGateway.Controllers
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         public async Task<ActionResult> AddServiceAddonAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
         {
+            if (!AuthenticatedUserHasAccessToOrganization(organizationId))
+                return Forbid();
+
             await _hardwareServiceOrderService.AddServiceAddonFromBackofficeAsync(organizationId, serviceProviderId, serviceOrderAddonIds);
             return NoContent();
         }
@@ -158,6 +197,9 @@ namespace OrigoApiGateway.Controllers
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         public async Task<ActionResult> RemoveServiceAddonAsync([FromRoute] Guid organizationId, [FromRoute] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
         {
+            if (!AuthenticatedUserHasAccessToOrganization(organizationId))
+                return Forbid();
+
             await _hardwareServiceOrderService.RemoveServiceAddonFromBackofficeAsync(organizationId, serviceProviderId, serviceOrderAddonIds);
             return NoContent();
         }
