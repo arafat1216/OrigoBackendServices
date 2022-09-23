@@ -10,6 +10,7 @@ using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
 using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
+using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
 using System.Text.Json;
@@ -46,12 +47,30 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<CustomerAssetCount>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
-        [Authorize(Roles = "SystemAdmin")]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
         public async Task<ActionResult<IList<CustomerAssetCount>>> GetAllCustomerItemCount()
         {
             try
             {
-                var assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync();
+                var customerList = new List<Guid>();
+
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.PartnerAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+                    foreach (var customerId in accessList)
+                    {
+                        if (Guid.TryParse(customerId, out var customerIdGuid))
+                        {
+                            customerList.Add(customerIdGuid);
+                        }
+                    }
+                }
+                else if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    return Forbid();
+                }
+                var assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync(role, customerList);
                 return Ok(assetCountList);
 
             }

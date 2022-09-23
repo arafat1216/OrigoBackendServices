@@ -48,9 +48,9 @@ public class AssetServices : IAssetServices
         _techstepCoreProductsRepository = techstepCoreProductsRepository;
     }
 
-    public async Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync()
+    public async Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync(string role, List<Guid> customerIds)
     {
-        return await _assetLifecycleRepository.GetAssetLifecyclesCountsAsync();
+        return await _assetLifecycleRepository.GetAssetLifecyclesCountsAsync(role, customerIds);
     }
 
     public async Task<int> GetAssetsCountAsync(Guid customerId, AssetLifecycleStatus? assetLifecycleStatus, Guid? departmentId = null)

@@ -178,6 +178,32 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     }
 
     [Fact]
+    public async Task GetAllCount_BySystemAdmin()
+    {
+        var requestUri = $"/api/v1/Assets/customers/count?role={PredefinedRole.SystemAdmin.ToString()}";
+        _testOutputHelper.WriteLine(requestUri);
+        var assetCountr = await _httpClient.GetFromJsonAsync<IList<CustomerAssetCount>>(requestUri);
+        Assert.Equal(2, assetCountr!.Count);
+        Assert.Equal(14, assetCountr!.FirstOrDefault()!.Count);
+
+    }
+    [Fact]
+    public async Task GetAllCount_ByPartnerAdmin()
+    {
+        var customerIds = new List<Guid>()
+        {
+            Guid.Parse("cab4bb77-3471-4ab3-ae5e-2d4fce450f36")
+        };
+        string json = JsonSerializer.Serialize(customerIds);
+        var requestUri = $"/api/v1/Assets/customers/count?role={PredefinedRole.PartnerAdmin.ToString()}&customerIds={json}";
+        _testOutputHelper.WriteLine(requestUri);
+        var assetCountr = await _httpClient.GetFromJsonAsync<IList<CustomerAssetCount>>(requestUri);
+        Assert.Equal(1, assetCountr!.Count);
+        Assert.Equal(14, assetCountr!.FirstOrDefault()!.Count);
+
+    }
+
+    [Fact]
     public async Task GetCustomerItemCount_ForCustomerWithDepartment()
     {
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/count?departmentId={_departmentId}";

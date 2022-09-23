@@ -61,9 +61,14 @@ public class AssetsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IList<CustomerAssetCount>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<IList<CustomerAssetCount>>> GetAllCount()
+    public async Task<ActionResult<IList<CustomerAssetCount>>> GetAllCount([FromQuery] string role, [FromQuery] string? customerIds = null)
     {
-        var assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync();
+        var customerIdGuid = new List<Guid>();
+        if (!string.IsNullOrEmpty(customerIds))
+        {
+            customerIdGuid = JsonSerializer.Deserialize<List<Guid>>(customerIds) ?? new List<Guid>();
+        }
+        var assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync(role, customerIdGuid);
         return Ok(assetCountList);
     }
 
