@@ -152,6 +152,17 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+                // If role is not System admin, check access list
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(partnerId.ToString())))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 return Ok(await _productCatalogServices.GetAllProductsByPartnerAsync(partnerId));
             }
             catch (MicroserviceErrorResponseException e)
@@ -192,7 +203,7 @@ namespace OrigoApiGateway.Controllers
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString()) || !accessList.Contains(partnerId.ToString())))
                     {
                         return Forbid();
                     }
@@ -240,7 +251,7 @@ namespace OrigoApiGateway.Controllers
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString()) || !accessList.Contains(partnerId.ToString())))
                     {
                         return Forbid();
                     }
