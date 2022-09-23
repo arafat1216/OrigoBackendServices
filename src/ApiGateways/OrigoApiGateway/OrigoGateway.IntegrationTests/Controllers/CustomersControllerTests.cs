@@ -52,6 +52,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             new object[] { "systemadmin@test.io", "SystemAdmin", HttpStatusCode.OK}
        };
 
+
         [Theory]
         [MemberData(nameof(EmailAccess))]
         public async Task Get_SecurePageAccessibleOnlyByAdminUsers(string email, string role, HttpStatusCode expected)
@@ -105,6 +106,8 @@ namespace OrigoGateway.IntegrationTests.Controllers
             new object[] { "customerAdmin@test.io", "CustomerAdmin", HttpStatusCode.OK },
             new object[] { "systemadmin@test.io", "SystemAdmin", HttpStatusCode.OK}
         };
+
+
         [Theory]
         [MemberData(nameof(EmailAccessUserCount))]
         public async Task userCount_SecurePageAccessibleOnlyForGivenRoles(string email, string role, HttpStatusCode expected)
@@ -216,6 +219,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
+
         [Fact]
         public async Task UpdateOrganization_WithLastDayForReportingSalaryDeduction()
         {
@@ -301,6 +305,8 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
+
+
         [Fact]
         public async Task UpdateOrganization_WithoutLastDayForReportingSalaryDeduction()
         {
@@ -385,6 +391,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
+
         public static IEnumerable<object[]> GetOrganizationsRoleAndAccesslist =>
       new List<object[]>
       {
@@ -398,6 +405,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             new object[] { "partnerAdmin@test.io", "PartnerAdmin", HttpStatusCode.OK },
             new object[] { "partnerAdmin@test.io", "PartnerReadOnlyAdmin", HttpStatusCode.Forbidden }
       };
+
 
         [Theory]
         [MemberData(nameof(GetOrganizationsRoleAndAccesslist))]
@@ -440,6 +448,8 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
             Assert.Equal(expected, response.StatusCode);
         }
+
+
         [Fact]
         public async Task Get_PartnerAdminQueryparameterIsWrong_ShouldBeOverwrittenWithRightPartnerId()
         {
@@ -482,6 +492,8 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
+
+
         [Fact]
         public async Task GetOrganization_PartnerAdminOrganizationIdNotInAccessList()
         {
@@ -521,6 +533,8 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
+
+
         [Fact]
         public async Task GetOrganization_PartnerAdminOrganizationIdIsInAccessList()
         {
@@ -566,6 +580,8 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
+
+
         [Fact]
         public async Task CreateCustomer_PartnerAdminForbidden_NotPartnerIdForCustomer()
         {
@@ -616,6 +632,8 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
+
+
         [Fact]
         public async Task CreateCustomer_PartnerAdminAddsWithDiffrentPartnerId()
         {
