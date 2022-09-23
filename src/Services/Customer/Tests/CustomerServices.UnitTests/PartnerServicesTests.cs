@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -152,22 +153,33 @@ public class PartnerServicesTests
         await _organizationServices.UpdateOrganizationAsync(organization);
 
         
-        var results = await _partnerServices.GetPartnersAsync();
+        var partnerList = await _partnerServices.GetPartnersAsync();
 
         //Partner that exists is not the Customer One
-        Assert.All(results, item => Assert.NotEqual(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, item.Organization.OrganizationId));
-        Assert.True(results is not null);
-        Assert.True(results?.Count == 2);
+        Assert.All(partnerList, item => Assert.NotEqual(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, item.Organization.OrganizationId));
+        Assert.True(partnerList is not null);
+        Assert.True(partnerList.Count == 2);
 
         // List with results
         await _partnerServices.CreatePartnerAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID);
-        results = await _partnerServices.GetPartnersAsync();
+        partnerList = await _partnerServices.GetPartnersAsync();
 
-        Assert.True(results is not null);
-        Assert.True(results?.Count == 3);
+        Assert.True(partnerList is not null);
+        Assert.True(partnerList?.Count == 3);
 
-        Assert.Collection(results, item => Assert.NotEqual(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, item.Organization.OrganizationId),
+        Assert.Collection(partnerList, item => Assert.Equal(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, item.Organization.OrganizationId),
                                   item => Assert.NotEqual(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, item.Organization.OrganizationId),
-                                  item => Assert.Equal(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, item.Organization.OrganizationId));
+                                  item => Assert.NotEqual(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, item.Organization.OrganizationId));
+    }
+
+    [Fact]
+    public async Task GetPartners_IsSortedOnName()
+    {
+        // Act
+        var partners = await _partnerServices.GetPartnersAsync();
+
+        // Assert
+        Assert.Equal("PARTNER", partners.ElementAt(0).Organization.Name);
+        Assert.Equal("TECHSTEP", partners.ElementAt(1).Organization.Name);
     }
 }

@@ -499,7 +499,8 @@ namespace CustomerServices.Infrastructure
         {
             return await _customerContext.Partners
                                          .Where(partner => !partner.IsDeleted)
-                                         .Include(e => e.Organization)
+                                         .Include(o => o.Organization)
+                                         .OrderBy(o => o.Organization.Name)
                                          .ToListAsync();
         }
 
