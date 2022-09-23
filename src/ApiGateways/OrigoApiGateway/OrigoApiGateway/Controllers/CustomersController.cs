@@ -86,7 +86,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
-        public async Task<ActionResult<Organization>> Get(Guid organizationId)
+        public async Task<ActionResult<IList<Organization>>> Get(Guid organizationId)
         {
             try
             {
@@ -129,7 +129,8 @@ namespace OrigoApiGateway.Controllers
                     var access = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (Guid.TryParse(access, out var parsedGuid))
                     {
-                        if (newCustomer.PartnerId == null || newCustomer.PartnerId != parsedGuid) return Forbid();
+                        if (newCustomer.PartnerId == null) newCustomer.PartnerId = parsedGuid;
+                        if (newCustomer.PartnerId != parsedGuid) return Forbid();
 
                     }
                 }

@@ -572,13 +572,15 @@ namespace OrigoGateway.IntegrationTests.Controllers
             var partnerId = Guid.NewGuid();
             var organizationId = Guid.NewGuid();
             var differentOrganizationId = Guid.NewGuid();
+            var callerId = Guid.NewGuid();
             var email = "partnerAdmin@test.io";
-            var created = new NewOrganization { PartnerId = null };
+            var created = new NewOrganization { PartnerId = partnerId };
 
             var permissionsIdentity = new ClaimsIdentity();
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "PartnerAdmin"));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, callerId.ToString()));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanCreateCustomer"));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
             permissionsIdentity.AddClaim(new Claim("AccessList", partnerId.ToString()));
@@ -598,6 +600,11 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                     }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
                         TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+
+                    var customerService = new Mock<ICustomerServices>();
+                    var organizations = new Organization { OrganizationId = organizationId, PartnerId = partnerId };
+                    customerService.Setup(_ => _.CreateCustomerAsync(created,callerId)).ReturnsAsync(organizations);
+                    services.AddSingleton(customerService.Object);
                 });
 
 
@@ -605,9 +612,9 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
-            var response = await client.PostAsJsonAsync($"/origoapi/v1.0/customers", created);
+            var response = await client.PostAsJsonAsync($"/origoapi/v1.0/customers", new NewOrganization());
 
-            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
         [Fact]
         public async Task CreateCustomer_PartnerAdminAddsWithDiffrentPartnerId()
