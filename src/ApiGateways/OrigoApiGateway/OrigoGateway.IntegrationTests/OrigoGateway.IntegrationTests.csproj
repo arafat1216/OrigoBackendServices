@@ -28,7 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <ProjectReference Include="..\..\..\Services\HardwareServiceOrder\HardwareServiceOrder.API\HardwareServiceOrder.API.csproj" />
 	  <ProjectReference Include="..\OrigoApiGateway\OrigoApiGateway.csproj" />
   </ItemGroup>
 

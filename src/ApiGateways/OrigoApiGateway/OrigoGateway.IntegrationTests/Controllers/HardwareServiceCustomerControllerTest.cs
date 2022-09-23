@@ -7,13 +7,13 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Enums;
-using HardwareServiceOrder.API.ViewModels;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Models;
-using OrigoApiGateway.Models.BackendDTO;
+using OrigoApiGateway.Models.HardwareServiceOrder;
+using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 using OrigoApiGateway.Services;
 using OrigoGateway.IntegrationTests.Helpers;
 using Xunit;
@@ -53,34 +53,18 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId2.ToString()));
             var hardwareServiceOrder = new NewHardwareServiceOrder()
             {
-                DeliveryAddress = new()
-                {
-                    RecipientType = HardwareServiceOrderServices.Models.RecipientTypeEnum.Personal,
-                    Recipient = "Recipient",
-                    Address1 = "Address1",
-                    Address2 = "Address2",
-                    PostalCode = "0275",
-                    City = "City",
+                DeliveryAddress = new () {
+                    RecipientType = RecipientTypeEnum.Personal,
+                    Recipient = "[Recipient]",
+                    Address1 = "[Address1]",
+                    Address2 = "[Address2]",
+                    PostalCode = "[0001]",
+                    City = "[Oslo]",
                     Country = "NO"
                 },
-                ErrorDescription = "Something is not working! Fix plz!",
-                OrderedBy = new ContactDetailsExtended
-                {
-                    FirstName = "John",
-                    LastName = "Doe",
-                    UserId = Guid.Parse("3286ba71-fdde-4496-94fa-36de7aa0b41e"),
-                    Email = "user@domain.com",
-                    PartnerId = Guid.NewGuid(),
-                    PartnerName = "Partner AS",
-                    PartnerOrganizationNumber = "123456789",
-                    OrganizationId = Guid.NewGuid(),
-                    OrganizationName = "Customer AS",
-                    OrganizationNumber = "987654321",
-                    PhoneNumber = "+4790000000"
-                },
-                ServiceProviderId = 1,
-                ServiceTypeId = 2,
-                UserSelectedServiceOrderAddonIds = new HashSet<int>(){ 1 }
+                ErrorDescription = "[ErrorDescription]",
+                AssetId = Guid.NewGuid(),
+                UserSelectedServiceOrderAddonIds = new HashSet<int>() { 1 }
             };
             var client = _factory.WithWebHostBuilder(builder =>
             {
