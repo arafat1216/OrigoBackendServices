@@ -128,6 +128,10 @@ namespace HardwareServiceOrder.API.Controllers
             {
                 return NotFound();
             }
+            catch (NotImplementedException)
+            {
+                return BadRequest();
+            }
         }
 
         /// <summary>

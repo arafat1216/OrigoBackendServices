@@ -122,6 +122,67 @@ namespace HardwareServiceOrder.API.Controllers.Tests
             // Asserts
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
+        
+        [Theory(DisplayName = "Add or update 'ApiCredential' with supported ServiceType")]
+        [InlineData(ServiceTypeEnum.SUR)]
+        [InlineData(ServiceTypeEnum.Remarketing)]
+        public async Task AddOrUpdateApiCredentialsAsync_With_Supported_ServiceType_Test(ServiceTypeEnum serviceType)
+        {
+            // Arrange
+            string url = await Helper.BuildRequestUrl($"{_controllerBaseUrl}/service-provider/{(int)ServiceProviderEnum.ConmodoNo}/credentials", null);
+            _testOutputHelper.WriteLine($"URL: {url}");
+
+            NewApiCredential apiCredential = new()
+            {
+                ApiUsername = "Username",
+                ApiPassword = "Password",
+                ServiceTypeId = (int)serviceType
+            };
+
+            HttpResponseMessage response;
+            var jsonContent = JsonContent.Create(apiCredential);
+
+            // Act
+            using (var requestMessage = new HttpRequestMessage(HttpMethod.Put, url))
+            {
+                requestMessage.Content = jsonContent;
+                response = await _httpClient.SendAsync(requestMessage);
+            }
+
+            // Asserts
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
+        
+        [Theory(DisplayName = "Add or update 'ApiCredential' with not supported ServiceType")]
+        [InlineData((int)ServiceTypeEnum.Null)]
+        [InlineData((int)ServiceTypeEnum.PreSwap)]
+        [InlineData(15)]
+        public async Task AddOrUpdateApiCredentialsAsync_With_NotSupported_ServiceType_Test(int serviceType)
+        {
+            // Arrange
+            string url = await Helper.BuildRequestUrl($"{_controllerBaseUrl}/service-provider/{(int)ServiceProviderEnum.ConmodoNo}/credentials", null);
+            _testOutputHelper.WriteLine($"URL: {url}");
+
+            NewApiCredential apiCredential = new()
+            {
+                ApiUsername = "Username",
+                ApiPassword = "Password",
+                ServiceTypeId = serviceType
+            };
+
+            HttpResponseMessage response;
+            var jsonContent = JsonContent.Create(apiCredential);
+
+            // Act
+            using (var requestMessage = new HttpRequestMessage(HttpMethod.Put, url))
+            {
+                requestMessage.Content = jsonContent;
+                response = await _httpClient.SendAsync(requestMessage);
+            }
+
+            // Asserts
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
 
 
         [Fact(DisplayName = "Delete 'ApiCredential'")]

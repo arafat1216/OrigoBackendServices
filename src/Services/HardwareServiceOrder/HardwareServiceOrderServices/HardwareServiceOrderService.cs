@@ -356,6 +356,10 @@ namespace HardwareServiceOrderServices
         /// <inheritdoc/>
         public async Task AddOrUpdateApiCredentialAsync(Guid organizationId, int serviceProviderId, int? serviceTypeId, string? apiUsername, string? apiPassword)
         {
+            // Currently "ServiceType--> SUR(aka Repair), Remarketing" are supported only
+            if (serviceTypeId is not null && (ServiceTypeEnum.SUR != (ServiceTypeEnum)serviceTypeId && ServiceTypeEnum.Remarketing != (ServiceTypeEnum)serviceTypeId))
+                throw new NotImplementedException("Requested ServiceType is currently not supported.");
+
             var customerServiceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, false, false);
 
             if (customerServiceProvider is null)
