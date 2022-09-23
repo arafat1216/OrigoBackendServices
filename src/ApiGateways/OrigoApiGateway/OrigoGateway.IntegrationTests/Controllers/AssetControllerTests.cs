@@ -44,19 +44,33 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
     public static IEnumerable<object[]> EmailAccess =>
         new List<object[]>
         {
-            new object[] { "unknown@test.io", HttpStatusCode.Forbidden },
-            new object[] { "admin@test.io", HttpStatusCode.Forbidden },
-            new object[] { "systemadmin@test.io", HttpStatusCode.OK }
+            new object[] { "unknown@test.io",  PredefinedRole.CustomerAdmin, HttpStatusCode.Forbidden },
+            new object[] { "admin@test.io", PredefinedRole.EndUser, HttpStatusCode.Forbidden },
+            new object[] { "systemadmin@test.io", PredefinedRole.SystemAdmin, HttpStatusCode.OK }
         };
 
     [Theory]
     [MemberData(nameof(EmailAccess))]
-    public async Task Get_SecurePageAccessibleOnlyByAdminUsers(string email, HttpStatusCode expected)
+    public async Task Get_SecurePageAccessibleOnlyByAdminUsers(string email, PredefinedRole role, HttpStatusCode expected)
     {
+        var organizationId = Guid.NewGuid();
+        var permissionsIdentity = new ClaimsIdentity();
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "systemadmin@test.io"));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, "systemadmin@test.io"));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, role.ToString()));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadAsset"));
+        permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
         var client = _factory.WithWebHostBuilder(builder =>
         {
             builder.ConfigureTestServices(services =>
             {
+                var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                services.AddSingleton(userPermissionServiceMock.Object);
+
                 services.AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
