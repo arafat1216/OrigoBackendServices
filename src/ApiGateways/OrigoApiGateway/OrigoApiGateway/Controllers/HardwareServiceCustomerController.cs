@@ -80,6 +80,7 @@ namespace OrigoApiGateway.Controllers
         private bool AuthenticatedUserHasAccessToOrganization(Guid organizationId)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
 
             // Note:    For security reasons, we should always do "true" checks rather then "false" checks when granting
             //          access, as we'd much rather let someone be rejected then allowed if we were to make a mistake.
@@ -87,14 +88,10 @@ namespace OrigoApiGateway.Controllers
             {
                 return true;
             }
-            // TODO: Add the partner-admin checks here once it's been implemented.
-            else
+
+            if (accessList.Contains(organizationId.ToString()))
             {
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                if (accessList is not null && accessList.Contains(organizationId.ToString()))
-                {
-                    return true;
-                }
+                return true;
             }
 
             return false;
@@ -133,9 +130,10 @@ namespace OrigoApiGateway.Controllers
                 return true;
             }
 
-            // For the CustomerAdmin/Admin, the accessList will contain list of Organizations.
-            // So here, we are checking whether the CustomerAdmin has access to the desired Organization
-            if ((userRole == PredefinedRole.CustomerAdmin.ToString() || userRole == PredefinedRole.Admin.ToString()) &&
+            // For the CustomerAdmin/Admin, the accessList will contain the OrganizationId that the CustomerAdmin belongs to.
+            // For the PartnerAdmin, the accessList will contain the list of OrganizationIds that the PartnerAdmin has access to.
+            // So here, we are checking whether the PartnerAdmin/CustomerAdmin has access to the desired Organization
+            if ((userRole == PredefinedRole.CustomerAdmin.ToString() || userRole == PredefinedRole.Admin.ToString() || userRole == PredefinedRole.PartnerAdmin.ToString()) &&
                 accessList.Contains(organizationId.ToString()))
             {
                 return true;
@@ -399,7 +397,6 @@ namespace OrigoApiGateway.Controllers
         [HttpPost("organization/{organizationId:Guid}/orders/repair")]
         [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager,EndUser")]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(HardwareServiceOrder))]
-        [SwaggerResponse(StatusCodes.Status403Forbidden)]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateHardwareServiceOrderForSURAsync(Guid organizationId, [FromBody] NewHardwareServiceOrder model)
         {
@@ -425,15 +422,15 @@ namespace OrigoApiGateway.Controllers
             }
             catch (HttpRequestException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest();
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest();
             }
             catch (NotSupportedException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest();
             }
         }
 
@@ -449,7 +446,6 @@ namespace OrigoApiGateway.Controllers
         [HttpPost("organization/{organizationId:Guid}/orders/remarketing")]
         [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager,EndUser")]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(HardwareServiceOrder))]
-        [SwaggerResponse(StatusCodes.Status403Forbidden)]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateHardwareServiceOrderForRemarketingAsync(Guid organizationId, [FromBody] NewHardwareServiceOrder model)
         {
@@ -475,15 +471,15 @@ namespace OrigoApiGateway.Controllers
             }
             catch (HttpRequestException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest();
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest();
             }
             catch (NotSupportedException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest();
             }
         }
 
