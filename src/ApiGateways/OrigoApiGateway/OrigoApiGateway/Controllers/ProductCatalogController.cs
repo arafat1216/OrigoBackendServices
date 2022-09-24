@@ -27,12 +27,14 @@ namespace OrigoApiGateway.Controllers
     {
         private readonly ILogger<ProductCatalogController> _logger;
         private readonly IProductCatalogServices _productCatalogServices;
+        private readonly ICustomerServices _customerServices;
 
 
-        public ProductCatalogController(ILogger<ProductCatalogController> logger, IProductCatalogServices productCatalogServices)
+        public ProductCatalogController(ILogger<ProductCatalogController> logger, IProductCatalogServices productCatalogServices, ICustomerServices customerServices)
         {
             _logger = logger;
             _productCatalogServices = productCatalogServices;
+            _customerServices = customerServices;
         }
 
 
@@ -148,21 +150,12 @@ namespace OrigoApiGateway.Controllers
             Tags = new[] { "Product Catalog: Products" }
         )]
         [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
+        [Authorize(Roles ="")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
         public async Task<ActionResult<IEnumerable<ProductGet>>> GetProductsByPartner([FromRoute] Guid partnerId)
         {
             try
             {
-                // If role is not System admin, check access list
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role != PredefinedRole.SystemAdmin.ToString())
-                {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                    if (accessList != null && (!accessList.Any() || !accessList.Contains(partnerId.ToString())))
-                    {
-                        return Forbid();
-                    }
-                }
-
                 return Ok(await _productCatalogServices.GetAllProductsByPartnerAsync(partnerId));
             }
             catch (MicroserviceErrorResponseException e)
@@ -203,7 +196,7 @@ namespace OrigoApiGateway.Controllers
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString()) || !accessList.Contains(partnerId.ToString())))
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
                     {
                         return Forbid();
                     }
@@ -251,7 +244,7 @@ namespace OrigoApiGateway.Controllers
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
-                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString()) || !accessList.Contains(partnerId.ToString())))
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
                     {
                         return Forbid();
                     }
@@ -264,6 +257,14 @@ namespace OrigoApiGateway.Controllers
                 {
                     _logger.LogError("{0} failed as the actor's claim could not be retrieved and/or parsed to a valid user UUID. Unique location ID: 'F7E971AF-3FF2-4259-AF0F-171A5A534B8F'",
                         nameof(ReplaceOrderedProductsAsync));
+                    return Problem(statusCode: 500);
+                }
+
+                var customer = await _customerServices.GetCustomerAsync(organizationId);
+
+                if(customer != null && customer.PartnerId.HasValue && customer.PartnerId.Value != partnerId)
+                {
+                    _logger.LogError($"{nameof(ReplaceOrderedProductsAsync)} failed as the Customer ID: '{organizationId}' does not belong to the Parter ID: '{partnerId}'");
                     return Problem(statusCode: 500);
                 }
 
