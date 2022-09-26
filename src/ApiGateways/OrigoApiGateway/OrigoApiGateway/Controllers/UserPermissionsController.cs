@@ -54,9 +54,9 @@ namespace OrigoApiGateway.Controllers
                 if (email == userName)
                 {
                     // Validation ok
-                } else if (Enum.TryParse<PredefinedRole>(role, out var tryParseResult))
+                } else if (Enum.TryParse<PredefinedRole>(role, out var parsedRole))
                 {
-                    switch (tryParseResult)
+                    switch (parsedRole)
                     {
                         case PredefinedRole.EndUser:
                             return Forbid();
@@ -66,10 +66,6 @@ namespace OrigoApiGateway.Controllers
                             if(!accessList.Any() || !accessList.Contains(user.DepartmentId.ToString())) return Forbid();
                             break;
                         case PredefinedRole.SystemAdmin:
-                            break;
-                        case PredefinedRole.PartnerAdmin:
-                            if (!accessList.Any() || !accessList.Contains(user.OrganizationId.ToString())) return Forbid();
-                            accessList.Remove(accessList.First()); // First item is the partnerId for PartnerAdmins.
                             break;
                         default:
                             if (!accessList.Any() || !accessList.Contains(user.OrganizationId.ToString())) return Forbid();
@@ -82,8 +78,12 @@ namespace OrigoApiGateway.Controllers
                     return BadRequest($"Could not find a role for user making the claim");
                 }
 
-                var userRole = await _userPermissionServices.GetUserPermissionsAsync(userName);
-                return Ok(userRole);
+                var userPermissionsList = await _userPermissionServices.GetUserPermissionsAsync(userName);
+                if (role == PredefinedRole.PartnerAdmin.ToString() && userPermissionsList.Any() && userPermissionsList.First().AccessList.Any())
+                {
+                    userPermissionsList.First().AccessList.RemoveAt(0); // First item is the partnerId for PartnerAdmins.
+                }
+                return Ok(userPermissionsList);
             }
             catch (Exception ex)
             {
