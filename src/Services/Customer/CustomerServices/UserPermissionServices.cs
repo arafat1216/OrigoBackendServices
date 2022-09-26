@@ -91,12 +91,16 @@ namespace CustomerServices
 
                 if (userPermission.Role.Name == "PartnerAdmin" && userPermission.AccessList.Count > 0)
                 {
-                    var customersForPartner =
-                        await _organizationServices.GetOrganizationsAsync(false, true,
-                            userPermission.AccessList.FirstOrDefault());
-                    foreach (var customer in customersForPartner)
+                    var partnerId = userPermission.AccessList.FirstOrDefault();
+                    var customersForPartner = await _organizationServices.GetOrganizationsAsync(false, true, partnerId);
+                    if (customersForPartner != null)
                     {
-                        userPermission.AccessList.Add(customer.OrganizationId);
+                        foreach (var customer in customersForPartner)
+                        {
+                            userPermission.AccessList.Add(customer.OrganizationId);
+                        }
+
+                        userPermission.AccessList.Remove(partnerId);
                     }
                 }
 

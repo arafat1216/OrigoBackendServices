@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿#nullable enable
+using AutoMapper;
 using Common.Configuration;
 using Common.Cryptography;
 using Common.Enums;
@@ -57,9 +58,9 @@ namespace CustomerServices
                 else
                     organizations = await _organizationRepository.GetOrganizationsAsync(whereFilter: entity => entity.Partner == partner, customersOnly: customersOnly);
 
-                foreach (Organization o in organizations)
+                foreach (var organization in organizations)
                 {
-                    o.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
+                    organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organization.OrganizationId);
                 }
             }
             else
@@ -69,10 +70,10 @@ namespace CustomerServices
                 else
                     organizations = await _organizationRepository.GetOrganizationsAsync(whereFilter: (entity => entity.ParentId == null && entity.Partner == partner), customersOnly: customersOnly);
 
-                foreach (Organization o in organizations)
+                foreach (var organization in organizations)
                 {
-                    o.ChildOrganizations = await _organizationRepository.GetOrganizationsAsync(whereFilter: entity => entity.ParentId == o.OrganizationId);
-                    o.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(o.OrganizationId);
+                    organization.ChildOrganizations = await _organizationRepository.GetOrganizationsAsync(whereFilter: entity => entity.ParentId == organization.OrganizationId);
+                    organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organization.OrganizationId);
                 }
             }
 
@@ -310,10 +311,10 @@ namespace CustomerServices
                 newAddress = new Address(updatedOrganization.Address.Street, updatedOrganization.Address.PostCode, updatedOrganization.Address.City, updatedOrganization.Address.Country);
 
                 // Contact Person
-                ContactPerson newContactPerson = new ContactPerson(updatedOrganization.ContactPerson.FirstName, updatedOrganization.ContactPerson.LastName, updatedOrganization.ContactPerson.Email, updatedOrganization.ContactPerson.Email);
+                var newContactPerson = new ContactPerson(updatedOrganization.ContactPerson.FirstName, updatedOrganization.ContactPerson.LastName, updatedOrganization.ContactPerson.Email, updatedOrganization.ContactPerson.Email);
 
                 // Do update
-                Organization newOrganization = new Organization(updatedOrganization.OrganizationId, updatedOrganization.ParentId, updatedOrganization
+                var newOrganization = new Organization(updatedOrganization.OrganizationId, updatedOrganization.ParentId, updatedOrganization
                     .Name, updatedOrganization.OrganizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, updatedOrganization.LastDayForReportingSalaryDeduction, null, null, updatedOrganization.PayrollContactEmail, updatedOrganization.AddUsersToOkta == null? false:true);
 
                 organizationOriginal.UpdateOrganization(newOrganization);
@@ -433,7 +434,7 @@ namespace CustomerServices
                 newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
 
                 // Do update
-                Organization newOrganization = new Organization(organizationId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, lastSalaryReportingDay, null, null, payrollEmail, addUsersToOkta);
+                var newOrganization = new Organization(organizationId, parentId, name, organizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, lastSalaryReportingDay, null, null, payrollEmail, addUsersToOkta);
 
                 organizationOriginal.UpdateOrganization(newOrganization);
 
@@ -831,7 +832,7 @@ namespace CustomerServices
                 if (customer is null)
                     throw new CustomerNotFoundException();
 
-                string salt = customer.OrganizationId.ToString();
+                var salt = customer.OrganizationId.ToString();
                 var encryptedMessage = Encryption.EncryptData(message, salt, secretKey, iv);
 
                 return encryptedMessage;
@@ -857,7 +858,7 @@ namespace CustomerServices
                 if (customer is null)
                     throw new CustomerNotFoundException();
 
-                string salt = customer.OrganizationId.ToString();
+                var salt = customer.OrganizationId.ToString();
                 var decryptedMessage = Encryption.DecryptData(encryptedData, salt, secretKey, iv);
 
                 return decryptedMessage;
@@ -915,7 +916,7 @@ namespace CustomerServices
         public async Task SendIvitationMail(IList<User> users, string defaultLanguage)
         {
 
-            foreach (User user in users)
+            foreach (var user in users)
             {
                 try
                 {

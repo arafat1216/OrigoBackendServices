@@ -3,6 +3,8 @@ using CustomerServices.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Common.Infrastructure;
 using CustomerServices.Mappings;
@@ -65,9 +67,28 @@ public class UserPermissionsTests
         var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>(), _mapper, organizationServices);
 
         // Act
-        var adminUsers = await userPermissionServices.GetUserAdminsAsync(UnitTestDatabaseSeeder.PARTNER_ID);
+        var adminUsers = await userPermissionServices.GetUserAdminsAsync(UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID);
 
         // Assert
         Assert.Equal(1, adminUsers.Count);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetUserPermissions_ForPartnerAdmins_CheckAccessListWithoutPartnerId()
+    {
+        // Arrange
+        await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
+        var organizationServicesMock = new Mock<IOrganizationServices>();
+        organizationServicesMock
+            .Setup(os => os.GetOrganizationsAsync(false, true, UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID))
+            .ReturnsAsync(await context.Organizations.ToListAsync());
+        var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>(), _mapper, organizationServicesMock.Object);
+
+        // Act
+        var partnerAdminAccessList = await userPermissionServices.GetUserPermissionsAsync("partneradmin@doe.com");
+
+        // Assert
+        Assert.Equal(UnitTestDatabaseSeeder.TECHSTEP_CUSTOMER_ID, partnerAdminAccessList!.First().AccessList.First());
     }
 }

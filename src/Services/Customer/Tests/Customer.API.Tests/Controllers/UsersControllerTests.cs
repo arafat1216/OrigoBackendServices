@@ -1174,7 +1174,7 @@ namespace Customer.API.IntegrationTests.Controllers
                 FirstName = "Hans",
                 LastName = "user",
                 EmployeeId = "123",
-                MobileNumber = "+479898645",
+                MobileNumber = "+479898699",
                 Role = "Manager",
                 UserPreference = new UserPreference { Language = "en" }
             };

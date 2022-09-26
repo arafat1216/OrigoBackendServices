@@ -114,90 +114,80 @@ namespace CustomerServices
                 else userPreference = new UserPreference("en", callerId);
             }
 
-            // Check if email address is used by another user
-            var userWithEmail = await _organizationRepository.GetUserByUserName(email);
             var mobileNumberInUse = await _organizationRepository.GetUserByMobileNumber(mobileNumber, customerId);
-
+            if (mobileNumberInUse != null && !mobileNumberInUse.IsDeleted) throw new InvalidPhoneNumberException("Phone number already in use.");
+            
+            var userWithEmail = await _organizationRepository.GetUserByUserName(email);
             //Activate the user if the user i soft deleted
-            if (userWithEmail != null) {
-                if (userWithEmail.IsDeleted == true)
+            if (userWithEmail != null)
+            {
+                if (userWithEmail.IsDeleted != true)
                 {
-                    userWithEmail.SetDeleteStatus(false, callerId);
-
-                    //Check if the phone number should be updated
-                    if (mobileNumber != default && userWithEmail.MobileNumber?.Trim() != mobileNumber?.Trim())
-                    {
-                        //If mobile number is used by someone else then this user
-                        if(mobileNumberInUse != null && mobileNumberInUse.UserId != userWithEmail.UserId) throw new InvalidPhoneNumberException("Phone number already in use.");
-                        userWithEmail.ChangeMobileNumber(mobileNumber, callerId);
-                    }
-
-                    UserPermissionsDTO? currentUserPermission = null;
-                    var usersRole = await _userPermissionServices.GetUserPermissionsAsync(userWithEmail.Email);
-                    if (usersRole != null)
-                    {
-                        currentUserPermission = usersRole.FirstOrDefault(a => a.Role == role);
-                    }
-
-                    if (!string.IsNullOrEmpty(role))
-                    {
-                        try
-                        {
-                            //New role - only add the role if the user doesn't have the role already
-                            if (currentUserPermission == null) currentUserPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid>() { customerId }, callerId);
-                        }
-                        catch (InvalidRoleNameException)
-                        {
-                            currentUserPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, PredefinedRole.EndUser.ToString(), new List<Guid>() { customerId }, callerId);
-                        }
-                    }
-
-                    //If the user dont have any userpermissions and the role did not get assigned in the request give EndUser
-                    if(currentUserPermission == null) currentUserPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, PredefinedRole.EndUser.ToString(), new List<Guid>() { customerId }, callerId);
-
-                    if (firstName != default && userWithEmail.FirstName != firstName) userWithEmail.ChangeFirstName(firstName, callerId);
-                    if (lastName != default && userWithEmail.LastName != lastName) userWithEmail.ChangeLastName(lastName, callerId);
-                    if (employeeId != default && userWithEmail.EmployeeId != employeeId) userWithEmail.ChangeEmployeeId(employeeId, callerId);
-                    if (userPreference != null && userPreference.Language != null &&
-                        userPreference.Language != userWithEmail.UserPreference?.Language)
-                        userWithEmail.ChangeUserPreferences(userPreference, callerId);
-
-                    //Okta
-                    if (customer.AddUsersToOkta && !newUserNotToBeAddedToOkta)
-                    {
-                        var userExistInOkta = await _oktaServices.UserExistsInOktaAsync(userWithEmail.OktaUserId);
-                        if (userExistInOkta)
-                        {
-                            await _oktaServices.AddUserToGroup(userWithEmail.OktaUserId);
-                        }
-                        else //Add new user to Okta
-                        {
-                            var oktaUserId = await _oktaServices.AddOktaUserAsync(userWithEmail.UserId, userWithEmail.FirstName, userWithEmail.LastName,
-                                userWithEmail.Email, userWithEmail.MobileNumber, true);
-                            userWithEmail = await AssignOktaUserIdAsync(userWithEmail.Customer.OrganizationId, userWithEmail.UserId, oktaUserId, callerId);
-                        }
-                    }
-
-                    await _organizationRepository.SaveEntitiesAsync();
-
-                    var activatedUserMapped = _mapper.Map<UserDTO>(userWithEmail);
-                    if (currentUserPermission != null)
-                    {
-                        activatedUserMapped.Role = currentUserPermission.Role;
-                    }
-                    else
-                    {
-                        activatedUserMapped.Role = null;
-                    }
-
-                    return activatedUserMapped;
-
+                    throw new UserNameIsInUseException("Email address is already in use.");
                 }
-                else throw new UserNameIsInUseException("Email address is already in use.");
-            }
 
-            //Check if mobile number is used by another user
-            if (mobileNumberInUse != null) throw new InvalidPhoneNumberException("Phone number already in use.");
+                userWithEmail.SetDeleteStatus(false, callerId);
+
+                //Check if the phone number should be updated
+                if (mobileNumber != default && userWithEmail.MobileNumber?.Trim() != mobileNumber?.Trim())
+                {
+                    //If mobile number is used by someone else then this user
+                    if(mobileNumberInUse != null && mobileNumberInUse.UserId != userWithEmail.UserId) throw new InvalidPhoneNumberException("Phone number already in use.");
+                    userWithEmail.ChangeMobileNumber(mobileNumber, callerId);
+                }
+
+                UserPermissionsDTO? currentUserPermission = null;
+                var usersRole = await _userPermissionServices.GetUserPermissionsAsync(userWithEmail.Email);
+                if (usersRole != null)
+                {
+                    currentUserPermission = usersRole.FirstOrDefault(a => a.Role == role);
+                }
+
+                if (!string.IsNullOrEmpty(role))
+                {
+                    try
+                    {
+                        //New role - only add the role if the user doesn't have the role already
+                        currentUserPermission ??= await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid> { customerId }, callerId);
+                    }
+                    catch (InvalidRoleNameException)
+                    {
+                        currentUserPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, PredefinedRole.EndUser.ToString(), new List<Guid>() { customerId }, callerId);
+                    }
+                }
+
+                //If the user doesn't have any user permissions and the role did not get assigned in the request give EndUser
+                currentUserPermission ??= await _userPermissionServices.AssignUserPermissionsAsync(email, PredefinedRole.EndUser.ToString(), new List<Guid>() { customerId }, callerId);
+
+                if (firstName != default && userWithEmail.FirstName != firstName) userWithEmail.ChangeFirstName(firstName, callerId);
+                if (lastName != default && userWithEmail.LastName != lastName) userWithEmail.ChangeLastName(lastName, callerId);
+                if (employeeId != default && userWithEmail.EmployeeId != employeeId) userWithEmail.ChangeEmployeeId(employeeId, callerId);
+                if (userPreference != null && userPreference.Language != null &&
+                    userPreference.Language != userWithEmail.UserPreference?.Language)
+                    userWithEmail.ChangeUserPreferences(userPreference, callerId);
+
+                //Okta
+                if (customer.AddUsersToOkta && !newUserNotToBeAddedToOkta)
+                {
+                    var userExistInOkta = await _oktaServices.UserExistsInOktaAsync(userWithEmail.OktaUserId);
+                    if (userExistInOkta)
+                    {
+                        await _oktaServices.AddUserToGroup(userWithEmail.OktaUserId);
+                    }
+                    else //Add new user to Okta
+                    {
+                        var oktaUserId = await _oktaServices.AddOktaUserAsync(userWithEmail.UserId, userWithEmail.FirstName, userWithEmail.LastName,
+                            userWithEmail.Email, userWithEmail.MobileNumber, true);
+                        userWithEmail = await AssignOktaUserIdAsync(userWithEmail.Customer.OrganizationId, userWithEmail.UserId, oktaUserId, callerId);
+                    }
+                }
+                await _organizationRepository.SaveEntitiesAsync();
+
+                var activatedUserMapped = _mapper.Map<UserDTO>(userWithEmail);
+                activatedUserMapped.Role = currentUserPermission?.Role;
+
+                return activatedUserMapped;
+            }
 
             var newUser = new User(customer, Guid.NewGuid(), firstName, lastName, email, mobileNumber, employeeId,
                 userPreference, callerId);
@@ -235,7 +225,21 @@ namespace CustomerServices
                 try
                 {
 
-                    userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid> { customerId }, callerId);
+                    if (role == PredefinedRole.PartnerAdmin.ToString())
+                    {
+                        if (customer.Partner != null)
+                        {
+                            userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid> { customer.Partner.ExternalId }, callerId);
+                        }
+                        else
+                        {
+                            throw new PartnerMissingForCustomerException();
+                        }
+                    }
+                    else
+                    {
+                        userPermission = await _userPermissionServices.AssignUserPermissionsAsync(email, role, new List<Guid> { customerId }, callerId);
+                    }
                 }
                 catch (InvalidRoleNameException)
                 {
