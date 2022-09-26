@@ -16,6 +16,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Enums;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -77,6 +78,54 @@ namespace OrigoGateway.IntegrationTests.Controllers
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
             var response = await client.GetAsync($"/origoapi/v1.0/customers/{organizationId}/users/count");
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+        [Fact]
+        public async Task GetUsersCount_PartnerAdmin_WithReadRightsForOrganization()
+        {
+            var organizationId1 = Guid.NewGuid();
+            var organizationId2 = Guid.NewGuid();
+
+            var email = "manager@test.io";
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, nameof(PredefinedRole.PartnerAdmin)));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId1.ToString()));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId2.ToString()));
+
+
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+                    var userService = new Mock<IUserServices>();
+
+                    var count = new CustomerUserCount {OrganizationId = organizationId1, Count = 1, NotOnboarded = 1};
+
+                    userService.Setup(_ => _.GetUsersCountAsync(organizationId1, It.IsAny<FilterOptionsForUser>()))
+                        .ReturnsAsync(count);
+                    services.AddSingleton(userService.Object);
+                });
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.GetAsync($"/origoapi/v1.0/customers/{organizationId1}/users/count");
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
