@@ -574,13 +574,12 @@ namespace OrigoApiGateway.Controllers
             if (role == PredefinedRole.EndUser.ToString())
                 return Forbid();
 
-            var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+            var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
             var department = new List<Guid>();
 
             if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
             {
-                // Todo: The "accessList" above suppose to contain "organizationId" only. But we are adding it as departmentId. So need to check this for Manager
-                foreach (var departmentId in accessList.Split(","))
+                foreach (var departmentId in accessList)
                 {
                     if (Guid.TryParse(departmentId, out var departmentGuid))
                         department.Add(departmentGuid);
@@ -588,9 +587,7 @@ namespace OrigoApiGateway.Controllers
             }
             else if (role != PredefinedRole.SystemAdmin.ToString())
             {
-                //Todo: Ideally we should use 1 "accessList". But fullAccessList has been used so that the condition for Manager does not have side-effect.
-                var fullAccessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
-                if (fullAccessList == null || !fullAccessList.Any() || !fullAccessList.Contains(organizationId.ToString()))
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     return Forbid();
             }
 
@@ -615,13 +612,12 @@ namespace OrigoApiGateway.Controllers
             if (role == PredefinedRole.EndUser.ToString())
                 return Forbid();
 
-            var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+            var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
             var department = new List<Guid>();
 
             if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
             {
-                // Todo: The "accessList" above suppose to contain "organizationId" only. But we are adding it as departmentId. So need to check this for Manager
-                foreach (var departmentId in accessList.Split(","))
+                foreach (var departmentId in accessList)
                 {
                     if (Guid.TryParse(departmentId, out var departmentGuid))
                         department.Add(departmentGuid);
@@ -629,9 +625,7 @@ namespace OrigoApiGateway.Controllers
             }
             else if (role != PredefinedRole.SystemAdmin.ToString())
             {
-                //Todo: Ideally we should use 1 "accessList". But fullAccessList has been used so that the condition for Manager does not have side-effect.
-                var fullAccessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
-                if (fullAccessList == null || !fullAccessList.Any() || !fullAccessList.Contains(organizationId.ToString()))
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     return Forbid();
             }
 
