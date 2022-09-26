@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -96,6 +97,18 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+
+                    if (accessList != null && (!accessList.Any() || !accessList.Contains(partnerId.ToString())))
+                    {
+                        return Forbid();
+                    }
+                }
+
                 var partner = await _partnerServices.GetPartnerAsync(partnerId);
 
                 if (partner is null)
@@ -117,7 +130,7 @@ namespace OrigoApiGateway.Controllers
         /// </remarks>
         /// <returns> A list containing all partners available to the user. </returns>
         [HttpGet]
-        [Authorize(Roles = "SystemAdmin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
         [PermissionAuthorize(Permission.CanReadCustomer)]
         [SwaggerResponse(StatusCodes.Status200OK, type: typeof(IList<Partner>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
@@ -125,8 +138,26 @@ namespace OrigoApiGateway.Controllers
         {
             try
             {
-                var partners = await _partnerServices.GetPartnersAsync();
-                return Ok(partners);
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role == PredefinedRole.SystemAdmin.ToString())
+                {
+                    var partners = await _partnerServices.GetPartnersAsync();
+                    return Ok(partners);
+
+                }
+                else if(role == PredefinedRole.PartnerAdmin.ToString())
+                {
+                    var access = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    Guid.TryParse(access, out var partnerGuid);
+                    var partner = await _partnerServices.GetPartnerAsync(partnerGuid);
+
+                    return Ok(new List<Partner>(){ partner });
+                }
+                else
+                {
+                    return Forbid();
+                }
             }
             catch (Exception)
             {
