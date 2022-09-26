@@ -150,7 +150,7 @@ namespace OrigoApiGateway.Controllers
             Tags = new[] { "Product Catalog: Products" }
         )]
         [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
-        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin,Admin")]
         public async Task<ActionResult<IEnumerable<ProductGet>>> GetProductsByPartner([FromRoute] Guid partnerId)
         {
             try
