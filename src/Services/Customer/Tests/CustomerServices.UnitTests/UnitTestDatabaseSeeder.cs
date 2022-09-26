@@ -127,6 +127,14 @@ public class UnitTestDatabaseSeeder
         var userPreferences1 = new UserPreference("NO", EMPTY_CALLER_ID);
         var userPreferences2 = new UserPreference("EN", EMPTY_CALLER_ID);
         var userPreferences3 = new UserPreference("EN", EMPTY_CALLER_ID);
+        var partnerAdminUserPreference = new UserPreference("EN", UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
+        var systemAdminPreference = new UserPreference("EN", UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
+
+        var partnerAdminUser = new User(techstepOrganization, Guid.NewGuid(), "Partner", "Admin", "partneradmin@doe.com", "+4799559999", "007",
+            partnerAdminUserPreference, EMPTY_CALLER_ID);
+        var systemAdminUser = new User(techstepOrganization, Guid.NewGuid(), "System", "Admin", "systemadmin@doe.com", "+4799549999", "007",
+            systemAdminPreference, EMPTY_CALLER_ID);
+
         var userOne = new User(customerOne, USER_ONE_ID, "Jane", "Doe", "jane@doe.com", "+4799999999", "007",
             userPreferences1, EMPTY_CALLER_ID);
         userOne.ChangeUserStatus("123", UserStatus.Deactivated);
@@ -159,18 +167,23 @@ public class UnitTestDatabaseSeeder
             "X", userPreferences3, EMPTY_CALLER_ID);
         userEight.OffboardingInitiated(DateTime.UtcNow, Guid.Empty);
 
-        var role1 = new Role("admin");
+        var adminRole = new Role("Admin");
+        var partnerAdminRole = new Role("PartnerAdmin");
+        var systemAdminRole = new Role("SystemAdmin");
         var managerRole = new Role("Manager");
-        var userPermissions = new UserPermissions(userOne, role1, new List<Guid>(), EMPTY_CALLER_ID);
+        var userPermissions = new UserPermissions(userOne, adminRole, new List<Guid>(), EMPTY_CALLER_ID);
         var managerPermissions = new UserPermissions(userFour, managerRole, new List<Guid>(), EMPTY_CALLER_ID);
         var managerPermissionsTwo = new UserPermissions(userFive, managerRole, new List<Guid>(), EMPTY_CALLER_ID);
+        var partnerAdminPermissions = new UserPermissions(partnerAdminUser, partnerAdminRole, new List<Guid>{PARTNER_ID}, EMPTY_CALLER_ID);
+        var systemAdminPermissions = new UserPermissions(systemAdminUser, systemAdminRole, new List<Guid>(), EMPTY_CALLER_ID);
+
 
         userFour.AssignManagerToDepartment(departmentTwoForCustomerOne, EMPTY_CALLER_ID);
         userFive.AssignManagerToDepartment(departmentTwoForCustomerOne, EMPTY_CALLER_ID);
 
-        context.AddRange(role1, managerRole);
-        context.AddRange(userPermissions, managerPermissions, managerPermissionsTwo);
-        context.AddRange(userOne, userTwo, userThree, userFour, userFive, userSix, userSeven, userEight);
+        context.AddRange(adminRole, managerRole, partnerAdminRole, systemAdminRole);
+        context.AddRange(userPermissions, managerPermissions, managerPermissionsTwo, partnerAdminPermissions, systemAdminPermissions);
+        context.AddRange(userOne, userTwo, userThree, userFour, userFive, userSix, userSeven, userEight, systemAdminUser, partnerAdminUser);
 
         context.SaveChanges();
     }

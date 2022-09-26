@@ -66,10 +66,10 @@ public class UserPermissionsController : ControllerBase
     [Route("/api/v{version:apiVersion}/organizations/admins")]
     [ProducesResponseType(typeof(List<UserAdmin>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<List<UserAdmin>>> GetUserAdmins()
+    public async Task<ActionResult<List<UserAdmin>>> GetUserAdmins([FromQuery] Guid? partnerId = null)
     {
-        var userPermissions = await _userPermissionServices.GetUserAdminsAsync();
-        if (userPermissions == null) return NotFound();
+        var userPermissions = await _userPermissionServices.GetUserAdminsAsync(partnerId);
+        if (!userPermissions.Any()) return NotFound();
         var returnedUser = userPermissions.Select(userPermission => new UserAdmin(userPermission.User.UserId,
             userPermission.User.FirstName, userPermission.User.LastName, userPermission.User.Email,
             userPermission.User.MobileNumber, userPermission.Role.Name, userPermission.AccessList.ToList())).ToList();

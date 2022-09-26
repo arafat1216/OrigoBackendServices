@@ -61,12 +61,12 @@ namespace OrigoApiGateway.Controllers
                         case PredefinedRole.DepartmentManager:
                         case PredefinedRole.Manager:
                             if (user.DepartmentId == Guid.Empty) return Forbid();
-                            if(accessList == null || !accessList.Any() || !accessList.Contains(user.DepartmentId.ToString())) return Forbid();
+                            if(!accessList.Any() || !accessList.Contains(user.DepartmentId.ToString())) return Forbid();
                             break;
                         case PredefinedRole.SystemAdmin:
                             break;
                         default:
-                            if (accessList == null || !accessList.Any() || !accessList.Contains(user.OrganizationId.ToString())) return Forbid();
+                            if (!accessList.Any() || !accessList.Contains(user.OrganizationId.ToString())) return Forbid();
                             break;
                     }
                 }
@@ -104,11 +104,24 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [Route("/origoapi/v{version:apiVersion}/admins")]
         [ProducesResponseType(typeof(IList<UserAdminDTO>), (int)HttpStatusCode.OK)]
-        [Authorize(Roles = "SystemAdmin")]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
         public async Task<ActionResult<IList<UserAdminDTO>>> GetAllUserAdmins()
         {
             try
             {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.PartnerAdmin.ToString())
+                {
+                    var firstItemInAccessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList");
+                    if (firstItemInAccessList != null && Guid.TryParse(firstItemInAccessList.Value, out Guid partnerId))
+                    {
+                        return Ok(await _userPermissionServices.GetAllUserAdminsAsync(partnerId));
+                    }
+                    else
+                    {
+                        return BadRequest();
+                    }
+                }
                 return Ok(await _userPermissionServices.GetAllUserAdminsAsync());
             }
             catch (Exception ex)
@@ -194,7 +207,7 @@ namespace OrigoApiGateway.Controllers
                     foreach (var permission in usersPermissions.UserPermissions)
                     {
                         var user = await _userServices.GetUserInfo(null, permission.UserId);
-                        if (accessList == null || !accessList.Any() || !accessList.Contains(user.OrganizationId.ToString())) return Forbid();
+                        if (!accessList.Any() || !accessList.Contains(user.OrganizationId.ToString())) return Forbid();
 
                         if (role == PredefinedRole.Admin.ToString() || role == PredefinedRole.CustomerAdmin.ToString())
                         {

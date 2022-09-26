@@ -107,13 +107,23 @@ namespace CustomerServices
             return returnedUserPermissions;
         }
 
-        public async Task<IList<UserPermissions>> GetUserAdminsAsync()
+        public async Task<IList<UserPermissions>> GetUserAdminsAsync(Guid? partnerId = null)
         {
-            return await _customerContext.UserPermissions.Include(up => up.Role).ThenInclude(r => r.GrantedPermissions)
+            if (partnerId == null)
+            {
+                return await _customerContext.UserPermissions.Include(up => up.Role).ThenInclude(r => r.GrantedPermissions)
+                    .ThenInclude(p => p.Permissions).Include(up => up.User).Where(up =>
+                        up.Role.Name == PredefinedRole.SystemAdmin.ToString() ||
+                        up.Role.Name == PredefinedRole.PartnerAdmin.ToString() ||
+                        up.Role.Name == PredefinedRole.PartnerReadOnlyAdmin.ToString()).ToListAsync();
+            }
+
+            var userPermissions = await _customerContext.UserPermissions.Include(up => up.Role).ThenInclude(r => r.GrantedPermissions)
                 .ThenInclude(p => p.Permissions).Include(up => up.User).Where(up =>
-                    up.Role.Name == PredefinedRole.SystemAdmin.ToString() ||
                     up.Role.Name == PredefinedRole.PartnerAdmin.ToString() ||
                     up.Role.Name == PredefinedRole.PartnerReadOnlyAdmin.ToString()).ToListAsync();
+            return userPermissions.Where(up => up.AccessList.Contains(partnerId.Value)).ToList();
+
         }
 
         public async Task<IList<UserPermissions>> GetCustomerAdminsAsync(Guid customerId)
