@@ -75,7 +75,7 @@ public class UserPermissionsTests
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async Task GetUserPermissions_ForPartnerAdmins_CheckAccessListWithoutPartnerId()
+    public async Task GetUserPermissions_ForPartnerAdmins_CheckAccessListForPartnerId()
     {
         // Arrange
         await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
@@ -89,6 +89,6 @@ public class UserPermissionsTests
         var partnerAdminAccessList = await userPermissionServices.GetUserPermissionsAsync("partneradmin@doe.com");
 
         // Assert
-        Assert.Equal(UnitTestDatabaseSeeder.TECHSTEP_CUSTOMER_ID, partnerAdminAccessList!.First().AccessList.First());
+        Assert.Equal(UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID, partnerAdminAccessList!.First().AccessList.First());
     }
 }

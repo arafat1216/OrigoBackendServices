@@ -24,13 +24,15 @@ namespace OrigoApiGateway.Controllers
         private readonly IUserPermissionService _userPermissionServices;
         private readonly IMapper _mapper;
         private readonly IUserServices _userServices;
+        private readonly ICustomerServices _customerServices;
 
-        public UserPermissionsController(ILogger<UserPermissionsController> logger, IUserPermissionService customerServices, IMapper mapper, IUserServices userServices)
+        public UserPermissionsController(ILogger<UserPermissionsController> logger, IUserPermissionService userPermissionServices, IMapper mapper, IUserServices userServices, ICustomerServices customerServices)
         {
             _logger = logger;
-            _userPermissionServices = customerServices;
+            _userPermissionServices = userPermissionServices;
             _mapper = mapper;
             _userServices = userServices;
+            _customerServices = customerServices;
         }
 
         [HttpGet]
@@ -64,6 +66,10 @@ namespace OrigoApiGateway.Controllers
                             if(!accessList.Any() || !accessList.Contains(user.DepartmentId.ToString())) return Forbid();
                             break;
                         case PredefinedRole.SystemAdmin:
+                            break;
+                        case PredefinedRole.PartnerAdmin:
+                            if (!accessList.Any() || !accessList.Contains(user.OrganizationId.ToString())) return Forbid();
+                            accessList.Remove(accessList.First()); // First item is the partnerId for PartnerAdmins.
                             break;
                         default:
                             if (!accessList.Any() || !accessList.Contains(user.OrganizationId.ToString())) return Forbid();

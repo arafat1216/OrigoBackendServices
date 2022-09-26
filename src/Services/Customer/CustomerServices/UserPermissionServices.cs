@@ -99,8 +99,6 @@ namespace CustomerServices
                         {
                             userPermission.AccessList.Add(customer.OrganizationId);
                         }
-
-                        userPermission.AccessList.Remove(partnerId);
                     }
                 }
 
