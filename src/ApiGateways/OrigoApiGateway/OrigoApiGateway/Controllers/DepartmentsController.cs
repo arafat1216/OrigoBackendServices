@@ -49,7 +49,7 @@ namespace OrigoApiGateway.Controllers
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     // All roles have access to Department, as long as they have access to this customer/organization.
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -79,7 +79,7 @@ namespace OrigoApiGateway.Controllers
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     // All roles have access to an organizations departments, as long as the organization is in the caller accesslist
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -115,7 +115,7 @@ namespace OrigoApiGateway.Controllers
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
 
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -159,7 +159,7 @@ namespace OrigoApiGateway.Controllers
                 // Partner Admin, Group Admin and Customer Admin have access if organization is in their access list
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -203,7 +203,7 @@ namespace OrigoApiGateway.Controllers
                 // Partner Admin, Group Admin and Customer Admin/Admin have access if organization is in their access list
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -247,7 +247,7 @@ namespace OrigoApiGateway.Controllers
                 // Partner Admin, Group Admin and Customer Admin have access if organization is in their access list
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList").Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();

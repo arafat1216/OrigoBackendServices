@@ -95,7 +95,7 @@ namespace OrigoApiGateway.Controllers
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -125,7 +125,7 @@ namespace OrigoApiGateway.Controllers
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -155,7 +155,7 @@ namespace OrigoApiGateway.Controllers
             {
                 // All roles have access, as long as customer is in their accessList
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
@@ -266,7 +266,7 @@ namespace OrigoApiGateway.Controllers
                 }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -307,7 +307,7 @@ namespace OrigoApiGateway.Controllers
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -356,7 +356,7 @@ namespace OrigoApiGateway.Controllers
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -396,7 +396,7 @@ namespace OrigoApiGateway.Controllers
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -444,7 +444,7 @@ namespace OrigoApiGateway.Controllers
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -487,7 +487,7 @@ namespace OrigoApiGateway.Controllers
                 }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -537,7 +537,7 @@ namespace OrigoApiGateway.Controllers
                 }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -585,7 +585,7 @@ namespace OrigoApiGateway.Controllers
                 }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -695,7 +695,7 @@ namespace OrigoApiGateway.Controllers
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -753,7 +753,7 @@ namespace OrigoApiGateway.Controllers
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -813,7 +813,7 @@ namespace OrigoApiGateway.Controllers
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -866,11 +866,11 @@ namespace OrigoApiGateway.Controllers
             {
 
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                 var department = new List<Guid?>();
                 if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
                 {
-                    foreach (var departmentId in accessList.Split(","))
+                    foreach (var departmentId in accessList)
                     {
                         if (Guid.TryParse(departmentId, out var departmentGuid))
                         {
@@ -929,11 +929,11 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                 var department = new List<Guid?>();
                 if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
                 {
-                    foreach (var departmentId in accessList.Split(","))
+                    foreach (var departmentId in accessList)
                     {
                         if (Guid.TryParse(departmentId, out var departmentGuid))
                         {
@@ -1001,11 +1001,11 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                 var department = new List<Guid?>();
                 if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
                 {
-                    foreach (var departmentId in accessList.Split(","))
+                    foreach (var departmentId in accessList)
                     {
                         if (Guid.TryParse(departmentId, out var departmentGuid))
                         {
@@ -1076,11 +1076,11 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                 var department = new List<Guid?>();
                 if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
                 {
-                    foreach (var departmentId in accessList.Split(","))
+                    foreach (var departmentId in accessList)
                     {
                         if (Guid.TryParse(departmentId, out var departmentGuid))
                         {
@@ -1148,7 +1148,7 @@ namespace OrigoApiGateway.Controllers
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -1212,7 +1212,7 @@ namespace OrigoApiGateway.Controllers
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -1275,7 +1275,7 @@ namespace OrigoApiGateway.Controllers
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -1328,7 +1328,7 @@ namespace OrigoApiGateway.Controllers
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -1363,7 +1363,7 @@ namespace OrigoApiGateway.Controllers
                 }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -1409,7 +1409,7 @@ namespace OrigoApiGateway.Controllers
                 }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -1456,7 +1456,7 @@ namespace OrigoApiGateway.Controllers
                 }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -1500,7 +1500,7 @@ namespace OrigoApiGateway.Controllers
                 }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -1553,7 +1553,7 @@ namespace OrigoApiGateway.Controllers
                 }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -1658,7 +1658,7 @@ namespace OrigoApiGateway.Controllers
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -1720,7 +1720,7 @@ namespace OrigoApiGateway.Controllers
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -1825,7 +1825,7 @@ namespace OrigoApiGateway.Controllers
                 }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -1868,7 +1868,7 @@ namespace OrigoApiGateway.Controllers
                 }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -1910,7 +1910,7 @@ namespace OrigoApiGateway.Controllers
                 }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -1954,7 +1954,7 @@ namespace OrigoApiGateway.Controllers
                 }
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -2050,7 +2050,7 @@ namespace OrigoApiGateway.Controllers
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
@@ -2097,7 +2097,7 @@ namespace OrigoApiGateway.Controllers
 
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
-                    var accessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
                     if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
                     {
                         return Forbid();
