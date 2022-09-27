@@ -159,6 +159,15 @@ namespace OrigoApiGateway.Services
         /// </returns>
         Task<CustomerSettings?> GetCustomerSettingsAsync(Guid organizationId);
 
+        /// <summary>
+        ///     Retrieves the <see cref="LoanDeviceSettings"/> for a given organization.
+        /// </summary>
+        /// <param name="organizationId"> The organization to retrieve. </param>
+        /// <returns> 
+        ///     A task that represents the asynchronous operation. The task result contains the retrieved result, or <see langword="null"/>
+        ///     of no results were found. 
+        /// </returns>
+        Task<LoanDeviceSettings?> GetCustomerLoanDeviceSettingsAsync(Guid organizationId);
 
         /// <summary>
         ///     Updates a existing <see cref="CustomerSettings"/> for the given organization. 

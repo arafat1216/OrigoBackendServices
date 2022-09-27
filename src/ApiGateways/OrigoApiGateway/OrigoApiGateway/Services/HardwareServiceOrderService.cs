@@ -532,6 +532,15 @@ namespace OrigoApiGateway.Services
 
 
         /// <inheritdoc/>
+        public async Task<LoanDeviceSettings?> GetCustomerLoanDeviceSettingsAsync(Guid organizationId)
+        {
+            var result = await GetAsync<CustomerSettings>($"{_options.ConfigurationApiPath}/{organizationId}", null);
+            var loanDeviceSettings = _mapper.Map<LoanDeviceSettings>(result);
+            return loanDeviceSettings;
+        }
+
+
+        /// <inheritdoc/>
         public async Task<CustomerSettings> AddOrUpdateCustomerSettings(Guid organizationId, NewCustomerSettings newCustomerSettings)
         {
             var result = await SendRequestAsync<NewCustomerSettings, CustomerSettings>(HttpMethod.Put, $"{_options.ConfigurationApiPath}/{organizationId}", null, newCustomerSettings);

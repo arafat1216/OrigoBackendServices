@@ -545,5 +545,40 @@ namespace OrigoApiGateway.Controllers
                     throw;
             }
         }
+
+
+        /// <summary>
+        ///     Retrieves a organization's loan-device settings.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves a given customer's loan-device settings.
+        /// </remarks>
+        /// <param name="organizationId"> The organization identifier. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
+        [HttpGet("configuration/organization/{organizationId:Guid}/loan-device")]
+        [SwaggerResponse(StatusCodes.Status200OK, null, typeof(LoanDeviceSettings))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Returned if the requested loan-device settings don't exist, or has not yet been configured.")]
+        public async Task<IActionResult> GetCustomerLoanDeviceSettingsAsync([FromRoute] Guid organizationId)
+        {
+            if (!AuthenticatedUserHasAccessToOrganization(organizationId))
+                return Forbid();
+
+            try
+            {
+               var result = await _hardwareServiceOrderService.GetCustomerLoanDeviceSettingsAsync(organizationId);
+
+                if (result is null)
+                    return NotFound("The requested loan-device settings don't exist, or has not yet been configured.");
+                else
+                    return Ok(result);
+            }
+            catch (HttpRequestException ex)
+            {
+                if (ex.StatusCode == HttpStatusCode.NotFound)
+                    return NotFound();
+                else
+                    throw;
+            }
+        }
     }
 }
