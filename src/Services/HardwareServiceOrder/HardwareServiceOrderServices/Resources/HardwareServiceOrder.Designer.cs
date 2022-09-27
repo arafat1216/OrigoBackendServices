@@ -63,7 +63,7 @@ namespace HardwareServiceOrderServices.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Hello {{FirstName}}!
         ///
-        ///In connection to a recent repair order your asset was discarded. Please contact your manager to get a new asset..
+        ///You recently had a repair-order where your asset was discarded. Please contact your manager to get a new asset..
         /// </summary>
         internal static string AssetDiscardedEmail {
             get {
@@ -93,9 +93,9 @@ namespace HardwareServiceOrderServices.Resources {
         ///
         ///⚠️ if step 1 to 3 is not done properly the repair cannot be completed
         ///
-        ///4. Send the device to the repair provider using the package slip
+        ///4. Send the device to the repair provider using the shipping label.
         ///5. The repair provider evaluates your device
-        ///6. You get repair options to choo [rest of string was truncated]&quot;;.
+        ///6. You get repair options to c [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string AssetRepairEmail {
             get {
@@ -115,7 +115,7 @@ namespace HardwareServiceOrderServices.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Hello {{FirstName}}!
         ///
-        ///I connection to a recent repair order we would like to remind you to return any loan device..
+        ///As you recently had a repair-order, we would like to remind you that any loan-devices needs to be returned. If you don&apos;t have any loan-devices, or they are already returned, you may disregard this automated message..
         /// </summary>
         internal static string LoanDeviceEmail {
             get {
@@ -153,7 +153,7 @@ namespace HardwareServiceOrderServices.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Hello {{FirstName}}!
         ///
-        ///Your repair order is canceled. If your asset still needs repair please create a new repair order.
+        ///Your repair order has been canceled. If your asset still needs to be repaired, please register a new repair-order.
         ///
         ///
         ///### **Order details:**
@@ -199,9 +199,9 @@ namespace HardwareServiceOrderServices.Resources {
         ///
         ///⚠️ if step 1 to 3 is not done properly the repair cannot be completed
         ///
-        ///4. Send the device to the repair provider using the package slip
+        ///4. Send the device to the repair provider using the shipping label
         ///5. The repair provider evaluates your device
-        ///6. Y [rest of string was truncated]&quot;;.
+        ///6. [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string OrderConfirmationEmail {
             get {
@@ -245,7 +245,7 @@ namespace HardwareServiceOrderServices.Resources {
         ///If step 1 to 4 is not done properly the recycle cannot be completed
         ///
         ///### How to package and send the asset:
-        ///Please package your device securely so tha [rest of string was truncated]&quot;;.
+        ///Please package your device securely so that it arrives [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string RemarketingNoPackaging_Body {
             get {
@@ -264,8 +264,8 @@ namespace HardwareServiceOrderServices.Resources {
         
         /// <summary>
         ///   Looks up a localized string similar to Hello {{ FirstName }}!
-        ///&amp;nbsp;
-        ///&amp;nbsp;
+        ///
+        ///
         ///### Return details:
         ///Asset: {{ AssetName }} {{ AssetId }}
         ///Date: {{ OrderDate }}
@@ -282,7 +282,7 @@ namespace HardwareServiceOrderServices.Resources {
         ///5. Remove the SIM card/memory card
         ///6. Ship the asset using the return package
         ///
-        ///If step 2 to 5  [rest of string was truncated]&quot;;.
+        ///If step 2 to 5 is not done  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string RemarketingPackaging_Body {
             get {

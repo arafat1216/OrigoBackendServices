@@ -130,12 +130,12 @@ Next steps:
 
 ⚠️ if step 1 to 3 is not done properly the repair cannot be completed
 
-4. Send the device to the repair provider using the package slip
+4. Send the device to the repair provider using the shipping label.
 5. The repair provider evaluates your device
 6. You get repair options to choose from (not if warranty)
 7. The repair provider repairs your asset and sends it back to you
 
-[Get package slip]({{PackageSlipLink}})
+[Get shipping label]({{ShippingLabel}})
 
 PS: The repair provider may contact you directly about the repair.</value>
   </data>
@@ -158,12 +158,12 @@ Fault category: {{FaultCategory}}
 
 ⚠️ if step 1 to 3 is not done properly the repair cannot be completed
 
-4. Send the device to the repair provider using the package slip
+4. Send the device to the repair provider using the shipping label
 5. The repair provider evaluates your device
 6. You get repair options to choose from (not if warranty)
 7. The repair provider repairs your device and sends it back to you
 
-[Get package slip](PackageSlipLink)
+[Get shipping label]({{ShippingLabel}})
 
 PS: The repair provider may contact you directly about the repair.
 
@@ -175,17 +175,17 @@ During the repair period you can get a loan device from your company. Contact [l
   <data name="LoanDeviceEmail" xml:space="preserve">
     <value>Hello {{FirstName}}!
 
-I connection to a recent repair order we would like to remind you to return any loan device.</value>
+As you recently had a repair-order, we would like to remind you that any loan-devices needs to be returned. If you don't have any loan-devices, or they are already returned, you may disregard this automated message.</value>
   </data>
   <data name="AssetDiscardedEmail" xml:space="preserve">
     <value>Hello {{FirstName}}!
 
-In connection to a recent repair order your asset was discarded. Please contact your manager to get a new asset.</value>
+You recently had a repair-order where your asset was discarded. Please contact your manager to get a new asset.</value>
   </data>
   <data name="OrderCancellationEmail" xml:space="preserve">
     <value>Hello {{FirstName}}!
 
-Your repair order is canceled. If your asset still needs repair please create a new repair order.
+Your repair order has been canceled. If your asset still needs to be repaired, please register a new repair-order.
 
 
 ### **Order details:**
@@ -251,9 +251,7 @@ Date: {{ OrderDate }}
 If step 1 to 4 is not done properly the recycle cannot be completed
 
 ### How to package and send the asset:
-Please package your device securely so that it arrives undamaged. You will need to print the return package slip and use transparent tape to attach the slip on the outside of the package.
-
-### Get Return Shipping Label
+Please package your device securely so that it arrives undamaged. You will need to print the shipping label, and use transparent tape to attach it on the outside of the package.
 
 PS: The provider may contact you directly about the return.</value>
   </data>
