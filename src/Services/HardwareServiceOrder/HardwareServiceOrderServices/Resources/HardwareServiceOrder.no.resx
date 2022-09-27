@@ -117,37 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="OrderConfirmationEmail" xml:space="preserve">
-    <value>Hello {{FirstName}}!
-
-### **Order details:**
-
-Assets: {{AssetName}} ({{AssetId}})  
-Order date: {{OrderDate}}  
-Repair type: {{RepairType}}  
-Fault category: {{FaultCategory}}
-
-[View order in Origo]({{OrderLink}})
-
-### **Next steps:** 
-1. Backup your device
-2. Factory reset your device
-3. Remove SIM card
-
-⚠️ if step 1 to 3 is not done properly the repair cannot be completed
-
-4. Send the device to the repair provider using the package slip
-5. The repair provider evaluates your device
-6. You get repair options to choose from (not if warranty)
-7. The repair provider repairs your device and sends it back to you
-
-[Get package slip](PackageSlipLink)
-
-PS: The repair provider may contact you directly about the repair.
-
-
-### **Loan device:**
-
-During the repair period you can get a loan device from your company. Contact [loan device contact info](LoanDeviceContact) if you need a loan device.</value>
-  </data>
 </root>
