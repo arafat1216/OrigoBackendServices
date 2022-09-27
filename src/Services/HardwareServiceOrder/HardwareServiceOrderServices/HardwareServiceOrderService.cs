@@ -115,7 +115,7 @@ namespace HardwareServiceOrderServices
                                     serviceOrderDTO.OrderedBy.PartnerOrganizationNumber,
                                     serviceOrderDTO.DeliveryAddress,
                                     serviceOrderDTO.AssetInfo,
-                                    serviceOrderDTO.ErrorDescription,
+                                    serviceOrderDTO.UserDescription,
                                     serviceOrderAddonIds);
 
             if (customerProvider == null)
@@ -173,7 +173,7 @@ namespace HardwareServiceOrderServices
                     serviceOrderDTO.AssetInfo.PurchaseDate,
                     serviceOrderDTO.AssetInfo.Accessories
                 ),
-                serviceOrderDTO.ErrorDescription,
+                serviceOrderDTO.UserDescription,
                 owner,
                 deliveryAddress,
                 serviceOrderDTO.ServiceTypeId, // ServiceTypeId refers to the values of ServiceTypeEnum, like SUR, Remarketing

@@ -6,7 +6,11 @@
     public class NewExternalServiceOrderDTO
     {
         /// <summary>
-        ///     Reserved JSON (de-)serializer constructor.
+        ///     Creates a new instance of the <see cref="NewExternalServiceOrderDTO"/> class.
+        ///     
+        ///     <para>
+        ///     This is a reserved constructor intended for JSON serializers, AutoMapper, unit-testing and other automated processes. This constructor
+        ///     should never be called directly in any production code. </para>
         /// </summary>
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public NewExternalServiceOrderDTO()
@@ -16,7 +20,34 @@
         }
 
 
-        public NewExternalServiceOrderDTO(Guid userId, string firstName, string lastName, string? phoneNumber, string email, Guid organizationId, string organizationName, string? organizationNumber, Guid partnerId, string partnerName, string partnerOrganizationNumber, DeliveryAddressDTO deliveryAddress, AssetInfoDTO assetInfo, string errorDescription, ISet<string>? includedExternalAddonIds)
+        /// <summary>
+        ///     Creates a new instance of the <see cref="NewExternalServiceOrderDTO"/> class.
+        /// </summary>
+        /// <param name="userId"> The ID of the user that handles the service-order. </param>
+        /// <param name="firstName"> The first name of the person that handles the service-order. </param>
+        /// <param name="lastName"> The last name of the person that handles the service-order. </param>
+        /// <param name="phoneNumber"> An phone-number in <c>E.164</c> format that the service-provider can use to get in touch with the person that handles the service-order. </param>
+        /// <param name="email"> An email address the service-provider can use to get in touch with the person that handles the service-order. </param>
+        /// <param name="organizationId"> The ID for the organization that the service-request belongs to. </param>
+        /// <param name="organizationName"> The name of the organization the service-request belongs to. </param>
+        /// <param name="organizationNumber"> The national/legal entity's organization-number (business registration number), that identifies the organization the service-request belongs to. </param>
+        /// <param name="partnerId"> The partner's ID. </param>
+        /// <param name="partnerName"> The juridical name for the partner. </param>
+        /// <param name="partnerOrganizationNumber"> The partner's national/legal entity's organization-number (business registration number). </param>
+        /// <param name="deliveryAddress"> 
+        ///     If applicable, the address that the asset should be delivery to once the service is complete. 
+        ///     This is also used as the "return to sender" address in shipping labels.
+        ///     
+        ///     <para>
+        ///     This is also used as the "return to sender" address in shipping-labels. </para>
+        /// </param>
+        /// <param name="assetInfo"> Information about the asset that is sent to the service-provider. </param>
+        /// <param name="userDescription"> A user provided description explaining the problem or reason for the service order. </param>
+        /// <param name="includedExternalAddonIds"> 
+        ///     A list containing a list of the service-providers IDs (<see cref="ServiceOrderAddonDTO.ServiceProviderId"/>), detailing
+        ///     what <see cref="ServiceOrderAddonDTO"/> items to be included when the service-order is created.
+        /// </param>
+        public NewExternalServiceOrderDTO(Guid userId, string firstName, string lastName, string? phoneNumber, string email, Guid organizationId, string organizationName, string? organizationNumber, Guid partnerId, string partnerName, string partnerOrganizationNumber, DeliveryAddressDTO deliveryAddress, AssetInfoDTO assetInfo, string userDescription, ISet<string>? includedExternalAddonIds)
         {
             UserId = userId;
             FirstName = firstName;
@@ -31,7 +62,7 @@
             PartnerOrganizationNumber = partnerOrganizationNumber;
             DeliveryAddress = deliveryAddress;
             AssetInfo = assetInfo;
-            ErrorDescription = errorDescription;
+            UserDescription = userDescription;
             IncludedExternalAddonIds = includedExternalAddonIds ?? new HashSet<string>();
         }
 
@@ -86,13 +117,13 @@
         public string OrganizationName { get; set; }
 
         /// <summary>
-        ///     The organization-number for the organization the service-request belongs to.
+        ///     The national/legal entity's organization-number (business registration number), that identifies the organization the service-request belongs to.
         /// </summary>
         /// <example> 999990000 </example>
         public string? OrganizationNumber { get; set; }
 
         /// <summary>
-        ///     The partner ID.
+        ///     The partner's ID.
         /// </summary>
         [Required]
         public Guid PartnerId { get; set; }
@@ -105,30 +136,34 @@
         public string PartnerName { get; set; }
 
         /// <summary>
-        ///     The partner's organization number.
+        ///     The partner's national/legal entity's organization-number (business registration number).
         /// </summary>
         /// <example> 888880000 </example>
         [Required]
         public string PartnerOrganizationNumber { get; set; }
 
         /// <summary>
-        ///     The address that the asset should be shipped to once the service is complete.
+        ///     If applicable, the address that the asset should be delivery to once the service is complete. 
+        ///     This is also used as the "return to sender" address in shipping labels.
+        ///     
+        ///     <para>
+        ///     This is also used as the "return to sender" address in shipping-labels. </para>
         /// </summary>
         [Required]
         public DeliveryAddressDTO DeliveryAddress { get; set; }
 
         /// <summary>
-        ///     Information about the product.
+        ///     Information about the asset that is sent to the service-provider.
         /// </summary>
         [Required]
         public AssetInfoDTO AssetInfo { get; set; }
 
         /// <summary>
-        ///     The user's description of what's wrong with the device.
+        ///     A user provided description explaining the problem or reason for the service order.
         /// </summary>
         /// <example> I dropped the device, and now it has a broken screen and has problems charging. </example>
         [Required]
-        public string ErrorDescription { get; set; }
+        public string UserDescription { get; set; }
 
         /// <summary>
         ///     A list containing a list of the service-providers IDs (<see cref="ServiceOrderAddonDTO.ServiceProviderId"/>), detailing

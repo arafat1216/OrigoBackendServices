@@ -11,12 +11,11 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// Represents a single shipping address. <see cref="DeliveryAddressDTO"/>
         /// </summary>
         public DeliveryAddressDTO DeliveryAddress { get; set; }
-        
-        // TODO: This should be renamed
+
         /// <summary>
-        /// Problem description of the device
+        /// A user provided description explaining the problem or reason for the service order.
         /// </summary>
-        public string ErrorDescription { get; set; }
+        public string UserDescription { get; set; }
 
         // TODO: Should this be renamed?
         /// <summary>
@@ -43,7 +42,7 @@ namespace HardwareServiceOrderServices.ServiceModels
         /// <summary>
         /// Id(s) of the Service Addons or Extra Services that is/are supported by the Third party Service Provider. <para>
         /// 
-        /// A <see cref="HardwareServiceOrderServices.Models.ServiceProvider"/> provides 1 or many <see cref="ServiceOrderAddon"/>. Some of them come as default. Some are selectable by Organization and some are selectable by the User.
+        /// A <see cref="ServiceProvider"/> provides 1 or many <see cref="ServiceOrderAddon"/>. Some of them come as default. Some are selectable by Organization and some are selectable by the User.
         /// This list contains the <c>User selectable</c> service-addons.</para>
         /// </summary>
         public ISet<int> UserSelectedServiceOrderAddonIds { get; set; } = new HashSet<int>();

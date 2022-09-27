@@ -195,7 +195,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
         {
             var body = new NewHardwareServiceOrder
             {
-                ErrorDescription = "Something is not working! Fix plz!",
+                UserDescription = "Something is not working! Fix plz!",
                 OrderedBy = new ContactDetailsExtended
                 {
                     FirstName = "John",
@@ -256,7 +256,7 @@ namespace HardwareServiceOrder.IntegrationTests.Controllers
         {
             var body = new NewHardwareServiceOrder
             {
-                ErrorDescription = "Something is not working! Fix plz!",
+                UserDescription = "Something is not working! Fix plz!",
                 OrderedBy = new ContactDetailsExtended
                 {
                     FirstName = "John",

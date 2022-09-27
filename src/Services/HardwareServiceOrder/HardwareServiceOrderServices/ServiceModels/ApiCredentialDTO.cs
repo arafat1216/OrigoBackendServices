@@ -14,8 +14,8 @@ namespace HardwareServiceOrderServices.ServiceModels
         ///     Creates a new instance of the <see cref="ApiCredentialDTO"/> class.
         ///     
         ///     <para>
-        ///     This is a reserved constructor intended for AutoMapper, unit-testing and other automated processes. This constructor should
-        ///     never be called directly in any production code. </para>
+        ///     This is a reserved constructor intended for JSON serializers, AutoMapper, unit-testing and other automated processes. This constructor
+        ///     should never be called directly in any production code. </para>
         /// </summary>
         public ApiCredentialDTO()
         {

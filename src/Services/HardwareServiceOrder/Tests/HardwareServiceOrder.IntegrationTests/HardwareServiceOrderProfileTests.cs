@@ -21,9 +21,9 @@ namespace HardwareServiceOrder.IntegrationTests
         [Fact]
         public void CustomerSettingsToCustomerSettingsDTO()
         {
-            API.ViewModels.CustomerSettings customerSettings1 = new API.ViewModels.CustomerSettings
+            API.ViewModels.CustomerSettings customerSettings1 = new()
             {
-                CustomerId = System.Guid.NewGuid(),
+                CustomerId = Guid.NewGuid(),
                 LoanDevice = new LoanDevice
                 {
                     Email = "atish@bs.no",
@@ -39,9 +39,9 @@ namespace HardwareServiceOrder.IntegrationTests
         [Fact]
         public void CustomerSettingsToCustomerSettingsDTO_NullLoanDevice()
         {
-            API.ViewModels.CustomerSettings customerSettings1 = new API.ViewModels.CustomerSettings
+            API.ViewModels.CustomerSettings customerSettings1 = new()
             {
-                CustomerId = System.Guid.NewGuid()
+                CustomerId = Guid.NewGuid()
             };
 
             var dto = _mapper.Map<CustomerSettingsDTO>(customerSettings1);
@@ -67,22 +67,22 @@ namespace HardwareServiceOrder.IntegrationTests
         [Fact]
         public void MapHardwareViewModelToDto()
         {
-            var serviceOrder = new API.ViewModels.NewHardwareServiceOrder
+            var serviceOrder = new NewHardwareServiceOrder
             {
-                ErrorDescription = "sd",
-                OrderedBy = new API.ViewModels.ContactDetailsExtended
+                UserDescription = "Something is wrong!",
+                OrderedBy = new ContactDetailsExtended
                 {
-                    FirstName = "sd",
-                    LastName = "sd",
-                    UserId = new Guid(),
-                    Email = "sds@as.com",
-                    PartnerId = new Guid(),
-                    PartnerName = "ved",
-                    PartnerOrganizationNumber = "23456",
-                    OrganizationId = new Guid(),
-                    OrganizationName = "AS",
-                    OrganizationNumber = "12",
-                    PhoneNumber = "23"
+                    FirstName = "FirstName",
+                    LastName = "LastName",
+                    UserId = Guid.NewGuid(),
+                    Email = "user@email.com",
+                    PartnerId = Guid.NewGuid(),
+                    PartnerName = "PartnerName",
+                    PartnerOrganizationNumber = "22997733",
+                    OrganizationId = Guid.NewGuid(),
+                    OrganizationName = "CustomerOrganizationName",
+                    OrganizationNumber = "888777666",
+                    PhoneNumber = "+4799999999"
                 },
                 AssetInfo = new API.ViewModels.AssetInfo
                 {
@@ -90,24 +90,24 @@ namespace HardwareServiceOrder.IntegrationTests
                     //AssetLifecycleId = new Guid(),
                     Accessories = new List<string>
                     {
-                        "sdsd"
+                        "Charger"
                     },
                     AssetCategoryId = 3,
-                    Model = "wwe",
-                    Brand = "wewe",
+                    Model = "Model",
+                    Brand = "Brand",
                     PurchaseDate = new DateOnly(),
-                    SerialNumber = "wewew",
-                    AssetLifecycleId = new Guid(),
-                    AssetName = "sd"
+                    SerialNumber = "S/N 123456",
+                    AssetLifecycleId = Guid.NewGuid(),
+                    AssetName = "AssetName"
                 },
                 DeliveryAddress = new API.ViewModels.DeliveryAddress
                 {
-                    Recipient = "fs",
-                    Address1 = "f",
-                    Address2 = "f",
-                    City = "f",
-                    Country = "FS",
-                    PostalCode = "erg",
+                    Recipient = "Recipient",
+                    Address1 = "Address1",
+                    Address2 = "Address2",
+                    City = "Oslo",
+                    Country = "NO",
+                    PostalCode = "0275",
                     RecipientType = RecipientTypeEnum.Personal
                 }
             };
@@ -137,7 +137,7 @@ namespace HardwareServiceOrder.IntegrationTests
             Assert.Equal(serviceOrder.OrderedBy.PhoneNumber, serviceOrderDTO.OrderedBy.PhoneNumber);
             Assert.Equal(serviceOrder.OrderedBy.OrganizationName, serviceOrderDTO.OrderedBy.OrganizationName);
 
-            Assert.Equal(serviceOrder.ErrorDescription, serviceOrderDTO.ErrorDescription);
+            Assert.Equal(serviceOrder.UserDescription, serviceOrderDTO.UserDescription);
         }
     }
 }

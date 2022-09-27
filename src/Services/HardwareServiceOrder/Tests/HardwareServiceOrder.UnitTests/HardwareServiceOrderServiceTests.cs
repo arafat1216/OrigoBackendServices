@@ -187,7 +187,7 @@ namespace HardwareServiceOrder.UnitTests
 
             var serviceOrderDTO = new NewHardwareServiceOrderDTO
             {
-                ErrorDescription = "sd",
+                UserDescription = "sd",
                 OrderedBy = new ContactDetailsExtendedDTO
                 {
                     FirstName = "sd",

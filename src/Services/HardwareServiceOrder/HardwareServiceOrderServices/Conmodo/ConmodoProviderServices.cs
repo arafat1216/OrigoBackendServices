@@ -99,7 +99,7 @@ namespace HardwareServiceOrderServices.Conmodo
             else
                 throw new ArgumentException("An unsupported recipient type was used for the return address.");
 
-            CreateOrderRequest orderRequest = new(serviceOrderId, $"Origo - {newServiceOrder.OrganizationName}", customerHandler, startStatus, newServiceOrder.ErrorDescription, productInfo, newServiceOrder.AssetInfo.PurchaseDate, serviceRequestOwner, extraServices);
+            CreateOrderRequest orderRequest = new(serviceOrderId, $"Origo - {newServiceOrder.OrganizationName}", customerHandler, startStatus, newServiceOrder.UserDescription, productInfo, newServiceOrder.AssetInfo.PurchaseDate, serviceRequestOwner, extraServices);
 
             // Do the request
             var response = await ApiRequests.CreateServiceOrderAsync(orderRequest);

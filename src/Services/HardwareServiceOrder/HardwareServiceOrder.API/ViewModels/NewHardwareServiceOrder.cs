@@ -12,36 +12,47 @@ namespace HardwareServiceOrder.API.ViewModels
         /// </summary>
         [Required]
         public DeliveryAddress DeliveryAddress { get; set; }
-        
+
         /// <summary>
         /// Problem description of the device
         /// </summary>
         [Required]
-        public string ErrorDescription { get; set; }
-        
+        [Obsolete($"This has been replaced by {nameof(UserDescription)}. This temporary alias/remapping will soon be removed!")]
+        public string ErrorDescription
+        {
+            get { return UserDescription; }
+            set { UserDescription = value; }
+        }
+
+        /// <summary>
+        /// A user provided description explaining the problem or reason for the service order.
+        /// </summary>
+        [Required]
+        public string UserDescription { get; set; }
+
         /// <summary>
         /// Contact details of the User who placed the Order <see cref="ContactDetailsExtendedDTO"/>
         /// </summary>
         public ContactDetailsExtended OrderedBy { get; set; }
-        
+
         /// <summary>
         /// Asset or Device related information. <see cref="AssetInfo"/>
         /// </summary>
         [Required]
         public AssetInfo AssetInfo { get; set; }
-        
+
         /// <summary>
         /// Service Provider Id
         /// </summary>
         [Required]
         public int ServiceProviderId { get; set; }
-        
+
         /// <summary>
         /// Service Type Id. The value would one of values from ServiceTypeEnum
         /// </summary>
         [Required]
         public int ServiceTypeId { get; set; }
-        
+
         /// <summary>
         /// Id(s) of the Service Addons or Extra Services that is/are supported by the Third party Service Provider. <para>
         /// 
