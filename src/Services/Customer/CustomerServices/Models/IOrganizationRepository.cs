@@ -158,5 +158,6 @@ namespace CustomerServices.Models
         /// <returns> A collection containing all partners. </returns>
         Task<IList<Partner>> GetPartnersAsync();
         Task<Organization?> GetOrganizationByTechstepCustomerIdAsync(long techstepCustomerId);
+        Task<IList<Guid>> GetOrganizationIdsForPartnerAsync(Guid partnerId);
     }
 }

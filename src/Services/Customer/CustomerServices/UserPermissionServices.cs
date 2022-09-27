@@ -74,9 +74,13 @@ namespace CustomerServices
 
         public async Task<IList<UserPermissionsDTO>?> GetUserPermissionsAsync(string userName)
         {
-            var userPermissions = await _customerContext.UserPermissions.Include(up => up.Role).ThenInclude(r => r.GrantedPermissions)
-                .ThenInclude(p => p.Permissions).Include(up => up.User).Where(up => up.User.Email == userName)
-                .ToListAsync();
+            var userPermissions = await _customerContext.UserPermissions
+                                                            .Include(up => up.Role)
+                                                            .ThenInclude(r => r.GrantedPermissions)
+                                                            .ThenInclude(p => p.Permissions)
+                                                            .Include(up => up.User)
+                                                            .Where(up => up.User.Email == userName)
+                                                            .ToListAsync();
             var returnedUserPermissions = new List<UserPermissionsDTO>();
             foreach (var userPermission in userPermissions)
             {
@@ -92,12 +96,12 @@ namespace CustomerServices
                 if (userPermission.Role.Name == "PartnerAdmin" && userPermission.AccessList.Count > 0)
                 {
                     var partnerId = userPermission.AccessList.FirstOrDefault();
-                    var customersForPartner = await _organizationServices.GetOrganizationsAsync(false, true, partnerId);
-                    if (customersForPartner != null)
+                    var customerIdsForPartner = await _organizationServices.GetOrganizationIdsForPartnerAsync(partnerId);
+                    if (customerIdsForPartner != null)
                     {
-                        foreach (var customer in customersForPartner)
+                        foreach (var customerId in customerIdsForPartner)
                         {
-                            userPermission.AccessList.Add(customer.OrganizationId);
+                            userPermission.AccessList.Add(customerId);
                         }
                     }
                 }

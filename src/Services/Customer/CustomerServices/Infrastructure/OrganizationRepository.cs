@@ -508,5 +508,17 @@ namespace CustomerServices.Infrastructure
         {
             return await _customerContext.Organizations.FirstOrDefaultAsync(a => a.TechstepCustomerId == techstepCustomerId);
         }
+
+        public async Task<IList<Guid>> GetOrganizationIdsForPartnerAsync(Guid partnerId)
+        {
+            var organizationList = await _customerContext.Organizations
+                            .Where(o => !o.IsDeleted && !(o.Partner == null) && o.Partner.ExternalId == partnerId)
+                            .Include(o => o.Partner)
+                            .ThenInclude(p => p.Organization)
+                            .Select(o => new {OrgId = o.OrganizationId, PartnerOrgId = o.Partner!.Organization.OrganizationId})
+                            .OrderByDescending(s => s.OrgId == s.PartnerOrgId) // Sort to get partner organization first
+                            .ToListAsync();
+            return organizationList.Select(o => o.OrgId).ToList();
+        }
     }
 }

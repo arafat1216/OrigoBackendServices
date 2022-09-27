@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Common.Infrastructure;
@@ -62,6 +63,18 @@ namespace CustomerServices.UnitTests
             Assert.Equal("1111", organization.Address.PostCode);
             Assert.Equal("My City", organization.Address.City);
             Assert.Equal("NO", organization.Address.Country);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task GetOrganizationIdsForPartner_CheckReturnedIds()
+        {
+            // Act
+            var organizationIdsForPartner = await _organizationServices.GetOrganizationIdsForPartnerAsync(UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID);
+
+            // Assert
+            Assert.Equal(2, organizationIdsForPartner.Count);
+            Assert.Equal(UnitTestDatabaseSeeder.TECHSTEP_CUSTOMER_ID, organizationIdsForPartner.First());
         }
 
         [Fact]

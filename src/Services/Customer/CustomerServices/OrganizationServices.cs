@@ -940,5 +940,10 @@ namespace CustomerServices
 
 
         }
+
+        public async Task<IList<Guid>> GetOrganizationIdsForPartnerAsync(Guid partnerId)
+        {
+            return await _organizationRepository.GetOrganizationIdsForPartnerAsync(partnerId);
+        }
     }
 }

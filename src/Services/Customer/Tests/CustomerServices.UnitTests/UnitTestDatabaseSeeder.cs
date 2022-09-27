@@ -71,6 +71,8 @@ public class UnitTestDatabaseSeeder
         var partner = new Partner(partnerOrganization, PARTNER_ID);
         context.Add(techstepPartner);
         context.Add(partner);
+        context.SaveChanges();
+        techstepOrganization.ChangePartner(techstepPartner);
         var customerOne = new Organization(CUSTOMER_ONE_ID, null, "COMPANY ONE", "999888777",
             new Address("My Way 1", "1111", "My City", "NO"),
             new ContactPerson("JOHN", "DOE", "john.doe@example.com", "99999999"),
@@ -111,7 +113,7 @@ public class UnitTestDatabaseSeeder
         customerFive.AddTechstepCustomerId(123456789);
 
 
-        context.AddRange(customerOne, customerTwo, customerThree, customerFour, customerFive, techstepOrganization);
+        context.AddRange(customerOne, customerTwo, customerThree, customerFour, customerFive);
         context.OrganizationPreferences.AddRange(customerOne.Preferences, customerTwo.Preferences,
             customerThree.Preferences, customerFour.Preferences);
         context.Locations.AddRange(customerOne.PrimaryLocation!, customerTwo.PrimaryLocation!,
