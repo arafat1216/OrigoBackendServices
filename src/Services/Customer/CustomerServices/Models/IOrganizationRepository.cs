@@ -15,13 +15,14 @@ namespace CustomerServices.Models
         Task SaveEntitiesAsync(CancellationToken cancellationToken = default);
 
         Task<Organization> AddAsync(Organization customer);
+
         /// <summary>
         /// Gets the total count for users that is active and count for users that is not considered onboarded for a all organization. 
         /// </summary>
+        /// <param name="partnerId">Filter on partner</param>
         /// <param name="assignedToDepartment">A list of guids with department ids, for when the user is a manager.</param>
-        /// <param name="role">The role of the caller.</param>
         /// <returns>A list of counter objects.</returns>
-        Task<IList<OrganizationUserCount>?> GetAllOrganizationsUsersCountAsync(string[]? role, Guid[]? assignedToDepartment);
+        Task<IList<OrganizationUserCount>?> GetAllOrganizationsUsersCountAsync(Guid? partnerId, Guid[]? assignedToDepartment);
         /// <summary>
         /// Gets the total count for users that is active and count for users that is not considered onboarded for a spesific organization. 
         /// </summary>

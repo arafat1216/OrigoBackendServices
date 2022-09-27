@@ -27,4 +27,10 @@ public class FilterOptionsForUser
     /// </summary>
     [FromQuery(Name = "userStatus")]
     public IList<int>? UserStatuses { get; set; }
+
+    /// <summary>
+    /// Filter users on partner id.
+    /// </summary>
+    [FromQuery(Name = "partnerId")]
+    public Guid? PartnerId { get; set; }
 }

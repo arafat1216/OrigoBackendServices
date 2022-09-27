@@ -107,7 +107,7 @@ namespace Customer.API.Controllers
                 }
 
 
-                var organizationUserCount = await _organizationServices.GetOrganizationUserCountAsync(filterOptions?.Roles,filterOptions?.AssignedToDepartments);
+                var organizationUserCount = await _organizationServices.GetOrganizationUserCountAsync(filterOptions?.PartnerId,filterOptions?.AssignedToDepartments);
                 if (organizationUserCount == null || organizationUserCount.Count == 0)
                     return NotFound();
 

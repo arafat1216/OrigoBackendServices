@@ -15,5 +15,8 @@ namespace OrigoApiGateway.Models
 
         [FromQuery(Name = "userStatus")]
         public IList<int>? UserStatuses { get; set; }
+
+        [FromQuery(Name = "partnerId")]
+        public Guid? PartnerId { get; set; }
     }
 }

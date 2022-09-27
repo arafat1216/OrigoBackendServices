@@ -25,7 +25,7 @@ namespace CustomerServices
         /// <returns> A list containing all matching organizations. </returns>
         Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false, bool customersOnly = false, Guid? partnerId = null);
 
-        Task<IList<OrganizationUserCount>?> GetOrganizationUserCountAsync(string[]? role, Guid[]? assignedToDepartment);
+        Task<IList<OrganizationUserCount>?> GetOrganizationUserCountAsync(Guid? partnerId, Guid[]? assignedToDepartment);
         Task<Organization?> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false, bool customersOnly = false);
         Task<Organization> UpdateOrganizationAsync(Organization updateOrganization, bool usingPatch = false);
         Task<Organization> PutOrganizationAsync(UpdateOrganizationDTO updatedOrganization);

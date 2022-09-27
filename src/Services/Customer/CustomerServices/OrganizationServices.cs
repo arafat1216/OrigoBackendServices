@@ -132,9 +132,9 @@ namespace CustomerServices
             return await _organizationRepository.GetOrganizationByOrganizationNumber(organizationNumber);
         }
 
-        public async Task<IList<OrganizationUserCount>?> GetOrganizationUserCountAsync(string[]? role, Guid[]? assignedToDepartment)
+        public async Task<IList<OrganizationUserCount>?> GetOrganizationUserCountAsync(Guid? partnerId, Guid[]? assignedToDepartment)
         {
-            return await _organizationRepository.GetAllOrganizationsUsersCountAsync(role,assignedToDepartment);
+            return await _organizationRepository.GetAllOrganizationsUsersCountAsync(partnerId, assignedToDepartment);
         }
 
         public async Task<OrganizationDTO> AddOrganizationAsync(NewOrganizationDTO newOrganization)

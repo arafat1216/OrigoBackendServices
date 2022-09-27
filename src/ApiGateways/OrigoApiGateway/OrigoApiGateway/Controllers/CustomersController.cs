@@ -208,32 +208,43 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<CustomerUserCount>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
-        public async Task<ActionResult<IList<CustomerUserCount>>> GetOrganizationUsers()
+        public async Task<ActionResult<IList<CustomerUserCount>>> GetOrganizationUserCount()
         {
             try
             {
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                FilterOptionsForUser filterOptions = new FilterOptionsForUser { Roles = new string[] { role ?? null } };
-                if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+                var filterOptions = new FilterOptionsForUser();
+                if (role == PredefinedRole.PartnerAdmin.ToString()) {
+                    var partnerIdFromAccessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (!string.IsNullOrEmpty(partnerIdFromAccessList) && Guid.TryParse(partnerIdFromAccessList, out var partnerId))
+                    {
+                        filterOptions.PartnerId = partnerId;
+                    }
+                    else
+                    {
+                        return Forbid();
+                    }
+                }
+                else if (role == PredefinedRole.CustomerAdmin.ToString() || role == PredefinedRole.Admin.ToString())
+                {
+                    var customerIdFromAccessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (!string.IsNullOrEmpty(customerIdFromAccessList) && Guid.TryParse(customerIdFromAccessList, out var customerId))
+                    {
+                        filterOptions.AssignedToDepartments = new List<Guid>();
+                        filterOptions.AssignedToDepartments.Add(customerId);
+                    }
+                    else
+                    {
+                        return Forbid();
+                    }
+                }
+                else if (role == PredefinedRole.SystemAdmin.ToString())
+                {
+                    // No filter options needed.
+                }
+                else
                 {
                     return Forbid();
-                }
-                if (role != PredefinedRole.SystemAdmin.ToString())
-                {
-
-                    // Only SystemAdmin has access to all organization user counts
-                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
-
-                    filterOptions.AssignedToDepartments ??= new List<Guid>();
-                    foreach (var guidInAccesslist in accessList)
-
-                    {
-                        if (Guid.TryParse(guidInAccesslist, out var guid))
-                        {
-                            filterOptions.AssignedToDepartments.Add(guid);
-
-                        }
-                    }
                 }
 
                 var organizationUserCounts = await CustomerServices.GetCustomerUsersAsync(filterOptions);
