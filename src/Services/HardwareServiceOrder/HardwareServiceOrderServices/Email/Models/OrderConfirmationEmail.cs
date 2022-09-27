@@ -44,9 +44,9 @@
         public string? OrderLink { get; set; }
 
         /// <summary>
-        /// Link of the package slip
+        /// Link to the shipping label (or a page where it can be retrieved)
         /// </summary>
-        public string? PackageSlipLink { get; set; }
+        public string? ShippingLabel { get; set; }
 
         /// <summary>
         /// Loan device contact email

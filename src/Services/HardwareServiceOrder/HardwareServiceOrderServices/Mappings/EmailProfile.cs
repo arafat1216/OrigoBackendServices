@@ -10,7 +10,7 @@ namespace HardwareServiceOrderServices.Mappings
         {
             CreateMap<HardwareServiceOrder, AssetRepairEmail>()
                 .ForMember(m => m.OrderDate, opts => opts.MapFrom(s => s.DateCreated))
-                .ForMember(m => m.PackageSlipLink, opts => opts.MapFrom(m => m.ExternalServiceManagementLink))
+                .ForMember(m => m.ShippingLabel, opts => opts.MapFrom(m => m.ExternalServiceManagementLink))
                 .ForMember(m => m.FirstName, opts => opts.MapFrom(m => m.Owner.FirstName))
                 .ForMember(m => m.Recipient, opts => opts.MapFrom(m => m.Owner.Email))
                 .ForMember(m => m.Subject, opts => opts.Ignore())

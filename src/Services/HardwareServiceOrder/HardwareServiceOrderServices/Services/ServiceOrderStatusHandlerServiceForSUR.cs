@@ -1,7 +1,4 @@
-﻿using System.Net.Http.Json;
-using System.Text.Json;
-using Common.Enums;
-using Common.Extensions;
+﻿using Common.Extensions;
 using HardwareServiceOrderServices.Configuration;
 using HardwareServiceOrderServices.Email;
 using HardwareServiceOrderServices.Email.Models;
@@ -25,12 +22,12 @@ namespace HardwareServiceOrderServices.Services
             : base(options, hardwareServiceOrderRepository, assetService, emailService)
         {
         }
-        
+
         /// <inheritdoc cref="ServiceOrderStatusHandlerService.HandleServiceOrderRegisterAsync"/>
-        public override async Task HandleServiceOrderRegisterAsync(HardwareServiceOrder hardwareServiceOrder, 
+        public override async Task HandleServiceOrderRegisterAsync(HardwareServiceOrder hardwareServiceOrder,
             NewHardwareServiceOrderDTO serviceOrder,
-            NewExternalServiceOrderDTO externalServiceOrder, 
-            NewExternalServiceOrderResponseDTO externalServiceOrderResponse, 
+            NewExternalServiceOrderDTO externalServiceOrder,
+            NewExternalServiceOrderResponseDTO externalServiceOrderResponse,
             CustomerSettingsDTO customerSettings)
         {
             await _assetService.UpdateAssetLifeCycleStatusAsync(HttpMethod.Patch, "send-to-repair", serviceOrder.AssetInfo.AssetLifecycleId, Guid.Empty.SystemUserId());
@@ -47,7 +44,7 @@ namespace HardwareServiceOrderServices.Services
                 Recipient = serviceOrder.OrderedBy.Email,
                 LoanDeviceContact = customerSettings.LoanDevicePhoneNumber,
                 Subject = OrderConfirmationEmail.SubjectKeyName,
-                PackageSlipLink = externalServiceOrderResponse.ExternalServiceManagementLink
+                ShippingLabel = externalServiceOrderResponse.ExternalServiceManagementLink
             };
 
             try
@@ -88,7 +85,7 @@ namespace HardwareServiceOrderServices.Services
         private async Task UpdateServiceOrderStatusAsync(Guid orderId, ServiceStatusEnum newStatus, ISet<string>? newImeis, string? newSerialNumber)
         {
             var order = await _hardwareServiceOrderRepository.UpdateServiceOrderStatusAsync(orderId, newStatus);
-            
+
             // Update the asset-microservice
             await _assetService.UpdateAssetLifeCycleStatusForSURAsync(order.AssetLifecycleId, newStatus, newImeis, newSerialNumber);
         }
