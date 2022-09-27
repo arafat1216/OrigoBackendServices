@@ -76,64 +76,58 @@ namespace HardwareServiceOrderServices.Email
             }
         }
 
-        public async Task SendOrderConfirmationEmailAsync(OrderConfirmationEmail data, string languageCode)
+        /// <inheritdoc/>
+        public async Task SendOrderConfirmationEmailAsync(OrderConfirmationEmail order, string languageCode)
         {
             var template = _resourceManager.GetString(OrderConfirmationEmail.TemplateKeyName, CultureInfo.CreateSpecificCulture(languageCode));
-            data.Subject = _resourceManager.GetString(OrderConfirmationEmail.SubjectKeyName, CultureInfo.CreateSpecificCulture(languageCode));
-            var variables = _flatDictionaryProvider.Execute(data);
-            await SendAsync(data.Subject, template, data.Recipient, variables);
+            order.Subject = _resourceManager.GetString(OrderConfirmationEmail.SubjectKeyName, CultureInfo.CreateSpecificCulture(languageCode));
+            var variables = _flatDictionaryProvider.Execute(order);
+            await SendAsync(order.Subject, template, order.Recipient, variables);
         }
-        
+
         /// <inheritdoc />
-        public async Task SendOrderConfirmationEmailAsync(RemarketingPackaging data, string languageCode)
+        public async Task SendOrderConfirmationEmailAsync(RemarketingPackaging order, string languageCode)
         {
             var template = _resourceManager.GetString(RemarketingPackaging.TemplateKeyName, CultureInfo.CreateSpecificCulture(languageCode));
-            data.Subject = _resourceManager.GetString(RemarketingPackaging.SubjectKeyName, CultureInfo.CreateSpecificCulture(languageCode));
-            var variables = _flatDictionaryProvider.Execute(data);
-            await SendAsync(data.Subject, template, data.Recipient, variables);
+            order.Subject = _resourceManager.GetString(RemarketingPackaging.SubjectKeyName, CultureInfo.CreateSpecificCulture(languageCode));
+            var variables = _flatDictionaryProvider.Execute(order);
+            await SendAsync(order.Subject, template, order.Recipient, variables);
         }
 
         /// <inheritdoc />
-        public async Task SendOrderConfirmationEmailAsync(RemarketingNoPackaging data, string languageCode)
+        public async Task SendOrderConfirmationEmailAsync(RemarketingNoPackaging order, string languageCode)
         {
             var template = _resourceManager.GetString(RemarketingNoPackaging.TemplateKeyName, CultureInfo.CreateSpecificCulture(languageCode));
-            data.Subject = _resourceManager.GetString(RemarketingNoPackaging.SubjectKeyName, CultureInfo.CreateSpecificCulture(languageCode));
-            var variables = _flatDictionaryProvider.Execute(data);
-            await SendAsync(data.Subject, template, data.Recipient, variables);
+            order.Subject = _resourceManager.GetString(RemarketingNoPackaging.SubjectKeyName, CultureInfo.CreateSpecificCulture(languageCode));
+            var variables = _flatDictionaryProvider.Execute(order);
+            await SendAsync(order.Subject, template, order.Recipient, variables);
         }
 
+        /// <inheritdoc/>
         public async Task<List<AssetRepairEmail>> SendAssetRepairEmailAsync(DateTime? olderThan, int? statusId, string languageCode = "en")
         {
-            try
+            var orders = _hardwareServiceOrderContext.HardwareServiceOrders.Include(m => m.Status).AsQueryable();
+
+            if (olderThan != null)
+                orders = orders.Where(m => m.DateCreated <= olderThan);
+
+            if (statusId != null)
+                orders = orders.Where(m => m.Status.Id == statusId);
+
+            var emails = _mapper.Map<List<AssetRepairEmail>>(orders);
+
+            emails.ForEach(async email =>
             {
-                var orders = _hardwareServiceOrderContext.HardwareServiceOrders.Include(m => m.Status).AsQueryable();
+                email.OrderLink = string.Format($"{_origoConfiguration.BaseUrl}/{_origoConfiguration.OrderPath}", email.CustomerId, email.OrderId);
+                var template = _resourceManager.GetString(AssetRepairEmail.TemplateKeyName, CultureInfo.CreateSpecificCulture(languageCode));
+                var subject = _resourceManager.GetString(AssetRepairEmail.SubjectKeyName, CultureInfo.CreateSpecificCulture(languageCode));
+                await SendAsync(subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
+            });
 
-                if (olderThan != null)
-                    orders = orders.Where(m => m.DateCreated <= olderThan);
-
-                if (statusId != null)
-                    orders = orders.Where(m => m.Status.Id == statusId);
-
-                var emails = _mapper.Map<List<AssetRepairEmail>>(orders);
-
-                emails.ForEach(async email =>
-                {
-                    email.OrderLink = string.Format($"{_origoConfiguration.BaseUrl}/{_origoConfiguration.OrderPath}", email.CustomerId, email.OrderId);
-                    var template = _resourceManager.GetString(AssetRepairEmail.TemplateKeyName, CultureInfo.CreateSpecificCulture(languageCode));
-                    var subject = _resourceManager.GetString(AssetRepairEmail.SubjectKeyName, CultureInfo.CreateSpecificCulture(languageCode));
-                    await SendAsync(subject, template, email.Recipient, _flatDictionaryProvider.Execute(email));
-                });
-
-                return emails;
-            }
-            catch(Exception ex)
-            {
-                var asd = ex.Message;
-                throw ex;
-            }
-            
+            return emails;
         }
 
+        /// <inheritdoc/>
         public async Task<List<LoanDeviceEmail>> SendLoanDeviceEmailAsync(List<int> statusIds, string languageCode = "en")
         {
             var orders = await _hardwareServiceOrderContext.HardwareServiceOrders
@@ -162,6 +156,7 @@ namespace HardwareServiceOrderServices.Email
             return emails;
         }
 
+        /// <inheritdoc/>
         public async Task<List<AssetDiscardedEmail>> SendOrderDiscardedEmailAsync(int statusId, string languageCode = "en")
         {
             var orders = await _hardwareServiceOrderContext.HardwareServiceOrders
@@ -190,6 +185,7 @@ namespace HardwareServiceOrderServices.Email
             return emails;
         }
 
+        /// <inheritdoc/>
         public async Task<List<OrderCancellationEmail>> SendOrderCancellationEmailAsync(int statusId, string languageCode = "en")
         {
             var orders = _hardwareServiceOrderContext.HardwareServiceOrders
@@ -211,6 +207,7 @@ namespace HardwareServiceOrderServices.Email
             return emails;
         }
 
+        /// <inheritdoc/>
         public async Task SendEmailAsync(string to, string subjectKey, string bodyTemplateKey, Dictionary<string, string> parameters, string languageCode = "en")
         {
             var body = _resourceManager.GetString(bodyTemplateKey, CultureInfo.CreateSpecificCulture(languageCode));
