@@ -25,7 +25,7 @@
         /// <summary>
         /// Link to the shipping label (or a page where it can be retrieved)
         /// </summary>
-        public string ShippingLabel { get; set; }
+        public string ShippingLabelLink { get; set; }
 
         /// <summary>
         /// Date of the order

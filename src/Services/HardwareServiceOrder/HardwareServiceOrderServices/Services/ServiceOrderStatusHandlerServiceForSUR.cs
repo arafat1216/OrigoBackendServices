@@ -44,7 +44,7 @@ namespace HardwareServiceOrderServices.Services
                 Recipient = serviceOrder.OrderedBy.Email,
                 LoanDeviceContact = customerSettings.LoanDevicePhoneNumber,
                 Subject = OrderConfirmationEmail.SubjectKeyName,
-                ShippingLabel = externalServiceOrderResponse.ExternalServiceManagementLink
+                ShippingLabelLink = externalServiceOrderResponse.ExternalServiceManagementLink
             };
 
             try

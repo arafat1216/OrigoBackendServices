@@ -135,7 +135,7 @@ Next steps:
 6. You get repair options to choose from (not if warranty)
 7. The repair provider repairs your asset and sends it back to you
 
-[Get shipping label]({{ShippingLabel}})
+[Get shipping label]({{ShippingLabelLink}})
 
 PS: The repair provider may contact you directly about the repair.</value>
   </data>
@@ -163,7 +163,7 @@ Fault category: {{FaultCategory}}
 6. You get repair options to choose from (not if warranty)
 7. The repair provider repairs your device and sends it back to you
 
-[Get shipping label]({{ShippingLabel}})
+[Get shipping label]({{ShippingLabelLink}})
 
 PS: The repair provider may contact you directly about the repair.
 
