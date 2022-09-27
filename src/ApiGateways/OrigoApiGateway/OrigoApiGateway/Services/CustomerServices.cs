@@ -515,14 +515,18 @@ public class CustomerServices : ICustomerServices
             return new TechstepCustomers();
         }
         
-        var techstepProducts = await TechtepCoreHttpClient.GetFromJsonAsync<TechstepCoreCustomersData>($"?searchString={searchString}&pageSize=10");
-        
-       
+        var techstepProducts = await TechtepCoreHttpClient.GetFromJsonAsync<TechstepCoreCustomersData>($"?searchString={searchString}&pageSize=15");
+        var techstepCustomers = await HttpClient.GetFromJsonAsync<IList<Organization>>($"{_options.ApiPath}/{true}/?partnerId={_options.TechstepPartnerId}");
+
         if (techstepProducts == null)
         {
             return new TechstepCustomers();
         }
+        
+        var notImportedTechstepCustomers = techstepCustomers != null 
+            ? techstepProducts.Data.Where(core => !techstepCustomers.Any(org => org.OrganizationNumber == core.OrgNumber)).ToList() 
+            : techstepProducts.Data;
 
-        return _mapper.Map<TechstepCustomers>(techstepProducts.Data);
+        return _mapper.Map<TechstepCustomers>(notImportedTechstepCustomers);
     }
 }
