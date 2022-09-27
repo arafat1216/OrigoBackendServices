@@ -443,6 +443,8 @@ namespace AssetServices.Infrastructure
         {
             return await _assetContext.AssetLifeCycles
                 .Include(a => a.ContractHolderUser)
+                .Include(a => a.Asset)
+                .ThenInclude(hw => (hw as MobilePhone).Imeis)
                 .Where(a => a.CustomerId == customerId && a.ContractHolderUser!.ExternalId == userId)
                 .AsTracking()
                 .ToListAsync();

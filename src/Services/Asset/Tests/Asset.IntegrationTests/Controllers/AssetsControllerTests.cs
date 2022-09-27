@@ -3094,4 +3094,17 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal($"Invalid asset lifecycle status: Available for completing return.", errorResponse?.Message);
     }
+    [Fact]
+    public async Task GetAssetsForUser_IncludeAssetValues()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+        var url = $"/api/v1/Assets/customers/{_customerId}/users/{_user}";
+        var response = await httpClient.GetAsync(url);
+        var assets = await response.Content.ReadFromJsonAsync<IEnumerable<API.ViewModels.Asset>>();
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(assets);
+        Assert.All(assets, item => Assert.NotNull(item.ProductName));
+        Assert.All(assets, item => Assert.Equal(1,item.Imei.Count));
+    }
 }

@@ -56,6 +56,23 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
+    public async Task GetAssetsForUser_ForUserOne_ShouldIncludeAsset()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+
+        // Act
+        var assetsFromUser = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_ONE_ID);
+
+        // Assert
+        Assert.All(assetsFromUser, item => Assert.NotNull(item.Asset));
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
     public async Task GetAssetsCount_ForCompany_CheckCount()
     {
         // Arrange
