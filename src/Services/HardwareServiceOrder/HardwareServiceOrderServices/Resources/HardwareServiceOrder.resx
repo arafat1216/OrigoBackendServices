@@ -235,8 +235,8 @@ The following order has received unknown status from the service provider. Pleas
   </data>
   <data name="RemarketingNoPackaging_Body" xml:space="preserve">
     <value>Hello {{ FirstName }}!
-&amp;nbsp;
-&amp;nbsp;
+
+
 ### Return details:
 Asset: {{ AssetName }} {{ AssetId }}
 Date: {{ OrderDate }}
@@ -262,8 +262,8 @@ PS: The provider may contact you directly about the return.</value>
   </data>
   <data name="RemarketingPackaging_Body" xml:space="preserve">
     <value>Hello {{ FirstName }}!
-&amp;nbsp;
-&amp;nbsp;
+
+
 ### Return details:
 Asset: {{ AssetName }} {{ AssetId }}
 Date: {{ OrderDate }}
