@@ -47,11 +47,11 @@ namespace AssetServices.Infrastructure
             return savedAssetLifecycle;
         }
 
-        public async Task<IList<CustomerAssetCount>> GetAssetLifecyclesCountsAsync(string role, IList<Guid> customerIds)
+        public async Task<IList<CustomerAssetCount>> GetAssetLifecyclesCountsAsync(IList<Guid> customerIds)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
 
-            if (role == PredefinedRole.PartnerAdmin.ToString())
+            if (customerIds.Any())
             {
                 query = query.Where(x => customerIds.Contains(x.CustomerId));
             }

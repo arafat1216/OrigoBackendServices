@@ -70,7 +70,7 @@ namespace OrigoApiGateway.Controllers
                 {
                     return Forbid();
                 }
-                var assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync(role, customerList);
+                var assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync(customerList);
                 return Ok(assetCountList);
 
             }

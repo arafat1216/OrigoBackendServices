@@ -57,18 +57,20 @@ public class AssetsController : ControllerBase
         _featureManager = featureManager;
     }
 
+    /// <summary>
+    /// Get a count of all assets per customer. If customerIds given it will be filtered on those.
+    /// We need to use POST since the number of customerIds may be too long for it to be a GET query command.
+    /// </summary>
+    /// <param name="role"></param>
+    /// <param name="customerIds"></param>
+    /// <returns></returns>
     [Route("customers/count")]
-    [HttpGet]
+    [HttpPost]
     [ProducesResponseType(typeof(IList<CustomerAssetCount>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<IList<CustomerAssetCount>>> GetAllCount([FromQuery] string role, [FromQuery] string? customerIds = null)
+    public async Task<ActionResult<IList<CustomerAssetCount>>> GetAllCount([FromBody] List<Guid>? customerIds = null)
     {
-        var customerIdGuid = new List<Guid>();
-        if (!string.IsNullOrEmpty(customerIds))
-        {
-            customerIdGuid = JsonSerializer.Deserialize<List<Guid>>(customerIds) ?? new List<Guid>();
-        }
-        var assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync(role, customerIdGuid);
+        var assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync(customerIds ?? new List<Guid>());
         return Ok(assetCountList);
     }
 

@@ -80,7 +80,7 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
                 var assetService = new Mock<IAssetServices>();
                 var customerAssetCount =
                     new List<CustomerAssetCount> { new() { OrganizationId = Guid.NewGuid(), Count = 12 } };
-                assetService.Setup(_ => _.GetAllCustomerAssetsCountAsync(It.IsAny<string>(), It.IsAny<List<Guid>>()))
+                assetService.Setup(_ => _.GetAllCustomerAssetsCountAsync(It.IsAny<List<Guid>>()))
                     .Returns(Task.FromResult(customerAssetCount as IList<CustomerAssetCount>));
                 services.AddSingleton(assetService.Object);
             });
@@ -123,7 +123,7 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
                 var assetService = new Mock<IAssetServices>();
                 var customerAssetCount =
                     new List<CustomerAssetCount> { new() { OrganizationId = Guid.NewGuid(), Count = 12 } };
-                assetService.Setup(_ => _.GetAllCustomerAssetsCountAsync(It.IsAny<string>(), It.IsAny<List<Guid>>()))
+                assetService.Setup(_ => _.GetAllCustomerAssetsCountAsync(It.IsAny<List<Guid>>()))
                     .Returns(Task.FromResult(customerAssetCount as IList<CustomerAssetCount>));
                 services.AddSingleton(assetService.Object);
             });
@@ -166,7 +166,7 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
                 var assetService = new Mock<IAssetServices>();
                 var customerAssetCount =
                     new List<CustomerAssetCount> { new() { OrganizationId = Guid.NewGuid(), Count = 12 } };
-                assetService.Setup(_ => _.GetAllCustomerAssetsCountAsync(It.IsAny<string>(), It.IsAny<List<Guid>>()))
+                assetService.Setup(_ => _.GetAllCustomerAssetsCountAsync(It.IsAny<List<Guid>>()))
                     .Returns(Task.FromResult(customerAssetCount as IList<CustomerAssetCount>));
                 services.AddSingleton(assetService.Object);
             });
@@ -209,7 +209,7 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
                 var assetService = new Mock<IAssetServices>();
                 var customerAssetCount =
                     new List<CustomerAssetCount> { new() { OrganizationId = Guid.NewGuid(), Count = 12 } };
-                assetService.Setup(_ => _.GetAllCustomerAssetsCountAsync(It.IsAny<string>(), It.IsAny<List<Guid>>()))
+                assetService.Setup(_ => _.GetAllCustomerAssetsCountAsync(It.IsAny<List<Guid>>()))
                     .Returns(Task.FromResult(customerAssetCount as IList<CustomerAssetCount>));
                 services.AddSingleton(assetService.Object);
             });

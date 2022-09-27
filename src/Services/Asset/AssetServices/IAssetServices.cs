@@ -13,7 +13,7 @@ namespace AssetServices
 {
     public interface IAssetServices
     {
-        Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync(string role, List<Guid> customerIds);
+        Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync(List<Guid> customerIds);
         Task<int> GetAssetsCountAsync(Guid customerId, AssetLifecycleStatus? assetLifecycleStatus, Guid? departmentId = null);
         Task<IList<AssetLifecycleDTO>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId);
         Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid? departmentId, Guid callerId);

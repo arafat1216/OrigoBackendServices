@@ -34,13 +34,18 @@ namespace OrigoApiGateway.Services
         private readonly AssetConfiguration _options;
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public async Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync(string role, List<Guid> customerIds)
+        public async Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync(List<Guid> customerIds)
         {
             try
             {
-                string json = JsonSerializer.Serialize(customerIds);
-                IList<CustomerAssetCount> assetCountList = await HttpClient.GetFromJsonAsync<IList<CustomerAssetCount>>($"{_options.ApiPath}/customers/count?role={role}&customerIds={json}");
-
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/customers/count", customerIds);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorDescription = await response.Content.ReadAsStringAsync();
+                    var exception = new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                    throw exception;
+                }
+                var assetCountList = await response.Content.ReadFromJsonAsync<IList<CustomerAssetCount>>();
                 return assetCountList;
             }
             catch (HttpRequestException exception)
