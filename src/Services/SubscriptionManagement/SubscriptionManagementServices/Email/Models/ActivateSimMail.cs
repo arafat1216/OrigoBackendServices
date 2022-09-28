@@ -6,7 +6,7 @@ namespace SubscriptionManagementServices.Email.Models
         /// <summary>
         /// What type of order this is. 
         /// </summary>
-        public string OrderType = "Activate SIM";
+        public string OrderType { get; } = "Activate sim";
         /// <summary>
         /// The mobile number connected to the activated sim.
         /// </summary>

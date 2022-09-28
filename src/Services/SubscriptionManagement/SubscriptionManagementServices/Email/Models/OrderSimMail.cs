@@ -8,11 +8,11 @@ namespace SubscriptionManagementServices.Email.Models
         /// <summary>
         /// What type of order this is. 
         /// </summary>
-        public string OrderType = "New subscription";
+        public string OrderType { get; } = "Order Sim";
         /// <summary>
         /// Name of the resource file
         /// </summary>
-        public const string TemplateName = "NewSubscription";
+        public const string TemplateName = "OrderSim";
         /// <summary>
         /// The order id in salesforce.
         /// </summary>

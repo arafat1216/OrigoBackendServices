@@ -6,7 +6,7 @@ namespace SubscriptionManagementServices.Email.Models
         /// <summary>
         /// What type of order this is. 
         /// </summary>
-        public string OrderType = "Transfer to business subscription";
+        public string OrderType { get;  } = "Transfer to business subscription";
         /// <summary>
         /// Name of the resource file
         /// </summary>

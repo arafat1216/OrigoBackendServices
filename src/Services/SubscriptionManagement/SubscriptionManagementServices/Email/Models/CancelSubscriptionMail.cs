@@ -6,7 +6,7 @@ namespace SubscriptionManagementServices.Email.Models
         /// <summary>
         /// What type of order this is. 
         /// </summary>
-        public string OrderType = "Cancel subscription";
+        public string OrderType { get;  } = "Cancel subscription";
         /// <summary>
         /// Name of the resource file
         /// </summary>

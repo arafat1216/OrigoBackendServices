@@ -63,29 +63,13 @@ namespace SubscriptionManagementServices.Resources {
         /// <summary>
         ///   Looks up a localized string similar to ### Order Type: {{OrderType}}
         ///---
-        ///#### Mobile Number
-        ///{{MobileNumber}}
+        ///**Mobile Number:** {{MobileNumber}}
         ///
-        ///#### Operator
-        ///{{OperatorName}}
+        ///**Operator:** {{OperatorName}}
         ///
-        ///#### SIM Card Number
-        ///{{SimCardNumber}}
+        ///**SIM Card Number:** {{SimCardNumber}}
         ///
-        ///#### SIM Card Type
-        ///### Order Type: {{OrderType}}
-        ///---
-        ///#### Mobile Number
-        ///{{MobileNumber}}
-        ///
-        ///#### Operator
-        ///{{OperatorName}}
-        ///
-        ///#### SIM Card Number
-        ///{{SimCardNumber}}
-        ///
-        ///#### SIM Card Type
-        ///{{SimCardType}}.
+        ///**SIM Card Type:** {{SimCardType}}.
         /// </summary>
         internal static string ActivateSim {
             get {
@@ -96,12 +80,11 @@ namespace SubscriptionManagementServices.Resources {
         /// <summary>
         ///   Looks up a localized string similar to ### Order Type: {{OrderType}}
         ///---
-        ///#### Mobile Number
-        ///{{MobileNumber}}
-        ///#### Operator
-        ///{{OperatorName}}
-        ///#### Date Of Termination
-        ///{{DateOfTermination}}.
+        ///**Mobile Number:** {{MobileNumber}}
+        ///
+        ///**Operator:** {{OperatorName}}
+        ///
+        ///**Date Of Termination:** {{DateOfTermination}}.
         /// </summary>
         internal static string CancelSubscription {
             get {
@@ -112,14 +95,13 @@ namespace SubscriptionManagementServices.Resources {
         /// <summary>
         ///   Looks up a localized string similar to ### Order Type: {{OrderType}}
         ///---
-        ///#### Mobile Number
-        ///{{MobileNumber}}
-        ///#### Operator
-        ///{{OperatorName}}
-        ///#### Product Name
-        ///{{ProductName}}
-        ///#### PackageName
-        ///{{PackageName}}.
+        ///**Mobile Number:** {{MobileNumber}}
+        ///
+        ///**Operator:** {{OperatorName}}
+        ///
+        ///**Product Name:** {{ProductName}}
+        ///
+        ///**PackageName:** {{PackageName}}.
         /// </summary>
         internal static string ChangeSubscription {
             get {
@@ -131,7 +113,7 @@ namespace SubscriptionManagementServices.Resources {
         ///   Looks up a localized string similar to ### Order Type: {{OrderType}}
         ///---
         ///
-        ///#### Organization
+        ///## Organization
         ///**Name:** {{BusinessSubscription.Name}}
         ///
         ///**Organization Number:** {{BusinessSubscription.OrganizationNumber}}
@@ -141,13 +123,14 @@ namespace SubscriptionManagementServices.Resources {
         ///{{BusinessSubscription.PostalCode}} {{BusinessSubscription.PostalPlace}}
         ///{{BusinessSubscription.Country}}
         ///
-        ///#### User
+        ///---
+        ///## User
         ///**Name:** {{PrivateSubscription.FirstName}} {{PrivateSubscription.LastName}}
         ///
         ///**Born:** {{PrivateSubscription.BirthDate}}
         ///
         ///**Address:**
-        ///{{PrivateSubscription.Address} [rest of string was truncated]&quot;;.
+        ///{{PrivateSubscription.Address [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string NewSubscription {
             get {
@@ -158,7 +141,24 @@ namespace SubscriptionManagementServices.Resources {
         /// <summary>
         ///   Looks up a localized string similar to ### Order Type: {{OrderType}}
         ///---
-        ///#### User
+        ///**Send to:** {{SendToName}}
+        ///
+        ///**Operator:** {{OperatorName}}
+        ///
+        ///**Quantity:** {{Quantity}}
+        ///
+        ///**Address:** {{Street}}, {{Postcode}}, {{City}}, {{Country}}.
+        /// </summary>
+        internal static string OrderSim {
+            get {
+                return ResourceManager.GetString("OrderSim", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ### Order Type: {{OrderType}}
+        ///---
+        ///## User
         ///**Name:**  {{PrivateSubscription.FirstName}} {{PrivateSubscription.LastName}}
         ///
         ///**Born:**  {{PrivateSubscription.BirthDate}}
@@ -169,10 +169,11 @@ namespace SubscriptionManagementServices.Resources {
         ///
         ///**MobileNumber:** {{MobileNumber}}
         ///
-        ///#### Product
+        ///---
+        ///## Product
         ///**Operator Name:** {{OperatorName}}
         ///
-        ///**Product Name:** {{SubscriptionProductName}} [rest of string was truncated]&quot;;.
+        ///**Product Name:** {{SubscriptionProductName} [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string TransferToBusiness {
             get {
@@ -185,7 +186,7 @@ namespace SubscriptionManagementServices.Resources {
         ///
         ///---
         ///
-        ///#### User
+        ///## User
         ///
         ///**Name:**  {{UserInfo.FirstName}} {{UserInfo.LastName}}
         ///
@@ -195,17 +196,16 @@ namespace SubscriptionManagementServices.Resources {
         ///
         ///**Email:**  {{UserInfo.Email}}
         ///
-        ///#### Mobile Number
-        ///{{MobileNumber}}
+        ///---
+        ///## Subscription
         ///
-        ///#### Operator Name
-        ///{{OperatorName}}
+        ///**Mobile Number:** {{MobileNumber}}
         ///
-        ///#### New Subscription
-        ///{{NewSubscription}}
+        ///**Operator Name:** {{OperatorName}}
         ///
-        ///#### Transfer Date
-        ///{{OrderExecutionDate}}.
+        ///**New Subscription:** {{NewSubscription}}
+        ///
+        ///**Transfer Date:** {{OrderExecutionDate}}.
         /// </summary>
         internal static string TransferToPrivate {
             get {

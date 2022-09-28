@@ -8,7 +8,7 @@ namespace SubscriptionManagementServices.Email.Models
         /// <summary>
         /// What type of order this is. 
         /// </summary>
-        public string OrderType = "Transfer to private";
+        public string OrderType { get;  } = "Transfer to private";
         /// <summary>
         /// Information about the user that is transfering to a private subscription.
         /// </summary>

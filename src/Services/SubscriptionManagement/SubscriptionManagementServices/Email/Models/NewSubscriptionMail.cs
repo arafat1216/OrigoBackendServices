@@ -8,7 +8,7 @@ namespace SubscriptionManagementServices.Email.Models
         /// <summary>
         /// What type of order this is. 
         /// </summary>
-        public string OrderType = "New subscription";
+        public string OrderType { get;  } = "New subscription";
         /// <summary>
         /// Name of the resource file that fetched from Resources.SubscriptionManagement.
         /// </summary>

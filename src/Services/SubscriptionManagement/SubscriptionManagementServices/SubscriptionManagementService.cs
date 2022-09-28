@@ -204,13 +204,14 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 DataPackage = transferToBusinessSubscriptionOrder.DataPackageName ?? string.Empty,
                 OrderExecutionDate = transferToBusinessSubscriptionOrder.OrderExecutionDate.ToShortDateString(),
                 UserReferences = order.CustomerReferenceFields == null || !order.CustomerReferenceFields.Any() ? string.Empty
-                    : string.Join(", ", order.CustomerReferenceFields.Where(c => c.Type == "User").Select(c => $"{c.Name}:{c.Value}").ToArray()),
+                    : string.Join(", ", order.CustomerReferenceFields.Where(c => c.Type == "User").Select(c => $"{c.Name} : {c.Value}").ToArray()),
                 OperatorAccount = $"{transferToBusinessSubscriptionOrder.OperatorAccountName} - {transferToBusinessSubscriptionOrder.OperatorAccountNumber}",
                 OperatorAccountPayer = $"{transferToBusinessSubscriptionOrder.OperatorAccountPayer} ({transferToBusinessSubscriptionOrder.OrganizationNumberPayer})",
                 OperatorAccountOwner = $"{transferToBusinessSubscriptionOrder.OperatorAccountOwner} ({transferToBusinessSubscriptionOrder.OrganizationNumberOwner})",
                 SimCardNumber = transferToBusinessSubscriptionOrder.SimCardNumber ?? string.Empty,
                 SIMCardAction = transferToBusinessSubscriptionOrder.SimCardAction,
-                SIMCardAddress = $"{order.SimCardAddress?.FirstName} {order.SimCardAddress?.LastName}, {order.SimCardAddress?.Address}, {order.SimCardAddress?.PostalCode} {order.SimCardAddress?.PostalPlace}"
+                SIMCardAddress = order.SimCardAddress != null ? 
+                $"{order.SimCardAddress?.FirstName} {order.SimCardAddress?.LastName}, {order.SimCardAddress?.Address}, {order.SimCardAddress?.PostalCode} {order.SimCardAddress?.PostalPlace}" : "N/A"
             }, "EN");
             
         }

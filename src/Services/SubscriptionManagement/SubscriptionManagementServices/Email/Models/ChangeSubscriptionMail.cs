@@ -6,7 +6,7 @@ namespace SubscriptionManagementServices.Email.Models
         /// <summary>
         /// What type of order this is. 
         /// </summary>
-        public string OrderType = "Change subscription";
+        public string OrderType { get;  } = "Change subscription";
         /// <summary>
         /// Name of the resource file
         /// </summary>

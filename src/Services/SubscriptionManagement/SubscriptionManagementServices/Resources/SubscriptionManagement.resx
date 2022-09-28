@@ -120,45 +120,39 @@
   <data name="ActivateSim" xml:space="preserve">
     <value>### Order Type: {{OrderType}}
 ---
-#### Mobile Number
-{{MobileNumber}}
+**Mobile Number:** {{MobileNumber}}
 
-#### Operator
-{{OperatorName}}
+**Operator:** {{OperatorName}}
 
-#### SIM Card Number
-{{SimCardNumber}}
+**SIM Card Number:** {{SimCardNumber}}
 
-#### SIM Card Type
-{{SimCardType}}</value>
+**SIM Card Type:** {{SimCardType}}</value>
   </data>
   <data name="CancelSubscription" xml:space="preserve">
     <value>### Order Type: {{OrderType}}
 ---
-#### Mobile Number
-{{MobileNumber}}
-#### Operator
-{{OperatorName}}
-#### Date Of Termination
-{{DateOfTermination}}</value>
+**Mobile Number:** {{MobileNumber}}
+
+**Operator:** {{OperatorName}}
+
+**Date Of Termination:** {{DateOfTermination}}</value>
   </data>
   <data name="ChangeSubscription" xml:space="preserve">
     <value>### Order Type: {{OrderType}}
 ---
-#### Mobile Number
-{{MobileNumber}}
-#### Operator
-{{OperatorName}}
-#### Product Name
-{{ProductName}}
-#### PackageName
-{{PackageName}}</value>
+**Mobile Number:** {{MobileNumber}}
+
+**Operator:** {{OperatorName}}
+
+**Product Name:** {{ProductName}}
+
+**PackageName:** {{PackageName}}</value>
   </data>
   <data name="NewSubscription" xml:space="preserve">
     <value>### Order Type: {{OrderType}}
 ---
 
-#### Organization
+## Organization
 **Name:** {{BusinessSubscription.Name}}
 
 **Organization Number:** {{BusinessSubscription.OrganizationNumber}}
@@ -168,7 +162,8 @@
 {{BusinessSubscription.PostalCode}} {{BusinessSubscription.PostalPlace}}
 {{BusinessSubscription.Country}}
 
-#### User
+---
+## User
 **Name:** {{PrivateSubscription.FirstName}} {{PrivateSubscription.LastName}}
 
 **Born:** {{PrivateSubscription.BirthDate}}
@@ -180,7 +175,8 @@
 
 **Email:** {{PrivateSubscription.Email}}
 
-#### Operator
+---
+## Operator
 **Operator Name:** {{OperatorName}}
 
 **Operator Account Payer:** {{OperatorAccountPayer}}
@@ -193,7 +189,8 @@
 
 **ICCID (SIM-card Number):** {{SimCardNumber}}
 
-### SIM Card Delivery Address
+---
+## SIM Card Delivery Address
 **First Name:** {{SimCardAddress.FirstName}}
 **Last Name:** {{SimCardAddress.LastName}}
 **Address:** {{SimCardAddress.Address}}
@@ -201,7 +198,8 @@
 **Postal Place:** {{SimCardAddress.PostalPlace}}
 **Country:** {{SimCardAddress.Country}}
 
-#### Product
+---
+## Product
 **Product Name:** {{SubscriptionProductName}}
 
 **DataPackage:** {{DataPackageName}}
@@ -212,10 +210,21 @@
 
 **Customer Reference Fields:** {{CustomerReferenceFields}}</value>
   </data>
+  <data name="OrderSim" xml:space="preserve">
+    <value>### Order Type: {{OrderType}}
+---
+**Send to:** {{SendToName}}
+
+**Operator:** {{OperatorName}}
+
+**Quantity:** {{Quantity}}
+
+**Address:** {{Street}}, {{Postcode}}, {{City}}, {{Country}}</value>
+  </data>
   <data name="TransferToBusiness" xml:space="preserve">
     <value>### Order Type: {{OrderType}}
 ---
-#### User
+## User
 **Name:**  {{PrivateSubscription.FirstName}} {{PrivateSubscription.LastName}}
 
 **Born:**  {{PrivateSubscription.BirthDate}}
@@ -226,7 +235,8 @@
 
 **MobileNumber:** {{MobileNumber}}
 
-#### Product
+---
+## Product
 **Operator Name:** {{OperatorName}}
 
 **Product Name:** {{SubscriptionProductName}}
@@ -235,10 +245,12 @@
 
 **Transfer Date:** {{OrderExecutionDate}}
 
-#### User References
+---
+## User References
 **References:** {{UserReferences}}
 
-#### Owner
+---
+## Owner
 **Name:**  {{PrivateSubscription.RealOwner.FirstName}} {{PrivateSubscription.RealOwner.LastName}}
 
 **Born:**  {{PrivateSubscription.RealOwner.BirthDate}}
@@ -247,12 +259,14 @@
 
 **Email:**  {{PrivateSubscription.RealOwner.Email}}
 
-#### Company
+---
+## Company
 **Name:** {{BusinessSubscription.Name}}
 
 **Organization Number:** {{BusinessSubscription.OrganizationNumber}}
 
-#### Operator
+---
+## Operator
 **Operator Account:** {{OperatorAccount}}
 
 **Operator Account Payer:** {{OperatorAccountPayer}}
@@ -270,7 +284,7 @@
 
 ---
 
-#### User
+## User
 
 **Name:**  {{UserInfo.FirstName}} {{UserInfo.LastName}}
 
@@ -280,16 +294,15 @@
 
 **Email:**  {{UserInfo.Email}}
 
-#### Mobile Number
-{{MobileNumber}}
+---
+## Subscription
 
-#### Operator Name
-{{OperatorName}}
+**Mobile Number:** {{MobileNumber}}
 
-#### New Subscription
-{{NewSubscription}}
+**Operator Name:** {{OperatorName}}
 
-#### Transfer Date
-{{OrderExecutionDate}}</value>
+**New Subscription:** {{NewSubscription}}
+
+**Transfer Date:** {{OrderExecutionDate}}</value>
   </data>
 </root>
