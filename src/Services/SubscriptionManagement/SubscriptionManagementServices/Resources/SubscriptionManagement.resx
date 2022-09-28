@@ -251,13 +251,13 @@
 
 ---
 ## Owner
-**Name:**  {{PrivateSubscription.RealOwner.FirstName}} {{PrivateSubscription.RealOwner.LastName}}
+**Name:**  {{RealOwner.FirstName}} {{RealOwner.LastName}}
 
-**Born:**  {{PrivateSubscription.RealOwner.BirthDate}}
+**Born:**  {{RealOwner.BirthDate}}
 
-**Address:**  {{PrivateSubscription.RealOwner.Address}}, {{PrivateSubscription.RealOwner.PostalCode}}, {{PrivateSubscription.RealOwner.PostalPlace}}, {{PrivateSubscription.RealOwner.Country}}
+**Address:**  {{RealOwner.Address}}, {{RealOwner.PostalCode}}, {{RealOwner.PostalPlace}}, {{RealOwner.Country}}
 
-**Email:**  {{PrivateSubscription.RealOwner.Email}}
+**Email:**  {{RealOwner.Email}}
 
 ---
 ## Company
@@ -291,8 +291,6 @@
 **Born:**  {{UserInfo.BirthDate}}
 
 **Address:**  {{UserInfo.Address}}, {{UserInfo.PostalCode}}, {{UserInfo.PostalPlace}}, {{UserInfo.Country}}
-
-**Email:**  {{UserInfo.Email}}
 
 ---
 ## Subscription

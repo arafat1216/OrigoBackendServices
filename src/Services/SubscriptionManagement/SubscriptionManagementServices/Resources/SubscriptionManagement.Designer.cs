@@ -194,8 +194,6 @@ namespace SubscriptionManagementServices.Resources {
         ///
         ///**Address:**  {{UserInfo.Address}}, {{UserInfo.PostalCode}}, {{UserInfo.PostalPlace}}, {{UserInfo.Country}}
         ///
-        ///**Email:**  {{UserInfo.Email}}
-        ///
         ///---
         ///## Subscription
         ///

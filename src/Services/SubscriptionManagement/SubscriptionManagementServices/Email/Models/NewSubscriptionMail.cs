@@ -41,19 +41,19 @@ namespace SubscriptionManagementServices.Email.Models
         /// <summary>
         /// Payer operator account.
         /// </summary>
-        public string OperatorAccountPayer { get; set; } = "N/A";
+        public string? OperatorAccountPayer { get; set; } = "N/A";
         /// <summary>
         /// Owner operator account.
         /// </summary>
-        public string OperatorAccountOwner { get; set; } = "N/A";
+        public string? OperatorAccountOwner { get; set; } = "N/A";
         /// <summary>
         /// The organizations account at the given operator.
         /// </summary>
-        public string OperatorAccountName { get; set; } = "N/A";
+        public string? OperatorAccountName { get; set; } = "N/A";
         /// <summary>
         /// Sim card number to be used when activating the sim.
         /// </summary>
-        public string SimCardNumber { get; set; } = "N/A";
+        public string? SimCardNumber { get; set; } = "N/A";
         /// <summary>
         /// Which action the subscriber would like to do with the sim (e.g keep, new etc.)
         /// </summary>
@@ -77,7 +77,7 @@ namespace SubscriptionManagementServices.Email.Models
         /// <summary>
         /// Data package the subscription is ordered with.
         /// </summary>
-        public string DataPackage { get; set; } = "N/A";
+        public string? DataPackage { get; set; } = "N/A";
 
     }
 }

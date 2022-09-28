@@ -201,17 +201,18 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 MobileNumber = transferToBusinessSubscriptionOrder.MobileNumber,
                 OperatorName = newOperatorName,
                 SubscriptionProductName = transferToBusinessSubscriptionOrder.SubscriptionProductName,
-                DataPackage = transferToBusinessSubscriptionOrder.DataPackageName ?? string.Empty,
+                DataPackage = transferToBusinessSubscriptionOrder.DataPackageName,
                 OrderExecutionDate = transferToBusinessSubscriptionOrder.OrderExecutionDate.ToShortDateString(),
                 UserReferences = order.CustomerReferenceFields == null || !order.CustomerReferenceFields.Any() ? string.Empty
                     : string.Join(", ", order.CustomerReferenceFields.Where(c => c.Type == "User").Select(c => $"{c.Name} : {c.Value}").ToArray()),
                 OperatorAccount = $"{transferToBusinessSubscriptionOrder.OperatorAccountName} - {transferToBusinessSubscriptionOrder.OperatorAccountNumber}",
                 OperatorAccountPayer = $"{transferToBusinessSubscriptionOrder.OperatorAccountPayer} ({transferToBusinessSubscriptionOrder.OrganizationNumberPayer})",
                 OperatorAccountOwner = $"{transferToBusinessSubscriptionOrder.OperatorAccountOwner} ({transferToBusinessSubscriptionOrder.OrganizationNumberOwner})",
-                SimCardNumber = transferToBusinessSubscriptionOrder.SimCardNumber ?? string.Empty,
+                SimCardNumber = transferToBusinessSubscriptionOrder.SimCardNumber,
                 SIMCardAction = transferToBusinessSubscriptionOrder.SimCardAction,
                 SIMCardAddress = order.SimCardAddress != null ? 
-                $"{order.SimCardAddress?.FirstName} {order.SimCardAddress?.LastName}, {order.SimCardAddress?.Address}, {order.SimCardAddress?.PostalCode} {order.SimCardAddress?.PostalPlace}" : "N/A"
+                $"{order.SimCardAddress?.FirstName} {order.SimCardAddress?.LastName}, {order.SimCardAddress?.Address}, {order.SimCardAddress?.PostalCode} {order.SimCardAddress?.PostalPlace}" : "N/A",
+                RealOwner = transferToBusinessSubscriptionOrder.PrivateSubscription != null ? new PrivateSubscriptionMail(transferToBusinessSubscriptionOrder.PrivateSubscription?.RealOwner) : new PrivateSubscriptionMail(null)
             }, "EN");
             
         }
@@ -632,12 +633,13 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             {
                 PrivateSubscription = new PrivateSubscriptionMail(newSubscription.PrivateSubscription),
                 BusinessSubscription = new BusinessSubscriptionMail(newSubscription.BusinessSubscription),
+                SubscriptionOrderId = subscriptionOrder.SubscriptionOrderId.ToString(),
                 OperatorName = @operator.OperatorName,
-                OperatorAccountPayer = newSubscription.OperatorAccountPayer ?? "N/A",
-                OperatorAccountOwner = newSubscription.OperatorAccountOwner ?? "N/A",
-                OperatorAccountName = newSubscription.OperatorAccountName ?? "N/A",
+                OperatorAccountPayer = newSubscription.OperatorAccountPayer,
+                OperatorAccountOwner = newSubscription.OperatorAccountOwner,
+                OperatorAccountName = newSubscription.OperatorAccountName,
                 SimCardAction = newSubscription.SimCardAction,
-                SimCardNumber = newSubscription.SimCardNumber ?? "N/A",
+                SimCardNumber = newSubscription.SimCardNumber,
                 SimCardAddress = new SimCardAddress
                 {
                     Address = newSubscription.SimCardReceiverAddress ?? "N/A",
@@ -651,7 +653,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 SubscriptionAddOnProducts = string.Join(", ", newSubscriptionOrder.AddOnProducts),
                 OrderExecutionDate = newSubscription.OrderExecutionDate.ToShortDateString(),
                 CustomerReferenceFields = newSubscription.CustomerReferenceFields,
-                DataPackage = newSubscription.DataPackageName ?? "N/A"
+                DataPackage = newSubscription.DataPackageName
             }, "EN");
         }
         else

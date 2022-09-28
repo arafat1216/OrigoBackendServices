@@ -38,7 +38,7 @@ namespace SubscriptionManagementServices.Email.Models
         /// <summary>
         /// The data package that is connected to the subscription.
         /// </summary>
-        public string DataPackage { get; set; } = "N/A";
+        public string? DataPackage { get; set; } = "N/A";
         /// <summary>
         /// Date the business subscription is set to start.
         /// </summary>
@@ -62,7 +62,7 @@ namespace SubscriptionManagementServices.Email.Models
         /// <summary>
         /// Sim card number to be used when activating the sim.
         /// </summary>
-        public string SimCardNumber { get; set; } = "N/A";
+        public string? SimCardNumber { get; set; } = "N/A";
         /// <summary>
         /// Which action the subscriber would like to do with the sim (e.g keep, new etc.)
         /// </summary>
@@ -71,5 +71,9 @@ namespace SubscriptionManagementServices.Email.Models
         /// Where the new sim card should be sent.
         /// </summary>
         public string SIMCardAddress { get; set; } = "N/A";
+        /// <summary>
+        /// The owner of the subscription.
+        /// </summary>
+        public PrivateSubscriptionMail? RealOwner { get; set; }
     }
 }
