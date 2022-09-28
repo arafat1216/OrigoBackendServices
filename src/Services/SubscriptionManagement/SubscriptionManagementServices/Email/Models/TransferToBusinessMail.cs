@@ -1,4 +1,6 @@
 ﻿
+using SubscriptionManagementServices.Models;
+
 namespace SubscriptionManagementServices.Email.Models
 {
     public class TransferToBusinessMail
@@ -70,10 +72,22 @@ namespace SubscriptionManagementServices.Email.Models
         /// <summary>
         /// Where the new sim card should be sent.
         /// </summary>
-        public string SIMCardAddress { get; set; } = "N/A";
+        public SimCardAddress? SimCardAddress { get; set; }
         /// <summary>
         /// The owner of the subscription.
         /// </summary>
         public PrivateSubscriptionMail? RealOwner { get; set; }
+        /// <summary>
+        /// Existing operator account for the customer.
+        /// </summary>
+        public string? CustomersOperatorAccount { get; set; } = "N/A";
+        /// <summary>
+        /// Reference phone number to be used when filling in operator account.
+        /// </summary>
+        public string? OperatorAccountMobileNumber { get; set; } = "N/A";
+        /// <summary>
+        /// Add on products that the subscription is ordered with.
+        /// </summary>
+        public string SubscriptionAddOnProducts { get; set; } = "N/A";
     }
 }

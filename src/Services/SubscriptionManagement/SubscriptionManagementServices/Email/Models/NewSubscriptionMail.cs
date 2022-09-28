@@ -78,6 +78,14 @@ namespace SubscriptionManagementServices.Email.Models
         /// Data package the subscription is ordered with.
         /// </summary>
         public string? DataPackage { get; set; } = "N/A";
+        /// <summary>
+        /// Existing operator account for the customer.
+        /// </summary>
+        public string? CustomersOperatorAccount { get; set; } = "N/A";
+        /// <summary>
+        /// Reference phone number to be used when filling in operator account.
+        /// </summary>
+        public string? OperatorAccountMobileNumber { get; set; } = "N/A";
 
     }
 }

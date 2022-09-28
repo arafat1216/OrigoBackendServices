@@ -170,10 +170,12 @@ namespace SubscriptionManagementServices.Resources {
         ///**MobileNumber:** {{MobileNumber}}
         ///
         ///---
-        ///## Product
-        ///**Operator Name:** {{OperatorName}}
+        ///## User References
+        ///**References:** {{UserReferences}}
         ///
-        ///**Product Name:** {{SubscriptionProductName} [rest of string was truncated]&quot;;.
+        ///---
+        ///## Owner
+        ///**Name:**  {{RealOwner [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string TransferToBusiness {
             get {

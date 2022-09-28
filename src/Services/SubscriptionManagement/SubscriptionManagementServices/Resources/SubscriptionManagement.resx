@@ -179,24 +179,20 @@
 ## Operator
 **Operator Name:** {{OperatorName}}
 
+---
+## Customer billing information
+
+**Customers Operator Account:** {{CustomersOperatorAccount}}
+**Operator Account Reference Mobilenumber:** {{OperatorAccountMobileNumber}}
+
+---
+## New Operator Account
+
 **Operator Account Payer:** {{OperatorAccountPayer}}
 
 **Operator Account Owner:** {{OperatorAccountName}}
 
 **Operator Account Name:** {{OperatorAccountOwner}}
-
-**SIM-card Action:** {{SimCardAction}}
-
-**ICCID (SIM-card Number):** {{SimCardNumber}}
-
----
-## SIM Card Delivery Address
-**First Name:** {{SimCardAddress.FirstName}}
-**Last Name:** {{SimCardAddress.LastName}}
-**Address:** {{SimCardAddress.Address}}
-**Postal Code:** {{SimCardAddress.PostalCode}}
-**Postal Place:** {{SimCardAddress.PostalPlace}}
-**Country:** {{SimCardAddress.Country}}
 
 ---
 ## Product
@@ -208,7 +204,23 @@
 
 **Start Date:** {{OrderExecutionDate}}
 
-**Customer Reference Fields:** {{CustomerReferenceFields}}</value>
+**Customer Reference Fields:** {{CustomerReferenceFields}}
+
+----
+## Sim Card Information
+
+**Sim Card Action:** {{SimCardAction}}
+
+**ICCID (Sim Card Number):** {{SimCardNumber}}
+
+---
+## Sim Card Delivery Address
+**First Name:** {{SimCardAddress.FirstName}}
+**Last Name:** {{SimCardAddress.LastName}}
+**Address:** {{SimCardAddress.Address}}
+**Postal Code:** {{SimCardAddress.PostalCode}}
+**Postal Place:** {{SimCardAddress.PostalPlace}}
+**Country:** {{SimCardAddress.Country}}</value>
   </data>
   <data name="OrderSim" xml:space="preserve">
     <value>### Order Type: {{OrderType}}
@@ -236,16 +248,6 @@
 **MobileNumber:** {{MobileNumber}}
 
 ---
-## Product
-**Operator Name:** {{OperatorName}}
-
-**Product Name:** {{SubscriptionProductName}}
-
-**DataPackage:** {{DataPackage}}
-
-**Transfer Date:** {{OrderExecutionDate}}
-
----
 ## User References
 **References:** {{UserReferences}}
 
@@ -266,18 +268,48 @@
 **Organization Number:** {{BusinessSubscription.OrganizationNumber}}
 
 ---
-## Operator
-**Operator Account:** {{OperatorAccount}}
+## Customer billing information
+
+**Customers Operator Account:** {{CustomersOperatorAccount}}
+
+**Operator Account Reference Mobilenumber:** {{OperatorAccountMobileNumber}}
+
+---
+## New Operator Account
 
 **Operator Account Payer:** {{OperatorAccountPayer}}
 
-**Operator Account Owner:** {{OperatorAccountOwner}}
+**Operator Account Owner:** {{OperatorAccountName}}
 
-**SimCard Number:** {{SimCardNumber}}
+**Operator Account Name:** {{OperatorAccountOwner}}
 
-**SIMCard Action:** {{SIMCardAction}}
+---
+## Product
+**Operator Name:** {{OperatorName}}
 
-**SIMCard Address:** {{SIMCardAddress}}</value>
+**Product Name:** {{SubscriptionProductName}}
+
+**DataPackage:** {{DataPackage}}
+
+**Addon products:** {{SubscriptionAddOnProducts}}
+
+**Transfer Date:** {{OrderExecutionDate}}
+
+----
+## Sim Card Information
+
+**Sim Card Action:** {{SimCardAction}}
+
+**ICCID (Sim Card Number):** {{SimCardNumber}}
+
+---
+## Sim Card Delivery Address
+**First Name:** {{SimCardAddress.FirstName}}
+**Last Name:** {{SimCardAddress.LastName}}
+**Address:** {{SimCardAddress.Address}}
+**Postal Code:** {{SimCardAddress.PostalCode}}
+**Postal Place:** {{SimCardAddress.PostalPlace}}
+**Country:** {{SimCardAddress.Country}}</value>
   </data>
   <data name="TransferToPrivate" xml:space="preserve">
     <value>### Order Type: {{OrderType}}

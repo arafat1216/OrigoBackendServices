@@ -210,9 +210,19 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 OperatorAccountOwner = $"{transferToBusinessSubscriptionOrder.OperatorAccountOwner} ({transferToBusinessSubscriptionOrder.OrganizationNumberOwner})",
                 SimCardNumber = transferToBusinessSubscriptionOrder.SimCardNumber,
                 SIMCardAction = transferToBusinessSubscriptionOrder.SimCardAction,
-                SIMCardAddress = order.SimCardAddress != null ? 
-                $"{order.SimCardAddress?.FirstName} {order.SimCardAddress?.LastName}, {order.SimCardAddress?.Address}, {order.SimCardAddress?.PostalCode} {order.SimCardAddress?.PostalPlace}" : "N/A",
-                RealOwner = transferToBusinessSubscriptionOrder.PrivateSubscription != null ? new PrivateSubscriptionMail(transferToBusinessSubscriptionOrder.PrivateSubscription?.RealOwner) : new PrivateSubscriptionMail(null)
+                SimCardAddress = order.SimCardAddress != null ? new SimCardAddress
+                {
+                    Address = order.SimCardAddress.Address ?? "N/A",
+                    Country = order.SimCardAddress.Country ?? "N/A",
+                    FirstName = order.SimCardAddress.FirstName ?? "N/A",
+                    LastName = order.SimCardAddress.LastName ?? "N/A",
+                    PostalCode = order.SimCardAddress.PostalCode ?? "N/A",
+                    PostalPlace = order.SimCardAddress.PostalPlace ?? "N/A"
+                } : null,
+                RealOwner = transferToBusinessSubscriptionOrder.PrivateSubscription != null ? new PrivateSubscriptionMail(transferToBusinessSubscriptionOrder.PrivateSubscription?.RealOwner) : new PrivateSubscriptionMail(null),
+                CustomersOperatorAccount = customerOperatorAccount != null ? $"{customerOperatorAccount.AccountName} - {customerOperatorAccount.AccountNumber}" : null,
+                OperatorAccountMobileNumber = order.OperatorAccountPhoneNumber,
+                SubscriptionAddOnProducts = string.Join(", ", order.AddOnProducts)
             }, "EN");
             
         }
@@ -653,7 +663,9 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 SubscriptionAddOnProducts = string.Join(", ", newSubscriptionOrder.AddOnProducts),
                 OrderExecutionDate = newSubscription.OrderExecutionDate.ToShortDateString(),
                 CustomerReferenceFields = newSubscription.CustomerReferenceFields,
-                DataPackage = newSubscription.DataPackageName
+                DataPackage = newSubscription.DataPackageName,
+                CustomersOperatorAccount = customerOperatorAccount != null ? $"{customerOperatorAccount.AccountName} - {customerOperatorAccount.AccountNumber}" : null,
+                OperatorAccountMobileNumber = newSubscription.OperatorAccountPhoneNumber
             }, "EN");
         }
         else
