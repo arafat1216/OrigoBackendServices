@@ -62,7 +62,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                     City = "[Oslo]",
                     Country = "NO"
                 },
-                ErrorDescription = "[ErrorDescription]",
+                UserDescription = "[UserDescription]",
                 AssetId = Guid.NewGuid(),
                 UserSelectedServiceOrderAddonIds = new HashSet<int>() { 1 }
             };

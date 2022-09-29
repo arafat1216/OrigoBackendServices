@@ -447,7 +447,7 @@ namespace OrigoApiGateway.Controllers
         [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager,EndUser")]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(HardwareServiceOrder))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateHardwareServiceOrderForRemarketingAsync(Guid organizationId, [FromBody] NewHardwareServiceOrder model)
+        public async Task<IActionResult> CreateHardwareServiceOrderForRemarketingAsync(Guid organizationId, [FromBody] NewHardwareAftermarketOrder model)
         {
             try
             {

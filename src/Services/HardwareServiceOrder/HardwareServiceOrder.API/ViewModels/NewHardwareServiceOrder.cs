@@ -14,17 +14,6 @@ namespace HardwareServiceOrder.API.ViewModels
         public DeliveryAddress DeliveryAddress { get; set; }
 
         /// <summary>
-        /// Problem description of the device
-        /// </summary>
-        [Required]
-        [Obsolete($"This has been replaced by {nameof(UserDescription)}. This temporary alias/remapping will soon be removed!")]
-        public string ErrorDescription
-        {
-            get { return UserDescription; }
-            set { UserDescription = value; }
-        }
-
-        /// <summary>
         /// A user provided description explaining the problem or reason for the service order.
         /// </summary>
         [Required]

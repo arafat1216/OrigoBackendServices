@@ -1,26 +1,40 @@
-﻿using System;
-
-#nullable enable
+﻿#nullable enable
 
 namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request
 {
     /// <summary>
     /// Creates new Hardware Service Order.
     /// </summary>
-    public class NewHardwareServiceOrder
+    public class NewHardwareServiceOrder : IValidatableObject
     {
         /// <summary>
         /// Delivery address of the order
         /// </summary>
         [Required]
         public DeliveryAddress DeliveryAddress { get; set; }
-        
+
         /// <summary>
         /// Fault description
         /// </summary>
+        [Obsolete($"This is replaced with {nameof(UserDescription)}, and will soon be removed.")]
+        public string ErrorDescription
+        {
+            get { return UserDescription; }
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    UserDescription = string.Empty;
+                }
+            }
+        }
+
+        /// <summary>
+        /// A user provided description explaining the problem or reason for the service order.
+        /// </summary>
         [Required]
-        public string ErrorDescription { get; set; }
-        
+        public string UserDescription { get; set; }
+
         /// <summary>
         /// Asset identifier
         /// </summary>
@@ -34,5 +48,18 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request
         /// This list contains the <c>User selectable</c> service-addons.</para>
         /// </summary>
         public ISet<int> UserSelectedServiceOrderAddonIds { get; set; } = new HashSet<int>();
+
+
+        /// <inheritdoc/>
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (string.IsNullOrWhiteSpace(UserDescription))
+            {
+                yield return new ValidationResult("No value has been provided",
+                                                  new[] { nameof(UserDescription) });
+            }
+        }
+
+
     }
 }

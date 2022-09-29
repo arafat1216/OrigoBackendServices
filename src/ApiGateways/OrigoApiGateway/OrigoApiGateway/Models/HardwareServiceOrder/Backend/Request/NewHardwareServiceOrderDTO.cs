@@ -1,5 +1,4 @@
 ﻿using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
-using System;
 
 #nullable enable
 
@@ -15,25 +14,25 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request
         /// </summary>
         [Required]
         public DeliveryAddress DeliveryAddress { get; set; }
-        
+
         /// <summary>
-        /// Fault description
+        /// A user provided description explaining the problem or reason for the service order.
         /// </summary>
         [Required]
-        public string ErrorDescription { get; set; }
-        
+        public string UserDescription { get; set; }
+
         /// <summary>
         /// Contact Details of the Person who made the order
         /// </summary>
         [Required]
         public ContactDetailsExtended OrderedBy { get; set; }
-        
+
         /// <summary>
         /// Asset identifier
         /// </summary>
         [Required]
         public AssetInfo AssetInfo { get; set; }
-        
+
         /// <summary>
         /// Service Provider Id
         /// </summary>
@@ -45,7 +44,7 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request
         /// </summary>
         [Required]
         public int ServiceTypeId { get; set; }
-        
+
         /// <summary>
         /// Id(s) of the Service Addons or Extra Services that is/are supported by the Third party Service Provider. <para>
         /// 
@@ -57,7 +56,7 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request
         public NewHardwareServiceOrderDTO(NewHardwareServiceOrder order)
         {
             DeliveryAddress = order.DeliveryAddress;
-            ErrorDescription = order.ErrorDescription;
+            UserDescription = order.UserDescription;
         }
     }
 }
