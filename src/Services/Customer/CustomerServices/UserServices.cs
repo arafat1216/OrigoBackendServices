@@ -196,8 +196,19 @@ namespace CustomerServices
 
             if (customer.AddUsersToOkta && !newUserNotToBeAddedToOkta)
             {
-                var oktaUserId = await _oktaServices.AddOktaUserAsync(newUser.UserId, newUser.FirstName, newUser.LastName,
-                    newUser.Email, newUser.MobileNumber, true);
+                string? oktaUserId;
+                var userExistInOkta = await _oktaServices.UserExistsInOktaAsync(newUser.Email);
+                if (userExistInOkta)
+                {
+                    var oktaUserProfile = await _oktaServices.GetOktaUserProfileByLoginEmailAsync(newUser.Email);
+                    oktaUserId = oktaUserProfile.Id;
+                    await _oktaServices.AddUserToGroup(oktaUserId);
+                }
+                else
+                {
+                    oktaUserId = await _oktaServices.AddOktaUserAsync(newUser.UserId, newUser.FirstName, newUser.LastName,
+                        newUser.Email, newUser.MobileNumber, true);
+                }
                 newUser = await AssignOktaUserIdAsync(newUser.Customer.OrganizationId, newUser.UserId, oktaUserId, callerId);
             }
 

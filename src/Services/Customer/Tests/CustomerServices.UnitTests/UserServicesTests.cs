@@ -164,6 +164,33 @@ public class UserServicesTests
 
     [Fact]
     [Trait("Category", "UnitTest")]
+    public async Task AddUserForCustomer_WithExistingOktaUser_ShouldAddToOktaUserGroup()
+    {
+        // Arrange
+        await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
+        var organizationRepository =
+            new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var userPermissionServices = Mock.Of<IUserPermissionServices>();
+        var oktaMock = new Mock<IOktaServices>();
+        const string EMAIL_TEST_TEST = "email@test.test";
+        const string OKTA_ID = "ABC";
+        oktaMock.Setup(o => o.UserExistsInOktaAsync(EMAIL_TEST_TEST)).ReturnsAsync(true);
+        oktaMock.Setup(o => o.GetOktaUserProfileByLoginEmailAsync(EMAIL_TEST_TEST))
+            .ReturnsAsync(new OktaUserDTO() { Id = OKTA_ID });
+        var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository, oktaMock.Object,
+            _mapper, userPermissionServices, Mock.Of<IEmailService>());
+
+        // Act
+        var userPref = new UserPreference("NO", UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
+        await userServices.AddUserForCustomerAsync(UnitTestDatabaseSeeder.CUSTOMER_TWO_ID, "Test Firstname", "Testlastname",
+            EMAIL_TEST_TEST, "+4741676767", "43435435", userPref, UnitTestDatabaseSeeder.EMPTY_CALLER_ID, "Role");
+
+        // Assert
+        oktaMock.Verify(okta => okta.AddUserToGroup(OKTA_ID), Times.Once());
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
     public async Task AddUserForCustomer_CustomerIsOnBoarded_ShouldInvitationMailToUser()
     {
         // Arrange

@@ -172,12 +172,18 @@ namespace CustomerServices
             }
         }
 
+        /// <summary>
+        /// Checks if a user already exists in Okta
+        /// </summary>
+        /// <param name="userOktaId">This can be either the user id given by Okta or the email address</param>
+        /// <returns></returns>
         public async Task<bool> UserExistsInOktaAsync(string userOktaId)
         {
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Add("Accept", "application/json");
             client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
-            var url = _oktaOptions.OktaUrl + "users/" + userOktaId;
+            var encodedUserOktaId = WebUtility.UrlEncode(userOktaId);
+            var url = _oktaOptions.OktaUrl + "users/" + encodedUserOktaId;
             var resMsg = await client.GetAsync(url);
             var msg = await resMsg.Content.ReadAsStringAsync();
             return resMsg.IsSuccessStatusCode;

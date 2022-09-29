@@ -32,6 +32,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\ApiGateways\OrigoApiGateway\OrigoApiGateway\OrigoApiGateway.csproj" />
 		<ProjectReference Include="..\..\CustomerServices\CustomerServices.csproj" />
 	</ItemGroup>
 
