@@ -68,7 +68,7 @@ namespace SubscriptionManagementServices.Email.Models
         /// <summary>
         /// Which action the subscriber would like to do with the sim (e.g keep, new etc.)
         /// </summary>
-        public string SIMCardAction { get; set; } = "N/A";
+        public string SimCardAction { get; set; } = "N/A";
         /// <summary>
         /// Where the new sim card should be sent.
         /// </summary>

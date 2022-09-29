@@ -209,7 +209,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 OperatorAccountPayer = $"{transferToBusinessSubscriptionOrder.OperatorAccountPayer} ({transferToBusinessSubscriptionOrder.OrganizationNumberPayer})",
                 OperatorAccountOwner = $"{transferToBusinessSubscriptionOrder.OperatorAccountOwner} ({transferToBusinessSubscriptionOrder.OrganizationNumberOwner})",
                 SimCardNumber = transferToBusinessSubscriptionOrder.SimCardNumber,
-                SIMCardAction = transferToBusinessSubscriptionOrder.SimCardAction,
+                SimCardAction = transferToBusinessSubscriptionOrder.SimCardAction,
                 SimCardAddress = order.SimCardAddress != null ? new SimCardAddress
                 {
                     Address = order.SimCardAddress.Address ?? "N/A",
