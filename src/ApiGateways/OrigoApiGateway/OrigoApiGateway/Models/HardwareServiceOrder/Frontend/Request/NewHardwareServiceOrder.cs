@@ -14,22 +14,6 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request
         public DeliveryAddress DeliveryAddress { get; set; }
 
         /// <summary>
-        /// Fault description
-        /// </summary>
-        [Obsolete($"This is replaced with {nameof(UserDescription)}, and will soon be removed.")]
-        public string ErrorDescription
-        {
-            get { return UserDescription; }
-            set
-            {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    UserDescription = string.Empty;
-                }
-            }
-        }
-
-        /// <summary>
         /// A user provided description explaining the problem or reason for the service order.
         /// </summary>
         [Required]

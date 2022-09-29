@@ -5,8 +5,8 @@
 namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request
 {
     /// <summary>
-    ///     A override of <see cref="NewHardwareServiceOrder"/>, where the <see cref="UserDescription"/> property
-    ///     is overwritten so it's hidden from the API, and has been set to a default value.
+    ///     A override of <see cref="NewHardwareServiceOrder"/> where the <see cref="UserDescription"/> property
+    ///     has been overwritten so it is hidden from the API. The overwritten value is also assigned a fixed value.
     /// </summary>
     public class NewHardwareAftermarketOrder : NewHardwareServiceOrder
     {
