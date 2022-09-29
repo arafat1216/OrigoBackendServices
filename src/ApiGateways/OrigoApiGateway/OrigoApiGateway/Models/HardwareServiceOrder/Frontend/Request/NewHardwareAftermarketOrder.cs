@@ -12,7 +12,7 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request
     {
         public NewHardwareAftermarketOrder()
         {
-            base.UserDescription = string.Empty;
+            base.UserDescription = "Device return";
         }
 
 

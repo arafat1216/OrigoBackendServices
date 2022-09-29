@@ -5,7 +5,7 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request
     /// <summary>
     /// Creates new Hardware Service Order.
     /// </summary>
-    public class NewHardwareServiceOrder : IValidatableObject
+    public class NewHardwareServiceOrder
     {
         /// <summary>
         /// Delivery address of the order
@@ -48,18 +48,6 @@ namespace OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request
         /// This list contains the <c>User selectable</c> service-addons.</para>
         /// </summary>
         public ISet<int> UserSelectedServiceOrderAddonIds { get; set; } = new HashSet<int>();
-
-
-        /// <inheritdoc/>
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (string.IsNullOrWhiteSpace(UserDescription))
-            {
-                yield return new ValidationResult("No value has been provided",
-                                                  new[] { nameof(UserDescription) });
-            }
-        }
-
 
     }
 }

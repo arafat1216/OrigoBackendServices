@@ -42,6 +42,7 @@ namespace HardwareServiceOrder.API.Controllers
         [Route("{customerId:Guid}/config/sur")]
         [HttpPatch]
         [SwaggerOperation(Tags = new[] { "Configuration" })]
+        [Obsolete("This is no longer in use, and will soon be removed.")]
         public async Task<IActionResult> ConfigureSur(Guid customerId, [FromBody] ViewModels.CustomerServiceProvider customerServiceProvider, Guid callerId)
         {
             var settings = await _hardwareServiceOrderService.ConfigureCustomerSettingsAsync(customerId, callerId);
@@ -66,6 +67,7 @@ namespace HardwareServiceOrder.API.Controllers
         [Route("{customerId:Guid}/config/loan-device")]
         [HttpPatch]
         [SwaggerOperation(Tags = new[] { "Configuration" })]
+        [Obsolete("This is no longer in use")]
         public async Task<IActionResult> ConfigureLoanDevice(Guid customerId, [FromBody] LoanDevice loanDevice, Guid callerId)
         {
             if (!ModelState.IsValid)
@@ -90,6 +92,7 @@ namespace HardwareServiceOrder.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(ViewModels.CustomerSettings), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Configuration" })]
+        [Obsolete("This is no longer in use, and will soon be removed.")]
         public async Task<IActionResult> GetConfiguration(Guid customerId)
         {
             var settings = await _hardwareServiceOrderService.GetSettingsAsync(customerId);
@@ -146,6 +149,7 @@ namespace HardwareServiceOrder.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(HardwareServiceOrderDTO), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
+        [Obsolete("This is no longer in use, and will soon be removed.")]
         public async Task<IActionResult> GetHardwareServiceOrder(Guid customerId, Guid orderId)
         {
             // TODO: Fix this so it don't create a new object when the result is null!
@@ -173,6 +177,7 @@ namespace HardwareServiceOrder.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<HardwareServiceOrderDTO>), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Orders" })]
+        [Obsolete("This is no longer in use, and will soon be removed.")]
         public async Task<IActionResult> GetHardwareServiceOrders(Guid customerId, Guid? userId, [FromQuery] int? serviceTypeId, [FromQuery] bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
         {
             var dto = await _hardwareServiceOrderService.GetAllServiceOrdersForOrganizationAsync(customerId, userId, serviceTypeId, activeOnly, cancellationToken, page, limit);
