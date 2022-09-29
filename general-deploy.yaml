@@ -29,7 +29,7 @@ parameters:
   type: boolean
   default: false
 - name: releaseDocName
-  default: 'Release_$(Build.BuildNumber).md'
+  default: '$(Build.BuildNumber).md'
 
 jobs:
 - ${{ if eq(parameters.runMigration, true) }}:
@@ -160,7 +160,7 @@ jobs:
               inputs:
                  # Required arguments
                  repo: dev.azure.com/mytos/OrigoV2/_git/OrigoV2.wiki
-                 filename: Releases/${{ parameters.namespace }}/${{ parameters.releaseName }}-${{ parameters.releaseDocName }}
+                 filename: Releases/${{ parameters.namespace }}/${{ parameters.releaseName }}_${{ parameters.namespace }}_${{ parameters.releaseDocName }}
                  sourceFile: $(System.DefaultWorkingDirectory)\${{ parameters.releaseDocName }}
                  dataIsFile: true
                  replaceFile: false

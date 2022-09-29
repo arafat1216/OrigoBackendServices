@@ -1,5 +1,4 @@
 # Build and Deploy to Azure Kubernetes Service using templates
-
 trigger:
   branches:
     include:
