@@ -36,6 +36,7 @@ namespace Customer.API.IntegrationTests.Controllers
         private readonly Guid _callerId;
         private readonly Guid _userFourId;
         private readonly Guid _userSevenId;
+        private readonly Guid _userFiveId;
 
         private readonly CustomerWebApplicationFactory<Startup> _factory;
 
@@ -57,6 +58,7 @@ namespace Customer.API.IntegrationTests.Controllers
             _userOneEmail = factory.USER_ONE_EMAIL;
             _userFourId = factory.USER_FOUR_ID;
             _userSevenId = factory.USER_SEVEN_ID;
+            _userFiveId = factory.USER_FIVE_ID;
             _callerId = Guid.NewGuid();
             _factory = factory;
             _httpClient.DefaultRequestHeaders.Add("X-Authenticated-UserId", Guid.Empty.SystemUserId().ToString());
@@ -1595,11 +1597,11 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Collection(error?.Exceptions, error => Assert.Equal("Manager has no rights to make action on behalf of user atish@normann.no.", error));
         }
         [Fact]
-        public async Task CompleteOnboarding_UUserDontHaveOnboardingInitiated_ReturnsBadRequest()
+        public async Task CompleteOnboarding_UserDontHaveOnboardingInitiated_ReturnsBadRequest()
         {
             //Arrange
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
-            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}/onboarding-completed";
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userFiveId}/onboarding-completed";
 
             //Act
             var response = await httpClient.PostAsync(requestUri, null);
@@ -1612,7 +1614,7 @@ namespace Customer.API.IntegrationTests.Controllers
             //check the user if the status is the same as before
 
             //Act
-            var requestGetUser = $"/api/v1/organizations/{_customerId}/users/{_userOneId}";
+            var requestGetUser = $"/api/v1/organizations/{_customerId}/users/{_userFiveId}";
             var responseGetUser = await _httpClient.GetAsync(requestGetUser);
             //Assert
             var user = await responseGetUser.Content.ReadFromJsonAsync<User>();
@@ -1657,6 +1659,50 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal("Activated", user?.UserStatusName);
             Assert.Equal(0, user?.UserStatus);
+        }
+        [Fact]
+        public async Task GetUsersCount_DeletedUserShouldNotBeCounted_ForBothManagersAndAdmins()
+        {
+            //Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            
+            //Delete a user
+            var url = $"/api/v1/organizations/{_customerId}/users/{_userOneId}";
+            var request = new HttpRequestMessage(HttpMethod.Delete, url);
+            request.Content = JsonContent.Create(_callerId);
+            var deleteResponse = await httpClient.SendAsync(request);
+            var deletedUser = await deleteResponse.Content.ReadFromJsonAsync<User>();
+            Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
+            Assert.NotNull(deletedUser);
+            Assert.Equal(_userOneId, deletedUser!.Id);
+            Assert.Equal("Invited", deletedUser.UserStatusName);
+
+            var filterSystemAdmin = new FilterOptionsForUser { Roles = new string[] { "SystemAdmin" } };
+            string jsonSystemAdmin = JsonSerializer.Serialize(filterSystemAdmin);
+
+            var requestCountSystemAdmin = $"/api/v1/organizations/{_customerId}/users/count/?filterOptions={jsonSystemAdmin}";
+
+            //Act
+            var responseCountSystemAdmin = await httpClient.GetAsync(requestCountSystemAdmin);
+            var userCountSystemAdmin = await responseCountSystemAdmin.Content.ReadFromJsonAsync<CustomerServices.Models.OrganizationUserCount>();
+
+            //Assert  
+            Assert.Equal(HttpStatusCode.OK, responseCountSystemAdmin.StatusCode);
+            Assert.Equal(2, userCountSystemAdmin?.NotOnboarded);
+            Assert.Equal(1, userCountSystemAdmin?.Count);
+
+            var filterManager = new FilterOptionsForUser { AssignedToDepartments = new Guid[] { _headDepartmentId } };
+            string jsonManager = JsonSerializer.Serialize(filterManager);
+
+            var requestCountManager = $"/api/v1/organizations/{_customerId}/users/count/?filterOptions={jsonManager}";
+
+            //Act
+            var responseCountManager = await httpClient.GetAsync(requestCountManager);
+            var userCountManager = await responseCountManager.Content.ReadFromJsonAsync<CustomerServices.Models.OrganizationUserCount>();
+
+            //Assert  
+            Assert.Equal(HttpStatusCode.OK, responseCountManager.StatusCode);
+            Assert.Equal(0, userCountManager?.NotOnboarded);
         }
     }
 }

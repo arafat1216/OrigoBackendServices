@@ -62,7 +62,7 @@ namespace CustomerServices.Infrastructure
                 return await _customerContext.Users
                     .Include(u => u.Customer)
                     .ThenInclude(o => o.Partner)
-                    .Where(u => u.Customer.Partner != null && u.Customer.Partner.ExternalId == partnerId)
+                    .Where(u => u.Customer.Partner != null && u.Customer.Partner.ExternalId == partnerId && !u.IsDeleted)
                     .GroupBy(u => u.Customer.OrganizationId).Select(group =>
                     new OrganizationUserCount
                     {
@@ -78,7 +78,7 @@ namespace CustomerServices.Infrastructure
 
             if (assignedToDepartment != null && assignedToDepartment.Any()) {
                 return await _customerContext.Users
-                                             .Where(u => assignedToDepartment.Contains(u.Customer.OrganizationId))
+                                             .Where(u => assignedToDepartment.Contains(u.Customer.OrganizationId) && !u.IsDeleted)
                                              .GroupBy(u => u.Customer.OrganizationId)
                                              .Select(group => new OrganizationUserCount()
                                              {
@@ -94,7 +94,9 @@ namespace CustomerServices.Infrastructure
 
             if (partnerId == null && (assignedToDepartment == null || !assignedToDepartment.Any()))
             {
-                return await _customerContext.Users.GroupBy(u => u.Customer.OrganizationId).Select(group =>
+                return await _customerContext.Users
+                    .Where(u => !u.IsDeleted)
+                    .GroupBy(u => u.Customer.OrganizationId).Select(group =>
                     new OrganizationUserCount()
                     {
                         OrganizationId = group.Key,
@@ -118,7 +120,7 @@ namespace CustomerServices.Infrastructure
                 return await _customerContext.Users
                                             .Include(c => c.Customer)
                                             .Include(d => d.Department)
-                                            .Where(d => d.Department != null && d.Customer.OrganizationId == customerId && assignedToDepartment.Contains(d.Department.ExternalDepartmentId))
+                                            .Where(user => user.Department != null && !user.IsDeleted && user.Customer.OrganizationId == customerId && assignedToDepartment.Contains(user.Department.ExternalDepartmentId))
                                             .GroupBy(a => a.Customer.OrganizationId)
                                             .Select(group => new OrganizationUserCount()
                                             {
@@ -140,7 +142,7 @@ namespace CustomerServices.Infrastructure
                     role.Contains("SystemAdmin") || role.Contains("GroupAdmin") ||
                     role.Contains("Admin") || role.Contains("PartnerReadOnlyAdmin"))
                 {
-                    return await _customerContext.Users.Where(a => a.Customer.OrganizationId == customerId)
+                    return await _customerContext.Users.Where(user => user.Customer.OrganizationId == customerId && !user.IsDeleted)
                                             .GroupBy(a => a.Customer.OrganizationId)
                                             .Select(group => new OrganizationUserCount()
                                             {

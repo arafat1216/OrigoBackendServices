@@ -27,6 +27,7 @@ namespace Customer.API.IntegrationTests.Controllers
         private readonly Guid _departmentId;
         private readonly Guid _techstepPartnerId;
         private readonly Guid _partnerId;
+        private readonly Guid _userOneId;
 
 
         private readonly CustomerWebApplicationFactory<Startup> _factory;
@@ -42,6 +43,7 @@ namespace Customer.API.IntegrationTests.Controllers
             _departmentId = factory.HEAD_DEPARTMENT_ID;
             _techstepPartnerId = factory.TECHSTEP_PARTNER_ID;
             _partnerId = factory.PARTNER_ID;
+            _userOneId = factory.USER_ONE_ID;
             _httpClient.DefaultRequestHeaders.Add("X-Authenticated-UserId", Guid.Empty.SystemUserId().ToString());
         }
 
@@ -674,12 +676,14 @@ namespace Customer.API.IntegrationTests.Controllers
         public async Task GetOrganizationUserCountAsync_ForAdmin()
         {
             // Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
             FilterOptionsForUser filter = new FilterOptionsForUser {AssignedToDepartments= new Guid[] { _organizationId, _departmentId }, Roles = new string[] { "Admin" } };
             var json = JsonSerializer.Serialize(filter);
             var requestUri = $"/api/v1/organizations/userCount?filterOptions={json}";
 
             //Act
-            var response = await _httpClient.GetAsync(requestUri);
+            var response = await httpClient.GetAsync(requestUri);
             var organizationCount = await response.Content.ReadFromJsonAsync<IList<CustomerServices.Models.OrganizationUserCount>>();
 
             // Assert
@@ -690,15 +694,83 @@ namespace Customer.API.IntegrationTests.Controllers
            );
         }
         [Fact]
+        public async Task GetOrganizationUserCountAsync_ShouldNotCountDeletedUsers()
+        {
+            //Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            //Delete a user
+            var url = $"/api/v1/organizations/{_organizationId}/users/{_userOneId}";
+            var request = new HttpRequestMessage(HttpMethod.Delete, url);
+            request.Content = JsonContent.Create(Guid.NewGuid());
+            var deleteResponse = await httpClient.SendAsync(request);
+            var deletedUser = await deleteResponse.Content.ReadFromJsonAsync<User>();
+            Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
+            Assert.NotNull(deletedUser);
+            Assert.Equal(_userOneId, deletedUser!.Id);
+            Assert.Equal("Invited", deletedUser.UserStatusName);
+
+            // Arrange - Filter based on guids
+            FilterOptionsForUser filterBasedOnGuids = new FilterOptionsForUser { AssignedToDepartments = new Guid[] { _organizationId } };
+            var jsonBasedOnGuids = JsonSerializer.Serialize(filterBasedOnGuids);
+            var requestUri = $"/api/v1/organizations/userCount?filterOptions={jsonBasedOnGuids}";
+
+            //Act
+            var response = await httpClient.GetAsync(requestUri);
+            var organizationCount = await response.Content.ReadFromJsonAsync<IList<CustomerServices.Models.OrganizationUserCount>>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(1, organizationCount?.Count);
+            Assert.Collection(organizationCount,
+               item => Assert.Equal(1, item.Count)
+            );
+            Assert.Collection(organizationCount,
+              item => Assert.Equal(2, item.NotOnboarded)
+            );
+
+            // Arrange - all customers
+            FilterOptionsForUser filterEmpty = new FilterOptionsForUser {};
+            var jsonEmpty = JsonSerializer.Serialize(filterEmpty);
+            var requestAllOrganizations = $"/api/v1/organizations/userCount?filterOptions={jsonEmpty}";
+            
+            //Act
+            var responseAllOrganizations = await httpClient.GetAsync(requestAllOrganizations);
+            var allOrganizationCount = await responseAllOrganizations.Content.ReadFromJsonAsync<IList<CustomerServices.Models.OrganizationUserCount>>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, responseAllOrganizations.StatusCode);
+            Assert.Equal(3, allOrganizationCount?.Count);
+            Assert.Collection(allOrganizationCount,
+               item => Assert.Equal(0, item.Count),
+               item => Assert.Equal(1, item.Count),
+               item => Assert.Equal(1, item.Count)
+           );
+            Assert.Collection(allOrganizationCount,
+               item => Assert.Equal(1, item.NotOnboarded), 
+               item => Assert.Equal(1, item.NotOnboarded),
+               item => Assert.Equal(2, item.NotOnboarded)
+           );
+            Assert.Collection(allOrganizationCount,
+              item => Assert.Equal(_organizationIdThree, item.OrganizationId),
+              item => Assert.Equal(_organizationTwoId, item.OrganizationId),
+              item => Assert.Equal(_organizationId, item.OrganizationId)
+
+          );
+        }
+
+        [Fact]
         public async Task GetOrganizationUserCountAsync_ForAdmin_OrganizationIdIsNotValid()
         {
             // Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
             FilterOptionsForUser filter = new FilterOptionsForUser { AssignedToDepartments = new Guid[] { Guid.NewGuid() }, Roles = new string[] { "Admin" } };
             var json = JsonSerializer.Serialize(filter);
             var requestUri = $"/api/v1/organizations/userCount?filterOptions={json}";
 
             //Act
-            var response = await _httpClient.GetAsync(requestUri);
+            var response = await httpClient.GetAsync(requestUri);
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

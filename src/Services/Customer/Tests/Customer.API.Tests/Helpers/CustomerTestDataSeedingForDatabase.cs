@@ -40,7 +40,7 @@ namespace Customer.API.IntegrationTests.Helpers
 
 
 
-        public static void PopulateData(CustomerContext customerContext)
+        public static async void PopulateData(CustomerContext customerContext)
         {
             customerContext.Database.EnsureCreated();
             var address = new Address("Billingstadsletta 19B", "1396", "Oslo", "NO");
@@ -279,12 +279,12 @@ namespace Customer.API.IntegrationTests.Helpers
                            "EID:90008",
                            new UserPreference("en", CALLER_ID),
                            CALLER_ID);
-
             userFour.ChangeUserStatus("123", Common.Enums.UserStatus.Activated);
             userSix.ChangeUserStatus("123", Common.Enums.UserStatus.Activated);
             userSeven.ChangeUserStatus("123", Common.Enums.UserStatus.OnboardInitiated);
             userThree.ChangeUserStatus(null, Common.Enums.UserStatus.OnboardInitiated);
             userEight.ChangeUserStatus("133", Common.Enums.UserStatus.OnboardInitiated);
+            userOne.ChangeUserStatus(null, Common.Enums.UserStatus.Invited);
 
             customerContext.Users.Add(userOne);
             customerContext.Users.Add(userTwo);
@@ -294,8 +294,6 @@ namespace Customer.API.IntegrationTests.Helpers
             customerContext.Users.Add(userSix);
             customerContext.Users.Add(userSeven);
             customerContext.Users.Add(userEight);
-
-
 
             var userOnePermission = new UserPermissions(userOne, new Role("EndUser"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
             var userTwoPermission = new UserPermissions(userTwo, new Role("EndUser"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
