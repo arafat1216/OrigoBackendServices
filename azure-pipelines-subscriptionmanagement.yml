@@ -67,7 +67,6 @@ stages:
       tag: '$(Build.BuildId)'
       pipelineWorkspace: $(Pipeline.Workspace)
       generateReleaseNotes: true
-      releaseDocName: 'Release_$(Build.BuildNumber).md'
 
 - stage: DeployTest
   displayName: Deploy to Test
@@ -86,7 +85,6 @@ stages:
       tag: '$(Build.BuildId)'
       pipelineWorkspace: $(Pipeline.Workspace)
       generateReleaseNotes: true
-      releaseDocName: 'Release_$(Build.BuildNumber).md'
 
 - stage: DeployProd
   displayName: Deploy to Prod
@@ -105,4 +103,3 @@ stages:
       tag: '$(Build.BuildId)'
       pipelineWorkspace: $(Pipeline.Workspace)
       generateReleaseNotes: true
-      releaseDocName: 'Release_$(Build.BuildNumber).md'
