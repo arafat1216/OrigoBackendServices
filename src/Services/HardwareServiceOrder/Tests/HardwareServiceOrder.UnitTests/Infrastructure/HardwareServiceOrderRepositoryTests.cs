@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace HardwareServiceOrderServices.Infrastructure.Tests
 {
@@ -28,7 +29,7 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
             mock.Setup(e => e.AuthenticatedUserId).Returns(callerId);
 
             _dbContext = new HardwareServiceOrderContext(ContextOptions, mock.Object);
-            _repository = new HardwareServiceOrderRepository(_dbContext);
+            _repository = new HardwareServiceOrderRepository(_dbContext, new EphemeralDataProtectionProvider());
         }
 
 
@@ -171,7 +172,7 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
             await _dbContext.SaveChangesAsync();
 
             // Act
-            ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, (int)ServiceTypeEnum.SUR, "username", "password");
+            ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(CUSTOMER_ONE_ID, customerServiceProvider.Id, (int)ServiceTypeEnum.SUR, "username", "password");
             var result = await _dbContext.ApiCredentials.FindAsync(apiCredential1.Id);
 
             // Assert
@@ -193,8 +194,8 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
             await _dbContext.AddAsync(customerServiceProvider);
             await _dbContext.SaveChangesAsync();
 
-            ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, (int)ServiceTypeEnum.SUR, "OldUsername", "OldPassword");
-            ApiCredential apiCredential2 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, (int)ServiceTypeEnum.SUR, "NewUsername", "NewPassword");
+            ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(CUSTOMER_ONE_ID, customerServiceProvider.Id, (int)ServiceTypeEnum.SUR, "OldUsername", "OldPassword");
+            ApiCredential apiCredential2 = await _repository.AddOrUpdateApiCredentialAsync(CUSTOMER_ONE_ID, customerServiceProvider.Id, (int)ServiceTypeEnum.SUR, "NewUsername", "NewPassword");
 
             // Act
             var result = await _dbContext.ApiCredentials.FindAsync(apiCredential2.Id);
@@ -218,8 +219,8 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
             await _dbContext.AddAsync(customerServiceProvider);
             await _dbContext.SaveChangesAsync();
 
-            ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, null, "OldUsername", "OldPassword");
-            ApiCredential apiCredential2 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, null, "NewUsername", "NewPassword");
+            ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(CUSTOMER_ONE_ID, customerServiceProvider.Id, null, "OldUsername", "OldPassword");
+            ApiCredential apiCredential2 = await _repository.AddOrUpdateApiCredentialAsync(CUSTOMER_ONE_ID, customerServiceProvider.Id, null, "NewUsername", "NewPassword");
 
             // Act
             var result = await _dbContext.ApiCredentials
@@ -240,7 +241,7 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
             await _dbContext.AddAsync(customerServiceProvider);
             await _dbContext.SaveChangesAsync();
 
-            ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, (int)ServiceTypeEnum.SUR, "OldUsername", "OldPassword");
+            ApiCredential apiCredential1 = await _repository.AddOrUpdateApiCredentialAsync(CUSTOMER_ONE_ID, customerServiceProvider.Id, (int)ServiceTypeEnum.SUR, "OldUsername", "OldPassword");
 
             // Act
             _repository.DeleteAndSaveAsync(apiCredential1).Wait();

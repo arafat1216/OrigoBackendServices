@@ -1,6 +1,7 @@
 ﻿using Common.Interfaces;
 using Common.Seedwork;
 using System.Linq.Expressions;
+using System.Security.Cryptography;
 
 namespace HardwareServiceOrderServices.Models
 {
@@ -259,12 +260,13 @@ namespace HardwareServiceOrderServices.Models
         /// <summary>
         ///     Updates an existing <see cref="ApiCredential"/>. If it don't exist, it is created.
         /// </summary>
+        /// <param name="organizationId"> The Organization or Customer identifier </param>
         /// <param name="customerServiceProviderId"> The identifier for the <see cref="CustomerServiceProvider"/> the credentials is attached to. </param>
         /// <param name="serviceTypeId"> The service-type the credentials is used with. </param>
         /// <param name="apiUsername"> The new API username. </param>
         /// <param name="apiPassword"> The new API password. </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the new or updated <see cref="ApiCredential"/>. </returns>
-        Task<ApiCredential> AddOrUpdateApiCredentialAsync(int customerServiceProviderId, int? serviceTypeId, string? apiUsername, string? apiPassword);
+        Task<ApiCredential> AddOrUpdateApiCredentialAsync(Guid organizationId, int customerServiceProviderId, int? serviceTypeId, string? apiUsername, string? apiPassword);
 
         /// <summary>
         ///     Update <see cref="Models.ApiCredential"/>'s LastUpdateFetched property.
@@ -323,5 +325,24 @@ namespace HardwareServiceOrderServices.Models
         /// <returns></returns>
         [Obsolete("This will be replaced in the R&W work-package")]
         Task<HardwareServiceOrder?> GetOrderByServiceProviderOrderIdAsync(string serviceProviderOrderId);
+
+        /// <summary>
+        /// Encrypt a Text
+        /// </summary>
+        /// <param name="text">The text to encrypt</param>
+        /// <param name="key">The "key" using which the text is encrypted </param>
+        /// <returns>Returns the encrypted text.
+        /// But in case of null/empty, returns the text itself</returns>
+        public string? Encrypt(string? text, string key);
+
+        /// <summary>
+        /// Decrypt a Text
+        /// </summary>
+        /// <param name="encryptedText">The encrypted/cipher text that needs to decrypt</param>
+        /// <param name="key">The "key" using which the text is decrypted </param>
+        /// <returns>Returns the decrypted text.
+        /// But in case of null/empty, returns the text itself</returns>
+        /// <exception cref="CryptographicException"> Thrown if the method is not able to decrypt the provided text</exception>
+        public string? Decrypt(string? encryptedText, string key);
     }
 }

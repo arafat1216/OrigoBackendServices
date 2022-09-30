@@ -15,7 +15,6 @@ namespace HardwareServiceOrderServices
         private readonly IEmailService _emailService;
         private readonly IProviderFactory _providerFactory;
         private readonly IStatusHandlerFactory _statusHandlerFactory;
-        private readonly IDataProtectionProvider _dataProtectionProvider;
 
 
         /// <summary>
@@ -32,15 +31,13 @@ namespace HardwareServiceOrderServices
             IMapper mapper,
             IProviderFactory providerFactory,
             IStatusHandlerFactory statusHandlerFactory,
-            IEmailService emailService,
-            IDataProtectionProvider dataProtectionProvider)
+            IEmailService emailService)
         {
             _hardwareServiceOrderRepository = hardwareServiceOrderRepository;
             _mapper = mapper;
             _emailService = emailService;
             _providerFactory = providerFactory;
             _statusHandlerFactory = statusHandlerFactory;
-            _dataProtectionProvider = dataProtectionProvider;
         }
 
 
@@ -141,13 +138,17 @@ namespace HardwareServiceOrderServices
             {
                 case (int)ServiceTypeEnum.SUR:
                     {
-                        var repairProvider = await _providerFactory.GetRepairProviderAsync(serviceOrderDTO.ServiceProviderId, apiCredential?.ApiUsername, apiCredential?.ApiPassword);
+                        var repairProvider = await _providerFactory.GetRepairProviderAsync(serviceOrderDTO.ServiceProviderId,
+                            _hardwareServiceOrderRepository.Decrypt(apiCredential?.ApiUsername, customerId.ToString()),
+                            _hardwareServiceOrderRepository.Decrypt(apiCredential?.ApiPassword, customerId.ToString()));
                         externalOrderResponseDTO = await repairProvider.CreateRepairOrderAsync(newExternalServiceOrder, serviceOrderDTO.ServiceTypeId, $"{newOrderId}");
                         break;
                     }
                 case (int)ServiceTypeEnum.Remarketing:
                     {
-                        var aftermarketProvider = await _providerFactory.GetAftermarketProviderAsync(serviceOrderDTO.ServiceProviderId, apiCredential?.ApiUsername, apiCredential?.ApiPassword);
+                        var aftermarketProvider = await _providerFactory.GetAftermarketProviderAsync(serviceOrderDTO.ServiceProviderId, 
+                            _hardwareServiceOrderRepository.Decrypt(apiCredential?.ApiUsername, customerId.ToString()), 
+                            _hardwareServiceOrderRepository.Decrypt(apiCredential?.ApiPassword, customerId.ToString()));
                         externalOrderResponseDTO = await aftermarketProvider.CreateAftermarketOrderAsync(newExternalServiceOrder, serviceOrderDTO.ServiceTypeId, $"{newOrderId}");
                         break;
                     }
@@ -248,8 +249,9 @@ namespace HardwareServiceOrderServices
                     continue;
                 foreach (var apiCredential in apiCredentials)
                 {
-                    var decryptedApiUserName = DecryptUsername(customerServiceProvider.CustomerId, apiCredential?.ApiUsername);
-                    var provider = await _providerFactory.GetRepairProviderAsync(customerServiceProvider.ServiceProviderId, decryptedApiUserName, apiCredential?.ApiPassword);
+                    var provider = await _providerFactory.GetRepairProviderAsync(customerServiceProvider.ServiceProviderId, 
+                        _hardwareServiceOrderRepository.Decrypt(apiCredential?.ApiUsername, customerServiceProvider.CustomerId.ToString()), 
+                        _hardwareServiceOrderRepository.Decrypt(apiCredential?.ApiPassword, customerServiceProvider.CustomerId.ToString()));
 
                     var updateStarted = DateTimeOffset.UtcNow;
 
@@ -288,14 +290,6 @@ namespace HardwareServiceOrderServices
         /// <inheritdoc/>
         public async Task<string?> ConfigureCustomerServiceProviderAsync(int providerId, Guid customerId, string? apiUsername, string? apiPassword)
         {
-            var protector = _dataProtectionProvider.CreateProtector($"{customerId}");
-
-            //Encrypt apiUsername
-            apiUsername = string.IsNullOrEmpty(apiUsername) ? apiUsername : protector.Protect(apiUsername);
-
-            //Encrypt apiPassword
-            apiPassword = string.IsNullOrEmpty(apiPassword) ? apiPassword : protector.Protect(apiPassword);
-
             return await _hardwareServiceOrderRepository.ConfigureCustomerServiceProviderAsync(providerId, customerId, apiUsername, apiPassword);
         }
 
@@ -305,12 +299,7 @@ namespace HardwareServiceOrderServices
         {
             var serviceProvider = await _hardwareServiceOrderRepository.GetCustomerServiceProviderAsync(customerId, providerId, false, false);
 
-            if (string.IsNullOrEmpty(serviceProvider?.ApiUserName))
-                return serviceProvider?.ApiUserName;
-
-            var protector = _dataProtectionProvider.CreateProtector($"{customerId}");
-
-            var decryptedApiUserName = protector.Unprotect(serviceProvider?.ApiUserName);
+            var decryptedApiUserName = _hardwareServiceOrderRepository.Decrypt(serviceProvider?.ApiUserName, customerId.ToString());
 
             return decryptedApiUserName;
         }
@@ -370,7 +359,7 @@ namespace HardwareServiceOrderServices
                 // Ahh! So that's where I put it. I told you it existed ;)
             }
 
-            await _hardwareServiceOrderRepository.AddOrUpdateApiCredentialAsync(customerServiceProvider.Id, serviceTypeId, apiUsername, apiPassword);
+            await _hardwareServiceOrderRepository.AddOrUpdateApiCredentialAsync(organizationId, customerServiceProvider.Id, serviceTypeId, apiUsername, apiPassword);
         }
 
 
@@ -458,19 +447,6 @@ namespace HardwareServiceOrderServices
 
             await _hardwareServiceOrderRepository.UpdateAndSaveAsync(customerServiceProvider);
         }
-
-        private string DecryptUsername(Guid customerId, string apiUserName)
-        {
-            if (string.IsNullOrEmpty(apiUserName))
-                return apiUserName;
-
-            var protector = _dataProtectionProvider.CreateProtector($"{customerId}");
-
-            var decryptedApiUserName = protector.Unprotect(apiUserName);
-
-            return decryptedApiUserName;
-        }
-
 
         /// <inheritdoc/>
         public async Task<CustomerSettingsDTO> AddOrUpdateCustomerSettings(CustomerSettingsDTO customerSettingsDTO)

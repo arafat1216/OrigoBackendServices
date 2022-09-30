@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace HardwareServiceOrder.UnitTests
@@ -34,7 +35,7 @@ namespace HardwareServiceOrder.UnitTests
             }
 
             _dbContext = new HardwareServiceOrderContext(ContextOptions);
-            _hardwareServiceOrderRepository = new HardwareServiceOrderRepository(_dbContext);
+            _hardwareServiceOrderRepository = new HardwareServiceOrderRepository(_dbContext, new EphemeralDataProtectionProvider());
 
 
             #region Email service mock
@@ -143,7 +144,7 @@ namespace HardwareServiceOrder.UnitTests
 
             #endregion
 
-            _hardwareServiceOrderService = new HardwareServiceOrderService(_hardwareServiceOrderRepository, _mapper, providerFactoryMock.Object, statusHandlerFactoryMock.Object, emailService.Object, new EphemeralDataProtectionProvider());
+            _hardwareServiceOrderService = new HardwareServiceOrderService(_hardwareServiceOrderRepository, _mapper, providerFactoryMock.Object, statusHandlerFactoryMock.Object, emailService.Object);
         }
 
         [Fact]
@@ -464,6 +465,26 @@ namespace HardwareServiceOrder.UnitTests
             Assert.NotEqual(originalAdded.ProvidesLoanDevice, newRetrieved.ProvidesLoanDevice);
             Assert.NotEqual(originalAdded.LoanDevicePhoneNumber, newRetrieved.LoanDevicePhoneNumber);
             Assert.NotEqual(originalAdded.LoanDeviceEmail, newRetrieved.LoanDeviceEmail);
+        }
+
+        [Fact]
+        public void Encrypt_Decrypt_Same_Key_Test()
+        {
+            var customerId = Guid.NewGuid();
+            var text = "TEXT TO ENCRYPT";
+            var encryptedText = _hardwareServiceOrderRepository.Encrypt(text, customerId.ToString());
+            var decryptedText = _hardwareServiceOrderRepository.Decrypt(encryptedText, customerId.ToString());
+            Assert.Equal(text, decryptedText);
+        }
+
+        [Fact]
+        public void Encrypt_Decrypt_Different_Key_Test()
+        {
+            var customerId1 = Guid.NewGuid();
+            var customerId2 = Guid.NewGuid();
+            var text = "TEXT TO ENCRYPT";
+            var encryptedText = _hardwareServiceOrderRepository.Encrypt(text, customerId1.ToString());
+            Assert.Throws<CryptographicException>(() => _hardwareServiceOrderRepository.Decrypt(encryptedText, customerId2.ToString()));
         }
 
     }

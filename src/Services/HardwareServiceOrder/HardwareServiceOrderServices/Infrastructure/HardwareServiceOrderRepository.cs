@@ -6,17 +6,20 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Linq;
 using HardwareServiceOrderServices.Exceptions;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace HardwareServiceOrderServices.Infrastructure
 {
     public class HardwareServiceOrderRepository : IHardwareServiceOrderRepository
     {
         private readonly HardwareServiceOrderContext _hardwareServiceOrderContext;
+        private readonly IDataProtectionProvider _dataProtectionProvider;
 
 
-        public HardwareServiceOrderRepository(HardwareServiceOrderContext hardwareServiceOrderContext)
+        public HardwareServiceOrderRepository(HardwareServiceOrderContext hardwareServiceOrderContext, IDataProtectionProvider dataProtectionProvider)
         {
             _hardwareServiceOrderContext = hardwareServiceOrderContext;
+            _dataProtectionProvider = dataProtectionProvider;
         }
 
 
@@ -138,8 +141,8 @@ namespace HardwareServiceOrderServices.Infrastructure
                 {
                     ServiceProviderId = providerId,
                     CustomerId = customerId,
-                    ApiUserName = apiUsername,
-                    ApiPassword = apiPassword
+                    ApiUserName = Encrypt(apiUsername, customerId.ToString()),
+                    ApiPassword = Encrypt(apiPassword, customerId.ToString())
                 });
 
                 await _hardwareServiceOrderContext.SaveChangesAsync();
@@ -147,8 +150,8 @@ namespace HardwareServiceOrderServices.Infrastructure
                 return apiUsername;
             }
 
-            existing.ApiUserName = apiUsername;
-            existing.ApiPassword = apiPassword;
+            existing.ApiUserName = Encrypt(apiUsername, customerId.ToString());
+            existing.ApiPassword = Encrypt(apiPassword, customerId.ToString());
 
             _hardwareServiceOrderContext.Entry(existing).State = EntityState.Modified;
 
@@ -436,19 +439,19 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
-        public async Task<ApiCredential> AddOrUpdateApiCredentialAsync(int customerServiceProviderId, int? serviceTypeId, string? apiUsername, string? apiPassword)
+        public async Task<ApiCredential> AddOrUpdateApiCredentialAsync(Guid organizationId, int customerServiceProviderId, int? serviceTypeId, string? apiUsername, string? apiPassword)
         {
             ApiCredential? apiCredential = await _hardwareServiceOrderContext.ApiCredentials.FirstOrDefaultAsync(entity => entity.CustomerServiceProviderId == customerServiceProviderId && entity.ServiceTypeId == serviceTypeId);
 
             if (apiCredential is null)
             {
-                apiCredential = new(customerServiceProviderId, serviceTypeId, apiUsername, apiPassword);
+                apiCredential = new(customerServiceProviderId, serviceTypeId, Encrypt(apiUsername, organizationId.ToString()), Encrypt(apiPassword, organizationId.ToString()));
                 await _hardwareServiceOrderContext.AddAsync(apiCredential);
             }
             else
             {
-                apiCredential.ApiUsername = apiUsername;
-                apiCredential.ApiPassword = apiPassword;
+                apiCredential.ApiUsername = Encrypt(apiUsername, organizationId.ToString());
+                apiCredential.ApiPassword = Encrypt(apiPassword, organizationId.ToString());
 
                 _hardwareServiceOrderContext.Update(apiCredential);
             }
@@ -472,6 +475,26 @@ namespace HardwareServiceOrderServices.Infrastructure
         {
             return await _hardwareServiceOrderContext.CustomerSettings
                                                      .FirstOrDefaultAsync(e => e.CustomerId == organizationId);
+        }
+
+        /// <inheritdoc/>
+        public string? Encrypt(string? text, string key)
+        {
+            if (string.IsNullOrEmpty(text))
+                return text;
+            var protector = _dataProtectionProvider.CreateProtector(key);
+            var encryptedText = protector.Protect(text);
+            return encryptedText;
+        }
+
+        /// <inheritdoc/>
+        public string? Decrypt(string? encryptedText, string key)
+        {
+            if (string.IsNullOrEmpty(encryptedText))
+                return encryptedText;
+            var protector = _dataProtectionProvider.CreateProtector(key);
+            var decryptedText = protector.Unprotect(encryptedText);
+            return decryptedText;
         }
 
 

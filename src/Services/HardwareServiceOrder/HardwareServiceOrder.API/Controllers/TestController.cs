@@ -26,15 +26,17 @@ namespace HardwareServiceOrder.API.Controllers
         private readonly IMapper _mapper;
         private readonly IApiRequesterService _apiRequesterService;
         private readonly IHardwareServiceOrderService _hardwareServiceOrderService;
+        private readonly IHardwareServiceOrderRepository _hardwareServiceOrderRepository;
 
 
-        public TestController(IProviderFactory providerFactory, HardwareServiceOrderContext dbContext, IMapper mapper, IApiRequesterService apiRequesterService, IHardwareServiceOrderService hardwareServiceOrderService)
+        public TestController(IProviderFactory providerFactory, HardwareServiceOrderContext dbContext, IMapper mapper, IApiRequesterService apiRequesterService, IHardwareServiceOrderService hardwareServiceOrderService, IHardwareServiceOrderRepository hardwareServiceOrderRepository)
         {
             _providerFactory = providerFactory;
             _context = dbContext;
             _mapper = mapper;
             _apiRequesterService = apiRequesterService;
             _hardwareServiceOrderService = hardwareServiceOrderService;
+            _hardwareServiceOrderRepository = hardwareServiceOrderRepository;
         }
 
         #region Commonly (re-)used methods
@@ -233,6 +235,31 @@ namespace HardwareServiceOrder.API.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"> The key which is used to encrypt the provided text. Here we are using a Guid as key</param>
+        /// <param name="textToEncrypt"> The text that needs to encrypt </param>
+        /// <returns></returns>
+        [HttpGet("{key:Guid}/encrypt")]
+        public string Encrypt(Guid key, [FromQuery] string textToEncrypt)
+        {
+            var encryptedText = _hardwareServiceOrderRepository.Encrypt(textToEncrypt, key.ToString());
+            return encryptedText;
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"> The key which is used to encrypt the provided text. Here we are using a Guid as key</param>
+        /// <param name="encryptedText"> The encrypted text that needs to decrypt </param>
+        /// <returns></returns>
+        [HttpGet("{key:Guid}/decrypt")]
+        public string Decrypt(Guid key, [FromQuery] string encryptedText)
+        {
+            var decryptedText = _hardwareServiceOrderRepository.Decrypt(encryptedText, key.ToString());
+            return decryptedText;
+        }
 
     }
 }
