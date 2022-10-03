@@ -117,172 +117,94 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AssetRepairEmail" xml:space="preserve">
-    <value>### Hello {{FirstName}}!
+  <data name="AssetBuyout" xml:space="preserve">
+    <value>En anställd har beslutat att köpa ut en tillgång från ditt företag. Det kommer INTE att finnas något upplägg för automatiskt löneavdrag för detta. Vänligen gör löneavdraget vid nästa löneavräkning.
 
-You registered a [repair order]({{OrderLink}}) [{{OrderDate}}], but we cannot see having received the asset. Please follow the instructions below so we can help you fix it!
-
-Next steps:
-
-1. Backup your device
-2. Factory reset your device
-3. Remove the SIM card
-
-⚠️ if step 1 to 3 is not done properly the repair cannot be completed
-
-4. Send the device to the repair provider using the shipping label.
-5. The repair provider evaluates your device
-6. You get repair options to choose from (not if warranty)
-7. The repair provider repairs your asset and sends it back to you
-
-[Get shipping label]({{ShippingLabelLink}})
-
-PS: The repair provider may contact you directly about the repair.</value>
+### Detaljer:
+Användare: {{UserName}}
+Tillgång: {{AssetName}} ({{AssetId}})
+Utköpsdatum: {{BuyoutDate}}
+Utköpspris: {{BuyoutPrice}}</value>
   </data>
-  <data name="OrderConfirmationEmail" xml:space="preserve">
-    <value>### Hello {{FirstName}}!
+  <data name="ManagerOnBehalfBuyout" xml:space="preserve">
+    <value>### Hej {{FirstName}}!
 
-### **Order details:**
+När det gäller din offboarding har {{ManagerName}} valt buyout på följande tillgång:
 
-Assets: {{AssetName}} ({{AssetId}})  
-Order date: {{OrderDate}}  
-Repair type: {{RepairType}}  
-Fault category: {{FaultCategory}}
+### Tillgång:
+{{AssetName}} ({{AssetId})
 
-[View order in Origo]({{OrderLink}})
+### Utköpsdatum:
+{{BuyoutDate}}
 
-### **Next steps:** 
-1. Backup your device
-2. Factory reset your device
-3. Remove SIM card
+### Utköpspris:
+{{BuyoutPrice}} {{Currency}}
 
-⚠️ if step 1 to 3 is not done properly the repair cannot be completed
+Det betyder att du får ett löneavdrag på {{BuyoutPrice}} {{Currency}}, och tillgången kommer att äga dig.
 
-4. Send the device to the repair provider using the shipping label
-5. The repair provider evaluates your device
-6. You get repair options to choose from (not if warranty)
-7. The repair provider repairs your device and sends it back to you
-
-[Get shipping label]({{ShippingLabelLink}})
-
-PS: The repair provider may contact you directly about the repair.
-
-
-### **Loan device:**
-
-During the repair period you can get a loan device from your company. Contact [loan device contact info](LoanDeviceContact) if you need a loan device.</value>
+Viktig! Kom ihåg att radera alla företagsfiler på din sista arbetsdag.</value>
   </data>
-  <data name="LoanDeviceEmail" xml:space="preserve">
-    <value>### Hello {{FirstName}}!
-
-As you recently had a repair-order, we would like to remind you that any loan-devices needs to be returned. If you don't have any loan-devices, or they are already returned, you may disregard this automated message.</value>
+  <data name="ManagerOnBehalfBuyout_Subject" xml:space="preserve">
+    <value>Utköp av tillgångar</value>
   </data>
-  <data name="AssetDiscardedEmail" xml:space="preserve">
-    <value>### Hello {{FirstName}}!
+  <data name="ManagerOnBehalfReturn" xml:space="preserve">
+    <value>Hej {{FirstName}}!
 
-You recently had a repair-order where your asset was discarded. Please contact your manager to get a new asset.</value>
+Din chef har valt avkastning på följande tillgång:
+
+### Tillgång: {{AssetName}} ({{AssetId})
+### Datum: {{ReturnDate}}
+
+Viktig! Kom ihåg att ta bort alla företagsfiler från din enhet.</value>
   </data>
-  <data name="OrderCancellationEmail" xml:space="preserve">
-    <value>### Hello {{FirstName}}!
-
-Your repair order has been canceled. If your asset still needs to be repaired, please register a new repair-order.
-
-
-### **Order details:**
-
-Assets: {{AssetName}} ({{AssetId}})  
-Order date: {{OrderDate}}  
-Repair type: {{RepairType}}  
-Fault category: {{FaultCategory}}
-
-[View order in Origo]({{OrderLink}})</value>
+  <data name="ManagerOnBehalfReturn_Subject" xml:space="preserve">
+    <value>Retur av tillgång</value>
   </data>
-  <data name="OngoingUserActionNeeded_Body" xml:space="preserve">
-    <value />
+  <data name="PendingReturn" xml:space="preserve">
+    <value>### Hej {{FirstName}}!
+
+Du har tillgångar som väntar på avkastning. Som förvaltare måste du bekräfta när du har fått tillgången för att slutföra och avsluta livscykeln.
+
+[Visa tillgångar]({{AssetsLink}})</value>
   </data>
-  <data name="OngoingUserActionNeeded_Subject" xml:space="preserve">
-    <value />
+  <data name="ReassignedToUser" xml:space="preserve">
+    <value>### Hej {{FirstName}}!
+
+En tillgång har tilldelats om från din avdelning.
+
+[Visa tillgång]({{AssetLink}})</value>
   </data>
-  <data name="RegisteredUserActionNeeded_Subject" xml:space="preserve">
-    <value />
+  <data name="ReportAsset" xml:space="preserve">
+    <value>### Hej {{FirstName}}!
+
+En tillgång har rapporterats {{ReportType}}. Och har ställts in på inaktiv.
+
+### Tillgång:
+{{AssetName}} ({{AssetId})
+### Rapportdatum:
+{{ReportDate}}
+### Rapporterad av:
+{{ReportedBy}}
+### Vad hände med tillgången?
+{{ReportType}}
+### Hur hände det?
+{{Description}}
+### Under vilken tidsperiod hände det?
+{{DateFrom}} Till {{DateTo}}
+### Var hände det?
+{{Addresse}}</value>
   </data>
-  <data name="RegisteredUserActionNeeded_Body" xml:space="preserve">
-    <value />
+  <data name="UnassignedFromManager" xml:space="preserve">
+    <value>### Hej!
+En tillgång togs bort från din avdelning.
+
+Det betyder att du inte längre är ansvarig för denna tillgång, och den är därför inte längre synlig för dig.</value>
   </data>
-  <data name="Unknown_Subject" xml:space="preserve">
-    <value>Something went wrong with an order</value>
-  </data>
-  <data name="Unknown_Body" xml:space="preserve">
-    <value>Hi There,
+  <data name="UnassignedFromUser" xml:space="preserve">
+    <value>### Hej {{FirstName}}!
 
-The following order has received unknown status from the service provider. Please have a look.
+En tillgång har tagits bort från dig.
 
-[View Order](OrderLink)
-
-{{Order}}</value>
-  </data>
-  <data name="AssetRepairEmail_Subject" xml:space="preserve">
-    <value>Repair Reminder</value>
-  </data>
-  <data name="LoanDeviceEmail_Subject" xml:space="preserve">
-    <value>Return Loan Device</value>
-  </data>
-  <data name="AssetDiscardedEmail_Subject" xml:space="preserve">
-    <value>Replace Discarded Asset</value>
-  </data>
-  <data name="OrderCancellationEmail_Subject" xml:space="preserve">
-    <value>Canceled Repair Order</value>
-  </data>
-  <data name="RemarketingNoPackaging_Body" xml:space="preserve">
-    <value>### Hello {{ FirstName }}!
-
-
-### Return details:
-Asset: {{ AssetName }} {{ AssetId }}
-Date: {{ OrderDate }}
-
-### Next steps:
-1. Transfer all data from the old asset to the new asset
-2. Factory reset/delete all data from the old asset
-3. (if iPhone) Deactivate Find my iPhone
-4. Remove the SIM card/memory card
-5. Package and send asset
-
-If step 1 to 4 is not done properly the recycle cannot be completed
-
-### How to package and send the asset:
-Please package your device securely so that it arrives undamaged. You will need to print the shipping label, and use transparent tape to attach it on the outside of the package.
-
-PS: The provider may contact you directly about the return.</value>
-  </data>
-  <data name="RemarketingNoPackaging_Subject" xml:space="preserve">
-    <value>Repair Order</value>
-  </data>
-  <data name="RemarketingPackaging_Body" xml:space="preserve">
-    <value>### Hello {{ FirstName }}!
-
-
-### Return details:
-Asset: {{ AssetName }} {{ AssetId }}
-Date: {{ OrderDate }}
-
-### Would you like to receive packaging?
-Yes
-Address: {{ Address }}
-
-### Next steps:
-1. Receive return packaging and shipping label
-2. Transfer all data from the old asset to the new asset
-3. Factory reset/delete all data from the old asset
-4. (if iPhone) Deactivate Find my iPhone
-5. Remove the SIM card/memory card
-6. Ship the asset using the return package
-
-If step 2 to 5 is not done properly the recycle cannot be completed
-
-PS: The provider may contact you directly about the return.</value>
-  </data>
-  <data name="RemarketingPackaging_Subject" xml:space="preserve">
-    <value>Repair Order (Included Packaging Service)</value>
+Det betyder att du inte längre är ansvarig för denna tillgång, och den är därför inte längre synlig för dig.</value>
   </data>
 </root>

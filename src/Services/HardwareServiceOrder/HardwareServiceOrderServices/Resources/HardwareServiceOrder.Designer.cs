@@ -61,7 +61,7 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///   Looks up a localized string similar to ### Hello {{FirstName}}!
         ///
         ///You recently had a repair-order where your asset was discarded. Please contact your manager to get a new asset..
         /// </summary>
@@ -81,7 +81,7 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///   Looks up a localized string similar to ### Hello {{FirstName}}!
         ///
         ///You registered a [repair order]({{OrderLink}}) [{{OrderDate}}], but we cannot see having received the asset. Please follow the instructions below so we can help you fix it!
         ///
@@ -95,7 +95,7 @@ namespace HardwareServiceOrderServices.Resources {
         ///
         ///4. Send the device to the repair provider using the shipping label.
         ///5. The repair provider evaluates your device
-        ///6. You get repair options to c [rest of string was truncated]&quot;;.
+        ///6. You get repair options  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string AssetRepairEmail {
             get {
@@ -113,7 +113,7 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///   Looks up a localized string similar to ### Hello {{FirstName}}!
         ///
         ///As you recently had a repair-order, we would like to remind you that any loan-devices needs to be returned. If you don&apos;t have any loan-devices, or they are already returned, you may disregard this automated message..
         /// </summary>
@@ -151,7 +151,7 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///   Looks up a localized string similar to ### Hello {{FirstName}}!
         ///
         ///Your repair order has been canceled. If your asset still needs to be repaired, please register a new repair-order.
         ///
@@ -181,7 +181,7 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello {{FirstName}}!
+        ///   Looks up a localized string similar to ### Hello {{FirstName}}!
         ///
         ///### **Order details:**
         ///
@@ -200,8 +200,7 @@ namespace HardwareServiceOrderServices.Resources {
         ///⚠️ if step 1 to 3 is not done properly the repair cannot be completed
         ///
         ///4. Send the device to the repair provider using the shipping label
-        ///5. The repair provider evaluates your device
-        ///6. [rest of string was truncated]&quot;;.
+        ///5. The repair provider evaluates your device [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string OrderConfirmationEmail {
             get {
@@ -228,7 +227,7 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello {{ FirstName }}!
+        ///   Looks up a localized string similar to ### Hello {{ FirstName }}!
         ///
         ///
         ///### Return details:
@@ -245,7 +244,7 @@ namespace HardwareServiceOrderServices.Resources {
         ///If step 1 to 4 is not done properly the recycle cannot be completed
         ///
         ///### How to package and send the asset:
-        ///Please package your device securely so that it arrives [rest of string was truncated]&quot;;.
+        ///Please package your device securely so that it arr [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string RemarketingNoPackaging_Body {
             get {
@@ -263,7 +262,7 @@ namespace HardwareServiceOrderServices.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello {{ FirstName }}!
+        ///   Looks up a localized string similar to ### Hello {{ FirstName }}!
         ///
         ///
         ///### Return details:
@@ -282,7 +281,7 @@ namespace HardwareServiceOrderServices.Resources {
         ///5. Remove the SIM card/memory card
         ///6. Ship the asset using the return package
         ///
-        ///If step 2 to 5 is not done  [rest of string was truncated]&quot;;.
+        ///If step 2 to 5 is not d [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string RemarketingPackaging_Body {
             get {

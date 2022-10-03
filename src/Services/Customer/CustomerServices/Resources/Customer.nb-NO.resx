@@ -117,172 +117,47 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AssetRepairEmail" xml:space="preserve">
+  <data name="OffboardingInitiatedWithBuyout" xml:space="preserve">
     <value>### Hello {{FirstName}}!
 
-You registered a [repair order]({{OrderLink}}) [{{OrderDate}}], but we cannot see having received the asset. Please follow the instructions below so we can help you fix it!
+Når det gjelder din offboarding, har du noen oppgaver å fullføre i Origo før du drar.
 
-Next steps:
+1. Velg om du vil kjøpe ut eller returnere eiendelen til selskapet. Hvis du velger å kjøpe eiendelen, må dette gjøres før {{LastBuyoutDay}}, for å kunne gjøre lønnstrekk. Etter denne datoen vil kun retur være tilgjengelig. Besøk Origo for å se utkjøpsprisen.
 
-1. Backup your device
-2. Factory reset your device
-3. Remove the SIM card
+Vennligst følg trinnene i portalen.
 
-⚠️ if step 1 to 3 is not done properly the repair cannot be completed
-
-4. Send the device to the repair provider using the shipping label.
-5. The repair provider evaluates your device
-6. You get repair options to choose from (not if warranty)
-7. The repair provider repairs your asset and sends it back to you
-
-[Get shipping label]({{ShippingLabelLink}})
-
-PS: The repair provider may contact you directly about the repair.</value>
+[Start Offboarding]({{MyPageLink}})</value>
   </data>
-  <data name="OrderConfirmationEmail" xml:space="preserve">
+  <data name="OffboardingInitiatedWithoutBuyout" xml:space="preserve">
     <value>### Hello {{FirstName}}!
 
-### **Order details:**
+Når det gjelder offboarding, har du noen oppgaver å fullføre i Origo før du drar.
 
-Assets: {{AssetName}} ({{AssetId}})  
-Order date: {{OrderDate}}  
-Repair type: {{RepairType}}  
-Fault category: {{FaultCategory}}
+1. Returner eiendelene til selskapet
 
-[View order in Origo]({{OrderLink}})
+Følg trinnene i portalen
 
-### **Next steps:** 
-1. Backup your device
-2. Factory reset your device
-3. Remove SIM card
-
-⚠️ if step 1 to 3 is not done properly the repair cannot be completed
-
-4. Send the device to the repair provider using the shipping label
-5. The repair provider evaluates your device
-6. You get repair options to choose from (not if warranty)
-7. The repair provider repairs your device and sends it back to you
-
-[Get shipping label]({{ShippingLabelLink}})
-
-PS: The repair provider may contact you directly about the repair.
-
-
-### **Loan device:**
-
-During the repair period you can get a loan device from your company. Contact [loan device contact info](LoanDeviceContact) if you need a loan device.</value>
+[Start Offboarding]({{MyPageLink}})</value>
   </data>
-  <data name="LoanDeviceEmail" xml:space="preserve">
+  <data name="OffboardingOverdued" xml:space="preserve">
+    <value>### Hello!
+En bruker har fått statusen "Offboarding Overdue".
+
+**Navn**: {{UserName}} 
+
+**Siste arbeidsdag**: {{LastWorkingDays}} 
+
+Brukeren har nå mistet tilgangen til Origo, og vil ikke lenger kunne fullføre oppgave(r). Vennligst gå inn i Origo for å fullføre oppgave(r).
+
+[View User]({{UserDetailViewUrl}})</value>
+  </data>
+  <data name="OrigoInvitation" xml:space="preserve">
     <value>### Hello {{FirstName}}!
 
-As you recently had a repair-order, we would like to remind you that any loan-devices needs to be returned. If you don't have any loan-devices, or they are already returned, you may disregard this automated message.</value>
-  </data>
-  <data name="AssetDiscardedEmail" xml:space="preserve">
-    <value>### Hello {{FirstName}}!
+Origo er en selvbetjeningsportal for å hjelpe deg og din bedrift med å holde kontroll over dine eiendeler.
 
-You recently had a repair-order where your asset was discarded. Please contact your manager to get a new asset.</value>
-  </data>
-  <data name="OrderCancellationEmail" xml:space="preserve">
-    <value>### Hello {{FirstName}}!
+For at du skal begynne å bruke Origo, vennligst gå gjennom vår onboarding tour:
 
-Your repair order has been canceled. If your asset still needs to be repaired, please register a new repair-order.
-
-
-### **Order details:**
-
-Assets: {{AssetName}} ({{AssetId}})  
-Order date: {{OrderDate}}  
-Repair type: {{RepairType}}  
-Fault category: {{FaultCategory}}
-
-[View order in Origo]({{OrderLink}})</value>
-  </data>
-  <data name="OngoingUserActionNeeded_Body" xml:space="preserve">
-    <value />
-  </data>
-  <data name="OngoingUserActionNeeded_Subject" xml:space="preserve">
-    <value />
-  </data>
-  <data name="RegisteredUserActionNeeded_Subject" xml:space="preserve">
-    <value />
-  </data>
-  <data name="RegisteredUserActionNeeded_Body" xml:space="preserve">
-    <value />
-  </data>
-  <data name="Unknown_Subject" xml:space="preserve">
-    <value>Something went wrong with an order</value>
-  </data>
-  <data name="Unknown_Body" xml:space="preserve">
-    <value>Hi There,
-
-The following order has received unknown status from the service provider. Please have a look.
-
-[View Order](OrderLink)
-
-{{Order}}</value>
-  </data>
-  <data name="AssetRepairEmail_Subject" xml:space="preserve">
-    <value>Repair Reminder</value>
-  </data>
-  <data name="LoanDeviceEmail_Subject" xml:space="preserve">
-    <value>Return Loan Device</value>
-  </data>
-  <data name="AssetDiscardedEmail_Subject" xml:space="preserve">
-    <value>Replace Discarded Asset</value>
-  </data>
-  <data name="OrderCancellationEmail_Subject" xml:space="preserve">
-    <value>Canceled Repair Order</value>
-  </data>
-  <data name="RemarketingNoPackaging_Body" xml:space="preserve">
-    <value>### Hello {{ FirstName }}!
-
-
-### Return details:
-Asset: {{ AssetName }} {{ AssetId }}
-Date: {{ OrderDate }}
-
-### Next steps:
-1. Transfer all data from the old asset to the new asset
-2. Factory reset/delete all data from the old asset
-3. (if iPhone) Deactivate Find my iPhone
-4. Remove the SIM card/memory card
-5. Package and send asset
-
-If step 1 to 4 is not done properly the recycle cannot be completed
-
-### How to package and send the asset:
-Please package your device securely so that it arrives undamaged. You will need to print the shipping label, and use transparent tape to attach it on the outside of the package.
-
-PS: The provider may contact you directly about the return.</value>
-  </data>
-  <data name="RemarketingNoPackaging_Subject" xml:space="preserve">
-    <value>Repair Order</value>
-  </data>
-  <data name="RemarketingPackaging_Body" xml:space="preserve">
-    <value>### Hello {{ FirstName }}!
-
-
-### Return details:
-Asset: {{ AssetName }} {{ AssetId }}
-Date: {{ OrderDate }}
-
-### Would you like to receive packaging?
-Yes
-Address: {{ Address }}
-
-### Next steps:
-1. Receive return packaging and shipping label
-2. Transfer all data from the old asset to the new asset
-3. Factory reset/delete all data from the old asset
-4. (if iPhone) Deactivate Find my iPhone
-5. Remove the SIM card/memory card
-6. Ship the asset using the return package
-
-If step 2 to 5 is not done properly the recycle cannot be completed
-
-PS: The provider may contact you directly about the return.</value>
-  </data>
-  <data name="RemarketingPackaging_Subject" xml:space="preserve">
-    <value>Repair Order (Included Packaging Service)</value>
+[Start Onboarding]({{OrigoBaseUrl}})</value>
   </data>
 </root>

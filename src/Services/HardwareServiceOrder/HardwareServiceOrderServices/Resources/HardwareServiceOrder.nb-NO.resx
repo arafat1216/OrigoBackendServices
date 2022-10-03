@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,85 +117,46 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AssetRepairEmail" xml:space="preserve">
-    <value>### Hello {{FirstName}}!
+  <data name="AssetDiscardedEmail" xml:space="preserve">
+    <value>### Hei {{FirstName}}!
 
-You registered a [repair order]({{OrderLink}}) [{{OrderDate}}], but we cannot see having received the asset. Please follow the instructions below so we can help you fix it!
-
-Next steps:
-
-1. Backup your device
-2. Factory reset your device
-3. Remove the SIM card
-
-⚠️ if step 1 to 3 is not done properly the repair cannot be completed
-
-4. Send the device to the repair provider using the shipping label.
-5. The repair provider evaluates your device
-6. You get repair options to choose from (not if warranty)
-7. The repair provider repairs your asset and sends it back to you
-
-[Get shipping label]({{ShippingLabelLink}})
-
-PS: The repair provider may contact you directly about the repair.</value>
+Du har nylig fått en reparasjonsordre der eiendelen din ble kastet. Ta kontakt med lederen din for å få en ny ressurs.</value>
   </data>
-  <data name="OrderConfirmationEmail" xml:space="preserve">
-    <value>### Hello {{FirstName}}!
+  <data name="AssetDiscardedEmail_Subject" xml:space="preserve">
+    <value>Erstatt kassert eiendel</value>
+  </data>
+  <data name="AssetRepairEmail" xml:space="preserve">
+    <value>### Hei {{FirstName}}!
 
-### **Order details:**
+Du registrerte en [reparasjonsordre]({{OrderLink}}) [{{OrderDate}}], men vi kan ikke se å ha mottatt eiendelen. Følg instruksjonene nedenfor slik at vi kan hjelpe deg med å fikse det!
 
-Assets: {{AssetName}} ({{AssetId}})  
-Order date: {{OrderDate}}  
-Repair type: {{RepairType}}  
-Fault category: {{FaultCategory}}
+Neste skritt:
 
-[View order in Origo]({{OrderLink}})
+1. Sikkerhetskopier enheten
+2. Tilbakestill enheten til fabrikkstandard
+3. Ta ut SIM-kortet
 
-### **Next steps:** 
-1. Backup your device
-2. Factory reset your device
-3. Remove SIM card
+⚠️ Hvis trinn 1 til 3 ikke er utført på riktig måte, kan ikke reparasjonen fullføres
 
-⚠️ if step 1 to 3 is not done properly the repair cannot be completed
+4. Send enheten til reparasjonsleverandøren ved å bruke fraktetiketten.
+5. Reparasjonsleverandøren evaluerer enheten din
+6. Du får reparasjonsalternativer å velge mellom (ikke hvis garanti)
+7. Reparasjonsleverandøren reparerer eiendelen din og sender den tilbake til deg
 
-4. Send the device to the repair provider using the shipping label
-5. The repair provider evaluates your device
-6. You get repair options to choose from (not if warranty)
-7. The repair provider repairs your device and sends it back to you
+[Få fraktetikett]({{ShippingLabelLink}})
 
-[Get shipping label]({{ShippingLabelLink}})
-
-PS: The repair provider may contact you directly about the repair.
-
-
-### **Loan device:**
-
-During the repair period you can get a loan device from your company. Contact [loan device contact info](LoanDeviceContact) if you need a loan device.</value>
+PS: Reparasjonsleverandøren kan kontakte deg direkte angående reparasjonen.</value>
+  </data>
+  <data name="AssetRepairEmail_Subject" xml:space="preserve">
+    <value>Reparasjonspåminnelse</value>
   </data>
   <data name="LoanDeviceEmail" xml:space="preserve">
-    <value>### Hello {{FirstName}}!
+    <value>### Hei {{FirstName}}!
 
-As you recently had a repair-order, we would like to remind you that any loan-devices needs to be returned. If you don't have any loan-devices, or they are already returned, you may disregard this automated message.</value>
+Siden du nylig fikk en reparasjonsordre, vil vi minne deg på at eventuelle låneenheter må returneres. Hvis du ikke har noen låneenheter, eller de allerede er returnert, kan du se bort fra denne automatiske meldingen</value>
   </data>
-  <data name="AssetDiscardedEmail" xml:space="preserve">
-    <value>### Hello {{FirstName}}!
-
-You recently had a repair-order where your asset was discarded. Please contact your manager to get a new asset.</value>
-  </data>
-  <data name="OrderCancellationEmail" xml:space="preserve">
-    <value>### Hello {{FirstName}}!
-
-Your repair order has been canceled. If your asset still needs to be repaired, please register a new repair-order.
-
-
-### **Order details:**
-
-Assets: {{AssetName}} ({{AssetId}})  
-Order date: {{OrderDate}}  
-Repair type: {{RepairType}}  
-Fault category: {{FaultCategory}}
-
-[View order in Origo]({{OrderLink}})</value>
+  <data name="LoanDeviceEmail_Subject" xml:space="preserve">
+    <value>Returlånsenhet</value>
   </data>
   <data name="OngoingUserActionNeeded_Body" xml:space="preserve">
     <value />
@@ -203,86 +164,125 @@ Fault category: {{FaultCategory}}
   <data name="OngoingUserActionNeeded_Subject" xml:space="preserve">
     <value />
   </data>
-  <data name="RegisteredUserActionNeeded_Subject" xml:space="preserve">
-    <value />
+  <data name="OrderCancellationEmail" xml:space="preserve">
+    <value>### Hei {{FirstName}}!
+
+Reparasjonsordren din er kansellert. Hvis eiendelen din fortsatt må repareres, må du registrere en ny reparasjonsordre.
+
+
+### **Ordre detaljer:**
+
+Eiendeler: {{AssetName}} ({{AssetId}})
+Bestillingsdato: {{OrderDate}}
+Reparasjonstype: {{RepairType}}
+Feilkategori: {{FaultCategory}}
+
+[Se bestillingen i Origo]({{OrderLink}})</value>
+  </data>
+  <data name="OrderCancellationEmail_Subject" xml:space="preserve">
+    <value>Kansellert reparasjonsordre</value>
+  </data>
+  <data name="OrderConfirmationEmail" xml:space="preserve">
+    <value>### Hei {{FirstName}}!
+
+### **Ordre detaljer:**
+
+Eiendeler: {{AssetName}} ({{AssetId}})
+Bestillingsdato: {{OrderDate}}
+Reparasjonstype: {{RepairType}}
+Feilkategori: {{FaultCategory}}
+
+[Se bestillingen i Origo]({{OrderLink}})
+
+### **Neste skritt:**
+1. Sikkerhetskopier enheten
+2. Tilbakestill enheten til fabrikkstandard
+3. Ta ut SIM-kortet
+
+⚠️ Hvis trinn 1 til 3 ikke er utført på riktig måte, kan ikke reparasjonen fullføres
+
+4. Send enheten til reparasjonsleverandøren ved å bruke fraktetiketten
+5. Reparasjonsleverandøren evaluerer enheten din
+6. Du får reparasjonsalternativer å velge mellom (ikke hvis garanti)
+7. Reparasjonsleverandøren reparerer enheten din og sender den tilbake til deg
+
+[Få fraktetikett]({{ShippingLabelLink}})
+
+PS: Reparasjonsleverandøren kan kontakte deg direkte angående reparasjonen.
+
+
+### **Låneenhet:**
+
+I reparasjonsperioden kan du få låneapparat fra din bedrift. Kontakt [kontaktinformasjon for låneenhet](LoanDeviceContact) hvis du trenger en låneenhet.</value>
   </data>
   <data name="RegisteredUserActionNeeded_Body" xml:space="preserve">
     <value />
   </data>
-  <data name="Unknown_Subject" xml:space="preserve">
-    <value>Something went wrong with an order</value>
+  <data name="RegisteredUserActionNeeded_Subject" xml:space="preserve">
+    <value />
+  </data>
+  <data name="RemarketingNoPackaging_Body" xml:space="preserve">
+    <value>### Hei {{FirstName}}!
+
+
+### Returdetaljer:
+Aktiva: {{ AssetName }} {{ AssetId }}
+Dato: {{ OrderDate }}
+
+### Neste skritt:
+1. Overfør alle data fra den gamle ressursen til den nye ressursen
+2. Tilbakestill/slett alle data fra den gamle ressursen
+3. (hvis iPhone) Deaktiver Finn min iPhone
+4. Ta ut SIM-kortet/minnekortet
+5. Pakk og send eiendel
+
+Hvis trinn 1 til 4 ikke gjøres riktig, kan ikke resirkuleringen fullføres
+
+### Hvordan pakke og sende eiendelen:
+Pakk enheten på en sikker måte slik at den kommer uskadet. Du må skrive ut fraktetiketten og bruke gjennomsiktig tape for å feste den på utsiden av pakken.
+
+PS: Leverandøren kan kontakte deg direkte angående returen.</value>
+  </data>
+  <data name="RemarketingNoPackaging_Subject" xml:space="preserve">
+    <value>Reparasjonsordre</value>
+  </data>
+  <data name="RemarketingPackaging_Body" xml:space="preserve">
+    <value>### Hei {{ FirstName }}!
+
+
+### Returdetaljer:
+Aktiva: {{ AssetName }} {{ AssetId }}
+Dato: {{ OrderDate }}
+
+### Vil du motta emballasje?
+Ja
+Adresse: {{ Address }}
+
+### Neste skritt:
+1. Motta returemballasje og fraktetikett
+2. Overfør alle data fra den gamle ressursen til den nye ressursen
+3. Tilbakestill/slett alle data fra den gamle ressursen
+4. (hvis iPhone) Deaktiver Finn min iPhone
+5. Ta ut SIM-kortet/minnekortet
+6. Send eiendelen med returpakken
+
+Hvis trinn 2 til 5 ikke gjøres riktig, kan ikke resirkuleringen fullføres
+
+PS: Leverandøren kan kontakte deg direkte angående returen.</value>
+  </data>
+  <data name="RemarketingPackaging_Subject" xml:space="preserve">
+    <value>Reparasjonsordre (inkludert pakketjeneste)</value>
   </data>
   <data name="Unknown_Body" xml:space="preserve">
-    <value>Hi There,
+    <value>Hei der,
 
-The following order has received unknown status from the service provider. Please have a look.
+Følgende ordre har mottatt ukjent status fra tjenesteleverandøren. Ta en titt.
 
-[View Order](OrderLink)
+[Se bestilling](OrderLink)
 
 {{Order}}</value>
   </data>
-  <data name="AssetRepairEmail_Subject" xml:space="preserve">
-    <value>Repair Reminder</value>
-  </data>
-  <data name="LoanDeviceEmail_Subject" xml:space="preserve">
-    <value>Return Loan Device</value>
-  </data>
-  <data name="AssetDiscardedEmail_Subject" xml:space="preserve">
-    <value>Replace Discarded Asset</value>
-  </data>
-  <data name="OrderCancellationEmail_Subject" xml:space="preserve">
-    <value>Canceled Repair Order</value>
-  </data>
-  <data name="RemarketingNoPackaging_Body" xml:space="preserve">
-    <value>### Hello {{ FirstName }}!
-
-
-### Return details:
-Asset: {{ AssetName }} {{ AssetId }}
-Date: {{ OrderDate }}
-
-### Next steps:
-1. Transfer all data from the old asset to the new asset
-2. Factory reset/delete all data from the old asset
-3. (if iPhone) Deactivate Find my iPhone
-4. Remove the SIM card/memory card
-5. Package and send asset
-
-If step 1 to 4 is not done properly the recycle cannot be completed
-
-### How to package and send the asset:
-Please package your device securely so that it arrives undamaged. You will need to print the shipping label, and use transparent tape to attach it on the outside of the package.
-
-PS: The provider may contact you directly about the return.</value>
-  </data>
-  <data name="RemarketingNoPackaging_Subject" xml:space="preserve">
-    <value>Repair Order</value>
-  </data>
-  <data name="RemarketingPackaging_Body" xml:space="preserve">
-    <value>### Hello {{ FirstName }}!
-
-
-### Return details:
-Asset: {{ AssetName }} {{ AssetId }}
-Date: {{ OrderDate }}
-
-### Would you like to receive packaging?
-Yes
-Address: {{ Address }}
-
-### Next steps:
-1. Receive return packaging and shipping label
-2. Transfer all data from the old asset to the new asset
-3. Factory reset/delete all data from the old asset
-4. (if iPhone) Deactivate Find my iPhone
-5. Remove the SIM card/memory card
-6. Ship the asset using the return package
-
-If step 2 to 5 is not done properly the recycle cannot be completed
-
-PS: The provider may contact you directly about the return.</value>
-  </data>
-  <data name="RemarketingPackaging_Subject" xml:space="preserve">
-    <value>Repair Order (Included Packaging Service)</value>
+  <data name="Unknown_Subject" xml:space="preserve">
+    <value>Noe gikk galt med en bestilling</value>
   </data>
 </root>
