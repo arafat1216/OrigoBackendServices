@@ -39,60 +39,113 @@ namespace CustomerServices.UnitTests
         [Fact]
         public void GetEmailTemplate_English()
         {
-            var resourceManger = new ResourceManager("CustomerServices.Resources.Customer", Assembly.GetAssembly(typeof(EmailService))!);
-            var OrigoInvitationEnglishTemplate = resourceManger.GetString("OrigoInvitation", CultureInfo.CreateSpecificCulture("en"));
-            Assert.NotNull(OrigoInvitationEnglishTemplate);
-            Assert.Equal("### Hello {{FirstName}}!\r\n\r\nOrigo is a self service portal to help you and your business to keep control of your assets.\r\n\r\nIn order for you to start using Origo, please go through our onboarding tour:\r\n\r\n[Start Onboarding]({{OrigoBaseUrl}})\r\n", OrigoInvitationEnglishTemplate);
-        }
+            //Arrange
+            var language = "en";
+            var resourceManger = new ResourceManager("CustomerServices.Resources.Customer", Assembly.GetAssembly(typeof(EmailService)));
 
+            //Act
+            var InvitationMailTemplate = resourceManger.GetString(InvitationMail.TemplateName, CultureInfo.CreateSpecificCulture(language));
+            var OffboardingInitiatedWithBuyoutTemplate = resourceManger.GetString(OffboardingInitiatedWithBuyout.TemplateName, CultureInfo.CreateSpecificCulture(language));
+            var OffboardingInitiatedWithoutBuyoutTemplate = resourceManger.GetString(OffboardingInitiatedWithoutBuyout.TemplateName, CultureInfo.CreateSpecificCulture(language));
+            var OffboardingOverdueMailTemplate = resourceManger.GetString(OffboardingOverdueMail.TemplateName, CultureInfo.CreateSpecificCulture(language));
+
+            //Assert
+            Assert.NotNull(InvitationMailTemplate);
+            Assert.NotNull(OffboardingInitiatedWithBuyoutTemplate);
+            Assert.NotNull(OffboardingInitiatedWithoutBuyoutTemplate);
+            Assert.NotNull(OffboardingOverdueMailTemplate);
+
+            //.Replace(System.Environment.NewLine, string.Empty)) is used to remove \r\n or \n which leads to unit test failing in docker. 
+            Assert.Equal("### Hello {{FirstName}}!Origo is a self service portal to help you and your business to keep control of your assets.In order for you to start using Origo, please go through our onboarding tour:[Start Onboarding]({{OrigoBaseUrl}})", InvitationMailTemplate.Replace(System.Environment.NewLine, string.Empty));
+            Assert.Equal("### Hello {{FirstName}}!In regards of your offboarding, you have some tasks to complete in Origo before you leave.1. Choose whether you would like to *Buyout* or *Return* your asset to company. If you choose *Buyout*, this need to be done before {{LastBuyoutDay}}, in order to do a salary deduction. After this date, only *Return* will be available. Visit Origo to see your buyout price.Please follow the steps provided in the portal[Start Offboarding]({{MyPageLink}})", OffboardingInitiatedWithBuyoutTemplate.Replace(System.Environment.NewLine, string.Empty));
+            Assert.Equal("### Hello {{FirstName}}!In regards of your offboarding, you have some tasks to complete in Origo before you leave.1. Return your assets to companyPlease follow the steps provided in the portal[Start Offboarding]({{MyPageLink}})", OffboardingInitiatedWithoutBuyoutTemplate.Replace(System.Environment.NewLine, string.Empty));
+            Assert.Equal("### Hello!A user has been granted the status \"Offboarding Overdue\".**Name**: {{UserName}} **Last WorkingDay**: {{LastWorkingDays}} The user has now lost access to Origo, and will no longer be able to complete task(s), Please enter Origo to complete task(s)[View User]({{UserDetailViewUrl}})", OffboardingOverdueMailTemplate.Replace(System.Environment.NewLine, string.Empty));
+        }
         [Fact]
-        public void GetEmailTemplate_Norwgian_no()
+        public void GetEmailTemplate_Norwegian()
         {
-            var resourceManger = new ResourceManager("CustomerServices.Resources.Customer", Assembly.GetAssembly(typeof(EmailService))!);
-            var OrigoInvitationNorwegianTemplate = resourceManger.GetString("OrigoInvitation", CultureInfo.CreateSpecificCulture("no"));
-            Assert.NotNull(OrigoInvitationNorwegianTemplate);
-            Assert.Equal("### Hello {{FirstName}}!\r\n\r\nOrigo er en selvbetjeningsportal for å hjelpe deg og din bedrift med å holde kontroll over dine eiendeler.\r\n\r\nFor at du skal begynne å bruke Origo, vennligst gå gjennom vår onboarding tour:\r\n\r\n[Start Onboarding]({{OrigoBaseUrl}})",OrigoInvitationNorwegianTemplate);
+            //Arrange
+            var language = "no";
+            var resourceManger = new ResourceManager("CustomerServices.Resources.Customer", Assembly.GetAssembly(typeof(EmailService)));
+
+            //Act
+            var InvitationMailTemplate = resourceManger.GetString(InvitationMail.TemplateName, CultureInfo.CreateSpecificCulture(language));
+            var OffboardingInitiatedWithBuyoutTemplate = resourceManger.GetString(OffboardingInitiatedWithBuyout.TemplateName, CultureInfo.CreateSpecificCulture(language));
+            var OffboardingInitiatedWithoutBuyoutTemplate = resourceManger.GetString(OffboardingInitiatedWithoutBuyout.TemplateName, CultureInfo.CreateSpecificCulture(language));
+            var OffboardingOverdueMailTemplate = resourceManger.GetString(OffboardingOverdueMail.TemplateName, CultureInfo.CreateSpecificCulture(language));
+
+            //Assert
+            Assert.NotNull(InvitationMailTemplate);
+            Assert.NotNull(OffboardingInitiatedWithBuyoutTemplate);
+            Assert.NotNull(OffboardingInitiatedWithoutBuyoutTemplate);
+            Assert.NotNull(OffboardingOverdueMailTemplate);
+
+            //.Replace(System.Environment.NewLine, string.Empty)) is used to remove \r\n or \n which leads to unit test failing in docker. 
+            Assert.Equal("### Hello {{FirstName}}!Origo er en selvbetjeningsportal for å hjelpe deg og din bedrift med å holde kontroll over dine eiendeler.For at du skal begynne å bruke Origo, vennligst gå gjennom vår onboarding tour:[Start Onboarding]({{OrigoBaseUrl}})", InvitationMailTemplate.Replace(System.Environment.NewLine, string.Empty));
+            Assert.Equal("### Hello {{FirstName}}!Når det gjelder din offboarding, har du noen oppgaver å fullføre i Origo før du drar.1. Velg om du vil kjøpe ut eller returnere eiendelen til selskapet. Hvis du velger å kjøpe eiendelen, må dette gjøres før {{LastBuyoutDay}}, for å kunne gjøre lønnstrekk. Etter denne datoen vil kun retur være tilgjengelig. Besøk Origo for å se utkjøpsprisen.Vennligst følg trinnene i portalen.[Start Offboarding]({{MyPageLink}})", OffboardingInitiatedWithBuyoutTemplate.Replace(System.Environment.NewLine, string.Empty));
+            Assert.Equal("### Hello {{FirstName}}!Når det gjelder offboarding, har du noen oppgaver å fullføre i Origo før du drar.1. Returner eiendelene til selskapetFølg trinnene i portalen[Start Offboarding]({{MyPageLink}})", OffboardingInitiatedWithoutBuyoutTemplate.Replace(System.Environment.NewLine, string.Empty));
+            Assert.Equal("### Hello!En bruker har fått statusen \"Offboarding Overdue\".**Navn**: {{UserName}} **Siste arbeidsdag**: {{LastWorkingDays}} Brukeren har nå mistet tilgangen til Origo, og vil ikke lenger kunne fullføre oppgave(r). Vennligst gå inn i Origo for å fullføre oppgave(r).[View User]({{UserDetailViewUrl}})", OffboardingOverdueMailTemplate.Replace(System.Environment.NewLine, string.Empty));
         }
         [Fact]
         public void GetEmailTemplate_Norwgian_UpperCaseLanguageCode()
         {
+            //Arrange
             var resourceManger = new ResourceManager("CustomerServices.Resources.Customer", Assembly.GetAssembly(typeof(EmailService))!);
+            //Act
             var OrigoInvitationNorwegianTemplate = resourceManger.GetString("OrigoInvitation", CultureInfo.CreateSpecificCulture("NO"));
+            //Assert
             Assert.NotNull(OrigoInvitationNorwegianTemplate);
-            Assert.Equal("### Hello {{FirstName}}!\r\n\r\nOrigo er en selvbetjeningsportal for å hjelpe deg og din bedrift med å holde kontroll over dine eiendeler.\r\n\r\nFor at du skal begynne å bruke Origo, vennligst gå gjennom vår onboarding tour:\r\n\r\n[Start Onboarding]({{OrigoBaseUrl}})", OrigoInvitationNorwegianTemplate);
+            //.Replace(System.Environment.NewLine, string.Empty)) is used to remove \r\n or \n which leads to unit test failing in docker.
+            Assert.Equal("### Hello {{FirstName}}!Origo er en selvbetjeningsportal for å hjelpe deg og din bedrift med å holde kontroll over dine eiendeler.For at du skal begynne å bruke Origo, vennligst gå gjennom vår onboarding tour:[Start Onboarding]({{OrigoBaseUrl}})", OrigoInvitationNorwegianTemplate.Replace(System.Environment.NewLine, string.Empty));
         }
 
         [Fact]
         public void GetEmailTemplate_Norwgian_nb()
         {
+            //Arrange
             var resourceManger = new ResourceManager("CustomerServices.Resources.Customer", Assembly.GetAssembly(typeof(EmailService))!);
+            //Act
             var OrigoInvitationNorwegianTemplate = resourceManger.GetString("OrigoInvitation", CultureInfo.CreateSpecificCulture("nb"));
+            //Assert
             Assert.NotNull(OrigoInvitationNorwegianTemplate);
-            Assert.Equal("### Hello {{FirstName}}!\r\n\r\nOrigo er en selvbetjeningsportal for å hjelpe deg og din bedrift med å holde kontroll over dine eiendeler.\r\n\r\nFor at du skal begynne å bruke Origo, vennligst gå gjennom vår onboarding tour:\r\n\r\n[Start Onboarding]({{OrigoBaseUrl}})", OrigoInvitationNorwegianTemplate);
+            //.Replace(System.Environment.NewLine, string.Empty)) is used to remove \r\n or \n which leads to unit test failing in docker. 
+            Assert.Equal("### Hello {{FirstName}}!Origo er en selvbetjeningsportal for å hjelpe deg og din bedrift med å holde kontroll over dine eiendeler.For at du skal begynne å bruke Origo, vennligst gå gjennom vår onboarding tour:[Start Onboarding]({{OrigoBaseUrl}})", OrigoInvitationNorwegianTemplate.Replace(System.Environment.NewLine, string.Empty));
         }
         [Fact]
         public void GetEmailTemplate_Swedish_sv()
         {
+            //Arrange
             var resourceManger = new ResourceManager("CustomerServices.Resources.Customer", Assembly.GetAssembly(typeof(EmailService))!);
+            //Act
             var OrigoInvitationSwedishTemplate = resourceManger.GetString("OrigoInvitation", CultureInfo.CreateSpecificCulture("sv"));
+            //Assert
             Assert.NotNull(OrigoInvitationSwedishTemplate);
-            Assert.Equal("### Hej {{FirstName}}!\r\n\r\nOrigo är en självbetjäningsportal som hjälper dig och ditt företag att behålla kontrollen över dina tillgångar.\r\n\r\nFör att du ska börja använda Origo, gå igenom vår onboarding tour:\r\n\r\n[Start Onboarding]({{OrigoBaseUrl}})", OrigoInvitationSwedishTemplate);
+            //.Replace(System.Environment.NewLine, string.Empty)) is used to remove \r\n or \n which leads to unit test failing in docker. 
+            Assert.Equal("### Hej {{FirstName}}!Origo är en självbetjäningsportal som hjälper dig och ditt företag att behålla kontrollen över dina tillgångar.För att du ska börja använda Origo, gå igenom vår onboarding tour:[Start Onboarding]({{OrigoBaseUrl}})", OrigoInvitationSwedishTemplate.Replace(System.Environment.NewLine, string.Empty));
         }
         [Fact]
         public void GetEmailTemplate_SE_ReturnsEnglish()
         {
+            //Arrange
             var resourceManger = new ResourceManager("CustomerServices.Resources.Customer", Assembly.GetAssembly(typeof(EmailService))!);
+            //Act
             var OrigoInvitationEnglishTemplate = resourceManger.GetString("OrigoInvitation", CultureInfo.CreateSpecificCulture("SE"));
+            //Assert
             Assert.NotNull(OrigoInvitationEnglishTemplate);
-            Assert.Equal("### Hello {{FirstName}}!\r\n\r\nOrigo is a self service portal to help you and your business to keep control of your assets.\r\n\r\nIn order for you to start using Origo, please go through our onboarding tour:\r\n\r\n[Start Onboarding]({{OrigoBaseUrl}})\r\n", OrigoInvitationEnglishTemplate);
+            //.Replace(System.Environment.NewLine, string.Empty)) is used to remove \r\n or \n which leads to unit test failing in docker. 
+            Assert.Equal("### Hello {{FirstName}}!Origo is a self service portal to help you and your business to keep control of your assets.In order for you to start using Origo, please go through our onboarding tour:[Start Onboarding]({{OrigoBaseUrl}})", OrigoInvitationEnglishTemplate.Replace(System.Environment.NewLine, string.Empty));
         }
         [Fact]
         public void GetEmailTemplate_DefaultToEnglish_WhenLanguageCodeIsNotOneWeHave()
         {
+            //Arrange
             var resourceManger = new ResourceManager("CustomerServices.Resources.Customer", Assembly.GetAssembly(typeof(EmailService))!);
+            //Act
             var OrigoInvitationEnglishTemplate = resourceManger.GetString("OrigoInvitation", CultureInfo.CreateSpecificCulture("FR"));
+            //Arrange
             Assert.NotNull(OrigoInvitationEnglishTemplate);
-            Assert.Equal("### Hello {{FirstName}}!\r\n\r\nOrigo is a self service portal to help you and your business to keep control of your assets.\r\n\r\nIn order for you to start using Origo, please go through our onboarding tour:\r\n\r\n[Start Onboarding]({{OrigoBaseUrl}})\r\n", OrigoInvitationEnglishTemplate);
+            //.Replace(System.Environment.NewLine, string.Empty)) is used to remove \r\n or \n which leads to unit test failing in docker. 
+            Assert.Equal("### Hello {{FirstName}}!Origo is a self service portal to help you and your business to keep control of your assets.In order for you to start using Origo, please go through our onboarding tour:[Start Onboarding]({{OrigoBaseUrl}})", OrigoInvitationEnglishTemplate.Replace(System.Environment.NewLine, string.Empty));
         }
 
         [Fact]
