@@ -126,6 +126,9 @@ Tillgång: {{AssetName}} ({{AssetId}})
 Utköpsdatum: {{BuyoutDate}}
 Utköpspris: {{BuyoutPrice}}</value>
   </data>
+  <data name="AssetBuyout_Subject" xml:space="preserve">
+    <value>Utköp av tillgångar</value>
+  </data>
   <data name="ManagerOnBehalfBuyout" xml:space="preserve">
     <value>### Hej {{FirstName}}!
 
@@ -167,12 +170,18 @@ Du har tillgångar som väntar på avkastning. Som förvaltare måste du bekräf
 
 [Visa tillgångar]({{AssetsLink}})</value>
   </data>
+  <data name="PendingReturn_Subject" xml:space="preserve">
+    <value>Bekräfta retur</value>
+  </data>
   <data name="ReassignedToUser" xml:space="preserve">
     <value>### Hej {{FirstName}}!
 
 En tillgång har tilldelats om från din avdelning.
 
 [Visa tillgång]({{AssetLink}})</value>
+  </data>
+  <data name="ReassignedToUser_Subject" xml:space="preserve">
+    <value>Ny tillgång</value>
   </data>
   <data name="ReportAsset" xml:space="preserve">
     <value>### Hej {{FirstName}}!
@@ -194,11 +203,17 @@ En tillgång har rapporterats {{ReportType}}. Och har ställts in på inaktiv.
 ### Var hände det?
 {{Addresse}}</value>
   </data>
+  <data name="ReportAsset_Subject" xml:space="preserve">
+    <value>Tillgång rapporterad stulen/förlorad</value>
+  </data>
   <data name="UnassignedFromManager" xml:space="preserve">
     <value>### Hej!
 En tillgång togs bort från din avdelning.
 
 Det betyder att du inte längre är ansvarig för denna tillgång, och den är därför inte längre synlig för dig.</value>
+  </data>
+  <data name="UnassignedFromManager_Subject" xml:space="preserve">
+    <value>Tillgången tilldelas någon annan</value>
   </data>
   <data name="UnassignedFromUser" xml:space="preserve">
     <value>### Hej {{FirstName}}!
@@ -206,5 +221,8 @@ Det betyder att du inte längre är ansvarig för denna tillgång, och den är d
 En tillgång har tagits bort från dig.
 
 Det betyder att du inte längre är ansvarig för denna tillgång, och den är därför inte längre synlig för dig.</value>
+  </data>
+  <data name="UnassignedFromUser_Subject" xml:space="preserve">
+    <value>Tilldelad tillgång borttagen</value>
   </data>
 </root>

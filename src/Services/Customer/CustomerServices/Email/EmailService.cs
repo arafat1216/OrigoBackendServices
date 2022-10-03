@@ -65,34 +65,37 @@ namespace CustomerServices.Email
         public async Task InvitationEmailToUserAsync(InvitationMail emailData, string languageCode)
         {
             emailData.OrigoBaseUrl = _emailConfiguration.OrigoBaseUrl + _emailConfiguration.LoginPath;
-
             var template = _resourceManager.GetString(InvitationMail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var subject = _resourceManager.GetString(InvitationMail.Subject, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(emailData);
-            await SendAsync(emailData.Subject, template, emailData.Recipient , variables);
+            await SendAsync(subject, template, emailData.Recipient , variables);
         }
         public async Task OffboardingOverdueEmailToManagersAsync(OffboardingOverdueMail emailData, string languageCode)
         {
             emailData.UserDetailViewUrl = _emailConfiguration.OrigoBaseUrl + _emailConfiguration.UserDetailViewPath;
 
             var template = _resourceManager.GetString(OffboardingOverdueMail.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var subject = _resourceManager.GetString(OffboardingOverdueMail.Subject, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(emailData);
-            await SendAsync(emailData.Subject, template, emailData.Recipient , variables);
+            await SendAsync(subject, template, emailData.Recipient , variables);
         }
         public async Task OffboardingInitiatedWithBuyoutEmailToUserAsync(OffboardingInitiatedWithBuyout emailData, string languageCode)
         {
             emailData.MyPageLink = _emailConfiguration.OrigoBaseUrl + _emailConfiguration.MyPagePath;
 
             var template = _resourceManager.GetString(OffboardingInitiatedWithBuyout.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var subject = _resourceManager.GetString(OffboardingInitiatedWithBuyout.Subject, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(emailData);
-            await SendAsync(emailData.Subject, template, emailData.Recipient, variables);
+            await SendAsync(subject, template, emailData.Recipient, variables);
         }
         public async Task OffboardingInitiatedWithoutBuyoutEmailToUserAsync(OffboardingInitiatedWithoutBuyout emailData, string languageCode)
         {
             emailData.MyPageLink = _emailConfiguration.OrigoBaseUrl + _emailConfiguration.MyPagePath;
 
             var template = _resourceManager.GetString(OffboardingInitiatedWithoutBuyout.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var subject = _resourceManager.GetString(OffboardingInitiatedWithoutBuyout.Subject, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(emailData);
-            await SendAsync(emailData.Subject, template, emailData.Recipient, variables);
+            await SendAsync(subject, template, emailData.Recipient, variables);
         }
 
     }

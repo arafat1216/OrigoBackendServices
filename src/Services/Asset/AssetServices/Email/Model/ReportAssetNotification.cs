@@ -51,7 +51,7 @@ namespace AssetServices.Email.Model
         /// <summary>
         /// Subject of the email
         /// </summary>
-        public string Subject { get; set; } = "Asset Reported Stolen/Lost";
+        public const string Subject = "ReportAsset_Subject";
         public const string TemplateName = "ReportAsset";
     }
 }

@@ -78,6 +78,15 @@ namespace CustomerServices.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your Offboarding Tasks.
+        /// </summary>
+        internal static string OffboardingInitiatedWithBuyout_Subject {
+            get {
+                return ResourceManager.GetString("OffboardingInitiatedWithBuyout_Subject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ### Hello {{FirstName}}!
         ///In regards of your offboarding, you have some tasks to complete in Origo before you leave.
         ///
@@ -90,6 +99,24 @@ namespace CustomerServices.Resources {
         internal static string OffboardingInitiatedWithoutBuyout {
             get {
                 return ResourceManager.GetString("OffboardingInitiatedWithoutBuyout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your Offboarding Tasks.
+        /// </summary>
+        internal static string OffboardingInitiatedWithoutBuyout_Subject {
+            get {
+                return ResourceManager.GetString("OffboardingInitiatedWithoutBuyout_Subject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Offboarding Overdue.
+        /// </summary>
+        internal static string OffboardingOverdue_Subject {
+            get {
+                return ResourceManager.GetString("OffboardingOverdue_Subject", resourceCulture);
             }
         }
         
@@ -124,6 +151,15 @@ namespace CustomerServices.Resources {
         internal static string OrigoInvitation {
             get {
                 return ResourceManager.GetString("OrigoInvitation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Welcome to Origo!.
+        /// </summary>
+        internal static string OrigoInvitation_Subject {
+            get {
+                return ResourceManager.GetString("OrigoInvitation_Subject", resourceCulture);
             }
         }
     }

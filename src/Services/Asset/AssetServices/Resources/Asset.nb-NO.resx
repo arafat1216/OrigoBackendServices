@@ -126,6 +126,9 @@ Eiendel: {{AssetName}} ({{AssetId}})
 Utkjøpsdato: {{BuyoutDate}}
 Utkjøpspris: {{BuyoutPrice}}</value>
   </data>
+  <data name="AssetBuyout_Subject" xml:space="preserve">
+    <value>Bekreft retur</value>
+  </data>
   <data name="ManagerOnBehalfBuyout" xml:space="preserve">
     <value>### Hei {{FirstName}}!
 
@@ -167,12 +170,18 @@ Du har eiendeler som venter på å bli returnert. Som leder må du bekrefte når
 
 [Se eiendeler]({{AssetsLink}})</value>
   </data>
+  <data name="PendingReturn_Subject" xml:space="preserve">
+    <value>Eiendel meldt stjålet/tapt</value>
+  </data>
   <data name="ReassignedToUser" xml:space="preserve">
     <value>### Hei {{FirstName}}!
 
 En eiendel ble overført fra avdelingen din.
 
 [Se eiendel]({{AssetLink}})</value>
+  </data>
+  <data name="ReassignedToUser_Subject" xml:space="preserve">
+    <value>Eiendel er tildelt noen andre</value>
   </data>
   <data name="ReportAsset" xml:space="preserve">
     <value>### Hei {{FirstName}}!
@@ -194,11 +203,17 @@ En eiendel har blitt rapportert {{ReportType}}. Og har blitt satt til inaktiv.
 ### Hvor skjedde det?
 {{Addresse}}</value>
   </data>
+  <data name="ReportAsset_Subject" xml:space="preserve">
+    <value>Ny eiendel</value>
+  </data>
   <data name="UnassignedFromManager" xml:space="preserve">
     <value>### Hei!
 En eiendel ble fjernet fra avdelingen din.
 
 Dette betyr at du ikke lenger er ansvarlig for denne eiendelen, og den er derfor ikke lenger synlig for deg.</value>
+  </data>
+  <data name="UnassignedFromManager_Subject" xml:space="preserve">
+    <value>Eiendel kjøpt ut</value>
   </data>
   <data name="UnassignedFromUser" xml:space="preserve">
     <value>### Hei {{FirstName}}!
@@ -206,5 +221,8 @@ Dette betyr at du ikke lenger er ansvarlig for denne eiendelen, og den er derfor
 En eiendel ble fjernet fra deg.
 
 Dette betyr at du ikke lenger er ansvarlig for denne eiendelen, og den er derfor ikke lenger synlig for deg.</value>
+  </data>
+  <data name="UnassignedFromUser_Subject" xml:space="preserve">
+    <value>Eiendel er tatt bort</value>
   </data>
 </root>

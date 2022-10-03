@@ -13,7 +13,7 @@
         /// <summary>
         /// Subject of the email
         /// </summary>
-        public string Subject { get; set; } = "Unassigned Asset";
+        public const string Subject = "UnassignedFromUser_Subject";
         public const string TemplateName = "UnassignedFromUser";
     }
 }

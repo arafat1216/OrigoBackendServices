@@ -71,42 +71,48 @@ namespace AssetServices.Email
         public async Task UnassignedFromUserEmailAsync(UnassignedFromUserNotification emailData, string languageCode)
         {
             var template = _resourceManager.GetString(UnassignedFromUserNotification.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var subject = _resourceManager.GetString(UnassignedFromUserNotification.Subject, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(emailData);
-            await SendAsync(emailData.Subject, template, new List<string> { emailData.Recipient }, variables);
+            await SendAsync(subject, template, new List<string> { emailData.Recipient }, variables);
         }
         public async Task UnassignedFromManagerEmailAsync(UnassignedFromManagerNotification emailData, string languageCode)
         {
-            var template = _resourceManager.GetString(UnassignedFromUserNotification.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var template = _resourceManager.GetString(UnassignedFromManagerNotification.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var subject = _resourceManager.GetString(UnassignedFromManagerNotification.Subject, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(emailData);
-            await SendAsync(emailData.Subject, template, emailData.Recipient, variables);
+            await SendAsync(subject, template, emailData.Recipient, variables);
         }
         public async Task ReAssignedToUserEmailAsync(ReAssignedToUserNotification emailData, string languageCode)
         {
             emailData.AssetLink = _emailConfiguration.OrigoBaseUrl + _emailConfiguration.AssetPath;
 
             var template = _resourceManager.GetString(ReAssignedToUserNotification.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var subject = _resourceManager.GetString(ReAssignedToUserNotification.Subject, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(emailData);
-            await SendAsync(emailData.Subject, template, new List<string> { emailData.Recipient }, variables);
+            await SendAsync(subject, template, new List<string> { emailData.Recipient }, variables);
         }
         public async Task ReportAssetEmailAsync(ReportAssetNotification emailData, string languageCode)
         {
             var template = _resourceManager.GetString(ReportAssetNotification.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var subject = _resourceManager.GetString(ReportAssetNotification.Subject, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(emailData);
-            await SendAsync(emailData.Subject, template, emailData.Recipients, variables);
+            await SendAsync(subject, template, emailData.Recipients, variables);
         }
         public async Task PendingReturnEmailAsync(PendingReturnNotification emailData, string languageCode)
         {
             emailData.AssetLink = _emailConfiguration.OrigoBaseUrl + _emailConfiguration.AssetPath;
 
             var template = _resourceManager.GetString(PendingReturnNotification.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var subject = _resourceManager.GetString(PendingReturnNotification.Subject, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(emailData);
-            await SendAsync(emailData.Subject, template, emailData.Recipients, variables);
+            await SendAsync(subject, template, emailData.Recipients, variables);
         }
         public async Task AssetBuyoutEmailAsync(AssetBuyoutNotification emailData, string languageCode)
         {
             var template = _resourceManager.GetString(AssetBuyoutNotification.TemplateName, CultureInfo.CreateSpecificCulture(languageCode));
+            var subject = _resourceManager.GetString(AssetBuyoutNotification.Subject, CultureInfo.CreateSpecificCulture(languageCode));
             var variables = _flatDictionaryProvider.Execute(emailData);
-            await SendAsync(emailData.Subject, template, new List<string>() { emailData.Recipient }, variables);
+            await SendAsync(subject, template, new List<string>() { emailData.Recipient }, variables);
         }
         /// <inheritdoc/>
         public async Task ManagerBuyoutEmailAsync(ManagerOnBehalfBuyoutNotification emailData, string languageCode)

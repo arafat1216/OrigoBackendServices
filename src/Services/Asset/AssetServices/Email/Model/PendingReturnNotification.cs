@@ -31,7 +31,7 @@ namespace AssetServices.Email.Model
         /// <summary>
         /// Subject of the email
         /// </summary>
-        public string Subject { get; set; } = "Confirm Return";
+        public const string Subject = "PendingReturn_Subject";
         public const string TemplateName = "PendingReturn";
         
     }

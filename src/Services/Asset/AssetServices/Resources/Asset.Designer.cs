@@ -76,6 +76,15 @@ namespace AssetServices.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Asset Buyout.
+        /// </summary>
+        internal static string AssetBuyout_Subject {
+            get {
+                return ResourceManager.GetString("AssetBuyout_Subject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ### Hello {{FirstName}}!
         ///
         ///In regards of your offboarding, {{ManagerName}} has chosen buyout on the following asset:
@@ -147,6 +156,15 @@ namespace AssetServices.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Confirm Return.
+        /// </summary>
+        internal static string PendingReturn_Subject {
+            get {
+                return ResourceManager.GetString("PendingReturn_Subject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ### Hello {{FirstName}}!
         ///
         ///An asset was successfully reassigned from your department.
@@ -156,6 +174,15 @@ namespace AssetServices.Resources {
         internal static string ReassignedToUser {
             get {
                 return ResourceManager.GetString("ReassignedToUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New Asset.
+        /// </summary>
+        internal static string ReassignedToUser_Subject {
+            get {
+                return ResourceManager.GetString("ReassignedToUser_Subject", resourceCulture);
             }
         }
         
@@ -186,6 +213,15 @@ namespace AssetServices.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Asset Reported Stolen/Lost.
+        /// </summary>
+        internal static string ReportAsset_Subject {
+            get {
+                return ResourceManager.GetString("ReportAsset_Subject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ### Hello!
         ///An asset was successfully unassigned from your department.
         ///
@@ -194,6 +230,15 @@ namespace AssetServices.Resources {
         internal static string UnassignedFromManager {
             get {
                 return ResourceManager.GetString("UnassignedFromManager", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reassigned Asset.
+        /// </summary>
+        internal static string UnassignedFromManager_Subject {
+            get {
+                return ResourceManager.GetString("UnassignedFromManager_Subject", resourceCulture);
             }
         }
         
@@ -207,6 +252,15 @@ namespace AssetServices.Resources {
         internal static string UnassignedFromUser {
             get {
                 return ResourceManager.GetString("UnassignedFromUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unassigned Asset.
+        /// </summary>
+        internal static string UnassignedFromUser_Subject {
+            get {
+                return ResourceManager.GetString("UnassignedFromUser_Subject", resourceCulture);
             }
         }
     }

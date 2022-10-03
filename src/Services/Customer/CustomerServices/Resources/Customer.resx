@@ -128,6 +128,9 @@ Please follow the steps provided in the portal
 
 [Start Offboarding]({{MyPageLink}})</value>
   </data>
+  <data name="OffboardingInitiatedWithBuyout_Subject" xml:space="preserve">
+    <value>Your Offboarding Tasks</value>
+  </data>
   <data name="OffboardingInitiatedWithoutBuyout" xml:space="preserve">
     <value>### Hello {{FirstName}}!
 In regards of your offboarding, you have some tasks to complete in Origo before you leave.
@@ -137,6 +140,9 @@ In regards of your offboarding, you have some tasks to complete in Origo before 
 Please follow the steps provided in the portal
 
 [Start Offboarding]({{MyPageLink}})</value>
+  </data>
+  <data name="OffboardingInitiatedWithoutBuyout_Subject" xml:space="preserve">
+    <value>Your Offboarding Tasks</value>
   </data>
   <data name="OffboardingOverdued" xml:space="preserve">
     <value>### Hello!
@@ -150,6 +156,9 @@ The user has now lost access to Origo, and will no longer be able to complete ta
 
 [View User]({{UserDetailViewUrl}})</value>
   </data>
+  <data name="OffboardingOverdue_Subject" xml:space="preserve">
+    <value>Offboarding Overdue</value>
+  </data>
   <data name="OrigoInvitation" xml:space="preserve">
     <value>### Hello {{FirstName}}!
 
@@ -159,5 +168,8 @@ In order for you to start using Origo, please go through our onboarding tour:
 
 [Start Onboarding]({{OrigoBaseUrl}})
 </value>
+  </data>
+  <data name="OrigoInvitation_Subject" xml:space="preserve">
+    <value>Welcome to Origo!</value>
   </data>
 </root>

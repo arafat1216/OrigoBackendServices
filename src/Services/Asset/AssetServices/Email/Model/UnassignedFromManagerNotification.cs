@@ -11,7 +11,7 @@ namespace AssetServices.Email.Model
         /// <summary>
         /// Subject of the email
         /// </summary>
-        public string Subject { get; set; } = "Reassigned Asset";
+        public const string Subject = "UnassignedFromManager_Subject";
         public const string TemplateName = "UnassignedFromManager";
 
     }

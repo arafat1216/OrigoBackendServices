@@ -27,7 +27,7 @@ namespace CustomerServices.Email.Models
         /// My page Link
         /// </summary>
         public string MyPageLink { get; set; }
-        public string Subject { get; set; } = "Your Offboarding Tasks";
+        public const string Subject = "OffboardingInitiatedWithBuyout_Subject";
         public const string TemplateName = "OffboardingInitiatedWithBuyout";
     }
 }

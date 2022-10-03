@@ -126,6 +126,9 @@ Asset: {{AssetName}} ({{AssetId}})
 Buyout Date: {{BuyoutDate}}
 Buyout Price: {{BuyoutPrice}}</value>
   </data>
+  <data name="AssetBuyout_Subject" xml:space="preserve">
+    <value>Asset Buyout</value>
+  </data>
   <data name="ManagerOnBehalfBuyout" xml:space="preserve">
     <value>### Hello {{FirstName}}!
 
@@ -167,12 +170,18 @@ You have assets pending return. As a manager you need to confirm when you have r
 
 [View Assets]({{AssetsLink}})</value>
   </data>
+  <data name="PendingReturn_Subject" xml:space="preserve">
+    <value>Confirm Return</value>
+  </data>
   <data name="ReassignedToUser" xml:space="preserve">
     <value>### Hello {{FirstName}}!
 
 An asset was successfully reassigned from your department.
 
 [View Asset]({{AssetLink}})</value>
+  </data>
+  <data name="ReassignedToUser_Subject" xml:space="preserve">
+    <value>New Asset</value>
   </data>
   <data name="ReportAsset" xml:space="preserve">
     <value>### Hello {{FirstName}}!
@@ -194,11 +203,17 @@ An asset has been reported {{ReportType}}.and has been set to inactive.
 ### Where did it happen?
 {{Address}}</value>
   </data>
+  <data name="ReportAsset_Subject" xml:space="preserve">
+    <value>Asset Reported Stolen/Lost</value>
+  </data>
   <data name="UnassignedFromManager" xml:space="preserve">
     <value>### Hello!
 An asset was successfully unassigned from your department.
 
 This means you are no longer responsible for this asset, and it is therefore no longer visible to you.</value>
+  </data>
+  <data name="UnassignedFromManager_Subject" xml:space="preserve">
+    <value>Reassigned Asset</value>
   </data>
   <data name="UnassignedFromUser" xml:space="preserve">
     <value>### Hello {{FirstName}}!
@@ -206,5 +221,8 @@ This means you are no longer responsible for this asset, and it is therefore no 
 An asset was successfully unassigned from you.
 
 This means you are no longer responsible for this asset, and it is therefore no longer visible to you.</value>
+  </data>
+  <data name="UnassignedFromUser_Subject" xml:space="preserve">
+    <value>Unassigned Asset</value>
   </data>
 </root>

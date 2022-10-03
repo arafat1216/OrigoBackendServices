@@ -128,6 +128,9 @@ Följ stegen i portalen
 
 [Börja offboarding]({{MyPageLink}})</value>
   </data>
+  <data name="OffboardingInitiatedWithBuyout_Subject" xml:space="preserve">
+    <value>Dina offboarduppgifter</value>
+  </data>
   <data name="OffboardingInitiatedWithoutBuyout" xml:space="preserve">
     <value>### Hej {{FirstName}}!
 När det gäller din offboarding har du några uppgifter att utföra i Origo innan du åker.
@@ -137,6 +140,9 @@ När det gäller din offboarding har du några uppgifter att utföra i Origo inn
 Följ stegen i portalen.
 
 [Börja offboarding]({{MyPageLink}})</value>
+  </data>
+  <data name="OffboardingInitiatedWithoutBuyout_Subject" xml:space="preserve">
+    <value>Dina offboarduppgifter</value>
   </data>
   <data name="OffboardingOverdued" xml:space="preserve">
     <value>### Hej!
@@ -150,6 +156,9 @@ Användaren har nu förlorat åtkomst till Origo och kommer inte längre att kun
 
 [Visa användare]({{UserDetailViewUrl}})</value>
   </data>
+  <data name="OffboardingOverdue_Subject" xml:space="preserve">
+    <value>Avstigning försenad</value>
+  </data>
   <data name="OrigoInvitation" xml:space="preserve">
     <value>### Hej {{FirstName}}!
 
@@ -158,5 +167,8 @@ Origo är en självbetjäningsportal som hjälper dig och ditt företag att beh�
 För att du ska börja använda Origo, gå igenom vår onboarding tour:
 
 [Start Onboarding]({{OrigoBaseUrl}})</value>
+  </data>
+  <data name="OrigoInvitation_Subject" xml:space="preserve">
+    <value>Välkommen till Origo!</value>
   </data>
 </root>

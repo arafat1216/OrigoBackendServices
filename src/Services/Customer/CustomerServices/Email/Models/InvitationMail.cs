@@ -23,7 +23,7 @@ namespace CustomerServices.Email.Models
         /// <summary>
         /// Subject of the email
         /// </summary>
-        public string Subject { get; set; } = "Welcome to Origo!";
+        public const string Subject = "OrigoInvitation_Subject";
         public const string TemplateName = "OrigoInvitation";
     }
 }

@@ -25,7 +25,7 @@
         /// <summary>
         /// Subject of the email
         /// </summary>
-        public string Subject { get; set; } = "New Asset";
+        public const string Subject = "ReassignedToUser_Subject";
         public const string TemplateName = "ReassignedToUser";
     }
 }

@@ -217,7 +217,7 @@ namespace CustomerServices
                 //Only send invitation mail if the customer has started their onboarding 
                 await _emailService.InvitationEmailToUserAsync(
                     new InvitationMail { FirstName = firstName, Recipient = new List<string> { email } },
-                    userPreference.Language ?? "EN");
+                    userPreference.Language ?? "en");
 
                 newUser.ChangeUserStatus(null, UserStatus.Invited);
             }
@@ -542,7 +542,7 @@ namespace CustomerServices
                     FirstName = $"{user.FirstName}",
                     LastBuyoutDay = user.LastDayForReportingSalaryDeduction!.Value.ToShortDateString(),
                     Recipient = new List<string>() { user.Email }
-                }, string.IsNullOrEmpty(user.UserPreference!.Language) ? "EN" : user.UserPreference!.Language);
+                }, string.IsNullOrEmpty(user.UserPreference!.Language) ? "en" : user.UserPreference!.Language);
             }
             else
             {
@@ -550,7 +550,7 @@ namespace CustomerServices
                 {
                     FirstName = $"{user.FirstName}",
                     Recipient = new List<string>() { user.Email }
-                }, string.IsNullOrEmpty(user.UserPreference!.Language) ? "EN" : user.UserPreference!.Language);
+                }, string.IsNullOrEmpty(user.UserPreference!.Language) ? "en" : user.UserPreference!.Language);
             }
 
             var userDTO = _mapper.Map<UserDTO>(user);
@@ -599,7 +599,7 @@ namespace CustomerServices
                     CustomerId = customerId,
                     UserId = userId,
                     Recipient = department.Managers.Select(x => x.Email).ToList()
-                }, "EN");
+                }, "en");
             }
 
             var userDTO = _mapper.Map<UserDTO>(user);

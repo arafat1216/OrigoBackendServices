@@ -35,7 +35,7 @@ namespace CustomerServices.Email.Models
         /// <summary>
         /// Subject of the email
         /// </summary>
-        public string Subject { get; set; } = "Offboarding Overdue";
+        public const string Subject = "OffboardingOverdue_Subject";
         public const string TemplateName = "OffboardingOverdued";
     }
 }
