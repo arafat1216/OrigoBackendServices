@@ -236,7 +236,7 @@ namespace HardwareServiceOrder.API.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Encrypt a Text
         /// </summary>
         /// <param name="key"> The key which is used to encrypt the provided text. Here we are using a Guid as key</param>
         /// <param name="textToEncrypt"> The text that needs to encrypt </param>
@@ -249,7 +249,7 @@ namespace HardwareServiceOrder.API.Controllers
         }
         
         /// <summary>
-        /// 
+        /// Decrypt a Text
         /// </summary>
         /// <param name="key"> The key which is used to encrypt the provided text. Here we are using a Guid as key</param>
         /// <param name="encryptedText"> The encrypted text that needs to decrypt </param>

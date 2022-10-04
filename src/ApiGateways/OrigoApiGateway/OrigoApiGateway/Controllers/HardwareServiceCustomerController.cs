@@ -392,7 +392,7 @@ namespace OrigoApiGateway.Controllers
         ///     The Service Provider provides different Services such as Repair(SUR), Remarketing etc. This endpoint will create a <c>Repair(SUR)</c> type of Service Order.
         /// </remarks>
         /// <param name="organizationId">Customer Identifier</param>
-        /// <param name="model">Order details</param>
+        /// <param name="model">Service Order details</param>
         /// <returns>New hardware service order</returns>
         [HttpPost("organization/{organizationId:Guid}/orders/repair")]
         [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager,EndUser")]
@@ -441,7 +441,7 @@ namespace OrigoApiGateway.Controllers
         ///     The Service Provider provides different Services such as SUR, Remarketing etc. This endpoint will create a <c>Remarketing</c> type of Service Order.
         /// </remarks>
         /// <param name="organizationId">Customer Identifier</param>
-        /// <param name="model">Order details</param>
+        /// <param name="model">Service Order details</param>
         /// <returns>New hardware service order</returns>
         [HttpPost("organization/{organizationId:Guid}/orders/remarketing")]
         [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager,EndUser")]
