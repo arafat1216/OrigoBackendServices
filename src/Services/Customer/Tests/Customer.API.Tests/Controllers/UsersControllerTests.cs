@@ -1596,6 +1596,43 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(1, error?.Exceptions.Count);
             Assert.Collection(error?.Exceptions, error => Assert.Equal("Manager has no rights to make action on behalf of user atish@normann.no.", error));
         }
+
+        [Fact]
+        public async Task ResendOrigoInvitationMail_DeletedUser_ShouldNotGetMail()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            //Delete user
+            var request_uri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}";
+            var request_delete = new HttpRequestMessage(HttpMethod.Delete, request_uri);
+            request_delete.Content = JsonContent.Create(_callerId);
+            var delete_response = await httpClient.SendAsync(request_delete);
+            var deleted_user = await delete_response.Content.ReadFromJsonAsync<User>();
+            Assert.Equal(HttpStatusCode.OK, delete_response.StatusCode);
+            Assert.NotNull(deleted_user);
+            Assert.Equal(_userOneId, deleted_user!.Id);
+
+            var filter = new FilterOptionsForUser { Roles = new string[] { "SystemAdmin" }};
+            string json = JsonSerializer.Serialize(filter);
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/re-send-invitation/?filterOptions={json}";
+
+            var body = new ResendInvitation
+            {
+                UserIds = new List<Guid> { _userOneId }
+            };
+            // Act
+            var response = await httpClient.PostAsJsonAsync(requestUri, body);
+            var error = await response.Content.ReadFromJsonAsync<ExceptionMessages>();
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(error);
+            Assert.Equal(1, error?.Exceptions.Count);
+            Assert.Collection(error?.Exceptions, error => Assert.Equal($"User kari@normann.no is an deleted user and needs to be activated before it can be deleted.", error));
+
+        }
+       
+        //user permission slettet bruker - skal ikke forandre status til onboarding iniated og userpermission skal kunne endre - må testes
+
         [Fact]
         public async Task CompleteOnboarding_UserDontHaveOnboardingInitiated_ReturnsBadRequest()
         {

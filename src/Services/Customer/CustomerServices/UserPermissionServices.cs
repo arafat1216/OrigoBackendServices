@@ -71,6 +71,12 @@ namespace CustomerServices
                 .ThenInclude(r => r.GrantedPermissions).ThenInclude(p => p.Permissions).Include(up => up.User)
                 .Where(up => up.User.Email == userName).ToListAsync();
         }
+        public async Task<string?> GetRoleForUser(string userName)
+        {
+            var roles =  await _customerContext.UserPermissions.Include(up => up.Role).Where(up => up.User.Email == userName).Select(a => a.Role.Name).ToListAsync();
+
+            return roles != null ? roles.FirstOrDefault() : null;
+        }
 
         public async Task<IList<UserPermissionsDTO>?> GetUserPermissionsAsync(string userName)
         {

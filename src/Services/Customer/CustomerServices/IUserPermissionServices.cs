@@ -16,6 +16,7 @@ public interface IUserPermissionServices
 
     Task<UserPermissions> RemoveUserPermissionsAsync(string userName, string predefinedRole, IList<Guid> accessList, Guid callerId);
     Task<IList<string>> GetAllRolesAsync();
+    Task<string?> GetRoleForUser(string userName);
     Task<IList<UserPermissions>> GetUserAdminsAsync(Guid? partnerId = null);
     Task UpdatePermission(UserPermissions userPermission);
     Task<IList<UserPermissions>> GetCustomerAdminsAsync(Guid customerId);

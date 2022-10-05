@@ -75,6 +75,24 @@ public class UserPermissionsTests
 
     [Fact]
     [Trait("Category", "UnitTest")]
+    public async Task GetRoleForUser()
+    {
+        // Arrange
+        await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
+        var organizationServicesMock = new Mock<IOrganizationServices>();
+        organizationServicesMock
+            .Setup(os => os.GetOrganizationsAsync(false, true, UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID))
+            .ReturnsAsync(await context.Organizations.ToListAsync());
+        var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>(), _mapper, organizationServicesMock.Object);
+
+        // Act
+        string? role = await userPermissionServices.GetRoleForUser("partneradmin@doe.com");
+
+        // Assert
+        Assert.Equal("PartnerAdmin",role);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
     public async Task GetUserPermissions_ForPartnerAdmins_CheckAccessListForPartnerId()
     {
         // Arrange

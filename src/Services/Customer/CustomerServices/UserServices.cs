@@ -52,13 +52,9 @@ namespace CustomerServices
 
         private async Task<string> GetRoleNameForUser(string userEmail)
         {
-            var userPermissions = await _userPermissionServices.GetUserPermissionsAsync(userEmail);
-            if (userPermissions == null || !userPermissions.Any())
-            {
-                return string.Empty;
-            }
+            var role = await _userPermissionServices.GetRoleForUser(userEmail);
 
-            return userPermissions.FirstOrDefault() == null ? string.Empty : userPermissions.FirstOrDefault()!.Role;
+            return role ?? string.Empty;
         }
 
         public async Task<User> GetUserAsync(Guid customerId, Guid userId)
@@ -762,6 +758,7 @@ namespace CustomerServices
                         if (assignedToDepartment == null || (!assignedToDepartment.Any() || (!assignedToDepartment.Contains(user.Department.ExternalDepartmentId)))) throw new ArgumentException($"Manager has no rights to make action on behalf of user {user.Email}.");
                     }
 
+                    if (user.IsDeleted) throw new ArgumentException($"User {user.Email} is an deleted user and needs to be activated before it can be deleted.");
                     if (user.UserStatus != UserStatus.Invited && user.UserStatus != UserStatus.NotInvited) throw new ArgumentException($"User {user.Email} is an active user and do not need to be invited to Origo again.");
 
                     await _emailService.InvitationEmailToUserAsync(new Email.Models.InvitationMail
@@ -786,6 +783,7 @@ namespace CustomerServices
                 
             return exceptions;
         }
+
         /// <inheritdoc/>
         public async Task<UserDTO> CompleteOnboardingAsync(Guid customerId, Guid userId)
         {

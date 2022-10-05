@@ -310,4 +310,38 @@ public class UserPermissionsControllerTests : IClassFixture<CustomerWebApplicati
         Assert.All(userPermissions.UserPermissions,
             permission => Assert.All(permission.AccessList, access => Assert.Equal(_customerId, access)));
     }
+    [Fact]
+    public async Task GetUserPermission_ChangeStatusToOnboardingInitated_WhenUserIsNotDeleted()
+    {
+        var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+       
+        //Get user to show it has Invited as status
+        var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}";
+        var response = await _httpClient.GetAsync(requestUri);
+
+        var user = await response.Content.ReadFromJsonAsync<User>();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(user);
+        Assert.Equal("Invited", user?.UserStatusName);
+
+        //Get permissions - if user is Invited the get permissions should alter the stauts to OnboardingInitiated if the user is not deleted
+        var requestUriPermission = $"api/v1/organizations/users/{_userOneEmail}/permissions";
+
+        var responsePermission = await httpClient.GetAsync(requestUriPermission);
+        var permission = await responsePermission.Content.ReadFromJsonAsync<List<UserPermissions>>();
+
+        Assert.Equal(HttpStatusCode.OK, responsePermission.StatusCode);
+
+        //Validate that the user has gotten OnboardingInitiated
+        var requestUriValidateUser = $"/api/v1/organizations/{_customerId}/users/{_userOneId}";
+        var responseValidateUser = await _httpClient.GetAsync(requestUriValidateUser);
+
+        var validateUser = await responseValidateUser.Content.ReadFromJsonAsync<User>();
+
+        Assert.Equal(HttpStatusCode.OK, responseValidateUser.StatusCode);
+        Assert.NotNull(validateUser);
+        Assert.Equal("OnboardInitiated", validateUser?.UserStatusName);
+
+    }
 }
