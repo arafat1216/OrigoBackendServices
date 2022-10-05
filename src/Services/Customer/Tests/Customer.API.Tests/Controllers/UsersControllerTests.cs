@@ -1631,8 +1631,6 @@ namespace Customer.API.IntegrationTests.Controllers
 
         }
        
-        //user permission slettet bruker - skal ikke forandre status til onboarding iniated og userpermission skal kunne endre - må testes
-
         [Fact]
         public async Task CompleteOnboarding_UserDontHaveOnboardingInitiated_ReturnsBadRequest()
         {
