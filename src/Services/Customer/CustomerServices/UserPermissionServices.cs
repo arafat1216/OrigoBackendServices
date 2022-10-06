@@ -372,14 +372,19 @@ namespace CustomerServices
             return usersPermissionsAdded;
         }
         /// <summary>
-        /// Handles change in user status for the user. Should get OnboardInitiated if the user have the status Invited.
+        /// Handles change in user status for the user. Should get OnboardInitiated and turned on the onboarding tiles if the user have the status Invited.
         /// </summary>
         /// <param name="user">User object to get OnboardInitiated user status.</param>
         private async Task InitiateOnboarding(User user)
         {
-            user.OnboardingInitiated();
-            await SaveEntitiesAsync();
+            var existingUser = await _customerContext.Users.Include(x => x.UserPreference)
+                .FirstOrDefaultAsync(u => u.UserId == user!.UserId);
 
+            if (existingUser != null)
+            {
+                existingUser.OnboardingInitiated();
+                await SaveEntitiesAsync();
+            }
         }
     }
 }

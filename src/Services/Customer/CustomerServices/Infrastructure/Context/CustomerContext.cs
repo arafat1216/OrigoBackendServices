@@ -44,6 +44,7 @@ public class CustomerContext : DbContext
         modelBuilder.ApplyConfiguration(new DepartmentConfiguration(IsSQLite));
         modelBuilder.ApplyConfiguration(new PartnerConfiguration(IsSQLite));
         modelBuilder.ApplyConfiguration(new UserPermissionsConfiguration(IsSQLite));
+        modelBuilder.ApplyConfiguration(new UserPreferenceConfiguration(IsSQLite));
 
         modelBuilder.Seed();
     }

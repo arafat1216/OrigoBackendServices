@@ -137,6 +137,9 @@ namespace CustomerServices.Models
             { 
                 ChangeUserStatus(null, UserStatus.OnboardInitiated);
                 AddDomainEvent(new UserOnboardingInitiatedDomainEvent(this));
+
+                if (UserPreference != null)
+                    UserPreference.SetOnboardingTiles(this, UserId);
             }
         }
         public void OffboardingInitiated(DateTime lastWorkingDay, Guid callerId)

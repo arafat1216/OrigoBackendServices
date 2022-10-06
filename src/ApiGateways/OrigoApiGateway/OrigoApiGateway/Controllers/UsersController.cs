@@ -142,6 +142,35 @@ namespace OrigoApiGateway.Controllers
             return Ok(users);
         }
 
+        /// <summary>
+        /// Get user's preference of onboarding tiles with additional condition check
+        /// </summary>
+        /// <param name="organizationId">Organization id.</param>
+        /// <returns>Onboardin tiles preferences</returns>
+        [Route("onboarding-tiles-preferences")]
+        [HttpGet]
+        [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<OnboardingTilesPreference>> GetOnBoardingTilesPreferences(Guid organizationId)
+        {
+
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            if (!Guid.TryParse(actor, out var userId))
+            {
+                return NotFound();
+            }
+            var user = await _userServices.GetUserAsync(organizationId, userId);
+
+            var mockData = new OnboardingTilesPreference()
+            {
+                ShowAssetTile = true,
+                ShowSubscriptionTile = true
+            };
+
+            return Ok(mockData);
+        }
+
         [Route("{userId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]

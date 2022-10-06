@@ -5,9 +5,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CustomerServices.Infrastructure.Context.EntityConfiguration;
 
-/// <summary>
-///     EntityFramework configurations for the <see cref="User" /> entity.
-/// </summary>
+
+
 internal class UserConfiguration : IEntityTypeConfiguration<User>
 {
     private readonly bool _isSqlLite;
