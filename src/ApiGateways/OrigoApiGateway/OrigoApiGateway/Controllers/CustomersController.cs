@@ -1052,7 +1052,6 @@ namespace OrigoApiGateway.Controllers
             return CreatedAtAction(nameof(NewSubscriptionOrder), response);
         }
 
-
         [Route("{organizationId:Guid}/subscription-orders")]
         [ProducesResponseType(typeof(IList<OrigoSubscriptionOrderListItem>), (int)HttpStatusCode.OK)]
         [HttpGet]
@@ -1076,6 +1075,30 @@ namespace OrigoApiGateway.Controllers
 
             return Ok(response);
         }
+
+        [Route("{organizationId:Guid}/subscription-orders/count")]
+        [ProducesResponseType(typeof(OrigoSubscriptionOrdersCount), (int)HttpStatusCode.OK)]
+        [HttpGet]
+        public async Task<ActionResult> GetSubscriptionOrdersCount(Guid organizationId)
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+            var count = await SubscriptionManagementService.GetSubscriptionOrdersCount(organizationId);
+            return Ok(new OrigoSubscriptionOrdersCount() { OrganizationId = organizationId, Count = count });
+        }
+
         [Route("{organizationId:Guid}/subscription-orders-detail-view/{orderId:Guid}/{orderType:int}")]
         [ProducesResponseType(typeof(OrigoSubscriptionOrderDetailView), (int)HttpStatusCode.OK)]
         [HttpGet]

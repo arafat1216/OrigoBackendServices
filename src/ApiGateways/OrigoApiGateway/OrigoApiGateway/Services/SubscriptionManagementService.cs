@@ -427,6 +427,29 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task<int> GetSubscriptionOrdersCount(Guid organizationId)
+        {
+            try
+            {
+                var requestUri = $"{_options.ApiPath}/{organizationId}/subscription-orders/count";
+
+                var count = await HttpClient.GetFromJsonAsync<int>(requestUri);
+
+                return count;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetSubscriptionOrdersCount failed with HttpRequestException.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetSubscriptionOrdersCount failed with unknown error.");
+                throw;
+            }
+        }
+        
         public async Task<OrigoSubscriptionOrderDetailView> GetSubscriptionOrderDetailViewAsync(Guid organizationId, Guid orderId, int orderType)
         {
             string requestUri = $"{_options.ApiPath}/{organizationId}/subscription-orders-detail-view/{orderId}/{orderType}";

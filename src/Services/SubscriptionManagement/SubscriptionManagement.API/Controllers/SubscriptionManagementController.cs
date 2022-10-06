@@ -243,6 +243,20 @@ namespace SubscriptionManagement.API.Controllers
         }
 
         /// <summary>
+        /// Gets a list of all subscription orders for a customer
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <returns></returns>
+        [Route("{organizationId:Guid}/subscription-orders/count")]
+        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+        [SwaggerOperation(Tags = new[] { "Subscription Orders Count" })]
+        [HttpGet]
+        public async Task<ActionResult> GetSubscriptionOrdersCountAsync(Guid organizationId)
+        {
+            return Ok(await _subscriptionServices.GetSubscriptionOrdersCount(organizationId));
+        }
+
+        /// <summary>
         ///     Get list of customer operator accounts
         /// </summary>
         /// <param name="organizationId">Organization identifier</param>

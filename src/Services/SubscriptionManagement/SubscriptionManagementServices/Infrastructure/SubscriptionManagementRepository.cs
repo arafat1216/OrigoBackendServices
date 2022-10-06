@@ -94,6 +94,46 @@ namespace SubscriptionManagementServices.Infrastructure
             return subscriptionOrderList.OrderByDescending(o=> o.CreatedDate).Take(15).ToList();
         }
 
+        public async Task<int> GetTotalSubscriptionOrdersCountForCustomer(Guid organizationId)
+        {
+            var subscriptionsCount = await _subscriptionManagementContext.TransferSubscriptionOrders
+                .Include(o => o.PrivateSubscription)
+                .Include(o => o.BusinessSubscription)
+                .Where(o => o.OrganizationId == organizationId)
+                .CountAsync();
+
+            var transferToPrivateOrdersCount = await _subscriptionManagementContext.TransferToPrivateSubscriptionOrders
+                .Include(o => o.UserInfo).Where(o => o.OrganizationId == organizationId)
+                .CountAsync();
+            subscriptionsCount += transferToPrivateOrdersCount;
+
+            var changeOrdersCount = await _subscriptionManagementContext.ChangeSubscriptionOrder
+                .Where(o => o.OrganizationId == organizationId)
+                .CountAsync();
+            subscriptionsCount += changeOrdersCount;
+
+            var cancelOrdersCount = await _subscriptionManagementContext.CancelSubscriptionOrders
+                .Where(o => o.OrganizationId == organizationId)
+                .CountAsync();
+            subscriptionsCount += cancelOrdersCount;
+
+            var orderSimSubscriptionOrdersCount = await _subscriptionManagementContext.OrderSimSubscriptionOrders
+                .Where(o => o.OrganizationId == organizationId)
+                .CountAsync();
+            subscriptionsCount += orderSimSubscriptionOrdersCount;
+
+            var activateSimOrdersCount = await _subscriptionManagementContext.ActivateSimOrders
+                .Where(o => o.OrganizationId == organizationId)
+                .CountAsync();
+            subscriptionsCount += activateSimOrdersCount;
+
+            var newSubscriptionCount = await _subscriptionManagementContext.NewSubscriptionOrders
+                .Where(o => o.OrganizationId == organizationId)
+                .CountAsync();
+            subscriptionsCount += newSubscriptionCount;
+
+            return subscriptionsCount;
+        }
         public async Task<T> AddSubscriptionOrder(T subscriptionOrder)
         {
             var added = await _subscriptionManagementContext.AddAsync(subscriptionOrder);
