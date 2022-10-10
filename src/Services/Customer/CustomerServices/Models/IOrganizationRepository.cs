@@ -197,7 +197,8 @@ namespace CustomerServices.Models
         Task<OrganizationPreferences> AddOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
         Task<OrganizationPreferences> DeleteOrganizationPreferencesAsync(OrganizationPreferences organizationPreferences);
 
-        Task<IList<Department>> GetDepartmentsAsync(Guid organizationId);
+        Task<IList<Department>> GetDepartmentsAsync(Guid organizationId, bool asNoTracking);
+
         Task<Department?> GetDepartmentAsync(Guid organizationId, Guid departmentId);
         Task<IList<Department>> DeleteDepartmentsAsync(IList<Department> department);
 
@@ -226,8 +227,16 @@ namespace CustomerServices.Models
         /// <summary>
         ///     Retrieves all partners.
         /// </summary>
+        /// <param name="asNoTracking"> When <see langword="true"/> then query will explicitly be run as no-tracking. If the value is <see langword="false"/> 
+        ///     the query will use the default behavior. <para>
+        ///     
+        ///     No tracking queries are useful when the results are used in a <i>read-only</i> scenario. They're quicker to execute because there's no need to set up the
+        ///     change tracking information. If you don't need to update the entities retrieved from the database, then a no-tracking query should be used. See 
+        ///     <see href="https://docs.microsoft.com/en-us/ef/core/querying/tracking"/> for more details. </para></param>
+        /// <param name="includeUserPreference"> When <see langword="true"/>, it eagerly includes <see cref="User.UserPreference"/>. </param>
         /// <returns> A collection containing all partners. </returns>
-        Task<IList<Partner>> GetPartnersAsync();
+        Task<IList<Partner>> GetPartnersAsync(bool asNoTracking);
+
         Task<Organization?> GetOrganizationByTechstepCustomerIdAsync(long techstepCustomerId);
         Task<IList<Guid>> GetOrganizationIdsForPartnerAsync(Guid partnerId);
     }

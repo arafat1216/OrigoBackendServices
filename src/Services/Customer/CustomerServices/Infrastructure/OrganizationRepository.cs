@@ -522,15 +522,18 @@ namespace CustomerServices.Infrastructure
             });
         }
 
-
-        public async Task<IList<Department>> GetDepartmentsAsync(Guid organizationId)
+        public async Task<IList<Department>> GetDepartmentsAsync(Guid organizationId, bool asNoTracking)
         {
-            return await _customerContext.Organizations
-                                         .Where(a => a.OrganizationId == organizationId)
-                                         .Include(d => d.Departments)
-                                         .ThenInclude(a => a.Managers)
-                                         .SelectMany(a => a.Departments)
-                                         .ToListAsync();
+            IQueryable<Organization> query = _customerContext.Organizations
+                                                             .Where(a => a.OrganizationId == organizationId)
+                                                             .Include(d => d.Departments)
+                                                             .ThenInclude(a => a.Managers);
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            return await query.SelectMany(a => a.Departments)
+                              .ToListAsync();
         }
 
         public async Task<Department?> GetDepartmentAsync(Guid organizationId, Guid departmentId)
@@ -580,13 +583,17 @@ namespace CustomerServices.Infrastructure
         }
 
         /// <inheritdoc/>
-        public async Task<IList<Partner>> GetPartnersAsync()
+        public async Task<IList<Partner>> GetPartnersAsync(bool asNoTracking)
         {
-            return await _customerContext.Partners
-                                         .Where(partner => !partner.IsDeleted)
-                                         .Include(o => o.Organization)
-                                         .OrderBy(o => o.Organization.Name)
-                                         .ToListAsync();
+            IQueryable<Partner> query = _customerContext.Partners
+                                                        .Where(partner => !partner.IsDeleted)
+                                                        .Include(o => o.Organization)
+                                                        .OrderBy(o => o.Organization.Name);
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            return await query.ToListAsync();
         }
 
         public async Task<Organization?> GetOrganizationByTechstepCustomerIdAsync(long techstepCustomerId)

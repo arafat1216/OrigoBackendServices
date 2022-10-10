@@ -631,7 +631,7 @@ namespace CustomerServices
             if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
 
             // Check if the customer has the department
-            var departments = await _organizationRepository.GetDepartmentsAsync(customerId);
+            var departments = await _organizationRepository.GetDepartmentsAsync(customerId, false);
             var department = departments.FirstOrDefault(d => d.ExternalDepartmentId == departmentId);
 
             if (department == null) throw new DepartmentNotFoundException($"Unable to find {departmentId}");
@@ -670,7 +670,7 @@ namespace CustomerServices
             if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
 
             // Check if the customer has the department
-            var departments = await _organizationRepository.GetDepartmentsAsync(customerId);
+            var departments = await _organizationRepository.GetDepartmentsAsync(customerId, false);
             var department = departments.FirstOrDefault(d => d.ExternalDepartmentId == departmentId);
 
             if (department == null) throw new DepartmentNotFoundException($"Unable to find {departmentId}");

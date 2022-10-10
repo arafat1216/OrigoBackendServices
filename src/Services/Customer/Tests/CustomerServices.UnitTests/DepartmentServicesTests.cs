@@ -49,7 +49,7 @@ public class DepartmentServicesTests
             .Setup(o => o.GetOrganizationAsync(customerId, It.IsAny<Expression<Func<Organization, bool>>?>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(organization);
         var existingDepartment = new Department(DEPARTMENT_NAME, COST_CENTER_NAME, DEPARTMENT_DESCRIPTION, organization, departmentId, Guid.Empty);
         existingDepartment.AddDepartmentManager(new User(organization, Guid.NewGuid(), "Ola", "Nordmann", "ola.nordmann@test.test", "+4791111111", "123", new UserPreference("lang", Guid.Empty), Guid.Empty), Guid.Empty);
-        organizationRepositoryMock.Setup(o => o.GetDepartmentsAsync(customerId)).ReturnsAsync(new List<Department>
+        organizationRepositoryMock.Setup(o => o.GetDepartmentsAsync(customerId, It.IsAny<bool>())).ReturnsAsync(new List<Department>
         {
             existingDepartment
         });
@@ -136,8 +136,8 @@ public class DepartmentServicesTests
          );
 
         //Act
-        var departments = await organizationRepository.GetDepartmentsAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID);
-        var departmentTwo = departments.Where(a=>a.ExternalDepartmentId == UnitTestDatabaseSeeder.DEPARTMENT_TWO_ID).FirstOrDefault();
+        var departments = await organizationRepository.GetDepartmentsAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, false);
+        var departmentTwo = departments.FirstOrDefault(a => a.ExternalDepartmentId == UnitTestDatabaseSeeder.DEPARTMENT_TWO_ID);
 
         //Assert
         Assert.Equal(2, departmentTwo?.Managers.Count);

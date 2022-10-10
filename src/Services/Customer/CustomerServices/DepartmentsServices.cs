@@ -37,7 +37,7 @@ namespace CustomerServices
 
         public async Task<IList<DepartmentDTO>> GetDepartmentsAsync(Guid customerId)
         {
-            var departmentList = await _customerRepository.GetDepartmentsAsync(customerId);
+            var departmentList = await _customerRepository.GetDepartmentsAsync(customerId, true);
             return _mapper.Map<IList<DepartmentDTO>>(departmentList);
         }
 
@@ -48,7 +48,7 @@ namespace CustomerServices
             {
                 throw new CustomerNotFoundException();
             }
-            var departments = await _customerRepository.GetDepartmentsAsync(customerId);
+            var departments = await _customerRepository.GetDepartmentsAsync(customerId, false);
             var parentDepartment = departments.FirstOrDefault(dept => dept.ExternalDepartmentId == parentDepartmentId);
             var department = new Department(name, costCenterId, description, customer, newDepartmentId, callerId, parentDepartment: parentDepartment);
             customer.AddDepartment(department, callerId);
@@ -93,7 +93,7 @@ namespace CustomerServices
             {
                 throw new CustomerNotFoundException();
             }
-            var allDepartments = await _customerRepository.GetDepartmentsAsync(customerId);
+            var allDepartments = await _customerRepository.GetDepartmentsAsync(customerId, false);
             var parentDepartment = allDepartments.FirstOrDefault(dept => dept.ExternalDepartmentId == parentDepartmentId);
             var departmentToUpdate = allDepartments.FirstOrDefault(d => d.ExternalDepartmentId == departmentId);
             if (departmentToUpdate == null)
@@ -187,7 +187,7 @@ namespace CustomerServices
             {
                 throw new CustomerNotFoundException();
             }
-            var departments = await _customerRepository.GetDepartmentsAsync(customerId);
+            var departments = await _customerRepository.GetDepartmentsAsync(customerId, false);
             var department = departments.FirstOrDefault(d => d.ExternalDepartmentId == departmentId);
             if (department == null)
                 return null;

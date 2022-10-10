@@ -57,7 +57,7 @@ namespace CustomerServices
 
         public async Task<IList<Partner>> GetPartnersAsync()
         {
-            var partners = await _organizationRepository.GetPartnersAsync();
+            var partners = await _organizationRepository.GetPartnersAsync(true);
 
             return partners;
         }
