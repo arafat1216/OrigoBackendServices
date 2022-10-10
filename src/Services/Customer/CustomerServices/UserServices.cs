@@ -725,13 +725,13 @@ namespace CustomerServices
             return userDTO;
         }
 
-        public async Task<UserInfo> GetUserInfoFromUserName(string userName)
+        public async Task<UserInfoDTO> GetUserInfoFromUserName(string userName)
         {
-            return _mapper.Map<UserInfo>(await _organizationRepository.GetUserByUserName(userName));
+            return _mapper.Map<UserInfoDTO>(await _organizationRepository.GetUserByUserName(userName));
         }
-        public async Task<UserInfo> GetUserInfoFromUserId(Guid userId)
+        public async Task<UserInfoDTO> GetUserInfoFromUserId(Guid userId)
         {
-            return _mapper.Map<UserInfo>(await _organizationRepository.GetUserAsync(userId));
+            return _mapper.Map<UserInfoDTO>(await _organizationRepository.GetUserAsync(userId));
         }
         /// <inheritdoc/>
         public async Task<ExceptionMessagesDTO> ResendOrigoInvitationMail(Guid customerId, IList<Guid> userIds, string[]? role, Guid[]? assignedToDepartment)

@@ -27,6 +27,7 @@ namespace OrigoApiGateway.Services
         Task<OrigoUser> InitiateOffboarding(Guid customerId, Guid userId, string role, List<Guid> departments, OffboardInitiate offboardDate, IList<LifeCycleSetting> lifeCycleSettings, Guid callerId);
         Task<OrigoUser> CancelOffboarding(Guid customerId, Guid userId, string role, List<Guid> departments, Guid callerId);
         Task<OrigoExceptionMessages> ResendOrigoInvitationMail(Guid customerId, InviteUsers users, FilterOptionsForUser filterOptions);
-        Task<OrigoUser> CompleteOnboardingAsync(Guid customerId, Guid userId); 
+        Task<OrigoUser> CompleteOnboardingAsync(Guid customerId, Guid userId);
+        Task<(bool correctOrganization, Guid userId)> UserEmailLinkedToGivenOrganization(Guid organizationId, string userEmail);
     }
 }

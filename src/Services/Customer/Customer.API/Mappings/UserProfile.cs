@@ -9,7 +9,7 @@ namespace Customer.API.Mappings
         public UserProfile()
         {
             CreateMap<UserDTO, User>();
-            CreateMap<CustomerServices.ServiceModels.UserInfo, ViewModels.UserInfo>();
+            CreateMap<UserInfoDTO, UserInfo>();
         }
     }
 }

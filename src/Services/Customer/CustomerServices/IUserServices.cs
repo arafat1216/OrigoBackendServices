@@ -28,8 +28,8 @@ namespace CustomerServices
         Task<UserDTO> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
         Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
         Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
-        Task<UserInfo> GetUserInfoFromUserName(string userName);
-        Task<UserInfo> GetUserInfoFromUserId(Guid userId);
+        Task<UserInfoDTO> GetUserInfoFromUserName(string userName);
+        Task<UserInfoDTO> GetUserInfoFromUserId(Guid userId);
         Task<UserDTO> InitiateOffboarding(Guid customerId, Guid userId, DateTime lastWorkingDay, bool buyoutAllowed, Guid callerId);
         Task<UserDTO> CancelOffboarding(Guid customerId, Guid userId, Guid callerId);
         Task<UserDTO> OverdueOffboarding(Guid customerId, Guid userId, Guid callerId);

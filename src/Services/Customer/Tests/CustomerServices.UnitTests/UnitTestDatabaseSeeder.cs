@@ -26,6 +26,7 @@ public class UnitTestDatabaseSeeder
     public static readonly Guid DEPARTMENT_TWO_ID = new("424f4485-53cc-4e59-8fae-59b27f12ff61");
 
     public static readonly Guid USER_ONE_ID = new("42803f8e-5608-4beb-a3e6-029b8e229d91");
+    public static readonly string USER_ONE_EMAIL = "jane@doe.com";
     public static readonly Guid USER_TWO_ID = new("39349c24-6e47-4a5e-9bab-7b65f438fac5");
     public static readonly Guid USER_THREE_ID = new("08DB1C4F-FAA3-436A-9598-90822649B793");
     public static readonly Guid USER_FOUR_ID = new("a0c3ee8d-b543-4dc9-88b5-958c54b9d270");
@@ -137,7 +138,7 @@ public class UnitTestDatabaseSeeder
         var systemAdminUser = new User(techstepOrganization, Guid.NewGuid(), "System", "Admin", "systemadmin@doe.com", "+4799549999", "007",
             systemAdminPreference, EMPTY_CALLER_ID);
 
-        var userOne = new User(customerOne, USER_ONE_ID, "Jane", "Doe", "jane@doe.com", "+4799999999", "007",
+        var userOne = new User(customerOne, USER_ONE_ID, "Jane", "Doe", USER_ONE_EMAIL, "+4799999999", "007",
             userPreferences1, EMPTY_CALLER_ID);
         userOne.ChangeUserStatus("123", UserStatus.Deactivated);
 

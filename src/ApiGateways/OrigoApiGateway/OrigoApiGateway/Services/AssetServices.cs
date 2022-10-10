@@ -444,18 +444,18 @@ namespace OrigoApiGateway.Services
             multiContent.Add(new StreamContent(file.OpenReadStream()), "assetImportFile", file.FileName);
             var result = await HttpClient.PostAsync(url, multiContent);
             var assetValidationResults = await result.Content.ReadFromJsonAsync<AssetValidationResult>();
+            if (assetValidationResults == null) return null;
+            await CheckAndUpdateUserGivenEmail(organizationId, assetValidationResults);
+
             if (validateOnly)
             {
                 return assetValidationResults;
             }
 
-            if (assetValidationResults == null) return null;
+            var callerId = Guid.Parse("00000000-0000-0000-0000-000000000001");
             foreach (var validAsset in assetValidationResults.ValidAssets)
             {
-                Guid userId;
-                var users = await _userServices.GetAllUsersAsync(organizationId, new FilterOptionsForUser(),
-                    search: validAsset.ImportedUser.Email, cancellationToken: CancellationToken.None);
-                if (users == null || users.TotalItems == 0)
+                if (validAsset.MatchedUserId == Guid.Empty)
                 {
                     var newUser = await _userServices.AddUserForCustomerAsync(organizationId,
                         new NewUser
@@ -464,31 +464,55 @@ namespace OrigoApiGateway.Services
                             FirstName = validAsset.ImportedUser.FirstName,
                             LastName = validAsset.ImportedUser.LastName,
                             MobileNumber = validAsset.ImportedUser.PhoneNumber
-                        }, Guid.Empty, true);
-                    userId = newUser.Id;
-                }
-                else
-                {
-                    var user = users.Items.FirstOrDefault();
-                    userId = user?.Id ?? Guid.Empty;
+                        }, callerId, true);
+                    validAsset.MatchedUserId = newUser.Id;
                 }
 
-                await AddAssetForCustomerAsync(organizationId, new NewAssetDTO
-                {
-                    Alias = validAsset.Alias,
-                    AssetHolderId = userId,
-                    Brand = validAsset.Brand,
-                    AssetCategoryId = 1,
-                    Imei = validAsset.Imeis.Split(",", StringSplitOptions.TrimEntries).Select(long.Parse).ToList(),
-                    ProductName = validAsset.ProductName,
-                    Source = "FileImport",
-                    SerialNumber = validAsset.SerialNumber,
-                    PurchaseDate = validAsset.PurchaseDate,
-                    PurchasedBy = validAsset.ImportedUser.FirstName + ' ' + validAsset.ImportedUser.LastName
-                });
+                await AddAssetForCustomerAsync(organizationId,
+                    new NewAssetDTO
+                    {
+                        Alias = validAsset.Alias,
+                        AssetHolderId = validAsset.MatchedUserId,
+                        Brand = validAsset.Brand,
+                        AssetCategoryId = 1,
+                        Imei =
+                            validAsset.Imeis.Split(",", StringSplitOptions.TrimEntries).Select(long.Parse).ToList(),
+                        ProductName = validAsset.ProductName,
+                        Source = "FileImport",
+                        SerialNumber = validAsset.SerialNumber,
+                        PurchaseDate = validAsset.PurchaseDate,
+                        PurchasedBy = validAsset.ImportedUser.FirstName + ' ' + validAsset.ImportedUser.LastName
+                    });
             }
 
             return assetValidationResults;
+        }
+
+        /// <summary>
+        /// Checks if email addresses exists. If it does and the organization is not the correct one it is marked and
+        /// moved to the incorrect assets.
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="assetValidationResults"></param>
+        /// <returns></returns>
+        private async Task CheckAndUpdateUserGivenEmail(Guid organizationId, AssetValidationResult assetValidationResults)
+        {
+            foreach (var validAsset in assetValidationResults.ValidAssets)
+            {
+                var user = await _userServices.UserEmailLinkedToGivenOrganization(organizationId,
+                    validAsset.ImportedUser.Email); 
+                if (user.correctOrganization)
+                {
+                    validAsset.MatchedUserId = user.userId;
+                }
+                else
+                {
+                    var invalidAsset = _mapper.Map<InvalidImportedAsset>(validAsset);
+                    invalidAsset.Errors = new List<string> { "Email is not unique and is used outside of the organization." };
+                    assetValidationResults.InvalidAssets.Add(invalidAsset);
+                }
+            }
+            assetValidationResults.ValidAssets.RemoveAll(a => a.MatchedUserId == null);
         }
 
         public async Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId, FilterOptionsForAsset? filterOptions)

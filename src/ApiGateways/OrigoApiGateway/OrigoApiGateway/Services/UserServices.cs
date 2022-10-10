@@ -513,9 +513,9 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                if(userName == null && userId == Guid.Empty) return null;
+                if(string.IsNullOrEmpty(userName) && userId == Guid.Empty) return new UserInfoDTO();
 
-                var response = userName != null ? 
+                var response = !string.IsNullOrEmpty(userName) ? 
                     await HttpClient.GetFromJsonAsync<UserInfoDTO>($"{_options.ApiPath}/{userName}/users-info") : 
                     await HttpClient.GetFromJsonAsync<UserInfoDTO>($"{_options.ApiPath}/{userId}/users-info");
 
@@ -570,6 +570,18 @@ namespace OrigoApiGateway.Services
                 _logger.LogError(exception, "ActivateOnboardedUser failed with HttpRequestException.");
                 throw;
             }
+        }
+
+
+        public async Task<(bool correctOrganization, Guid userId)> UserEmailLinkedToGivenOrganization(Guid organizationId, string userEmail)
+        {
+            var user = await GetUserInfo(userEmail, Guid.Empty);
+            if (string.IsNullOrEmpty(user.UserName))
+            {
+                return (correctOrganization: true, userId: Guid.Empty);
+            }
+
+            return user.OrganizationId == organizationId ? (correctOrganization: true, userId: user.UserId) : (correctOrganization: false, userId: Guid.Empty);
         }
     }
 }

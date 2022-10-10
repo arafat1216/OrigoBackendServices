@@ -1,4 +1,5 @@
 #nullable enable
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -7,6 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Common.Enums;
+using Common.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -1476,6 +1479,7 @@ public class AssetServicesTests
         var options = new AssetConfiguration { ApiPath = @"/assets" };
         var optionsMock = new Mock<IOptions<AssetConfiguration>>();
         optionsMock.Setup(o => o.Value).Returns(options);
+        var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
 
         var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), mockFactory.Object,
             optionsMock.Object, Mock.Of<IUserServices>(), new Mock<IUserPermissionService>().Object, _mapper, Mock.Of<IDepartmentsServices>());
@@ -1493,5 +1497,66 @@ public class AssetServicesTests
         Assert.Collection(assetList,
                assetLifecycle => Assert.All(assetLifecycle.Imei, imei => Assert.Equal(980451084262467, imei)),
                assetLifecycle => Assert.All(assetLifecycle.Imei, imei => Assert.Equal(357879702624426, imei)));
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task ImportAssetsFile_WithDuplicateEmail_ReturnInvalidAsset()
+    {
+        // Arrange
+        var mockFactory = new Mock<IHttpClientFactory>();
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        mockHttpMessageHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(@"{
+                        ""validAssets"":
+                            [{
+                                ""Brand"": ""The brand"",
+                                ""ImportedUser"": {
+                                    ""FirstName"":  ""John"",
+                                    ""LastName"":  ""Doe"",
+                                    ""Email"": ""john@doe.com""
+                                }
+                             }]
+                    }
+                    ")
+                });
+
+
+        var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+        mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+        var options = new AssetConfiguration { ApiPath = @"/assets" };
+        var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+        optionsMock.Setup(o => o.Value).Returns(options);
+
+        var userServiceMock = new Mock<IUserServices>();
+        var customerId = Guid.NewGuid();
+        userServiceMock.Setup(us =>
+            us.GetAllUsersAsync(customerId, It.IsAny<FilterOptionsForUser>(), CancellationToken.None, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(
+                    new PagedModel<OrigoUser>
+                    {
+                        Items = new List<OrigoUser>
+                        {
+                            new(){
+                                Email = "john@doe.com"
+                            }
+                        }
+                    });
+        var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), mockFactory.Object,
+            optionsMock.Object, userServiceMock.Object, new Mock<IUserPermissionService>().Object, _mapper, Mock.Of<IDepartmentsServices>());
+        var formFileMock = new Mock<IFormFile>();
+        formFileMock.Setup(ff => ff.OpenReadStream()).Returns(Stream.Null);
+        formFileMock.Setup(ff => ff.FileName).Returns("assets.csv");
+
+        // Act
+        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false);
+
+        // Assert
+        Assert.Equal(1, assetValidationResult.InvalidAssets.Count);
+
     }
 }
