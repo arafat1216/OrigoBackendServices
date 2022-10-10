@@ -54,26 +54,26 @@ namespace CustomerServices
             if (!hierarchical)
             {
                 if (partner is null)
-                    organizations = await _organizationRepository.GetOrganizationsAsync(customersOnly: customersOnly);
+                    organizations = await _organizationRepository.GetOrganizationsAsync(true, customersOnly: customersOnly);
                 else
-                    organizations = await _organizationRepository.GetOrganizationsAsync(whereFilter: entity => entity.Partner == partner, customersOnly: customersOnly);
+                    organizations = await _organizationRepository.GetOrganizationsAsync(true, whereFilter: entity => entity.Partner == partner, customersOnly: customersOnly);
 
                 foreach (var organization in organizations)
                 {
-                    organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organization.OrganizationId);
+                    organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organization.OrganizationId, asNoTracking: true);
                 }
             }
             else
             {
                 if (partner is null)
-                    organizations = await _organizationRepository.GetOrganizationsAsync(whereFilter: entity => entity.ParentId == null, customersOnly: customersOnly);
+                    organizations = await _organizationRepository.GetOrganizationsAsync(true, whereFilter: entity => entity.ParentId == null, customersOnly: customersOnly);
                 else
-                    organizations = await _organizationRepository.GetOrganizationsAsync(whereFilter: (entity => entity.ParentId == null && entity.Partner == partner), customersOnly: customersOnly);
+                    organizations = await _organizationRepository.GetOrganizationsAsync(true, whereFilter: (entity => entity.ParentId == null && entity.Partner == partner), customersOnly: customersOnly);
 
                 foreach (var organization in organizations)
                 {
-                    organization.ChildOrganizations = await _organizationRepository.GetOrganizationsAsync(whereFilter: entity => entity.ParentId == organization.OrganizationId);
-                    organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organization.OrganizationId);
+                    organization.ChildOrganizations = await _organizationRepository.GetOrganizationsAsync(true, whereFilter: entity => entity.ParentId == organization.OrganizationId);
+                    organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organization.OrganizationId, asNoTracking: true);
                 }
             }
 
@@ -85,10 +85,16 @@ namespace CustomerServices
         ///     it returns all top/root level organizations.
         /// </summary>
         /// <param name="parentId"> The ID of the parent organization. </param>
+        /// <param name="asNoTracking"> When <see langword="true"/> then query will explicitly be run as no-tracking. If the value is <see langword="false"/> 
+        ///     the query will use the default behavior. <para>
+        ///     
+        ///     No tracking queries are useful when the results are used in a <i>read-only</i> scenario. They're quicker to execute because there's no need to set up the
+        ///     change tracking information. If you don't need to update the entities retrieved from the database, then a no-tracking query should be used. See 
+        ///     <see href="https://docs.microsoft.com/en-us/ef/core/querying/tracking"/> for more details. </para></param>
         /// <returns> A list containing all matching organizations. </returns>
-        public async Task<IList<Organization>> GetOrganizationsByParentId(Guid? parentId)
+        public async Task<IList<Organization>> GetOrganizationsByParentId(Guid? parentId, bool asNoTracking)
         {
-            return await _organizationRepository.GetOrganizationsAsync(whereFilter: entity => entity.ParentId == parentId);
+            return await _organizationRepository.GetOrganizationsAsync(asNoTracking, whereFilter: entity => entity.ParentId == parentId);
         }
 
         public async Task<Organization?> GetOrganizationAsync(Guid customerId)
@@ -103,9 +109,9 @@ namespace CustomerServices
         /// <param name="includePreferences">Include OrganizationPreferences object of the organization if set to true</param>
         /// <param name="includeLocation">Include OrganizationLocation object of the organization if set to true</param>
         /// <returns>Organization</returns>
-        public async Task<Organization?> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocations = false, bool customersOnly = false)
+        public async Task<Organization?> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false, bool customersOnly = false)
         {
-            var organization = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true, customersOnly: customersOnly, includeLocations: includeLocations, includePartner: true);
+            var organization = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true, customersOnly: customersOnly, includeLocations: includeLocation, includePartner: true, asNoTracking: true);
 
             if (organization is not null)
             {
@@ -113,9 +119,9 @@ namespace CustomerServices
                 {
                     organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(customerId);
                 }
-                if(includeLocations && organization.PrimaryLocation is null && organization.Address != null)
+                if (includeLocation && organization.PrimaryLocation is null && organization.Address != null)
                 {
-                    var newLocation = new Location(string.Empty , string.Empty,
+                    var newLocation = new Location(string.Empty, string.Empty,
                     organization.Address.Street, string.Empty, organization.Address.PostCode, organization.Address.City,
                     organization.Address.Country);
                     newLocation.SetPrimaryLocation(true);
@@ -223,14 +229,12 @@ namespace CustomerServices
             var organization = new Organization(Guid.NewGuid(), newOrganization.ParentId,
                                                 newOrganization.Name, newOrganization.OrganizationNumber, address,
                                                 contactPerson, null, location,
-                                                partner, newOrganization.IsCustomer, lastSalaryReportingDay: null, addUsersToOkta: newOrganization.AddUsersToOkta, accountOwner: newOrganization.AccountOwner, techstepCustomerId:techstepCustomerId);
+                                                partner, newOrganization.IsCustomer, lastSalaryReportingDay: null, addUsersToOkta: newOrganization.AddUsersToOkta, accountOwner: newOrganization.AccountOwner, techstepCustomerId: techstepCustomerId);
 
             organization = await _organizationRepository.AddAsync(organization);
 
 
             #region Preferences
-
-            OrganizationPreferences preferences;
 
             // OrganizationPreferences needs the OrganizationId from newOrganization, and is therefore made last
             if (newOrganization.Preferences is not null)
@@ -272,7 +276,7 @@ namespace CustomerServices
                 // Check parent
                 if (!await ParentOrganizationIsValid(updatedOrganization.ParentId, updatedOrganization.OrganizationId))
                     throw new ParentNotValidException("Invalid organization id on parent.");
-                
+
                 //If Techstep is partner make sure that organization gets the original name and organization
                 if (organizationOriginal.Partner != null && (organizationOriginal.Partner.ExternalId == _techstepPartnerConfiguration.PartnerId))
                 {
@@ -315,7 +319,7 @@ namespace CustomerServices
 
                 // Do update
                 var newOrganization = new Organization(updatedOrganization.OrganizationId, updatedOrganization.ParentId, updatedOrganization
-                    .Name, updatedOrganization.OrganizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, updatedOrganization.LastDayForReportingSalaryDeduction, null, null, updatedOrganization.PayrollContactEmail, updatedOrganization.AddUsersToOkta == null? false:true);
+                    .Name, updatedOrganization.OrganizationNumber, newAddress, newContactPerson, organizationOriginal.Preferences, newLocation, organizationOriginal.Partner, organizationOriginal.IsCustomer, updatedOrganization.LastDayForReportingSalaryDeduction, null, null, updatedOrganization.PayrollContactEmail, updatedOrganization.AddUsersToOkta == null ? false : true);
 
                 organizationOriginal.UpdateOrganization(newOrganization);
 
@@ -380,13 +384,13 @@ namespace CustomerServices
                 }
 
                 //Customers with techstep as a partner should not be able to update their name and organization number
-                if (organizationOriginal.Partner == null || organizationOriginal.Partner.ExternalId != _techstepPartnerConfiguration.PartnerId) 
+                if (organizationOriginal.Partner == null || organizationOriginal.Partner.ExternalId != _techstepPartnerConfiguration.PartnerId)
                 {
                     // String fields
                     if (name == string.Empty)
                         throw new RequiredFieldIsEmptyException("The name field is required and should never be empty (null is allowed for patch).");
-                    name = (name == null) ? organizationOriginal.Name : name;
-                    organizationNumber = (organizationNumber == null) ? organizationOriginal.OrganizationNumber : organizationNumber;
+                    name ??= organizationOriginal.Name;
+                    organizationNumber ??= organizationOriginal.OrganizationNumber;
 
                     // Check organizationNumber
                     var organizationFromOrgNumber = await GetOrganizationByOrganizationNumberAsync(organizationNumber);
@@ -417,19 +421,19 @@ namespace CustomerServices
 
                 // Address
                 Address newAddress;
-                street = (street == null) ? organizationOriginal.Address.Street : street;
-                postCode = (postCode == null) ? organizationOriginal.Address.PostCode : postCode;
-                city = (city == null) ? organizationOriginal.Address.City : city;
-                country = (country == null) ? organizationOriginal.Address.Country : country;
+                street ??= organizationOriginal.Address.Street;
+                postCode ??= organizationOriginal.Address.PostCode;
+                city ??= organizationOriginal.Address.City;
+                country ??= organizationOriginal.Address.Country;
 
                 newAddress = new Address(street, postCode, city, country);
 
                 // ContactPerson
                 ContactPerson newContactPerson;
-                firstName = (firstName == null) ? organizationOriginal.ContactPerson.FirstName : firstName;
-                lastName = (lastName == null) ? organizationOriginal.ContactPerson.LastName : lastName;
-                email = (email == null) ? organizationOriginal.ContactPerson.Email : email;
-                phoneNumber = (phoneNumber == null) ? organizationOriginal.ContactPerson.PhoneNumber : phoneNumber;
+                firstName ??= organizationOriginal.ContactPerson.FirstName;
+                lastName ??= organizationOriginal.ContactPerson.LastName;
+                email ??= organizationOriginal.ContactPerson.Email;
+                phoneNumber ??= organizationOriginal.ContactPerson.PhoneNumber;
 
                 newContactPerson = new ContactPerson(firstName, lastName, email, phoneNumber);
 
@@ -506,17 +510,17 @@ namespace CustomerServices
         }
         public async Task UpdateOrganizationTechstepCoreAsync(TechstepCoreCustomerUpdateDTO updateTechstepCore)
         {
-            foreach (var updatedOrganization in updateTechstepCore.Data) 
+            foreach (var updatedOrganization in updateTechstepCore.Data)
             {
                 var organization = await _organizationRepository.GetOrganizationByTechstepCustomerIdAsync(updatedOrganization.TechstepCustomerId);
                 if (organization == null) throw new CustomerNotFoundException($"Organization with techstep core id {updatedOrganization.TechstepCustomerId} is not found.");
-                
+
                 //update organization name
                 if (!string.IsNullOrWhiteSpace(updatedOrganization.Name) && (updatedOrganization.Name != organization.Name))
                 {
                     organization.UpdateOrganizationName(updatedOrganization.Name);
                 }
-                
+
                 //update organization organization number
                 if (!string.IsNullOrWhiteSpace(updatedOrganization.OrgNumber) && (updatedOrganization.OrgNumber != organization.OrganizationNumber))
                 {
@@ -524,7 +528,7 @@ namespace CustomerServices
                 }
 
                 //update organization country code
-                if (!string.IsNullOrWhiteSpace(updatedOrganization.CountryCode)) 
+                if (!string.IsNullOrWhiteSpace(updatedOrganization.CountryCode))
                 {
                     var organizationPreferences = await _organizationRepository.GetOrganizationPreferencesAsync(organization.OrganizationId);
 
@@ -535,19 +539,19 @@ namespace CustomerServices
                     }
                     else if (organizationPreferences.PrimaryLanguage != null && (updatedOrganization.CountryCode.ToLower() != organizationPreferences.PrimaryLanguage))
                     {
-                       
-                        var newPreferences = new OrganizationPreferences(organization.OrganizationId,Guid.Empty, 
+
+                        var newPreferences = new OrganizationPreferences(organization.OrganizationId, Guid.Empty,
                             organizationPreferences.WebPage ?? null, organizationPreferences.LogoUrl ?? null, organizationPreferences.OrganizationNotes ?? null,
-                            organizationPreferences.EnforceTwoFactorAuth,updatedOrganization.CountryCode.ToLower(),organizationPreferences.DefaultDepartmentClassification);
-                        
+                            organizationPreferences.EnforceTwoFactorAuth, updatedOrganization.CountryCode.ToLower(), organizationPreferences.DefaultDepartmentClassification);
+
                         organizationPreferences.UpdatePreferences(newPreferences);
                     }
                 }
-                 
+
                 //update organizations account owner
                 if (!string.IsNullOrWhiteSpace(updatedOrganization.AccountOwner) && (updatedOrganization.AccountOwner != organization.AccountOwner))
                 {
-                   organization.UpdateTechstepAccountOwner(updatedOrganization.AccountOwner);
+                    organization.UpdateTechstepAccountOwner(updatedOrganization.AccountOwner);
                 }
             }
             await _organizationRepository.SaveEntitiesAsync();
@@ -596,7 +600,7 @@ namespace CustomerServices
         {
             try
             {
-                var preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organizationId);
+                var preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organizationId, asNoTracking: true);
 
                 // TODO: We should likely throw an exception here
                 if (preferences is null)
@@ -886,34 +890,34 @@ namespace CustomerServices
                 if (parentOrganization.ParentId is not null && parentOrganization.ParentId != Guid.Empty)
                     return false; // invalid hierarchy depth
 
-                var childList = await GetOrganizationsByParentId(organizationId);
+                var childList = await GetOrganizationsByParentId(organizationId, true);
                 if (childList.Count > 0)
                     return false;
             }
             return true;
         }
 
-        public async Task<Organization> InitiateOnboardingAsync(Guid organizationId)
+        public async Task<Organization?> InitiateOnboardingAsync(Guid organizationId)
         {
             var customer = await _organizationRepository.GetOrganizationAsync(organizationId);
-            
+
             if (customer == null) throw new CustomerNotFoundException();
-            
-            
-            var users = await _organizationRepository.GetUsersForCustomerAsync(organizationId);
+
+
+            var users = await _organizationRepository.GetUsersForCustomerAsync(organizationId, false, includeUserPreference: true);
             if (users.Count == 0 && !users.Any()) throw new ArgumentException($"Customers need to have at least one user imported to initiate the onboarding process.");
 
             customer.InitiateOnboarding();
             var customerPreferences = await _organizationRepository.GetOrganizationPreferencesAsync(organizationId);
 
-            if (users != null && users.Any()) await SendIvitationMail(users, customerPreferences != null ? customerPreferences.PrimaryLanguage : "en");
+            if (users != null && users.Any()) await SendInvitationMail(users, customerPreferences != null ? customerPreferences.PrimaryLanguage : "en");
 
             await _organizationRepository.SaveEntitiesAsync();
 
             return customer;
 
         }
-        public async Task SendIvitationMail(IList<User> users, string defaultLanguage)
+        public async Task SendInvitationMail(IList<User> users, string defaultLanguage)
         {
 
             foreach (var user in users)
@@ -932,7 +936,7 @@ namespace CustomerServices
                         user.ChangeUserStatus(null, UserStatus.Invited);
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError($"SendIvitationMail failed. " + ex.Message);
                 }

@@ -660,15 +660,15 @@ public class UserServicesTests
 
         mockRepository.Setup(o => o.GetOrganizationAsync(organizationId,
             It.IsAny<Expression<Func<Organization, bool>>?>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(),
-            It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(organization);
-        mockRepository.Setup(o => o.GetOrganizationPreferencesAsync(organizationId)).ReturnsAsync(preferences);
+            It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(organization);
+        mockRepository.Setup(o => o.GetOrganizationPreferencesAsync(organizationId, It.IsAny<bool>())).ReturnsAsync(preferences);
 
         const string EMAIL_THAT_EXIST = "john@doe.com";
         const string MOBILE_NUMBER_THAT_EXIST = "+4798888811";
         var existingUser = new User(organization, Guid.NewGuid(), "John", "Doe", EMAIL_THAT_EXIST,
             MOBILE_NUMBER_THAT_EXIST, "emp123", new UserPreference("no", UnitTestDatabaseSeeder.CALLER_ID), UnitTestDatabaseSeeder.CALLER_ID);
 
-        mockRepository.Setup(u => u.GetUserByUserName(EMAIL_THAT_EXIST)).ReturnsAsync(existingUser);
+        mockRepository.Setup(u => u.GetUserByEmailAddress(EMAIL_THAT_EXIST, It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(existingUser);
         mockRepository.Setup(u => u.GetUserByMobileNumber(MOBILE_NUMBER_THAT_EXIST, organizationId)).ReturnsAsync(existingUser);
 
 

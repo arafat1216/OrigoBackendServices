@@ -47,7 +47,7 @@ namespace CustomerServices
 
         public async Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)
         {
-            return await _organizationRepository.GetAllUsersAsync(customerId, role, assignedToDepartment, userStatus, cancellationToken, search, page, limit);
+            return await _organizationRepository.GetAllUsersAsync(customerId, role, assignedToDepartment, userStatus, true, cancellationToken, search, page, limit);
         }
 
         private async Task<string> GetRoleNameForUser(string userEmail)
@@ -112,8 +112,8 @@ namespace CustomerServices
 
             var mobileNumberInUse = await _organizationRepository.GetUserByMobileNumber(mobileNumber, customerId);
             if (mobileNumberInUse != null && !mobileNumberInUse.IsDeleted) throw new InvalidPhoneNumberException("Phone number already in use.");
-            
-            var userWithEmail = await _organizationRepository.GetUserByUserName(email);
+
+            var userWithEmail = await _organizationRepository.GetUserByEmailAddress(email, includeUserPreference: true);
             //Activate the user if the user i soft deleted
             if (userWithEmail != null)
             {
@@ -128,7 +128,7 @@ namespace CustomerServices
                 if (mobileNumber != default && userWithEmail.MobileNumber?.Trim() != mobileNumber?.Trim())
                 {
                     //If mobile number is used by someone else then this user
-                    if(mobileNumberInUse != null && mobileNumberInUse.UserId != userWithEmail.UserId) throw new InvalidPhoneNumberException("Phone number already in use.");
+                    if (mobileNumberInUse != null && mobileNumberInUse.UserId != userWithEmail.UserId) throw new InvalidPhoneNumberException("Phone number already in use.");
                     userWithEmail.ChangeMobileNumber(mobileNumber, callerId);
                 }
 
@@ -267,17 +267,17 @@ namespace CustomerServices
 
         private async Task<User> AssignOktaUserIdAsync(Guid customerId, Guid userId, string oktaUserId, Guid callerId)
         {
-            var user = await GetUserAsync(customerId, userId);
+            var user = await _organizationRepository.GetUserAsync(customerId, userId, includeDepartment: true, includeUserPreference: true);
             if (user == null)
                 throw new UserNotFoundException($"Unable to find {userId}");
-            user.ChangeUserStatus(oktaUserId,UserStatus.NotInvited);
+            user.ChangeUserStatus(oktaUserId, UserStatus.NotInvited);
             await _organizationRepository.SaveEntitiesAsync();
             return user;
         }
 
         public async Task<UserDTO> SetUserActiveStatusAsync(Guid customerId, Guid userId, bool isActive, Guid callerId)
         {
-            var user = await GetUserAsync(customerId, userId);
+            var user = await _organizationRepository.GetUserAsync(customerId, userId, includeDepartment: true, includeUserPreference: true);
             if (user == null)
                 throw new UserNotFoundException($"Unable to find {userId}");
 
@@ -357,7 +357,7 @@ namespace CustomerServices
         public async Task<UserDTO> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,
             string email, string employeeId, string mobileNumber, UserPreference userPreference, Guid callerId)
         {
-            var user = await GetUserAsync(customerId, userId);
+            var user = await _organizationRepository.GetUserAsync(customerId, userId, includeDepartment: true, includeUserPreference: true);
             //get role from current email
             var role = await GetRoleNameForUser(user.Email);
 
@@ -367,8 +367,8 @@ namespace CustomerServices
             if (email != default && user.Email?.ToLower().Trim() != email?.ToLower().Trim())
             {
                 // Check if email address is used by another user
-                var username = await _organizationRepository.GetUserByUserName(email);
-                if (username != null && username.Id != user.Id)
+                var existingEmailUser = await _organizationRepository.GetUserByEmailAddress(email, asNoTracking: true);
+                if (existingEmailUser != null && existingEmailUser.Id != user.Id)
                     throw new UserNameIsInUseException("Email address is already in use.");
                 user.ChangeEmailAddress(email, callerId);
             }
@@ -408,7 +408,7 @@ namespace CustomerServices
         public async Task<UserDTO> UpdateUserPutAsync(Guid customerId, Guid userId, string firstName, string lastName,
             string email, string employeeId, string mobileNumber, UserPreference userPreference, Guid callerId)
         {
-            var user = await GetUserAsync(customerId, userId);
+            var user = await _organizationRepository.GetUserAsync(customerId, userId, includeDepartment: true, includeUserPreference: true);
             if (user == null) return null;
             //Need to fetch the role based on the mail already registered on the user in the case there is a change in email from put and then resulting in no role for mail
             //The role assignment for response get assign after mapping to user DTO
@@ -419,8 +419,8 @@ namespace CustomerServices
             if (email != default && user.Email?.ToLower().Trim() != email?.ToLower().Trim())
             {
                 // Check if email address is used by another user
-                var username = await _organizationRepository.GetUserByUserName(email);
-                if (username != null && username.Id != user.Id)
+                var existingEmailUser = await _organizationRepository.GetUserByEmailAddress(email, asNoTracking: true);
+                if (existingEmailUser != null && existingEmailUser.Id != user.Id)
                     throw new UserNameIsInUseException("Email address is already in use.");
             }
             user.ChangeEmailAddress(email, callerId);
@@ -489,7 +489,7 @@ namespace CustomerServices
             return userDTO;
         }
 
-        private async Task PublishEvent<T>(string subscriptionName, string topicName, T userEvent) where T: IUserEvent
+        private async Task PublishEvent<T>(string subscriptionName, string topicName, T userEvent) where T : IUserEvent
         {
             // Publish event
             try
@@ -507,7 +507,7 @@ namespace CustomerServices
 
         public async Task<UserDTO> AssignDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
-            var user = await GetUserAsync(customerId, userId);
+            var user = await _organizationRepository.GetUserAsync(customerId, userId, includeDepartment: true, includeUserPreference: true);
             var department = await _organizationRepository.GetDepartmentAsync(customerId, departmentId);
             if (user == null || department == null)
                 return null;
@@ -519,13 +519,13 @@ namespace CustomerServices
             userDTO.DepartmentName = department.Name;
 
             await _organizationRepository.SaveEntitiesAsync();
-            await PublishEvent("customer-pub-sub", "user-assign-department", new UserChangedDepartmentEvent{CustomerId = customerId, DepartmentId = departmentId, UserId = userId, CreatedDate = DateTime.UtcNow });
+            await PublishEvent("customer-pub-sub", "user-assign-department", new UserChangedDepartmentEvent { CustomerId = customerId, DepartmentId = departmentId, UserId = userId, CreatedDate = DateTime.UtcNow });
             return userDTO;
         }
 
         public async Task<UserDTO> InitiateOffboarding(Guid customerId, Guid userId, DateTime lastWorkingDay, bool buyoutAllowed, Guid callerId)
         {
-            var user = await GetUserAsync(customerId, userId);
+            var user = await _organizationRepository.GetUserAsync(customerId, userId, includeDepartment: true, includeUserPreference: true);
             if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
 
             user.OffboardingInitiated(lastWorkingDay, callerId);
@@ -555,7 +555,7 @@ namespace CustomerServices
 
         public async Task<UserDTO> CancelOffboarding(Guid customerId, Guid userId, Guid callerId)
         {
-            var user = await GetUserAsync(customerId, userId);
+            var user = await _organizationRepository.GetUserAsync(customerId, userId, includeDepartment: true, includeUserPreference: true);
             if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
 
             user.OffboardingCancelled(callerId);
@@ -576,7 +576,7 @@ namespace CustomerServices
 
         public async Task<UserDTO> OverdueOffboarding(Guid customerId, Guid userId, Guid callerId)
         {
-            var user = await GetUserAsync(customerId, userId);
+            var user = await _organizationRepository.GetUserAsync(customerId, userId, includeDepartment: true, includeUserPreference: true);
             if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
             if (user.UserStatus != UserStatus.OffboardInitiated) throw new UserNotFoundException($"Offboarding not initiated for User: {userId}");
 
@@ -588,7 +588,7 @@ namespace CustomerServices
 
             if (department.Managers.Any())
             {
-                await _emailService.OffboardingOverdueEmailToManagersAsync(new Email.Models.OffboardingOverdueMail
+                await _emailService.OffboardingOverdueEmailToManagersAsync(new OffboardingOverdueMail
                 {
                     UserName = $"{user.FirstName} {user.LastName}",
                     LastWorkingDays = user.LastWorkingDay!.Value.ToShortDateString(),
@@ -605,7 +605,7 @@ namespace CustomerServices
         /// <inheritdoc/>
         public async Task<UserDTO> CompleteOffboarding(Guid customerId, Guid userId, Guid callerId)
         {
-            var user = await GetUserAsync(customerId, userId);
+            var user = await _organizationRepository.GetUserAsync(customerId, userId, includeDepartment: true, includeUserPreference: true);
             if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
             if (user.UserStatus != UserStatus.OffboardInitiated && user.UserStatus != UserStatus.OffboardOverdue) throw new UserNotFoundException($"Offboarding not initiated for User: {userId}");
 
@@ -623,38 +623,39 @@ namespace CustomerServices
 
         public async Task AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
-            var customer = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
+            // TODO: This needs a performance-review. See if we can merge the organization and department-loading, and the related if checks.
+            var customer = await _organizationRepository.GetOrganizationAsync(customerId);
             if (customer == null) throw new CustomerNotFoundException($"Unable to find {customerId}");
 
-            var user = await GetUserAsync(customerId, userId);
+            var user = await _organizationRepository.GetUserAsync(customerId, userId);
             if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
 
-            //Check if the customer has the department
+            // Check if the customer has the department
             var departments = await _organizationRepository.GetDepartmentsAsync(customerId);
             var department = departments.FirstOrDefault(d => d.ExternalDepartmentId == departmentId);
 
             if (department == null) throw new DepartmentNotFoundException($"Unable to find {departmentId}");
 
-            //check if the user already is a manager for this department
+            // Check if the user already is a manager for this department
             var manager = department.Managers.FirstOrDefault(a => a.UserId == userId);
             if (manager != null) return;
 
-            //Find sub departments of the department the user user is to be manager for
+            // Find sub departments of the department the user user is to be manager for
             var subDepartmentsList = department.SubDepartments(departments);
             var accessList = subDepartmentsList.Select(a => a.ExternalDepartmentId).ToList();
 
-            //Check if user have department role for other departments
+            // Check if user have department role for other departments
             var usersPermission = await _userPermissionServices.GetUserPermissionsAsync(user.Email);
             UserPermissionsDTO managerPermission = null;
             if (usersPermission != null) managerPermission = usersPermission.FirstOrDefault(a => a.Role == PredefinedRole.DepartmentManager.ToString() || a.Role == PredefinedRole.Manager.ToString());
 
-            //User needs to have the role as department manager before getting assigned as a manager for a department
+            // User needs to have the role as department manager before getting assigned as a manager for a department
             if (managerPermission == null) throw new MissingRolePermissionsException();
 
-            //Check if user has department manager role for given customer
-            if(!managerPermission.AccessList.Contains(customerId)) throw new MissingRolePermissionsException();
+            // Check if user has department manager role for given customer
+            if (!managerPermission.AccessList.Contains(customerId)) throw new MissingRolePermissionsException();
 
-            //add user as manager for the department
+            // Add user as manager for the department
             user.AssignManagerToDepartment(department, callerId);
             await _organizationRepository.SaveEntitiesAsync();
             await _userPermissionServices.UpdateAccessListAsync(user, accessList, callerId);
@@ -662,13 +663,13 @@ namespace CustomerServices
 
         public async Task UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
-            var customer = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true);
+            var customer = await _organizationRepository.GetOrganizationAsync(customerId);
             if (customer == null) throw new CustomerNotFoundException($"Unable to find {customerId}");
 
-            var user = await GetUserAsync(customerId, userId);
+            var user = await _organizationRepository.GetUserAsync(customerId, userId);
             if (user == null) throw new UserNotFoundException($"Unable to find {userId}");
 
-            //Check if the customer has the department
+            // Check if the customer has the department
             var departments = await _organizationRepository.GetDepartmentsAsync(customerId);
             var department = departments.FirstOrDefault(d => d.ExternalDepartmentId == departmentId);
 
@@ -677,20 +678,20 @@ namespace CustomerServices
             user.UnassignManagerFromDepartment(department, callerId);
             await _organizationRepository.SaveEntitiesAsync();
 
-            //Find sub departments of the department 
+            // Find sub departments of the department 
             var subDepartmentsList = department.SubDepartments(departments);
             var accessListForDepartmentsToBeRemoved = subDepartmentsList.Select(a => a.ExternalDepartmentId).ToList();
 
-            //Check if user have permissions for department
+            // Check if user have permissions for department
             var usersPermission = await _userPermissionServices.GetUserPermissionsAsync(user.Email);
             if (usersPermission == null) return;
 
             var managerPermission = usersPermission.FirstOrDefault(a => a.Role == PredefinedRole.DepartmentManager.ToString() || a.Role == PredefinedRole.Manager.ToString());
 
-            //User needs to have the role as department manager before getting assigned as a manager for a department
+            // User needs to have the role as department manager before getting assigned as a manager for a department
             if (managerPermission == null) throw new MissingRolePermissionsException();
 
-            //Check if user has department manager role for given customer
+            // Check if user has department manager role for given customer
             if (!managerPermission.AccessList.Contains(customerId)) throw new MissingRolePermissionsException();
 
             var updatedAccessList = managerPermission.AccessList.Where(accessId => !accessListForDepartmentsToBeRemoved.Contains(accessId)).ToList();
@@ -711,13 +712,13 @@ namespace CustomerServices
 
         public async Task<UserDTO> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId)
         {
-            var user = await GetUserAsync(customerId, userId);
+            var user = await _organizationRepository.GetUserAsync(customerId, userId, includeDepartment: true, includeUserPreference: true);
             var department = await _organizationRepository.GetDepartmentAsync(customerId, departmentId);
             if (user == null || department == null)
                 return null;
             user.UnassignDepartment(department, callerId);
 
-            //Get the users role and assign it to the users DTO
+            // Get the users role and assign it to the users DTO
             var userDTO = _mapper.Map<UserDTO>(user);
             userDTO.Role = await GetRoleNameForUser(user.Email);
 
@@ -727,18 +728,19 @@ namespace CustomerServices
 
         public async Task<UserInfoDTO> GetUserInfoFromUserName(string userName)
         {
-            return _mapper.Map<UserInfoDTO>(await _organizationRepository.GetUserByUserName(userName));
+            return _mapper.Map<UserInfoDTO>(await _organizationRepository.GetUserByEmailAddress(userName, includeCustomer: true, includeDepartment: true, asNoTracking: true));
         }
         public async Task<UserInfoDTO> GetUserInfoFromUserId(Guid userId)
         {
             return _mapper.Map<UserInfoDTO>(await _organizationRepository.GetUserAsync(userId));
         }
+
         /// <inheritdoc/>
         public async Task<ExceptionMessagesDTO> ResendOrigoInvitationMail(Guid customerId, IList<Guid> userIds, string[]? role, Guid[]? assignedToDepartment)
         {
             var exceptions = new ExceptionMessagesDTO();
 
-            if (userIds == null) 
+            if (userIds == null)
             {
                 exceptions.Exceptions.Add("No ids for user to send invitation to.");
                 return exceptions;
@@ -748,7 +750,7 @@ namespace CustomerServices
             {
                 try
                 {
-                    var user = await GetUserAsync(customerId, userId);
+                    var user = await _organizationRepository.GetUserAsync(customerId, userId, includeDepartment: true, includeUserPreference: true);
                     if (user == null) throw new UserNotFoundException($"Unable to find {userId}.");
 
                     if (role != null && (role.Any() && (role.Contains("DepartmentManager") || role.Contains("Manager"))))
@@ -761,7 +763,7 @@ namespace CustomerServices
                     if (user.IsDeleted) throw new ArgumentException($"User {user.Email} is an deleted user and needs to be activated before it can be deleted.");
                     if (user.UserStatus != UserStatus.Invited && user.UserStatus != UserStatus.NotInvited) throw new ArgumentException($"User {user.Email} is an active user and do not need to be invited to Origo again.");
 
-                    await _emailService.InvitationEmailToUserAsync(new Email.Models.InvitationMail
+                    await _emailService.InvitationEmailToUserAsync(new InvitationMail
                     {
                         FirstName = user.FirstName,
                         Recipient = new List<string> { user.Email }
@@ -780,24 +782,24 @@ namespace CustomerServices
                 }
 
             }
-                
+
             return exceptions;
         }
 
         /// <inheritdoc/>
         public async Task<UserDTO> CompleteOnboardingAsync(Guid customerId, Guid userId)
         {
-            var user = await GetUserAsync(customerId, userId);
+            var user = await _organizationRepository.GetUserAsync(customerId, userId, includeDepartment: true, includeUserPreference: true);
             if (user == null)
                 throw new UserNotFoundException($"Unable to find {userId}");
 
             if (user.UserStatus != UserStatus.OnboardInitiated) throw new ArgumentException($"User has not onboarding initiated, and can not get activated. User has current status: {user.UserStatus}.");
-            
-            if (string.IsNullOrWhiteSpace(user.OktaUserId)) throw new ArgumentException("User does not exist in Okta."); 
 
-            user.ChangeUserStatus(null, UserStatus.Activated); 
+            if (string.IsNullOrWhiteSpace(user.OktaUserId)) throw new ArgumentException("User does not exist in Okta.");
+
+            user.ChangeUserStatus(null, UserStatus.Activated);
             await _organizationRepository.SaveEntitiesAsync();
-            
+
             return _mapper.Map<UserDTO>(user);
         }
     }
