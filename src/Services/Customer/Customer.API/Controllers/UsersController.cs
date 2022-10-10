@@ -509,6 +509,7 @@ public class UsersController : ControllerBase
         if (user == null) return NotFound();
         return Ok(_mapper.Map<UserInfo>(user));
     }
+
     /// <summary>
     /// Only used by userpermission gateway to get info about user to be made a claim for
     /// </summary>
@@ -524,6 +525,7 @@ public class UsersController : ControllerBase
         if (user == null) return NotFound();
         return Ok(_mapper.Map<UserInfo>(user));
     }
+
     /// <summary>
     /// Resends the Origo invitation mail to a user. 
     /// </summary>
@@ -546,6 +548,7 @@ public class UsersController : ControllerBase
         var errorMessages = await _userServices.ResendOrigoInvitationMail(customerId, usersInvitations.UserIds, filterOptions?.Roles, filterOptions?.AssignedToDepartments);
         return Ok(_mapper.Map<ExceptionMessages>(errorMessages));
     }
+
     /// <summary>
     /// Completes the onbaording process and changes user status to Activated if conditions are met.
     /// </summary>
