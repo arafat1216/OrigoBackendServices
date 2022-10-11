@@ -1,4 +1,5 @@
-﻿using OrigoApiGateway.Models;
+﻿using Common.Interfaces;
+using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Models.TechstepCore;
 
@@ -6,7 +7,8 @@ namespace OrigoApiGateway.Services
 {
     public interface ICustomerServices
     {
-        Task<IList<Organization>> GetCustomersAsync(Guid? partnerId = null);
+        Task<IList<Organization>> GetCustomersAsync(Guid? partnerId = null, bool includePreferences = true);
+        Task<PagedModel<Organization>> GetPaginatedCustomersAsync(CancellationToken cancellationToken, int page, int limit, Guid? partnerId = null, bool includePreferences = true);
         Task<Organization> GetCustomerAsync(Guid customerId);
         Task<IList<CustomerUserCount>> GetCustomerUsersAsync(FilterOptionsForUser filterOptions);
         Task<Organization> CreateCustomerAsync(NewOrganization newCustomer, Guid callerId);

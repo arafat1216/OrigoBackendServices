@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Common.Enums;
+using Common.Interfaces;
 using CustomerServices.Exceptions;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;
@@ -32,13 +33,27 @@ namespace CustomerServices
         {
             var department = await _customerRepository.GetDepartmentAsync(customerId, departmentId);
             return _mapper.Map<DepartmentDTO>(department);
-
         }
 
         public async Task<IList<DepartmentDTO>> GetDepartmentsAsync(Guid customerId)
         {
             var departmentList = await _customerRepository.GetDepartmentsAsync(customerId, true);
             return _mapper.Map<IList<DepartmentDTO>>(departmentList);
+        }
+
+        public async Task<PagedModel<DepartmentDTO>> GetPaginatedDepartmentsAsync(Guid organizationId, bool includeManagers, CancellationToken cancellationToken, int page = 1, int limit = 25)
+        {
+            var pagedDepartmentList = await _customerRepository.GetPaginatedDepartmentsAsync(organizationId, includeManagers, true, cancellationToken, page, limit);
+            PagedModel<DepartmentDTO> remappedModel = new()
+            {
+                Items = _mapper.Map<IList<DepartmentDTO>>(pagedDepartmentList.Items),
+                CurrentPage = pagedDepartmentList.CurrentPage,
+                PageSize = pagedDepartmentList.PageSize,
+                TotalItems = pagedDepartmentList.TotalItems,
+                TotalPages = pagedDepartmentList.TotalPages
+            };
+
+            return remappedModel;
         }
 
         public async Task<DepartmentDTO> AddDepartmentAsync(Guid customerId, Guid newDepartmentId, Guid? parentDepartmentId, string name, string costCenterId, string description, IList<Guid> departmentManagers, Guid callerId)
@@ -56,7 +71,7 @@ namespace CustomerServices
             //If department is a sub department and has no managers then the managers of the parent department should have access
             if (!departmentManagers.Any() && parentDepartment != null)
             {
-               if(parentDepartment.Managers.Any()) departmentManagers = parentDepartment.Managers.Select(a => a.UserId).ToList();
+                if (parentDepartment.Managers.Any()) departmentManagers = parentDepartment.Managers.Select(a => a.UserId).ToList();
             }
 
             if (departmentManagers.Any())
@@ -79,7 +94,7 @@ namespace CustomerServices
                     await UpdateAccessListAsync(customer, managersToBeAdded, callerId);
                 }
             }
-          
+
 
             await _customerRepository.SaveEntitiesAsync();
 
@@ -120,7 +135,7 @@ namespace CustomerServices
             if (departmentManagers.Any())
             {
                 var managersToBeRemoved = departmentToUpdate.Managers.Where(m => departmentManagers.All(n => n != m.UserId)).ToList();
-                
+
                 if (managersToBeRemoved.Any())
                 {
                     customer.RemoveDepartmentManagers(departmentToUpdate, managersToBeRemoved, callerId);
@@ -197,7 +212,7 @@ namespace CustomerServices
                 customer.RemoveDepartment(deleteDepartment, callerId);
             }
             await _customerRepository.DeleteDepartmentsAsync(departmentsToDelete);
-         
+
             return _mapper.Map<DepartmentDTO>(department);
 
         }

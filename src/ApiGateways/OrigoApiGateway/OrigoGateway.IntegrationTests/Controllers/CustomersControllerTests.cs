@@ -435,7 +435,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
                     var customerService = new Mock<ICustomerServices>();
                     var organizations = new List<Organization> { new Organization { PartnerId = partnerId } };
-                    customerService.Setup(_ => _.GetCustomersAsync(partnerId)).ReturnsAsync(organizations);
+                    customerService.Setup(_ => _.GetCustomersAsync(partnerId, true)).ReturnsAsync(organizations);
                     services.AddSingleton(customerService.Object);
                 });
 
@@ -479,7 +479,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
                     var customerService = new Mock<ICustomerServices>();
                     var organizations = new List<Organization> { new Organization { PartnerId = partnerId } };
-                    customerService.Setup(_ => _.GetCustomersAsync(partnerId)).ReturnsAsync(organizations);
+                    customerService.Setup(_ => _.GetCustomersAsync(partnerId, true)).ReturnsAsync(organizations);
                     services.AddSingleton(customerService.Object);
                 });
 

@@ -66,6 +66,48 @@ namespace CustomerServices.Models
                                                         bool includePartner = true);
 
         /// <summary>
+        ///     Retrieves all organization. Optional parameters may be provided to apply additional filtering, and for enabling eager loading. <br/>
+        ///     The use of named parameters is recommended. <para>
+        ///     
+        ///     Example: <code>
+        ///         var organizations = new OrganizationRepository().GetOrganizationsAsync(
+        ///             true,
+        ///             whereFilter: entity => (entity.PrimaryLocation == Guid.Empty || entity.PrimaryLocation == null), 
+        ///             customersOnly: true
+        ///         )
+        ///     </code></para>
+        /// </summary>
+        /// <param name="whereFilter"> An optional, parameterized lambda-expression that applies a "<c>.Where()</c>" filter-condition to the query and it's
+        ///     retrieved dataset. This filter is not applied when the value is <see langword="null"/>. </param>
+        /// <param name="customersOnly"> When <see langword="true"/>, a parameterized "<c>.Where()</c>" filter condition is added to the
+        ///     query, causing only organizations where "<c><see cref="Organization.IsCustomer"/> == <see langword="true"/></c>" to be retrieved. </param>
+        /// <param name="excludeDeleted"> When <see langword="true"/>, a parameterized "<c>.Where()</c>" filter condition is added to the query, 
+        ///     causing soft-deleted organizations (<c><see cref="Organization.IsDeleted"/> == <see langword="true"/></c>) to be excluded from the results. </param>
+        /// <param name="includeDepartments"> When <see langword="true"/>, it eagerly includes <see cref="Organization.Departments"/>. </param>
+        /// <param name="includeAddress"> When <see langword="true"/>, it eagerly includes <see cref="Organization.Address"/>. </param>
+        /// <param name="includePartner"> When <see langword="true"/>, it eagerly includes <see cref="Organization.Partner"/>. </param>
+        /// <param name="asNoTracking"> When <see langword="true"/> then query will explicitly be run as no-tracking. If the value is <see langword="false"/> 
+        ///     the query will use the default behavior. <para>
+        ///     
+        ///     No tracking queries are useful when the results are used in a <i>read-only</i> scenario. They're quicker to execute because there's no need to set up the
+        ///     change tracking information. If you don't need to update the entities retrieved from the database, then a no-tracking query should be used. See 
+        ///     <see href="https://docs.microsoft.com/en-us/ef/core/querying/tracking"/> for more details. </para></param>
+        /// <param name="cancellationToken"> The cancellation token, passed down from the API controller. </param>
+        /// <param name="page"> The current page number. </param>
+        /// <param name="limit"> The number of items to retrieve for each <paramref name="page"/>. </param>
+        /// <returns> A paginated-list containing the matching organizations. </returns>
+        Task<PagedModel<Organization>> GetPaginatedOrganizationsAsync(bool asNoTracking,
+                                                                      CancellationToken cancellationToken,
+                                                                      Expression<Func<Organization, bool>>? whereFilter = null,
+                                                                      bool customersOnly = true,
+                                                                      bool excludeDeleted = true,
+                                                                      bool includeDepartments = false,
+                                                                      bool includeAddress = false,
+                                                                      bool includePartner = false,
+                                                                      int page = 1,
+                                                                      int limit = 25);
+
+        /// <summary>
         ///     Retrieves a single organization using it's ID. Optional parameters may be provided to apply additional filtering, and for enabling eager loading. <br/>
         ///     The use of named parameters is recommended. <para>
         ///     
@@ -153,7 +195,7 @@ namespace CustomerServices.Models
                                           bool asNoTracking = false);
 
         Task<User?> GetUserByMobileNumber(string mobileNumber, Guid organizationId);
-        Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, bool asNoTracking, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100);
+        Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, bool asNoTracking, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 25);
 
         /// <summary>
         ///     Retrieves a user by the organization and user IDs. Optional parameters may be provided to apply additional filtering, and for enabling eager loading. <br/>
@@ -199,6 +241,26 @@ namespace CustomerServices.Models
 
         Task<IList<Department>> GetDepartmentsAsync(Guid organizationId, bool asNoTracking);
 
+        /// <summary>
+        ///     Retrieves a paginated department-list for a given organization.
+        /// </summary>
+        /// <param name="organizationId"> The organization to retrieve departments for. </param>
+        /// <param name="includeManagers"> Should <see cref="Department.Managers"/> be loaded and included in the result? </param>
+        /// <param name="asNoTracking"> 
+        ///     Should the query be run using '<c>AsNoTracking</c>'? 
+        ///     
+        ///     <para>
+        ///     To improve performance, this should be set to <see langword="true"/> for read-only operations.
+        ///     However, if any write operations will occur, then this should always be set to <see langword="false"/>. </para>
+        /// </param>
+        /// <param name="cancellationToken"> The cancellation token, passed down from the API controller. </param>
+        /// <param name="page"> The current page number. </param>
+        /// <param name="limit"> The number of items to retrieve for each <paramref name="page"/>. </param>
+        /// <returns> 
+        ///     A task that represents the asynchronous operation. The task result is a paginated dataset containing the retrieved departments.
+        /// </returns>
+        Task<PagedModel<Department>> GetPaginatedDepartmentsAsync(Guid organizationId, bool includeManagers, bool asNoTracking, CancellationToken cancellationToken, int page = 1, int limit = 25);
+
         Task<Department?> GetDepartmentAsync(Guid organizationId, Guid departmentId);
         Task<IList<Department>> DeleteDepartmentsAsync(IList<Department> department);
 
@@ -221,8 +283,15 @@ namespace CustomerServices.Models
         ///     Retrieves a partner with the provided ID.
         /// </summary>
         /// <param name="partnerId"> The partners external ID. </param>
+        /// <param name="includeOrganization"> When <see langword="true"/>, it eagerly includes <see cref="Partner.Organization"/>. </param>
+        /// <param name="asNoTracking"> When <see langword="true"/> then query will explicitly be run as no-tracking. If the value is <see langword="false"/> 
+        ///     the query will use the default behavior. <para>
+        ///     
+        ///     No tracking queries are useful when the results are used in a <i>read-only</i> scenario. They're quicker to execute because there's no need to set up the
+        ///     change tracking information. If you don't need to update the entities retrieved from the database, then a no-tracking query should be used. See 
+        ///     <see href="https://docs.microsoft.com/en-us/ef/core/querying/tracking"/> for more details. </para></param>
         /// <returns> If found, the corresponding partner. Otherwise it returns <see langword="null"/>. </returns>
-        Task<Partner?> GetPartnerAsync(Guid partnerId);
+        Task<Partner?> GetPartnerAsync(Guid partnerId, bool includeOrganization, bool asNoTracking = false);
 
         /// <summary>
         ///     Retrieves all partners.
@@ -233,7 +302,6 @@ namespace CustomerServices.Models
         ///     No tracking queries are useful when the results are used in a <i>read-only</i> scenario. They're quicker to execute because there's no need to set up the
         ///     change tracking information. If you don't need to update the entities retrieved from the database, then a no-tracking query should be used. See 
         ///     <see href="https://docs.microsoft.com/en-us/ef/core/querying/tracking"/> for more details. </para></param>
-        /// <param name="includeUserPreference"> When <see langword="true"/>, it eagerly includes <see cref="User.UserPreference"/>. </param>
         /// <returns> A collection containing all partners. </returns>
         Task<IList<Partner>> GetPartnersAsync(bool asNoTracking);
 

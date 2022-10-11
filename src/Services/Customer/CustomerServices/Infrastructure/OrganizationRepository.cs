@@ -8,6 +8,7 @@ using CustomerServices.ServiceModels;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Threading;
 
 #nullable enable
 
@@ -200,6 +201,46 @@ namespace CustomerServices.Infrastructure
             return await query.ToListAsync();
         }
 
+        public async Task<PagedModel<Organization>> GetPaginatedOrganizationsAsync(bool asNoTracking,
+                                                                                   CancellationToken cancellationToken,
+                                                                                   Expression<Func<Organization, bool>>? whereFilter = null,
+                                                                                   bool customersOnly = true,
+                                                                                   bool excludeDeleted = true,
+                                                                                   bool includeDepartments = false,
+                                                                                   bool includeAddress = false,
+                                                                                   bool includePartner = false,
+                                                                                   int page = 1,
+                                                                                   int limit = 25)
+        {
+            IQueryable<Organization> query = _customerContext.Set<Organization>();
+
+            // Parameterized where filtering
+            if (whereFilter is not null)
+                query = query.Where(whereFilter);
+
+            if (customersOnly)
+                query = query.Where(e => e.IsCustomer);
+
+            if (excludeDeleted)
+                query = query.Where(e => !e.IsDeleted);
+
+            // Parameterized Includes
+            if (includeAddress)
+                query = query.Include(e => e.Address);
+
+            if (includeDepartments)
+                query = query.Include(e => e.Departments);
+
+            if (includePartner)
+                query = query.Include(e => e.Partner);
+
+            // Misc
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            return await query.PaginateAsync(page, limit, cancellationToken);
+        }
+
         /// <inheritdoc/>
         public async Task<Organization?> GetOrganizationAsync(Guid organizationId,
                                                               Expression<Func<Organization, bool>>? whereFilter = null,
@@ -375,7 +416,7 @@ namespace CustomerServices.Infrastructure
                                                                 CancellationToken cancellationToken,
                                                                 string search = "",
                                                                 int page = 1,
-                                                                int limit = 100)
+                                                                int limit = 25)
         {
             var query = _customerContext.Users
                 .Include(u => u.Customer)
@@ -536,10 +577,39 @@ namespace CustomerServices.Infrastructure
                               .ToListAsync();
         }
 
+        public async Task<PagedModel<Department>> GetPaginatedDepartmentsAsync(Guid organizationId,
+                                                                               bool includeManagers,
+                                                                               bool asNoTracking,
+                                                                               CancellationToken cancellationToken,
+                                                                               int page = 1,
+                                                                               int limit = 25)
+        {
+            IQueryable<Organization> query = _customerContext.Organizations
+                                                             .Where(a => a.OrganizationId == organizationId);
+
+            if (includeManagers)
+            {
+                query = query.Include(d => d.Departments)
+                             .ThenInclude(a => a.Managers);
+            }
+            else
+            {
+                query = query.Include(d => d.Departments);
+            }
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            return await query.SelectMany(a => a.Departments)
+                              .PaginateAsync(page, limit, cancellationToken);
+        }
+
         public async Task<Department?> GetDepartmentAsync(Guid organizationId, Guid departmentId)
         {
             return await _customerContext.Departments
-                                         .Include(d => d.ParentDepartment).Include(m => m.Managers).FirstOrDefaultAsync(p => p.Customer.OrganizationId == organizationId && p.ExternalDepartmentId == departmentId);
+                                         .Include(d => d.ParentDepartment)
+                                         .Include(m => m.Managers)
+                                         .FirstOrDefaultAsync(p => p.Customer.OrganizationId == organizationId && p.ExternalDepartmentId == departmentId);
         }
 
         public async Task<IList<Department>> DeleteDepartmentsAsync(IList<Department> department)
@@ -567,12 +637,18 @@ namespace CustomerServices.Infrastructure
         }
 
         /// <inheritdoc/>
-        public async Task<Partner?> GetPartnerAsync(Guid partnerId)
+        public async Task<Partner?> GetPartnerAsync(Guid partnerId, bool includeOrganization, bool asNoTracking = false)
         {
-            return await _customerContext.Partners
-                                         .Where(partner => !partner.IsDeleted && partner.ExternalId == partnerId)
-                                         .Include(e => e.Organization)
-                                         .FirstOrDefaultAsync();
+            IQueryable<Partner> query = _customerContext.Partners
+                                                        .Where(partner => !partner.IsDeleted && partner.ExternalId == partnerId);
+
+            if (includeOrganization)
+                query = query.Include(e => e.Organization);
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            return await query.FirstOrDefaultAsync();
         }
 
         /// <inheritdoc/>

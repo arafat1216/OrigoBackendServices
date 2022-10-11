@@ -84,7 +84,7 @@ namespace Customer.API.Controllers
         {
             try
             {
-                var partner = await _partnerServices.GetPartnerAsync(partnerId);
+                var partner = await _partnerServices.GetPartnerAsync(partnerId, true);
 
                 if (partner == null)
                     return NotFound();

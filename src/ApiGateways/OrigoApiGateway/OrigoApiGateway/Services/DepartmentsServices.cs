@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Common.Interfaces;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
@@ -52,6 +53,42 @@ namespace OrigoApiGateway.Services
             {
                 var response = await HttpClient.GetFromJsonAsync<IList<DepartmentDTO>>($"{_options.ApiPath}/{customerId}/departments");
                 return _mapper.Map<List<OrigoDepartment>>(response);
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetDepartments failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetDepartments failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetDepartments unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<PagedModel<OrigoDepartment>> GetPaginatedDepartmentsAsync(Guid customerId, CancellationToken cancellationToken, bool includeManagers, int page, int limit)
+        {
+            try
+            {
+                var response = await HttpClient.GetFromJsonAsync<PagedModel<DepartmentDTO>>($"{_options.ApiPath}/{customerId}/departments/paginated?page={page}&limit={limit}&includeManagers={includeManagers}", cancellationToken);
+
+                if (response is null)
+                    return null;
+
+                return new PagedModel<OrigoDepartment>()
+                {
+                    Items = _mapper.Map<IList<OrigoDepartment>>(response.Items),
+                    CurrentPage = response.CurrentPage,
+                    PageSize = response.PageSize,
+                    TotalItems = response.TotalItems,
+                    TotalPages = response.TotalPages
+                };
+
             }
             catch (HttpRequestException exception)
             {

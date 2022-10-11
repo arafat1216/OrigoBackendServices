@@ -133,8 +133,8 @@ public class PartnerServicesTests
         var partner = await _partnerServices.CreatePartnerAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID);
         var result1 =
             await _partnerServices.GetPartnerAsync(
-                Guid.Parse("00000000-0000-0000-0000-000000000002")); // Partner not found (null)
-        var result2 = await _partnerServices.GetPartnerAsync(partner.ExternalId); // Partner found
+                Guid.Parse("00000000-0000-0000-0000-000000000002"), true); // Partner not found (null)
+        var result2 = await _partnerServices.GetPartnerAsync(partner.ExternalId, true); // Partner found
 
         // Make sure a non-existing partner returns null.
         Assert.True(result1 == null);

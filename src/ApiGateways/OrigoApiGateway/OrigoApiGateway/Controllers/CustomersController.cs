@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Common.Enums;
 using Common.Exceptions;
+using Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrigoApiGateway.Authorization;
@@ -53,7 +54,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
-        public async Task<ActionResult<IList<Organization>>> Get([FromQuery] Guid? partnerId = null)
+        public async Task<ActionResult<IList<Organization>>> Get([FromQuery] Guid? partnerId = null, [FromQuery] bool includePreferences = true)
         {
             try
             {
@@ -68,10 +69,47 @@ namespace OrigoApiGateway.Controllers
                         partnerId = parsedGuid;
                     }
                     else return Forbid();
-                        
+
                 }
 
-                var customers = await CustomerServices.GetCustomersAsync(partnerId);
+                var customers = await CustomerServices.GetCustomersAsync(partnerId, includePreferences);
+
+                return customers != null ? Ok(customers) : NotFound();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+
+        [HttpGet("pagination")]
+        [ProducesResponseType(typeof(PagedModel<Organization>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<PagedModel<Organization>>> GetPaginatedOrganizationsAsync(CancellationToken cancellationToken, [FromQuery] Guid? partnerId = null, [FromQuery] bool includePreferences = false, [FromQuery] int page = 1, [FromQuery][Range(1, 100)] int limit = 25)
+        {
+            try
+            {
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role != PredefinedRole.SystemAdmin.ToString() && role != PredefinedRole.PartnerAdmin.ToString()) return Forbid();
+                if (role == PredefinedRole.PartnerAdmin.ToString())
+                {
+                    var access = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
+                    if (Guid.TryParse(access, out var parsedGuid))
+                    {
+                        partnerId = parsedGuid;
+                    }
+                    else
+                    {
+                        return Forbid();
+                    }
+
+                }
+
+                var customers = await CustomerServices.GetPaginatedCustomersAsync(cancellationToken, page, limit, partnerId, includePreferences);
 
                 return customers != null ? Ok(customers) : NotFound();
             }
@@ -542,7 +580,7 @@ namespace OrigoApiGateway.Controllers
             {
                 return Forbid();
             }
-            
+
             if (role != PredefinedRole.SystemAdmin.ToString())
             {
                 var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
@@ -633,7 +671,7 @@ namespace OrigoApiGateway.Controllers
             {
                 // If role is not System admin, check access list
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                
+
                 if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
                 {
                     return Forbid();
@@ -1130,7 +1168,7 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         public async Task<ActionResult> GetCustomerStandardPrivateSubscriptionProduct(Guid organizationId)
         {
-            
+
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
             if (role == PredefinedRole.EndUser.ToString())

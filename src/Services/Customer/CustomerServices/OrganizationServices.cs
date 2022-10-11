@@ -4,17 +4,14 @@ using Common.Configuration;
 using Common.Cryptography;
 using Common.Enums;
 using Common.Exceptions;
+using Common.Interfaces;
 using CustomerServices.Email;
 using CustomerServices.Exceptions;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 
 namespace CustomerServices
 {
@@ -36,14 +33,14 @@ namespace CustomerServices
             _techstepPartnerConfiguration = techstepPartnerConfiguration.Value;
         }
 
-        public async Task<IList<Organization>> GetOrganizationsAsync(bool hierarchical = false, bool customersOnly = false, Guid? partnerId = null)
+        public async Task<IList<Organization>> GetOrganizationsAsync(bool includePreferences, bool hierarchical = false, bool customersOnly = false, Guid? partnerId = null)
         {
             IList<Organization> organizations;
             Partner? partner = null;
 
             if (partnerId is not null)
             {
-                partner = await _organizationRepository.GetPartnerAsync((Guid)partnerId);
+                partner = await _organizationRepository.GetPartnerAsync((Guid)partnerId, true);
 
                 // If partner is null (not found), then we should just return an empty list as we won't get any results from the query anyway...
                 if (partner is null)
@@ -58,9 +55,12 @@ namespace CustomerServices
                 else
                     organizations = await _organizationRepository.GetOrganizationsAsync(true, whereFilter: entity => entity.Partner == partner, customersOnly: customersOnly);
 
-                foreach (var organization in organizations)
+                if (includePreferences)
                 {
-                    organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organization.OrganizationId, asNoTracking: true);
+                    foreach (var organization in organizations)
+                    {
+                        organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organization.OrganizationId, asNoTracking: true);
+                    }
                 }
             }
             else
@@ -73,11 +73,75 @@ namespace CustomerServices
                 foreach (var organization in organizations)
                 {
                     organization.ChildOrganizations = await _organizationRepository.GetOrganizationsAsync(true, whereFilter: entity => entity.ParentId == organization.OrganizationId);
-                    organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organization.OrganizationId, asNoTracking: true);
+
+                    if (includePreferences)
+                    {
+                        organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organization.OrganizationId, asNoTracking: true);
+                    }
                 }
             }
 
             return organizations;
+        }
+
+        public async Task<PagedModel<Organization>> GetPaginatedOrganizationsAsync(CancellationToken cancellationToken, int page, int limit, bool includePreferences, bool hierarchical = false, bool customersOnly = false, Guid? partnerId = null)
+        {
+            PagedModel<Organization> pagedOrganizations;
+            Partner? partner = null;
+
+            if (partnerId is not null)
+            {
+                partner = await _organizationRepository.GetPartnerAsync((Guid)partnerId, true);
+
+                // If partner is null (not found), then we should just return an empty list as we won't get any results from the query anyway...
+                if (partner is null)
+                {
+                    return new PagedModel<Organization>
+                    {
+                        CurrentPage = page,
+                        Items = new List<Organization>(),
+                        PageSize = limit,
+                        TotalPages = 1,
+                        TotalItems = 0
+                    };
+                }
+            }
+
+            // TODO: We need to refactor this when we have time, as this may result in a lot of queries and higher loading times.
+            if (!hierarchical)
+            {
+                if (partner is null)
+                    pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, customersOnly: customersOnly, page: page, limit: limit);
+                else
+                    pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, whereFilter: entity => entity.Partner == partner, customersOnly: customersOnly, page: page, limit: limit);
+
+                if (includePreferences)
+                {
+                    foreach (var organization in pagedOrganizations.Items)
+                    {
+                        organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organization.OrganizationId, asNoTracking: true);
+                    }
+                }
+            }
+            else
+            {
+                if (partner is null)
+                    pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, whereFilter: entity => entity.ParentId == null, customersOnly: customersOnly, page: page, limit: limit);
+                else
+                    pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, whereFilter: (entity => entity.ParentId == null && entity.Partner == partner), customersOnly: customersOnly, page: page, limit: limit);
+
+                foreach (var organization in pagedOrganizations.Items)
+                {
+                    organization.ChildOrganizations = await _organizationRepository.GetOrganizationsAsync(true, whereFilter: entity => entity.ParentId == organization.OrganizationId);
+
+                    if (includePreferences)
+                    {
+                        organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(organization.OrganizationId, asNoTracking: true);
+                    }
+                }
+            }
+
+            return pagedOrganizations;
         }
 
         /// <summary>
@@ -109,15 +173,15 @@ namespace CustomerServices
         /// <param name="includePreferences">Include OrganizationPreferences object of the organization if set to true</param>
         /// <param name="includeLocation">Include OrganizationLocation object of the organization if set to true</param>
         /// <returns>Organization</returns>
-        public async Task<Organization?> GetOrganizationAsync(Guid customerId, bool includePreferences = false, bool includeLocation = false, bool customersOnly = false)
+        public async Task<Organization?> GetOrganizationAsync(Guid customerId, bool includeDepartments, bool includePreferences, bool includeLocation, bool includePartner, bool customersOnly = false)
         {
-            var organization = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: true, customersOnly: customersOnly, includeLocations: includeLocation, includePartner: true, asNoTracking: true);
+            var organization = await _organizationRepository.GetOrganizationAsync(customerId, includeDepartments: includeDepartments, customersOnly: customersOnly, includeLocations: includeLocation, includePartner: includePartner, asNoTracking: true);
 
             if (organization is not null)
             {
                 if (includePreferences)
                 {
-                    organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(customerId);
+                    organization.Preferences = await _organizationRepository.GetOrganizationPreferencesAsync(customerId, asNoTracking: true);
                 }
                 if (includeLocation && organization.PrimaryLocation is null && organization.Address != null)
                 {
@@ -193,7 +257,7 @@ namespace CustomerServices
             long? techstepCustomerId = null;
             if (newOrganization.PartnerId is not null)
             {
-                partner = await _organizationRepository.GetPartnerAsync((Guid)newOrganization.PartnerId);
+                partner = await _organizationRepository.GetPartnerAsync((Guid)newOrganization.PartnerId, false);
 
                 if (partner is null)
                     throw new ArgumentException("Partner not found");
@@ -269,7 +333,7 @@ namespace CustomerServices
             try
             {
                 // Check id
-                var organizationOriginal = await GetOrganizationAsync(updatedOrganization.OrganizationId, true, true);
+                var organizationOriginal = await GetOrganizationAsync(updatedOrganization.OrganizationId, false, true, true, true);
                 if (organizationOriginal is null)
                     throw new CustomerNotFoundException("Organization with the given id was not found.");
 
@@ -369,7 +433,7 @@ namespace CustomerServices
             try
             {
                 // Check id
-                var organizationOriginal = await GetOrganizationAsync(organizationId, true, true);
+                var organizationOriginal = await GetOrganizationAsync(organizationId, false, true, true, true);
                 if (organizationOriginal is null)
                     throw new CustomerNotFoundException("Organization with the given id was not found.");
 
@@ -883,7 +947,7 @@ namespace CustomerServices
         {
             if (parentId != null && parentId != Guid.Empty)
             {
-                var parentOrganization = await GetOrganizationAsync((Guid)parentId, false, false);
+                var parentOrganization = await GetOrganizationAsync((Guid)parentId, false, false, false, false);
                 if (parentOrganization is null)
                     return false; // not found
 
@@ -894,6 +958,7 @@ namespace CustomerServices
                 if (childList.Count > 0)
                     return false;
             }
+
             return true;
         }
 

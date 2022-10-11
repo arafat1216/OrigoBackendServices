@@ -1,18 +1,14 @@
 ﻿using AutoMapper;
 using Common.Enums;
+using Common.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Controllers
 {
@@ -87,6 +83,51 @@ namespace OrigoApiGateway.Controllers
                 }
 
                 var departments = await _departmentServices.GetDepartmentsAsync(organizationId);
+
+                return Ok(departments);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        /// <summary>
+        ///     Returns a paginated department-list.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves a pagination-set that contains the departments for the requested organization.
+        /// </remarks>
+        /// <param name="organizationId"> The organization you are retrieving departments from. </param>
+        /// <param name="cancellationToken"> A dependency-injected <see cref="CancellationToken"/>. </param>
+        /// <param name="includeManagers"> When <c><see langword="true"/></c>, the <c>ManagedBy</c> property is
+        /// loaded/included in the retrieved data.   
+        /// 
+        /// This property will not be included unless it's explicitly requested. </param>
+        /// <param name="page"> The current page number. </param>
+        /// <param name="limit"> The number of items to retrieve for each <paramref name="page"/>. </param>
+        /// <returns> An asynchronous task. The task results contain the appropriate <see cref="ActionResult"/>. </returns>
+        [HttpGet("paginated")]
+        [ProducesResponseType(typeof(PagedModel<OrigoDepartment>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<PagedModel<OrigoDepartment>>> GetPaginatedDepartmentsAsync([FromRoute] Guid organizationId, CancellationToken cancellationToken, [FromQuery] bool includeManagers = false, [FromQuery] int page = 1, [FromQuery][Range(1, 100)] int limit = 25)
+        {
+            try
+            {
+                // If role is not System admin, check access list
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    // All roles have access to an organizations departments, as long as the organization is in the caller's access-list
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+
+                var departments = await _departmentServices.GetPaginatedDepartmentsAsync(organizationId, cancellationToken, includeManagers, page, limit);
 
                 return Ok(departments);
             }

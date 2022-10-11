@@ -79,7 +79,7 @@ public class UserPermissionsTests
         await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
         var organizationServicesMock = new Mock<IOrganizationServices>();
         organizationServicesMock
-            .Setup(os => os.GetOrganizationsAsync(false, true, UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID))
+            .Setup(os => os.GetOrganizationsAsync(true, false, true, UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID))
             .ReturnsAsync(await context.Organizations.ToListAsync());
         var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(),
             Mock.Of<IMediator>(), _mapper, organizationServicesMock.Object);
@@ -99,7 +99,7 @@ public class UserPermissionsTests
         await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
         var organizationServicesMock = new Mock<IOrganizationServices>();
         organizationServicesMock
-            .Setup(os => os.GetOrganizationsAsync(false, true, UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID))
+            .Setup(os => os.GetOrganizationsAsync(true, false, true, UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID))
             .ReturnsAsync(await context.Organizations.ToListAsync());
         var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(),
             Mock.Of<IMediator>(), _mapper, organizationServicesMock.Object);

@@ -2,7 +2,6 @@
 using AutoMapper;
 using Common.Enums;
 using Common.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using OrigoApiGateway.Exceptions;

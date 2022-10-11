@@ -64,6 +64,39 @@ namespace Customer.API.Controllers
             return Ok(departmentView);
         }
 
+        /// <summary>
+        ///     Returns a paginated department-list.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves a pagination-set that contains the departments for the requested organization.
+        /// </remarks>
+        /// <param name="customerId"> The organization you are retrieving departments from. </param>
+        /// <param name="cancellationToken"> A dependency-injected <see cref="CancellationToken"/>. </param>
+        /// <param name="includeManagers"> When <c><see langword="true"/></c>, the <c>ManagedBy</c> property is
+        /// loaded/included in the retrieved data. 
+        /// 
+        /// This property will not be included unless it's explicitly requested. </param>
+        /// <param name="page"> The current page number. </param>
+        /// <param name="limit"> The highest number of items that can be added in a single page. </param>
+        /// <returns> An asynchronous task. The task results contain the appropriate <see cref="ActionResult"/>. </returns>
+        [HttpGet("paginated")]
+        [ProducesResponseType(typeof(PagedModel<Department>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<PagedModel<Department>>> GetPaginatedDepartmentsAsync([FromRoute] Guid customerId, CancellationToken cancellationToken, [FromQuery] bool includeManagers = false, int page = 1, int limit = 25)
+        {
+            var departmentList = await _departmentServices.GetPaginatedDepartmentsAsync(customerId, includeManagers, cancellationToken, page, limit);
+
+            PagedModel<Department> remapped = new()
+            {
+                Items = _mapper.Map<IList<Department>>(departmentList.Items),
+                CurrentPage = departmentList.CurrentPage,
+                PageSize = departmentList.PageSize,
+                TotalItems = departmentList.TotalItems,
+                TotalPages = departmentList.TotalPages
+            };
+
+            return Ok(remapped);
+        }
+
         [HttpPost]
         [ProducesResponseType(typeof(Department), (int)HttpStatusCode.Created)]
         public async Task<ActionResult<Department>> CreateDepartment([FromRoute] Guid customerId, [FromBody] NewDepartment department)
@@ -80,7 +113,7 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<Department>> UpdateDepartmentPut([FromRoute] Guid customerId, [FromRoute] Guid departmentId, [FromBody] UpdateDepartment department)
         {
-            var updatedDepartment = await _departmentServices.UpdateDepartmentAsync(customerId, departmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description,department.ManagedBy, department.CallerId);
+            var updatedDepartment = await _departmentServices.UpdateDepartmentAsync(customerId, departmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description, department.ManagedBy, department.CallerId);
             var departmentView = _mapper.Map<Department>(updatedDepartment);
 
             return Ok(departmentView);

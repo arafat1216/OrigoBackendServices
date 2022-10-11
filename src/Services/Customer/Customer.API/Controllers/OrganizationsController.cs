@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Common.Exceptions;
+using Common.Interfaces;
 using Customer.API.Filters;
 using Customer.API.ViewModels;
 using Customer.API.WriteModels;
@@ -15,6 +16,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Customer.API.Controllers
@@ -47,12 +49,14 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(OrganizationDTO), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.Gone)]
-        public async Task<ActionResult<OrganizationDTO>> Get(Guid organizationId, bool includeOrganizationPreferences = true, bool includeLocation = true, bool customerOnly = false)
+        public async Task<ActionResult<OrganizationDTO>> Get([FromRoute] Guid organizationId, [FromQuery] bool includeDepartments = true, [FromQuery] bool includeOrganizationPreferences = true, [FromQuery] bool includeLocation = true, [FromQuery] bool includePartner = true, [FromRoute] bool customerOnly = false)
         {
             try
             {
-                var organization = await _organizationServices.GetOrganizationAsync(organizationId, includeOrganizationPreferences, includeLocation, customerOnly);
-                if (organization == null) return NotFound();
+                var organization = await _organizationServices.GetOrganizationAsync(organizationId, includeDepartments, includeOrganizationPreferences, includeLocation, includePartner, customerOnly);
+                if (organization == null)
+                    return NotFound();
+
                 return Ok(_mapper.Map<OrganizationDTO>(organization));
             }
             catch (EntityIsDeletedException ex)
@@ -78,12 +82,54 @@ namespace Customer.API.Controllers
         [HttpGet]
         [Route("{customersOnly:Bool}")]
         [ProducesResponseType(typeof(IEnumerable<OrganizationDTO>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<OrganizationDTO>>> Get(bool hierarchical = false, bool customersOnly = false, [FromQuery] Guid? partnerId = null)
+        public async Task<ActionResult<IEnumerable<OrganizationDTO>>> Get(bool hierarchical = false, [FromRoute] bool customersOnly = false, [FromQuery] Guid? partnerId = null, [FromQuery] bool includePreferences = true)
         {
             try
             {
-                var organizations = await _organizationServices.GetOrganizationsAsync(hierarchical, customersOnly, partnerId);
+                var organizations = await _organizationServices.GetOrganizationsAsync(includePreferences, hierarchical, customersOnly, partnerId);
                 return Ok(_mapper.Map<IList<OrganizationDTO>>(organizations));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Unknown error (OrganizationsController - Get Organizations (multiple): " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Get all organizations.
+        /// </summary>
+        /// <remarks>
+        /// Retrieves a paginated set containing all matching organizations.
+        /// </remarks>
+        /// <param name="cancellationToken"> A dependency-injected <see cref="CancellationToken"/>. </param>
+        /// <param name="hierarchical"> When <see langword="true"/>, only top-level organizations are returned, with their children instead attached as
+        ///     a sub-item inside their parent-organizations. When <see langword="false"/>, a flat list is generated that included all organizations. </param>
+        /// <param name="customersOnly"></param>
+        /// <param name="partnerId"> If provided, the results will be filtered to only include organizations belonging to this partner. </param>
+        /// <param name="includePreferences"> When <c><see langword="true"/></c>, the <c>Preferences</c> property is
+        ///     loaded/included in the retrieved data. 
+        ///     <para>This property will not be included unless it's explicitly requested. </para></param>
+        /// <param name="page"> The current page number. </param>
+        /// <param name="limit"> The highest number of items that can be added in a single page. </param>
+        /// <returns> The asynchronous task. The task results contains the corresponding <see cref="ActionResult{TValue}"/>. </returns>
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedModel<OrganizationDTO>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<IEnumerable<OrganizationDTO>>> GetPaginatedOrganizationListAsync(CancellationToken cancellationToken, bool hierarchical = false, [FromQuery] bool customersOnly = false, [FromQuery] Guid? partnerId = null, [FromQuery] bool includePreferences = false, [FromQuery] int page = 1, [FromQuery] int limit = 25)
+        {
+            try
+            {
+                var pagedOrganizations = await _organizationServices.GetPaginatedOrganizationsAsync(cancellationToken, page, limit, includePreferences, hierarchical: hierarchical, customersOnly: customersOnly, partnerId: partnerId);
+
+                var returnModel = new PagedModel<OrganizationDTO>()
+                {
+                    CurrentPage = pagedOrganizations.CurrentPage,
+                    Items = _mapper.Map<IList<OrganizationDTO>>(pagedOrganizations.Items),
+                    PageSize = pagedOrganizations.PageSize,
+                    TotalItems = pagedOrganizations.TotalItems,
+                    TotalPages = pagedOrganizations.TotalPages
+                };
+
+                return Ok(returnModel);
             }
             catch (Exception ex)
             {
@@ -107,7 +153,7 @@ namespace Customer.API.Controllers
                 }
 
 
-                var organizationUserCount = await _organizationServices.GetOrganizationUserCountAsync(filterOptions?.PartnerId,filterOptions?.AssignedToDepartments);
+                var organizationUserCount = await _organizationServices.GetOrganizationUserCountAsync(filterOptions?.PartnerId, filterOptions?.AssignedToDepartments);
                 if (organizationUserCount == null || organizationUserCount.Count == 0)
                     return NotFound();
 

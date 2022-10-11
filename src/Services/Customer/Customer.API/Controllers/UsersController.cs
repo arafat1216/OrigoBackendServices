@@ -66,7 +66,7 @@ public class UsersController : ControllerBase
 
         var count = await _userServices.GetUsersCountAsync(customerId, filterOptions?.AssignedToDepartments, filterOptions?.Roles);
         if (count == null)
-            return Ok(new CustomerServices.Models.OrganizationUserCount { OrganizationId = customerId});
+            return Ok(new CustomerServices.Models.OrganizationUserCount { OrganizationId = customerId });
 
         return Ok(count);
     }
@@ -91,7 +91,7 @@ public class UsersController : ControllerBase
         {
             filterOptions = JsonSerializer.Deserialize<FilterOptionsForUser>(filterOptionsAsJsonString);
         }
-            
+
         var users = await _userServices.GetAllUsersAsync(customerId, filterOptions?.Roles, filterOptions?.AssignedToDepartments, filterOptions?.UserStatuses, cancellationToken, search ?? string.Empty, page, limit);
 
         var response = new PagedModel<User>()

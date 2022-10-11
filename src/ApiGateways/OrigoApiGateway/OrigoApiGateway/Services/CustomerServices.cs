@@ -3,6 +3,7 @@ using System.Text.Json;
 using AutoMapper;
 using Common.Enums;
 using Common.Exceptions;
+using Common.Interfaces;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
@@ -28,12 +29,40 @@ public class CustomerServices : ICustomerServices
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IMapper _mapper;
 
-    public async Task<IList<Organization>> GetCustomersAsync(Guid? partnerId = null)
+    public async Task<IList<Organization>> GetCustomersAsync(Guid? partnerId = null, bool includePreferences = true)
     {
         try
         {
             bool customersOnly = true;
-            var organizations = await HttpClient.GetFromJsonAsync<IList<Organization>>($"{_options.ApiPath}/{customersOnly}/?partnerId={partnerId}");
+            var organizations = await HttpClient.GetFromJsonAsync<IList<Organization>>($"{_options.ApiPath}/{customersOnly}/?partnerId={partnerId}&includePreferences={includePreferences}");
+
+            return organizations ?? null;
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(exception, "GetCustomersAsync failed with HttpRequestException.");
+            throw;
+        }
+        catch (NotSupportedException exception)
+        {
+            _logger.LogError(exception, "GetCustomersAsync failed with content type is not valid.");
+            throw;
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "GetCustomersAsync unknown error.");
+            throw;
+        }
+    }
+
+    public async Task<PagedModel<Organization>> GetPaginatedCustomersAsync(CancellationToken cancellationToken, int page, int limit, Guid? partnerId = null, bool includePreferences = true)
+    {
+        try
+        {
+            bool customersOnly = true;
+            bool hierarchical = false;
+
+            var organizations = await HttpClient.GetFromJsonAsync<PagedModel<Organization>>($"{_options.ApiPath}?hierarchical={hierarchical}&partnerId={partnerId}&includePreferences={includePreferences}&page={page}&limit={limit}", cancellationToken);
 
             return organizations ?? null;
         }

@@ -45,7 +45,7 @@ namespace CustomerServices
             return await _organizationRepository.GetOrganizationUsersCountAsync(customerId, assignedToDepartment, role);
         }
 
-        public async Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100)
+        public async Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 25)
         {
             return await _organizationRepository.GetAllUsersAsync(customerId, role, assignedToDepartment, userStatus, true, cancellationToken, search, page, limit);
         }

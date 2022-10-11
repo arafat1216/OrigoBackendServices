@@ -21,7 +21,7 @@ namespace CustomerServices
         /// </summary>
         /// <param name="partnerId"> The ID to retrieve. </param>
         /// <returns> If found, the corresponding partner. Otherwise it returns <see langword="null"/>. </returns>
-        Task<Partner?> GetPartnerAsync(Guid partnerId);
+        Task<Partner?> GetPartnerAsync(Guid partnerId, bool includeOrganization);
 
         /// <summary>
         ///     Retrieves all partners.

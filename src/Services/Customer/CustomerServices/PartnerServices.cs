@@ -49,9 +49,9 @@ namespace CustomerServices
             return partnerResult;
         }
 
-        public async Task<Partner?> GetPartnerAsync(Guid partnerId)
+        public async Task<Partner?> GetPartnerAsync(Guid partnerId, bool includeOrganization)
         {
-            var partner = await _organizationRepository.GetPartnerAsync(partnerId);
+            var partner = await _organizationRepository.GetPartnerAsync(partnerId, includeOrganization, asNoTracking: true);
             return partner;
         }
 
