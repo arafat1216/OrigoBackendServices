@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿#nullable enable
+using AutoMapper;
 using Common.Enums;
 using Common.Interfaces;
 using Microsoft.Extensions.Options;
@@ -63,6 +64,43 @@ namespace OrigoApiGateway.Services
             {
                 var user = await HttpClient.GetFromJsonAsync<UserDTO>($"{_options.ApiPath}/{customerId}/users/{userId}");
                 return user != null ? _mapper.Map<OrigoUser>(user) : null;
+            }
+            catch (HttpRequestException exception)
+            {
+                // Handle this special case by writing id of user instead of users name in auditlog
+                if (exception.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return null;
+
+                _logger.LogError(exception, "GetUserAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetUserAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetUserAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<OrigoMeUser?> GetUserWithPermissionsAsync(Guid customerId, Guid userId, List<string> permissions,
+            List<string> accessList)
+        {
+            try
+            {
+                var user = await HttpClient.GetFromJsonAsync<UserDTO>($"{_options.ApiPath}/{customerId}/users/{userId}");
+
+                if (user == null)
+                {
+                    return null;
+                }
+                var meUser = _mapper.Map<OrigoMeUser>(user);
+                meUser.PermissionNames .AddRange(permissions);
+                meUser.AccessList.AddRange(accessList);
+                return meUser;
             }
             catch (HttpRequestException exception)
             {

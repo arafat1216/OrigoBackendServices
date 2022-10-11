@@ -216,6 +216,38 @@ namespace OrigoApiGateway.Controllers
             return Ok(user);
         }
 
+        [Route("/origoapi/v{version:apiVersion}/me")]
+        [HttpGet]
+        [ProducesResponseType(typeof(OrigoMeUser), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
+        public async Task<ActionResult<OrigoMeUser>> GetLoggedInUser([FromQuery] Guid? organizationId)
+        {
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            if (!Guid.TryParse(actor, out var userId))
+            {
+                return NotFound();
+            }
+
+            if (organizationId == null)
+            {
+                var mainOrganization = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "MainOrganization")?.Value;
+                if (!string.IsNullOrEmpty(mainOrganization))
+                {
+                    organizationId = Guid.Parse(mainOrganization);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+            var permissions = HttpContext.User.Claims.Where(c => c.Type == "Permissions").Select(c => c.Value).ToList();
+            var user = await _userServices.GetUserWithPermissionsAsync(organizationId.Value, userId, permissions, accessList);
+            if (user == null) return NotFound();
+            return Ok(user);
+        }
+
         [HttpPost]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]

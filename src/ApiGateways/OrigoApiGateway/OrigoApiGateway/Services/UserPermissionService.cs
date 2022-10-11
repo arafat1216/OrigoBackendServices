@@ -59,6 +59,7 @@ public class UserPermissionService : IUserPermissionService
         {
             var productPermissions = await _productCatalogServices.GetProductPermissionsForOrganizationAsync(mainOrganizationId.Value);
             permissionsIdentity.AddClaims(productPermissions.Select(p => new Claim("Permissions", p)));
+            permissionsIdentity.AddClaim(new Claim("MainOrganization", mainOrganizationId.Value.ToString()));
         }
 
         permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, userPermissions.First().Role));

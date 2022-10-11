@@ -1,10 +1,8 @@
-﻿using Common.Interfaces;
+﻿#nullable enable
+using Common.Interfaces;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace OrigoApiGateway.Services
 {
@@ -13,6 +11,8 @@ namespace OrigoApiGateway.Services
         Task<CustomerUserCount> GetUsersCountAsync(Guid customerId, FilterOptionsForUser filterOptions);
         Task<OrigoUser> GetUserAsync(Guid customerId, Guid userId);
         Task<OrigoUser> GetUserAsync(Guid userId);
+        Task<OrigoMeUser?> GetUserWithPermissionsAsync(Guid customerId, Guid userId, List<string> permissions,
+            List<string> accessList);
         Task<PagedModel<OrigoUser>> GetAllUsersAsync(Guid customerId, FilterOptionsForUser filterOptions, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 1000);
         Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUser newUser, Guid callerId, bool includeOnboarding);
         Task<OrigoUser> PutUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser, Guid callerId);
