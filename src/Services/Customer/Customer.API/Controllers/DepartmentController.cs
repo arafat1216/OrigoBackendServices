@@ -1,14 +1,18 @@
 ﻿using AutoMapper;
+using Common.Interfaces;
 using Customer.API.ViewModels;
 using Customer.API.WriteModels;
 using CustomerServices;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Customer.API.Controllers
@@ -34,7 +38,7 @@ namespace Customer.API.Controllers
         [Route("{departmentId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<Department>> GetDepartment(Guid customerId, Guid departmentId)
+        public async Task<ActionResult<Department>> GetDepartment([FromRoute] Guid customerId, [FromRoute] Guid departmentId)
         {
             var departmentEntity = await _departmentServices.GetDepartmentAsync(customerId, departmentId);
             if (departmentEntity == null)
@@ -45,9 +49,14 @@ namespace Customer.API.Controllers
             return Ok(departmentView);
         }
 
+        /// <summary>
+        ///     Returns all departments
+        /// </summary>
+        /// <param name="customerId"> The organization you are retrieving departments from. </param>
+        /// <returns> An asynchronous task. The task results contain the appropriate <see cref="ActionResult"/>. </returns>
         [HttpGet]
         [ProducesResponseType(typeof(IList<Department>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<Department>> GetDepartments(Guid customerId)
+        public async Task<ActionResult<IList<Department>>> GetDepartments([FromRoute] Guid customerId)
         {
             var departmentList = await _departmentServices.GetDepartmentsAsync(customerId);
             var departmentView = _mapper.Map<IList<Department>>(departmentList);
@@ -57,7 +66,7 @@ namespace Customer.API.Controllers
 
         [HttpPost]
         [ProducesResponseType(typeof(Department), (int)HttpStatusCode.Created)]
-        public async Task<ActionResult<Department>> CreateDepartment(Guid customerId, [FromBody] NewDepartment department)
+        public async Task<ActionResult<Department>> CreateDepartment([FromRoute] Guid customerId, [FromBody] NewDepartment department)
         {
             Guid newDepartmentId = Guid.NewGuid();
             var createdDepartment = await _departmentServices.AddDepartmentAsync(customerId, newDepartmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description, department.ManagedBy, department.CallerId);
@@ -69,7 +78,7 @@ namespace Customer.API.Controllers
         [Route("{departmentId:Guid}")]
         [HttpPut]
         [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<Department>> UpdateDepartmentPut(Guid customerId, Guid departmentId, [FromBody] UpdateDepartment department)
+        public async Task<ActionResult<Department>> UpdateDepartmentPut([FromRoute] Guid customerId, [FromRoute] Guid departmentId, [FromBody] UpdateDepartment department)
         {
             var updatedDepartment = await _departmentServices.UpdateDepartmentAsync(customerId, departmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description,department.ManagedBy, department.CallerId);
             var departmentView = _mapper.Map<Department>(updatedDepartment);
@@ -80,7 +89,7 @@ namespace Customer.API.Controllers
         [Route("{departmentId:Guid}")]
         [HttpPost]
         [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<Department>> UpdateDepartmentPatch(Guid customerId, Guid departmentId, [FromBody] UpdateDepartment department)
+        public async Task<ActionResult<Department>> UpdateDepartmentPatch([FromRoute] Guid customerId, [FromRoute] Guid departmentId, [FromBody] UpdateDepartment department)
         {
             var updatedDepartment = await _departmentServices.UpdateDepartmentAsync(customerId, departmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description, department.ManagedBy, department.CallerId);
             var departmentView = _mapper.Map<Department>(updatedDepartment);
@@ -93,7 +102,7 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
 
-        public async Task<ActionResult<Department>> DeleteDepartment(Guid customerId, Guid departmentId, [FromBody] Guid callerId)
+        public async Task<ActionResult<Department>> DeleteDepartment([FromRoute] Guid customerId, [FromRoute] Guid departmentId, [FromBody] Guid callerId)
         {
             try
             {
@@ -102,7 +111,8 @@ namespace Customer.API.Controllers
 
                 return Ok(departmentView);
 
-            }catch (DbUpdateException ex)
+            }
+            catch (DbUpdateException ex)
             {
                 return BadRequest("Could not be deleted. Move all users before deleting the department.");
             }

@@ -80,7 +80,7 @@ namespace Customer.API.Controllers
         [Route("{partnerId:guid}")]
         [SwaggerResponse(StatusCodes.Status200OK, type: typeof(Partner))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The partner was not found")]
-        public async Task<ActionResult<Partner?>> GetPartner(Guid partnerId)
+        public async Task<ActionResult<Partner?>> GetPartner([FromRoute] Guid partnerId)
         {
             try
             {

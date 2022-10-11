@@ -82,9 +82,9 @@ public class UsersController : ControllerBase
     /// <param name="limit"></param>
     /// <returns></returns>
     [HttpGet]
-    [ProducesResponseType(typeof(List<User>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(PagedModel<User>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<PagedModel<User>>> GetAllUsers(Guid customerId, [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString, CancellationToken cancellationToken, [FromQuery(Name = "q")] string? search, int page = 1, int limit = 1000)
+    public async Task<ActionResult<PagedModel<User>>> GetAllUsers([FromRoute] Guid customerId, [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString, CancellationToken cancellationToken, [FromQuery(Name = "q")] string? search, int page = 1, int limit = 25)
     {
         FilterOptionsForUser? filterOptions = null;
         if (!string.IsNullOrEmpty(filterOptionsAsJsonString))
@@ -109,7 +109,7 @@ public class UsersController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<User>> GetUser(Guid customerId, Guid userId)
+    public async Task<ActionResult<User>> GetUser([FromRoute] Guid customerId, Guid userId)
     {
         var user = await _userServices.GetUserWithRoleAsync(customerId, userId);
         if (user == null) return NotFound();
@@ -120,7 +120,7 @@ public class UsersController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<User>> GetUser(Guid userId)
+    public async Task<ActionResult<User>> GetUser([FromRoute] Guid userId)
     {
         var user = await _userServices.GetUserWithRoleAsync(userId);
         if (user == null) return NotFound();
@@ -130,7 +130,7 @@ public class UsersController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult<User>> CreateUserForCustomer(Guid customerId, [FromBody] NewUser newUser)
+    public async Task<ActionResult<User>> CreateUserForCustomer([FromRoute] Guid customerId, [FromBody] NewUser newUser)
     {
         try
         {
@@ -172,7 +172,7 @@ public class UsersController : ControllerBase
     [HttpPut]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult<User>> UpdateUserPut(Guid customerId, Guid userId, [FromBody] UpdateUser updateUser)
+    public async Task<ActionResult<User>> UpdateUserPut([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromBody] UpdateUser updateUser)
     {
         try
         {
@@ -207,7 +207,7 @@ public class UsersController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult<User>> UpdateUserPatch(Guid customerId, Guid userId, [FromBody] UpdateUser updateUser)
+    public async Task<ActionResult<User>> UpdateUserPatch([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromBody] UpdateUser updateUser)
     {
         try
         {
@@ -253,7 +253,7 @@ public class UsersController : ControllerBase
     [HttpDelete]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> DeleteUser(Guid customerId, Guid userId, [FromBody] Guid callerId, bool softDelete = true)
+    public async Task<ActionResult> DeleteUser([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromBody] Guid callerId, bool softDelete = true)
     {
         try
         {
@@ -284,7 +284,7 @@ public class UsersController : ControllerBase
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult> SetUserActiveStatus(Guid customerId, Guid userId, bool isActive, [FromBody] Guid callerId)
+    public async Task<ActionResult> SetUserActiveStatus([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromRoute] bool isActive, [FromBody] Guid callerId)
     {
         try
         {
@@ -308,7 +308,7 @@ public class UsersController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<User>> AssignDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
+    public async Task<ActionResult<User>> AssignDepartment([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromRoute] Guid departmentId, [FromBody] Guid callerId)
     {
         var user = await _userServices.AssignDepartment(customerId, userId, departmentId, callerId);
         if (user == null) return NotFound();
@@ -319,7 +319,7 @@ public class UsersController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult> AssignManagerToDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
+    public async Task<ActionResult> AssignManagerToDepartment([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromRoute] Guid departmentId, [FromBody] Guid callerId)
     {
         try
         {
@@ -346,7 +346,7 @@ public class UsersController : ControllerBase
     [HttpDelete]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult> UnassignManagerFromDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
+    public async Task<ActionResult> UnassignManagerFromDepartment([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromRoute] Guid departmentId, [FromBody] Guid callerId)
     {
         try
         {
@@ -373,7 +373,7 @@ public class UsersController : ControllerBase
     [HttpDelete]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<User>> RemoveAssignedDepartment(Guid customerId, Guid userId, Guid departmentId, [FromBody] Guid callerId)
+    public async Task<ActionResult<User>> RemoveAssignedDepartment([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromRoute] Guid departmentId, [FromBody] Guid callerId)
     {
         var user = await _userServices.UnassignDepartment(customerId, userId, departmentId, callerId);
         if (user == null) return NotFound();
@@ -384,7 +384,7 @@ public class UsersController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<User>> InitiateOffboarding(Guid customerId, Guid userId, [FromBody] OffboardingInitiated offboardData)
+    public async Task<ActionResult<User>> InitiateOffboarding([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromBody] OffboardingInitiated offboardData)
     {
         try
         {
@@ -406,7 +406,7 @@ public class UsersController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<User>> CancelOffboarding(Guid customerId, Guid userId, Guid callerId)
+    public async Task<ActionResult<User>> CancelOffboarding([FromRoute] Guid customerId, [FromRoute] Guid userId, Guid callerId)
     {
         try
         {
@@ -435,7 +435,7 @@ public class UsersController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<User>> OverdueOffboarding(Guid customerId, Guid userId, [FromBody] Guid callerId)
+    public async Task<ActionResult<User>> OverdueOffboarding([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromBody] Guid callerId)
     {
         try
         {
@@ -469,7 +469,7 @@ public class UsersController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<User>> CompleteOffboarding(Guid customerId, Guid userId, [FromBody] Guid callerId)
+    public async Task<ActionResult<User>> CompleteOffboarding([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromBody] Guid callerId)
     {
         try
         {
@@ -519,7 +519,7 @@ public class UsersController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(UserInfo), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<UserInfo>> GetUserFromUserId(Guid userId)
+    public async Task<ActionResult<UserInfo>> GetUserFromUserId([FromRoute] Guid userId)
     {
         var user = await _userServices.GetUserInfoFromUserId(userId);
         if (user == null) return NotFound();
@@ -537,7 +537,7 @@ public class UsersController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ExceptionMessages), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<ExceptionMessages>> ResendOrigoInvitationMails(Guid customerId, [FromBody] ResendInvitation usersInvitations, [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString)
+    public async Task<ActionResult<ExceptionMessages>> ResendOrigoInvitationMails([FromRoute] Guid customerId, [FromBody] ResendInvitation usersInvitations, [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString)
     {
         FilterOptionsForUser? filterOptions = null;
         if (!string.IsNullOrEmpty(filterOptionsAsJsonString))
@@ -559,10 +559,10 @@ public class UsersController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult<User>> CompleteOnboarding(Guid customerId, Guid userId)
+    public async Task<ActionResult<User>> CompleteOnboarding([FromRoute] Guid customerId, [FromRoute] Guid userId)
     {
 
-        var user = await _userServices.CompleteOnboardingAsync(customerId,userId);
+        var user = await _userServices.CompleteOnboardingAsync(customerId, userId);
 
         return Ok(_mapper.Map<User>(user));
 

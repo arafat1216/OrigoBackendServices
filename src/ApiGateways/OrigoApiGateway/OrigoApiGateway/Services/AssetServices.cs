@@ -180,7 +180,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId, FilterOptionsForAsset filterOptions, string search = "", int page = 1, int limit = 1000,
+        public async Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId, FilterOptionsForAsset filterOptions, string search = "", int page = 1, int limit = 25,
             bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false)
         {
             try

@@ -40,7 +40,7 @@ namespace Customer.API.Controllers
         [Route("{customerId:Guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(List<string>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<int>> GetFeatureFlagsForCustomer(Guid customerId)
+        public async Task<ActionResult<int>> GetFeatureFlagsForCustomer([FromRoute] Guid customerId)
         {
             var featureFlags = await _featureFlagServices.GetFeatureFlags(customerId);
 

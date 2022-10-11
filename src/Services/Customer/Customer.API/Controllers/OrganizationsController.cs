@@ -218,7 +218,7 @@ namespace Customer.API.Controllers
         [Route("{organizationId:Guid}/organization")]
         [HttpPost]
         [ProducesResponseType(typeof(OrganizationDTO), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<OrganizationDTO>> UpdateOrganizationPatch(Guid organizationId, [FromBody] UpdateOrganization organization)
+        public async Task<ActionResult<OrganizationDTO>> UpdateOrganizationPatch([FromRoute] Guid organizationId, [FromBody] UpdateOrganization organization)
         {
             try
             {
@@ -275,6 +275,7 @@ namespace Customer.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
         [Route("techstep-core-update")]
         [HttpPost]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -337,7 +338,7 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(OrganizationPreferencesDTO), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.Gone)]
-        public async Task<ActionResult<OrganizationPreferencesDTO>> GetOrganizationPreferences(Guid organizationId)
+        public async Task<ActionResult<OrganizationPreferencesDTO>> GetOrganizationPreferences([FromRoute] Guid organizationId)
         {
             try
             {

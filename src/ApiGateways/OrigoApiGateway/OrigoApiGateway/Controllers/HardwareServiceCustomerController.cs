@@ -313,7 +313,7 @@ namespace OrigoApiGateway.Controllers
         [HttpGet("organization/{organizationId:Guid}/orders")]
         [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager,EndUser")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(PagedModel<HardwareServiceOrder>))]
-        public async Task<ActionResult> GetAllServiceOrdersForOrganizationAsync([FromRoute] Guid organizationId, [FromQuery] Guid? userId, [FromQuery] int? serviceTypeId, [FromQuery] bool activeOnly = false, [FromQuery] bool myOrders = false, [FromQuery] int page = 1, [FromQuery] int limit = 25)
+        public async Task<ActionResult> GetAllServiceOrdersForOrganizationAsync([FromRoute] Guid organizationId, [FromQuery] Guid? userId, [FromQuery] int? serviceTypeId, [FromQuery] bool activeOnly = false, [FromQuery] bool myOrders = false, [FromQuery] int page = 1, [FromQuery][Range(1, 100)] int limit = 25)
         {
             try
             {

@@ -60,7 +60,7 @@ namespace OrigoApiGateway.Controllers
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
                 if (role != PredefinedRole.SystemAdmin.ToString() && role != PredefinedRole.PartnerAdmin.ToString()) return Forbid();
-                if(role == PredefinedRole.PartnerAdmin.ToString())
+                if (role == PredefinedRole.PartnerAdmin.ToString())
                 {
                     var access = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (Guid.TryParse(access, out var parsedGuid))
@@ -124,7 +124,7 @@ namespace OrigoApiGateway.Controllers
                 {
                     return Forbid();
                 }
-                if(role == PredefinedRole.PartnerAdmin.ToString())
+                if (role == PredefinedRole.PartnerAdmin.ToString())
                 {
                     var access = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (Guid.TryParse(access, out var parsedGuid))
@@ -214,7 +214,8 @@ namespace OrigoApiGateway.Controllers
             {
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 var filterOptions = new FilterOptionsForUser();
-                if (role == PredefinedRole.PartnerAdmin.ToString()) {
+                if (role == PredefinedRole.PartnerAdmin.ToString())
+                {
                     var partnerIdFromAccessList = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
                     if (!string.IsNullOrEmpty(partnerIdFromAccessList) && Guid.TryParse(partnerIdFromAccessList, out var partnerId))
                     {
@@ -1240,11 +1241,12 @@ namespace OrigoApiGateway.Controllers
             var mockObject = new CustomerAssetsTotalBookValue { OrganizationId = organizationId, AssetsTotalBookValue = 12345 };
             return Ok(mockObject);
         }
+
         [Route("techstep-customer-search")]
         [ProducesResponseType(typeof(TechstepCustomers), (int)HttpStatusCode.OK)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
         [HttpGet]
-        public async Task<ActionResult> GetTechstepCustomers([FromQuery]string searchString)
+        public async Task<ActionResult> GetTechstepCustomers([FromQuery] string searchString)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 

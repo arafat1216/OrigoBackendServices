@@ -2,6 +2,7 @@
 using AutoMapper;
 using Common.Enums;
 using Common.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using OrigoApiGateway.Exceptions;
@@ -274,7 +275,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<PagedModel<OrigoUser>> GetAllUsersAsync(Guid customerId, FilterOptionsForUser filterOptions, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 1000)
+        public async Task<PagedModel<OrigoUser>> GetAllUsersAsync(Guid customerId, FilterOptionsForUser filterOptions, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 25)
         {
             try
             {
