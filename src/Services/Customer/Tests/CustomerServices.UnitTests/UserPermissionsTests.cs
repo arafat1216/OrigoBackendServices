@@ -1,19 +1,15 @@
-﻿using AutoMapper;
-using CustomerServices.Infrastructure.Context;
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Reflection;
-using Common.Infrastructure;
-using CustomerServices.Mappings;
-using Common.Logging;
-using CustomerServices.Infrastructure;
-using MediatR;
-using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using CustomerServices.Models;
+using AutoMapper;
+using Common.Infrastructure;
+using Common.Logging;
+using CustomerServices.Infrastructure.Context;
+using CustomerServices.Mappings;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Moq;
 using Xunit;
 
 namespace CustomerServices.UnitTests;
@@ -27,10 +23,10 @@ public class UserPermissionsTests
 
     public UserPermissionsTests()
     {
-        ContextOptions = new DbContextOptionsBuilder<CustomerContext>()
-            .UseSqlite($"Data Source={Guid.NewGuid()}.db").Options;
+        ContextOptions = new DbContextOptionsBuilder<CustomerContext>().UseSqlite($"Data Source={Guid.NewGuid()}.db")
+            .Options;
         new UnitTestDatabaseSeeder().SeedUnitTestDatabase(ContextOptions);
-        
+
         var mappingConfig = new MapperConfiguration(mc =>
         {
             mc.AddMaps(Assembly.GetAssembly(typeof(UserDTOProfile)));
@@ -48,7 +44,8 @@ public class UserPermissionsTests
         // Arrange
         await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
         var organizationServices = Mock.Of<IOrganizationServices>();
-        var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>(), _mapper, organizationServices);
+        var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(),
+            Mock.Of<IMediator>(), _mapper, organizationServices);
 
         // Act
         var adminUsers = await userPermissionServices.GetUserAdminsAsync();
@@ -64,7 +61,8 @@ public class UserPermissionsTests
         // Arrange
         await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
         var organizationServices = Mock.Of<IOrganizationServices>();
-        var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>(), _mapper, organizationServices);
+        var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(),
+            Mock.Of<IMediator>(), _mapper, organizationServices);
 
         // Act
         var adminUsers = await userPermissionServices.GetUserAdminsAsync(UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID);
@@ -83,14 +81,16 @@ public class UserPermissionsTests
         organizationServicesMock
             .Setup(os => os.GetOrganizationsAsync(false, true, UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID))
             .ReturnsAsync(await context.Organizations.ToListAsync());
-        var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>(), _mapper, organizationServicesMock.Object);
+        var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(),
+            Mock.Of<IMediator>(), _mapper, organizationServicesMock.Object);
 
         // Act
-        string? role = await userPermissionServices.GetRoleForUser("partneradmin@doe.com");
+        var role = await userPermissionServices.GetRoleForUser("partneradmin@doe.com");
 
         // Assert
-        Assert.Equal("PartnerAdmin",role);
+        Assert.Equal("PartnerAdmin", role);
     }
+
     [Fact]
     [Trait("Category", "UnitTest")]
     public async Task GetUserPermissions_ForPartnerAdmins_CheckAccessListForPartnerId()
@@ -101,12 +101,33 @@ public class UserPermissionsTests
         organizationServicesMock
             .Setup(os => os.GetOrganizationsAsync(false, true, UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID))
             .ReturnsAsync(await context.Organizations.ToListAsync());
-        var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>(), _mapper, organizationServicesMock.Object);
+        var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(),
+            Mock.Of<IMediator>(), _mapper, organizationServicesMock.Object);
 
         // Act
         var partnerAdminAccessList = await userPermissionServices.GetUserPermissionsAsync("partneradmin@doe.com");
 
         // Assert
         Assert.Equal(UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID, partnerAdminAccessList!.First().AccessList.First());
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetUserPermissions_ForAdmin_CheckMainOrganizationId()
+    {
+        // Arrange
+        await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
+        var organizationServicesMock = new Mock<IOrganizationServices>();
+        organizationServicesMock
+            .Setup(os => os.GetOrganizationsAsync(false, true, UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID))
+            .ReturnsAsync(await context.Organizations.ToListAsync());
+        var userPermissionServices = new UserPermissionServices(context, Mock.Of<IFunctionalEventLogService>(),
+            Mock.Of<IMediator>(), _mapper, organizationServicesMock.Object);
+
+        // Act
+        var adminPermissions = await userPermissionServices.GetUserPermissionsAsync(UnitTestDatabaseSeeder.USER_ONE_EMAIL);
+
+        // Assert
+        Assert.Equal(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, adminPermissions!.First().MainOrganizationId);
     }
 }

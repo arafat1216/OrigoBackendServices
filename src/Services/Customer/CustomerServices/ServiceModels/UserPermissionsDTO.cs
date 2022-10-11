@@ -5,12 +5,13 @@ namespace CustomerServices.ServiceModels
 {
     public class UserPermissionsDTO
     {
-        public UserPermissionsDTO(IReadOnlyCollection<string> permissionNames, IReadOnlyCollection<Guid> accessList, string role, Guid userId)
+        public UserPermissionsDTO(IReadOnlyCollection<string> permissionNames, IReadOnlyCollection<Guid> accessList, string role, Guid userId, Guid mainOrganizationId)
         {
             PermissionNames = permissionNames;
             AccessList = accessList;
             Role = role;
             UserId = userId;
+            MainOrganizationId = mainOrganizationId;
         }
 
         public UserPermissionsDTO()
@@ -23,5 +24,6 @@ namespace CustomerServices.ServiceModels
         public IReadOnlyCollection<string> PermissionNames { get; set; }
 
         public IReadOnlyCollection<Guid> AccessList { get; set; }
+        public Guid MainOrganizationId { get; set; }
     }
 }

@@ -12,17 +12,18 @@ public class UserPermissionService : IUserPermissionService
     private readonly UserPermissionsConfigurations _options;
     private readonly ILogger<UserPermissionService> _logger;
     private readonly IMapper _mapper;
+    private readonly IProductCatalogServices _productCatalogServices;
     private readonly IHttpClientFactory _httpClientFactory;
     private HttpClient HttpClient => _httpClientFactory.CreateClient("userpermissionservices");
 
-
     public UserPermissionService(ILogger<UserPermissionService> logger, IHttpClientFactory httpClientFactory,
-        IOptions<UserPermissionsConfigurations> options, IMapper mapper)
+        IOptions<UserPermissionsConfigurations> options, IMapper mapper, IProductCatalogServices productCatalogServices)
     {
         _httpClientFactory = httpClientFactory;
         _options = options.Value;
         _logger = logger;
         _mapper = mapper;
+        _productCatalogServices = productCatalogServices;
     }
 
     public async Task<ClaimsIdentity> GetUserPermissionsIdentityAsync(string sub, string userName,
@@ -48,10 +49,16 @@ public class UserPermissionService : IUserPermissionService
         }
 
         var permissionsIdentity = new ClaimsIdentity(claimPermissions);
-        permissionsIdentity.AddClaims(claimPermissions);
         if (claimAccessList != null)
         {
             permissionsIdentity.AddClaims(claimAccessList);
+        }
+
+        var mainOrganizationId = userPermissions.First()?.MainOrganizationId;
+        if (mainOrganizationId != null)
+        {
+            var productPermissions = await _productCatalogServices.GetProductPermissionsForOrganizationAsync(mainOrganizationId.Value);
+            permissionsIdentity.AddClaims(productPermissions.Select(p => new Claim("Permissions", p)));
         }
 
         permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, userPermissions.First().Role));

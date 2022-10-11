@@ -85,6 +85,7 @@ namespace CustomerServices
                                                             .ThenInclude(r => r.GrantedPermissions)
                                                             .ThenInclude(p => p.Permissions)
                                                             .Include(up => up.User)
+                                                            .ThenInclude(u => u.Customer)
                                                             .Where(up => up.User.Email == userName)
                                                             .ToListAsync();
             var returnedUserPermissions = new List<UserPermissionsDTO>();
@@ -113,7 +114,7 @@ namespace CustomerServices
                 }
 
                 returnedUserPermissions.Add(new UserPermissionsDTO(permissionNames, userPermission.AccessList.ToList(),
-                    userPermission.Role.Name, userPermission.User.UserId));
+                    userPermission.Role.Name, userPermission.User.UserId, userPermission.User.Customer.OrganizationId));
             }
 
             return returnedUserPermissions;

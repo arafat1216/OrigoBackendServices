@@ -204,10 +204,10 @@ public class UserPermissionsController : ControllerBase
                 permissionNames.AddRange(roleGrantedPermission.Permissions.Select(p => p.Name));
             }
 
-            var userPermissionAdded = new UserPermissions(new ReadOnlyCollection<string>(permissionNames),
+            var userPermissionRemoved = new UserPermissions(new ReadOnlyCollection<string>(permissionNames),
                 new ReadOnlyCollection<Guid>(userPermission.AccessList), userPermission.Role.Name,
-                userPermission.User.UserId);
-            return Ok(userPermissionAdded);
+                userPermission.User.UserId, Guid.Empty);
+            return Ok(userPermissionRemoved);
         }
         catch (UserNameDoesNotExistException userEx)
         {

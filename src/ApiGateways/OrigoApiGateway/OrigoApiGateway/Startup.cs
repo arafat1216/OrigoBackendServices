@@ -15,6 +15,7 @@ using OrigoApiGateway.Helpers;
 using OrigoApiGateway.Services;
 using System.Reflection;
 using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
 
 namespace OrigoApiGateway
 {
@@ -72,12 +73,12 @@ namespace OrigoApiGateway
                 options.DefaultAuthenticateScheme = OktaDefaults.ApiAuthenticationScheme;
                 options.DefaultChallengeScheme = OktaDefaults.ApiAuthenticationScheme;
                 options.DefaultSignInScheme = OktaDefaults.ApiAuthenticationScheme;
+                options.DefaultForbidScheme = OktaDefaults.ApiAuthenticationScheme;
             }).AddOktaWebApi(new OktaWebApiOptions
             {
                 OktaDomain = Configuration["Authentication:Okta:OktaDomain"],
                 Audience = Configuration["Authentication:Okta:Audience"]
             });
-            _logger.LogInformation($"Authentication:Okta:Audience: {Configuration["Authentication:Okta:Audience"]}, Authentication:Okta:OktaDomain: {Configuration["Authentication:Okta:OktaDomain"]} ");
 
             services.AddAuthorization(options =>
             {
@@ -225,6 +226,11 @@ namespace OrigoApiGateway
                     if (!string.IsNullOrEmpty(userEmail) && !string.IsNullOrEmpty(userSub))
                     {
                         var userPermissionIdentity = await userPermissionService.GetUserPermissionsIdentityAsync(userSub, userEmail, CancellationToken.None);
+                        if (userPermissionIdentity.Claims.IsNullOrEmpty())
+                        {
+                            await context.ForbidAsync();
+                            return;
+                        }
                         context.User.AddIdentity(userPermissionIdentity);
                     }
                 }

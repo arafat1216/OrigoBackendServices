@@ -80,7 +80,7 @@ public class AssetServicesTests
             departmentOptionsMock.Object, _mapper);
         var userPermissionOptionsMock = new Mock<IOptions<UserPermissionsConfigurations>>();
         var userPermissionService = new UserPermissionService(Mock.Of<ILogger<UserPermissionService>>(),
-            mockFactory.Object, userPermissionOptionsMock.Object, _mapper);
+            mockFactory.Object, userPermissionOptionsMock.Object, _mapper, Mock.Of<IProductCatalogServices>());
 
         var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), mockFactory.Object,
             optionsMock.Object, userService, userPermissionService, _mapper, departmentService);
@@ -165,7 +165,7 @@ public class AssetServicesTests
             departmentOptionsMock.Object, _mapper);
         var userPermissionOptionsMock = new Mock<IOptions<UserPermissionsConfigurations>>();
         var userPermissionService = new UserPermissionService(Mock.Of<ILogger<UserPermissionService>>(),
-            mockFactory.Object, userPermissionOptionsMock.Object, _mapper);
+            mockFactory.Object, userPermissionOptionsMock.Object, _mapper, Mock.Of<IProductCatalogServices>());
 
         var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), mockFactory.Object,
             optionsMock.Object, userService, userPermissionService, _mapper, departmentService);
