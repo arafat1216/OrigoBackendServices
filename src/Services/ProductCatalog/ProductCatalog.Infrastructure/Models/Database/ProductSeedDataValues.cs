@@ -11,7 +11,7 @@ namespace ProductCatalog.Infrastructure.Models.Database
         SubscriptionManagement = 1,
         Implement = 2,
         TransactionalDeviceLifecycleManagement = 3,
-        BookValueAndPurchasePrice = 4,
+        BookValue = 4,
         RecycleAndWipe = 5,
     }
 }

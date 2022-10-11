@@ -10,11 +10,23 @@ namespace ProductCatalog.Infrastructure.Models.Database
     {
         BasicUserManagement = 1,
         BasicAssetManagement = 2,
+        [Obsolete("No longer a feature")]
         BasicSubscriptionManagement = 3,
+        [Obsolete("No longer a feature")]
         BasicNonPersonalAssetManagement = 4,
+        [Obsolete("No longer a feature")]
         BasicBookValueManagement = 5,
+        [Obsolete("No longer a feature")]
         BasicTransactionalAssetReturn = 6,
         RecycleAndWipeAssetReturn = 7,
         BasicHardwareRepair = 8,
+        EmployeeAccess = 9,
+        DepartmentStructure = 10,
+        OnAndOffboarding = 11,
+        BuyoutAsset = 12,
+        AssetManagement = 13,
+        SubscriptionManagement = 14,
+        AssetBookValue = 15,
+        InternalAssetReturn = 16
     }
 }
