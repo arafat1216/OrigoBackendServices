@@ -83,7 +83,7 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
              */
             modelBuilder.Entity<Feature>(entity =>
             {
-                //TODO: Remove  Basic User Management & Basic Asset Management when Implement is removed
+                //TODO: Remove will not be in use when Implement is removed
                 // Basic User Management 
                 entity.HasData(new Feature { Id = (int)FeatureSeedDataValues.BasicUserManagement, AccessControlPermissionNode = "BasicUserManagement", FeatureTypeId = (int)FeatureTypeSeedDataValues.Unknown, UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new List<FeatureTranslation>()
@@ -91,12 +91,45 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                     new FeatureTranslation { FeatureId = (int)FeatureSeedDataValues.BasicUserManagement, Language = "en", Name = "Basic User Management", Description = "Allows organizations to perform the basic user management tasks. This is an extension of the options that's available for all organizations.", UpdatedBy = systemUserId },
                     new FeatureTranslation { FeatureId = (int)FeatureSeedDataValues.BasicUserManagement, Language = "nb", Name = "Grunnleggende brukerhåndtering", Description = "Lar en organisasjon utføre grunnleggende brukerbehandling. Dette er en utvidelse av funksjonaliteten som er tilgjengelig for alle organisasjoner.", UpdatedBy = systemUserId }
                 });
+                //TODO: Will not be in use when Implement is removed
                 // Basic Asset Management
                 entity.HasData(new Feature { Id = (int)FeatureSeedDataValues.BasicAssetManagement, AccessControlPermissionNode = "BasicAssetManagement", FeatureTypeId = (int)FeatureTypeSeedDataValues.Unknown, UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new List<FeatureTranslation>()
                 {
                     new FeatureTranslation { FeatureId = (int)FeatureSeedDataValues.BasicAssetManagement, Language = "en", Name = "Basic Asset Management", Description = "Allows organizations to perform the basic user management tasks.", UpdatedBy = systemUserId },
                     new FeatureTranslation { FeatureId = (int)FeatureSeedDataValues.BasicAssetManagement, Language = "nb", Name = "Grunnleggende asset-håndtering", Description = "Lar en organisasjon utføre grunnleggende behandling av assets.", UpdatedBy = systemUserId },
+                });
+                //TODO: Remove as it is a old value (New value is Subscription management)
+                // Basic Subscription Management
+                entity.HasData(new Feature { Id = (int)FeatureSeedDataValues.BasicSubscriptionManagement, AccessControlPermissionNode = "BasicSubscriptionManagement", FeatureTypeId = (int)FeatureTypeSeedDataValues.Unknown, UpdatedBy = systemUserId });
+                entity.OwnsMany(e => e.Translations).HasData(new List<FeatureTranslation>()
+                {
+                    new FeatureTranslation { FeatureId = (int)FeatureSeedDataValues.BasicSubscriptionManagement, Language = "en", Name = "Basic Subscription Management", Description = "Allows organizations to perform the basic subscription management tasks.", UpdatedBy = systemUserId },
+                    new FeatureTranslation { FeatureId = (int)FeatureSeedDataValues.BasicSubscriptionManagement, Language = "nb", Name = "Grunnleggende abonnement-håndtering", Description = "Lar en organisasjon utføre grunnleggende behandling av abonnementer.", UpdatedBy = systemUserId }
+                });
+                //TODO: Remove when frontend check for new values
+                // Basic Non-personal Asset Management
+                entity.HasData(new Feature { Id = (int)FeatureSeedDataValues.BasicNonPersonalAssetManagement, AccessControlPermissionNode = "BasicNonPersonalAssetManagement", FeatureTypeId = (int)FeatureTypeSeedDataValues.Unknown, UpdatedBy = systemUserId });
+                entity.OwnsMany(e => e.Translations).HasData(new List<FeatureTranslation>()
+                {
+                    new FeatureTranslation { FeatureId = (int)FeatureSeedDataValues.BasicNonPersonalAssetManagement, Language = "en", Name = "Basic Non-personal Asset Management", Description = "Allows organizations to perform non-personal asset management tasks.", UpdatedBy = systemUserId },
+                    new FeatureTranslation { FeatureId = (int)FeatureSeedDataValues.BasicNonPersonalAssetManagement, Language = "nb", Name = "Grunnleggende administrering av ikke-personlige assets", Description = "Gir kunder tilgang til grunnleggende administrering av ikke-personlige assets.", UpdatedBy = systemUserId },
+                });
+                //TODO: Remove as it is the old value for 
+                // Basic Book Value Management
+                entity.HasData(new Feature { Id = (int)FeatureSeedDataValues.BasicBookValueManagement, AccessControlPermissionNode = "BasicBookValueManagement", FeatureTypeId = (int)FeatureTypeSeedDataValues.Unknown, UpdatedBy = systemUserId });
+                entity.OwnsMany(e => e.Translations).HasData(new List<FeatureTranslation>()
+                {
+                    new FeatureTranslation { FeatureId = (int)FeatureSeedDataValues.BasicBookValueManagement, Language = "en", Name = "Basic Book Value Management", Description = "Allows organizations to Book value and Purchase price related tasks.", UpdatedBy = systemUserId },
+                    new FeatureTranslation { FeatureId = (int)FeatureSeedDataValues.BasicBookValueManagement, Language = "nb", Name = "Håndtering av Bokført verdi", Description = "Gir organisasjonen mulighet til å utføre oppgaver relatert til bokført verdi og kjøpspris", UpdatedBy = systemUserId },
+                });
+                //TODO: Remove as it is the old value (New value Internal Asset Return)
+                // Basic transactional asset return
+                entity.HasData(new Feature { Id = (int)FeatureSeedDataValues.BasicTransactionalAssetReturn, AccessControlPermissionNode = "BasicTransactionalAssetReturn", FeatureTypeId = (int)FeatureTypeSeedDataValues.AssetReturn, UpdatedBy = systemUserId });
+                entity.OwnsMany(e => e.Translations).HasData(new List<FeatureTranslation>()
+                {
+                    new FeatureTranslation { FeatureId = (int)FeatureSeedDataValues.BasicTransactionalAssetReturn, Language = "en", Name = "Basic asset return (transactional)", Description = "Makes it possible to use the 'return' functionality on supported transactional devices. This enables the most basic 'internal return' functionality, and is required when using/activating some of the more advanced return functionality.", UpdatedBy = systemUserId },
+                    new FeatureTranslation { FeatureId = (int)FeatureSeedDataValues.BasicTransactionalAssetReturn, Language = "nb", Name = "Grunnleggende asset retur (transaksjonell)", Description = "Gjør det mulig å benytte 'returner' funksjonaliteten på støttede transaksjonelle enheter. Dette tilgjengeliggjør den mest grunnleggende 'intern retur' funksjonaliteten, og er nødvendig for å kunne bruke/aktivere noen av de mer avanserte retur funksjonalitetene.", UpdatedBy = systemUserId },
                 });
 
                 // Subscription Management - earlier -> (Basic Subscription management)
@@ -244,6 +277,8 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
             {
                 // Add features to: Subscription management
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.SubscriptionManagement, FeatureId = (int)FeatureSeedDataValues.SubscriptionManagement, UpdatedBy = systemUserId });
+                //TODO: Should be removed when frontend checks for the right feature
+                entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.SubscriptionManagement, FeatureId = (int)FeatureSeedDataValues.BasicSubscriptionManagement, UpdatedBy = systemUserId });
 
                 //TODO: Remove the feature/product mapping for Implement 
                 // Add features to: Implement
@@ -257,12 +292,24 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, FeatureId = (int)FeatureSeedDataValues.AssetManagement, UpdatedBy = systemUserId });
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, FeatureId = (int)FeatureSeedDataValues.BuyoutAsset, UpdatedBy = systemUserId });
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, FeatureId = (int)FeatureSeedDataValues.BasicHardwareRepair, UpdatedBy = systemUserId });
+                //TODO: Remove when frontend check for the right feature
+                entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, FeatureId = (int)FeatureSeedDataValues.BasicUserManagement, UpdatedBy = systemUserId });
+                entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, FeatureId = (int)FeatureSeedDataValues.BasicAssetManagement, UpdatedBy = systemUserId });
+                entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, FeatureId = (int)FeatureSeedDataValues.BasicNonPersonalAssetManagement, UpdatedBy = systemUserId });
+                entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, FeatureId = (int)FeatureSeedDataValues.BasicBookValueManagement, UpdatedBy = systemUserId });
+                entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, FeatureId = (int)FeatureSeedDataValues.BasicTransactionalAssetReturn, UpdatedBy = systemUserId });
 
                 // Add features to: Book Value
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.BookValue, FeatureId = (int)FeatureSeedDataValues.AssetBookValue, UpdatedBy = systemUserId });
+                //TODO: Remove when frontend checks for the right permissions
+                entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.BookValue, FeatureId = (int)FeatureSeedDataValues.BasicBookValueManagement, UpdatedBy = systemUserId });
+
 
                 // Add features to: Recycle & Wipe
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.RecycleAndWipe, FeatureId = (int)FeatureSeedDataValues.RecycleAndWipeAssetReturn, UpdatedBy = systemUserId });
+                //TODO: Remove when the frontend check for the right permissions
+                entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.RecycleAndWipe, FeatureId = (int)FeatureSeedDataValues.BasicTransactionalAssetReturn, UpdatedBy = systemUserId });
+
             });
 
 
@@ -271,7 +318,24 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
              */
             modelBuilder.Entity<ProductRequiresOne>(entity =>
             {
+                //TODO: Should be removed when the Implement is removed and is the default product for all customers 
+                //Implement 
+                entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.SubscriptionManagement, RequiresProductId = (int)ProductSeedDataValues.Implement, UpdatedBy = systemUserId });
+                entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.BookValue, RequiresProductId = (int)ProductSeedDataValues.Implement, UpdatedBy = systemUserId });
+
                 entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.RecycleAndWipe, RequiresProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, UpdatedBy = systemUserId });
+                entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.SubscriptionManagement, RequiresProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, UpdatedBy = systemUserId });
+                entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.BookValue, RequiresProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, UpdatedBy = systemUserId });
+            });
+
+            /*
+           * Defines the 'Excludes' dependencies for products.
+           */
+            modelBuilder.Entity<ProductExcludes>(entity =>
+            {
+                //TODO: This should be removed when implement is removed and has become the default product for all customers
+                entity.HasData(new ProductExcludes { ProductId = (int)ProductSeedDataValues.Implement, ExcludesProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, UpdatedBy = systemUserId }); // Implement module is exclusive of Transactional Module
+                entity.HasData(new ProductExcludes { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, ExcludesProductId = (int)ProductSeedDataValues.Implement, UpdatedBy = systemUserId }); // Transactional module is exclusive of Implement module
             });
 
             #endregion Products
