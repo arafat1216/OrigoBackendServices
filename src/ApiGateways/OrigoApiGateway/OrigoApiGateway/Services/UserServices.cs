@@ -100,6 +100,7 @@ namespace OrigoApiGateway.Services
                 var meUser = _mapper.Map<OrigoMeUser>(user);
                 meUser.PermissionNames .AddRange(permissions);
                 meUser.AccessList.AddRange(accessList);
+                meUser.OrganizationId = customerId;
                 return meUser;
             }
             catch (HttpRequestException exception)

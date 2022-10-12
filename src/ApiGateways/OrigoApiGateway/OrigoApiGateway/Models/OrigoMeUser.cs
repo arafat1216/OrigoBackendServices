@@ -46,4 +46,5 @@ public record OrigoMeUser
     public List<string> PermissionNames { get; init; } = new();
 
     public List<string> AccessList { get; init; } = new();
+    public Guid OrganizationId { get; internal set; }
 }
