@@ -64,7 +64,7 @@ namespace OrigoApiGateway.Tests
             var optionsMock = new Mock<IOptions<UserConfiguration>>();
             optionsMock.Setup(o => o.Value).Returns(options);
 
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper, Mock.Of<IProductCatalogServices>());
 
             // Act
             var user = await userService.GetUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID));
@@ -108,7 +108,7 @@ namespace OrigoApiGateway.Tests
             var optionsMock = new Mock<IOptions<UserConfiguration>>();
             optionsMock.Setup(o => o.Value).Returns(options);
 
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper, Mock.Of<IProductCatalogServices>());
             var updateUser = new Models.OrigoUpdateUser { FirstName = null, LastName = null, Email = null, EmployeeId = null, MobileNumber = null, UserPreference = null };
             // Act
             var user = await userService.PutUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), updateUser, EMPTY_CALLER_ID);
@@ -156,7 +156,7 @@ namespace OrigoApiGateway.Tests
             var optionsMock = new Mock<IOptions<UserConfiguration>>();
             optionsMock.Setup(o => o.Value).Returns(options);
 
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper, Mock.Of<IProductCatalogServices>());
             var updateUser = new Models.OrigoUpdateUser { FirstName = "Ada", LastName = "Lovelace", Email = "jane.doe@example.com", EmployeeId = "E1", MobileNumber = "+4795554613", UserPreference = null };
             // Act
             var user = await userService.PutUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), updateUser, EMPTY_CALLER_ID);
@@ -204,7 +204,7 @@ namespace OrigoApiGateway.Tests
             var optionsMock = new Mock<IOptions<UserConfiguration>>();
             optionsMock.Setup(o => o.Value).Returns(options);
 
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper, Mock.Of<IProductCatalogServices>());
             var updateUser = new Models.OrigoUpdateUser { FirstName = "Ada", LastName = "Lovelace", Email = null, EmployeeId = null, MobileNumber = null, UserPreference = null };
             // Act
             var user = await userService.PatchUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), updateUser, EMPTY_CALLER_ID);
@@ -253,13 +253,105 @@ namespace OrigoApiGateway.Tests
             var optionsMock = new Mock<IOptions<UserConfiguration>>();
             optionsMock.Setup(o => o.Value).Returns(options);
 
-            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper);
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper, Mock.Of<IProductCatalogServices>());
             var updateUser = new Models.OrigoUpdateUser { FirstName = "Ada", LastName = "Lovelace", Email = null, EmployeeId = null, MobileNumber = null, UserPreference = null };
             // Act
             var userDeleted = await userService.DeleteUserAsync(new Guid(CUSTOMER_ID), new Guid(USER_ID), true, EMPTY_CALLER_ID);
 
             // Assert
             Assert.NotNull(userDeleted);
+        }
+
+        [Fact]
+        [Trait("", "")]
+        public async Task GetUserWithPermissions_Without_CustomerId()
+        {
+            // Arrange
+            const string CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
+            const string USER_ID = "37993d3e-c529-11eb-a5a9-00155dc5d5a8";
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        {
+                            ""id"": ""3fa85f64-5717-4562-b3fc-2c963f66afa6""
+                        }
+                    ")
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new UserConfiguration() { ApiPath = @"/users" };
+            var optionsMock = new Mock<IOptions<UserConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper, Mock.Of<IProductCatalogServices>());
+            var permissions = new List<string> { "A", "B", "C" };
+
+            // Act
+            var user = await userService.GetUserWithPermissionsAsync(null, new Guid(CUSTOMER_ID), new Guid(USER_ID), permissions, new List<string>());
+
+            // Assert
+            Assert.Contains("A", user!.PermissionNames);
+            Assert.Contains("B", user!.PermissionNames);
+            Assert.Contains("C", user!.PermissionNames);
+        }
+
+        [Fact]
+        [Trait("", "")]
+        public async Task GetUserWithPermissions_With_CustomerId()
+        {
+            // Arrange
+            const string CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
+            const string MAIN_ORGANIZATION_ID = "22ef7dbd-a0d1-44c3-b855-19799cceb347";
+            const string USER_ID = "37993d3e-c529-11eb-a5a9-00155dc5d5a8";
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        {
+                            ""id"": ""3fa85f64-5717-4562-b3fc-2c963f66afa6""
+                        }
+                    ")
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new UserConfiguration() { ApiPath = @"/users" };
+            var optionsMock = new Mock<IOptions<UserConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var productCatalogServicesMock = new Mock<IProductCatalogServices>();
+            var customerId = new Guid(CUSTOMER_ID);
+            var mainOrganizationId = new Guid(MAIN_ORGANIZATION_ID);
+            productCatalogServicesMock.Setup(pc => pc.GetProductPermissionsForOrganizationAsync(mainOrganizationId)).ReturnsAsync(new List<string> { "G", "H" });
+            productCatalogServicesMock.Setup(pc => pc.GetProductPermissionsForOrganizationAsync(customerId)).ReturnsAsync(new List<string> { "D", "E" });
+
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper, productCatalogServicesMock.Object);
+            var permissions = new List<string> { "A", "B", "C", "D", "E" };
+
+            // Act
+            var user = await userService.GetUserWithPermissionsAsync(new Guid(MAIN_ORGANIZATION_ID), new Guid(CUSTOMER_ID), new Guid(USER_ID), permissions, new List<string>());
+
+            // Assert
+            Assert.Contains("A", user!.PermissionNames);
+            Assert.Contains("B", user!.PermissionNames);
+            Assert.Contains("C", user!.PermissionNames);
+            Assert.Contains("G", user!.PermissionNames);
+            Assert.Contains("H", user!.PermissionNames);
+            Assert.Equal(5, user!.PermissionNames.Count);
         }
     }
 }

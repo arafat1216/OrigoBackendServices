@@ -74,7 +74,7 @@ public class AssetServicesTests
 
         var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
         var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object,
-            _mapper);
+            _mapper, Mock.Of<IProductCatalogServices>());
         var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
         var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object,
             departmentOptionsMock.Object, _mapper);
@@ -159,7 +159,7 @@ public class AssetServicesTests
 
         var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
         var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object,
-            _mapper);
+            _mapper, Mock.Of<IProductCatalogServices>());
         var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
         var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object,
             departmentOptionsMock.Object, _mapper);
@@ -294,7 +294,7 @@ public class AssetServicesTests
 
         var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
         var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object,
-            _mapper);
+            _mapper, Mock.Of<IProductCatalogServices>());
         var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
         var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object,
             departmentOptionsMock.Object, _mapper);
@@ -361,7 +361,7 @@ public class AssetServicesTests
 
         var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
         var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object,
-            _mapper);
+            _mapper, Mock.Of<IProductCatalogServices>());
         var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
         var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object,
             departmentOptionsMock.Object, _mapper);
@@ -421,7 +421,7 @@ public class AssetServicesTests
 
         var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
         var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object,
-            _mapper);
+            _mapper, Mock.Of<IProductCatalogServices>());
 
 
         var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
@@ -1038,7 +1038,7 @@ public class AssetServicesTests
 
         var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
         var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object,
-            _mapper);
+            _mapper, Mock.Of<IProductCatalogServices>());
         var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
         var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object,
             departmentOptionsMock.Object, _mapper);
@@ -1113,7 +1113,7 @@ public class AssetServicesTests
 
         var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
         var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object,
-            _mapper);
+            _mapper, Mock.Of<IProductCatalogServices>());
         var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
         var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object,
             departmentOptionsMock.Object, _mapper);
@@ -1190,7 +1190,7 @@ public class AssetServicesTests
 
         var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
         var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object,
-            _mapper);
+            _mapper, Mock.Of<IProductCatalogServices>());
         var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
         var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object,
             departmentOptionsMock.Object, _mapper);
@@ -1258,7 +1258,7 @@ public class AssetServicesTests
 
         var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
         var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object,
-            _mapper);
+            _mapper, Mock.Of<IProductCatalogServices>());
         var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
         var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object,
             departmentOptionsMock.Object, _mapper);
@@ -1309,7 +1309,7 @@ public class AssetServicesTests
 
         var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
         var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object,
-            _mapper);
+            _mapper, Mock.Of<IProductCatalogServices>());
         var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
         var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object,
             departmentOptionsMock.Object, _mapper);
@@ -1349,7 +1349,7 @@ public class AssetServicesTests
 
         var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
         var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object,
-            _mapper);
+            _mapper, Mock.Of<IProductCatalogServices>());
         var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
         var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object,
             departmentOptionsMock.Object, _mapper);
@@ -1402,7 +1402,7 @@ public class AssetServicesTests
 
         var userOptionsMock = new Mock<IOptions<UserConfiguration>>();
         var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object,
-            _mapper);
+            _mapper, Mock.Of<IProductCatalogServices>());
         var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
         var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object,
             departmentOptionsMock.Object, _mapper);

@@ -3,6 +3,7 @@ using AutoMapper;
 using Common.Enums;
 using Common.Interfaces;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
@@ -12,16 +13,24 @@ namespace OrigoApiGateway.Services
 {
     public class UserServices : IUserServices
     {
-        public UserServices(ILogger<UserServices> logger, IHttpClientFactory httpClientFactory, IOptions<UserConfiguration> options, IMapper mapper)
+        public UserServices(
+            ILogger<UserServices> logger,
+            IHttpClientFactory httpClientFactory,
+            IOptions<UserConfiguration> options,
+            IMapper mapper,
+            IProductCatalogServices productCatalogServices
+        )
         {
             _logger = logger;
             _mapper = mapper;
+            _productCatalogServices = productCatalogServices;
             _httpClientFactory = httpClientFactory;
             _options = options.Value;
         }
 
         private readonly ILogger<UserServices> _logger;
         private readonly IMapper _mapper;
+        private readonly IProductCatalogServices _productCatalogServices;
         private readonly IHttpClientFactory _httpClientFactory;
         private HttpClient HttpClient => _httpClientFactory.CreateClient("customerservices");
         private readonly UserConfiguration _options;
@@ -31,9 +40,9 @@ namespace OrigoApiGateway.Services
             try
             {
                 string json = JsonSerializer.Serialize(filterOptions);
-                
+
                 return await HttpClient.GetFromJsonAsync<CustomerUserCount>($"{_options.ApiPath}/{customerId}/users/count/?filterOptions={json}");
-               
+
 
             }
             catch (JsonException exception)
@@ -86,7 +95,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<OrigoMeUser?> GetUserWithPermissionsAsync(Guid customerId, Guid userId, List<string> permissions,
+        public async Task<OrigoMeUser?> GetUserWithPermissionsAsync(Guid? customerId, Guid mainOrganizationId, Guid userId, List<string> permissions,
             List<string> accessList)
         {
             try
@@ -98,9 +107,17 @@ namespace OrigoApiGateway.Services
                     return null;
                 }
                 var meUser = _mapper.Map<OrigoMeUser>(user);
-                meUser.PermissionNames .AddRange(permissions);
                 meUser.AccessList.AddRange(accessList);
-                meUser.OrganizationId = customerId;
+                meUser.OrganizationId = customerId ?? mainOrganizationId;
+                if (customerId != null)
+                {
+                    var productPermissions = await _productCatalogServices.GetProductPermissionsForOrganizationAsync(customerId.Value);
+                    var productPermissionsMainOrganization = await _productCatalogServices.GetProductPermissionsForOrganizationAsync(mainOrganizationId);                                        new List<string>();
+                    var permissionsWithoutProductPermissions = permissions.Except(productPermissionsMainOrganization);
+                    permissions = permissionsWithoutProductPermissions.Concat(productPermissions).ToList();
+                }
+                meUser.PermissionNames.AddRange(permissions);
+
                 return meUser;
             }
             catch (HttpRequestException exception)
@@ -131,18 +148,18 @@ namespace OrigoApiGateway.Services
                 var user = await HttpClient.GetFromJsonAsync<UserDTO>($"{_options.ApiPath}/{customerId}/users/{userId}");
                 if (user == null)
                     throw new InvalidUserValueException();
-                if(role == PredefinedRole.DepartmentManager.ToString() && !departments.Contains(user.AssignedToDepartment))
+                if (role == PredefinedRole.DepartmentManager.ToString() && !departments.Contains(user.AssignedToDepartment))
                     throw new UnauthorizedAccessException("Manager does not have access to this User!!!");
 
                 var postDate = new OffboardInitiateDTO()
                 {
                     LastWorkingDay = offboardDate.LastWorkingDay,
                     CallerId = callerId,
-                    BuyoutAllowed = (lifeCycleSettings != null && lifeCycleSettings.Any( x => x.BuyoutAllowed)) ? true : false
+                    BuyoutAllowed = (lifeCycleSettings != null && lifeCycleSettings.Any(x => x.BuyoutAllowed)) ? true : false
                 };
 
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/users/{userId}/initiate-offboarding", postDate);
-                
+
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     return null;
                 if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
@@ -427,11 +444,11 @@ namespace OrigoApiGateway.Services
             try
             {
                 var response = await HttpClient.PostAsync($"{_options.ApiPath}/{customerId}/users/{userId}/activate/{isActive}", JsonContent.Create(callerId));
-               
 
-                if (!response.IsSuccessStatusCode) 
+
+                if (!response.IsSuccessStatusCode)
                     throw new BadHttpRequestException(await response.Content.ReadAsStringAsync(), (int)response.StatusCode);
-                
+
                 var user = await response.Content.ReadFromJsonAsync<UserDTO>();
                 return user == null ? null : _mapper.Map<OrigoUser>(user);
             }
@@ -552,10 +569,10 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                if(string.IsNullOrEmpty(userName) && userId == Guid.Empty) return new UserInfoDTO();
+                if (string.IsNullOrEmpty(userName) && userId == Guid.Empty) return new UserInfoDTO();
 
-                var response = !string.IsNullOrEmpty(userName) ? 
-                    await HttpClient.GetFromJsonAsync<UserInfoDTO>($"{_options.ApiPath}/{userName}/users-info") : 
+                var response = !string.IsNullOrEmpty(userName) ?
+                    await HttpClient.GetFromJsonAsync<UserInfoDTO>($"{_options.ApiPath}/{userName}/users-info") :
                     await HttpClient.GetFromJsonAsync<UserInfoDTO>($"{_options.ApiPath}/{userId}/users-info");
 
                 return response;
@@ -572,11 +589,11 @@ namespace OrigoApiGateway.Services
             try
             {
 
-               string json = JsonSerializer.Serialize(filterOptions);
+                string json = JsonSerializer.Serialize(filterOptions);
 
-               var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/users/re-send-invitation/?filterOptions={json}", users);
-               var exceptionMessages = await response.Content.ReadFromJsonAsync<OrigoExceptionMessages>();
-               return exceptionMessages;
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/{customerId}/users/re-send-invitation/?filterOptions={json}", users);
+                var exceptionMessages = await response.Content.ReadFromJsonAsync<OrigoExceptionMessages>();
+                return exceptionMessages;
 
             }
             catch (HttpRequestException exception)

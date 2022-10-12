@@ -228,24 +228,28 @@ namespace OrigoApiGateway.Controllers
             {
                 return NotFound();
             }
-
-            if (organizationId == null)
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+            if (organizationId != null && role != PredefinedRole.SystemAdmin.ToString())
             {
-                var mainOrganization = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "MainOrganization")?.Value;
-                if (!string.IsNullOrEmpty(mainOrganization))
+                // Check if caller has access to this organization
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.Value.ToString()))
                 {
-                    organizationId = Guid.Parse(mainOrganization);
-                }
-                else
-                {
-                    return NotFound();
+                    return Forbid();
                 }
             }
-            var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
             var permissions = HttpContext.User.Claims.Where(c => c.Type == "Permissions").Select(c => c.Value).ToList();
-            var user = await _userServices.GetUserWithPermissionsAsync(organizationId.Value, userId, permissions, accessList);
-            if (user == null) return NotFound();
-            return Ok(user);
+            var mainOrganization = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "MainOrganization")?.Value;
+            if (!string.IsNullOrEmpty(mainOrganization) && Guid.TryParse(mainOrganization, out Guid mainOrganizationId))
+            {
+                var user = await _userServices.GetUserWithPermissionsAsync(organizationId, mainOrganizationId, userId, permissions, accessList);
+                return user == null ? (ActionResult<OrigoMeUser>)NotFound() : (ActionResult<OrigoMeUser>)Ok(user);
+
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         [HttpPost]

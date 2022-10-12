@@ -509,7 +509,7 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
                 });
                 var _mapper = mappingConfig.CreateMapper();
                 var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, userOptionsMock.Object,
-                    _mapper);
+                    _mapper, Mock.Of<IProductCatalogServices>());
                 var departmentOptionsMock = new Mock<IOptions<DepartmentConfiguration>>();
                 var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object,
                     departmentOptionsMock.Object, _mapper);
