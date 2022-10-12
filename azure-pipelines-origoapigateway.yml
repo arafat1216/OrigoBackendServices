@@ -77,7 +77,7 @@ stages:
   - template: general-deploy.yaml
     parameters:
       vmImage: 'ubuntu-latest'
-      environment: 'OrigoV2AKS.test'
+      environment: 'OrigoV2Test.test'
       artifactDirectory: $(System.ArtifactsDirectory)
       releaseName: origoapigateway
       namespace: test
@@ -97,7 +97,7 @@ stages:
   - template: general-deploy.yaml
     parameters:
       vmImage: 'ubuntu-latest'
-      environment: 'OrigoV2AKS.prod'
+      environment: 'OrigoV2Prod.prod'
       artifactDirectory: $(System.ArtifactsDirectory)
       releaseName: origoapigateway
       namespace: prod

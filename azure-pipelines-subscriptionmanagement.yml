@@ -77,7 +77,7 @@ stages:
   - template: general-deploy.yaml
     parameters:
       vmImage: 'ubuntu-latest'
-      environment: 'OrigoV2AKS.test'
+      environment: 'OrigoV2Test.test'
       artifactDirectory: $(System.ArtifactsDirectory)
       dbConnection: '$(SubscriptionmanagementDbConnectionTest)'
       releaseName: subscriptionmanagementservices
@@ -95,7 +95,7 @@ stages:
   - template: general-deploy.yaml
     parameters:
       vmImage: 'ubuntu-latest'
-      environment: 'OrigoV2AKS.prod'
+      environment: 'OrigoV2Prod.prod'
       artifactDirectory: $(System.ArtifactsDirectory)
       dbConnection: '$(SubscriptionmanagementDbConnectionProd)'
       releaseName: subscriptionmanagementservices
