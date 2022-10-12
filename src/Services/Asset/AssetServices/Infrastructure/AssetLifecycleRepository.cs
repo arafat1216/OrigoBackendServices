@@ -13,7 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Seedwork;
 using AssetServices.Exceptions;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace AssetServices.Infrastructure
 {

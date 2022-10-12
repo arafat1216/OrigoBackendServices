@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Common.Enums;
 using Common.Interfaces;
-using Grpc.Core;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

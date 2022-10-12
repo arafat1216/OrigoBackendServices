@@ -10,8 +10,6 @@ using OrigoApiGateway.Models.BackendDTO;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
-using IdentityModel.Client;
-using static Humanizer.On;
 
 namespace OrigoApiGateway.Services
 {
