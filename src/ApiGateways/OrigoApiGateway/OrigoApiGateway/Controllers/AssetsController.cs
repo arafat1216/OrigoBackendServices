@@ -42,6 +42,46 @@ namespace OrigoApiGateway.Controllers
             _customerServices = customerServices;
         }
 
+        [Route("customers/count/pagination")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<CustomerAssetCount>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
+        public async Task<ActionResult<PagedModel<CustomerAssetCount>>> GetAllCustomerItemCountPagination([FromQuery] int page = 1, [Range(1, 100)] int limit = 25)
+        {
+            try
+            {
+                var customerList = new List<Guid>();
+
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.PartnerAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+                    foreach (var customerId in accessList)
+                    {
+                        if (Guid.TryParse(customerId, out var customerIdGuid))
+                        {
+                            customerList.Add(customerIdGuid);
+                        }
+                    }
+                }
+                else if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    return Forbid();
+                }
+                var assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync(customerList, page, limit);
+                return Ok(assetCountList);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{0}", ex.Message);
+                return BadRequest();
+            }
+        }
+
+        [Obsolete("Should be removed after frontend adapt to pagination")]
         [Route("customers/count")]
         [HttpGet]
         [ProducesResponseType(typeof(IList<CustomerAssetCount>), (int)HttpStatusCode.OK)]
@@ -87,7 +127,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult<CustomerAssetCount>> GetCustomerItemCount(Guid organizationId, Guid? departmentId, AssetLifecycleStatus? assetLifecycleStatus)
+        public async Task<ActionResult<CustomerAssetCount>> GetCustomerItemCount([FromRoute] Guid organizationId, [FromQuery] Guid? departmentId, [FromQuery] AssetLifecycleStatus? assetLifecycleStatus)
         {
             try
             {
@@ -117,7 +157,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult<CustomerAssetValue>> GetCustomerTotalBookValue(Guid organizationId)
+        public async Task<ActionResult<CustomerAssetValue>> GetCustomerTotalBookValue([FromRoute] Guid organizationId)
         {
             try
             {
@@ -149,7 +189,8 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult<IList<OrigoAsset>>> Get(Guid organizationId, Guid userId)
+        public async Task<ActionResult<IList<OrigoAsset>>> Get([FromRoute] Guid organizationId, [FromRoute] Guid userId,
+            [FromQuery] bool includeAsset = true, bool includeImeis = true, bool includeContractHolderUser = true)
         {
             try
             {
@@ -164,7 +205,7 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var assets = await _assetServices.GetAssetsForUserAsync(organizationId, userId);
+                var assets = await _assetServices.GetAssetsForUserAsync(organizationId, userId, includeAsset, includeImeis, includeContractHolderUser);
                 if (assets == null)
                 {
                     return NotFound();
@@ -190,7 +231,8 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult> Get(Guid organizationId, [FromQuery] FilterOptionsForAsset filterOptions, [FromQuery(Name = "q")] string search = "", int page = 1, int limit = 1000)
+        public async Task<ActionResult> Get([FromRoute] Guid organizationId, [FromQuery] FilterOptionsForAsset filterOptions, [FromQuery(Name = "q")] string search = "", int page = 1, [Range(1, 100)] int limit = 25,
+            [FromQuery] bool includeAsset = true, bool includeImeis = true, bool includeLabels = true, bool includeContractHolderUser = true)
         {
             try
             {
@@ -228,7 +270,7 @@ namespace OrigoApiGateway.Controllers
 
                 filterOptions.UserId = filterOptions.UserId == "me" ? HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value : null;
 
-                var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId, filterOptions, search, page, limit);
+                var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId, filterOptions, search, page, limit, includeAsset, includeImeis, includeLabels, includeContractHolderUser);
                 if (assets == null)
                 {
                     return NotFound();
@@ -254,7 +296,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult> GetLifeCycleSettingByCustomer(Guid organizationId)
+        public async Task<ActionResult> GetLifeCycleSettingByCustomer([FromRoute] Guid organizationId)
         {
             try
             {
@@ -294,7 +336,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult> SetLifeCycleSetting(Guid organizationId, [FromBody] NewLifeCycleSetting setting)
+        public async Task<ActionResult> SetLifeCycleSetting([FromRoute] Guid organizationId, [FromBody] NewLifeCycleSetting setting)
         {
             try
             {
@@ -349,7 +391,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult> GetDisposeSettingByCustomer(Guid organizationId)
+        public async Task<ActionResult> GetDisposeSettingByCustomer([FromRoute] Guid organizationId)
         {
             try
             {
@@ -383,7 +425,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult> SetDisposeSetting(Guid organizationId, [FromBody] NewDisposeSetting setting)
+        public async Task<ActionResult> SetDisposeSetting([FromRoute] Guid organizationId, [FromBody] NewDisposeSetting setting)
         {
             try
             {
@@ -436,7 +478,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> GetReturnLocationsByCustomer(Guid organizationId)
+        public async Task<ActionResult> GetReturnLocationsByCustomer([FromRoute] Guid organizationId)
         {
             try
             {
@@ -475,7 +517,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(ReturnLocation), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> AddReturnLocationsByCustomer(Guid organizationId, [FromBody] NewReturnLocation data)
+        public async Task<ActionResult> AddReturnLocationsByCustomer([FromRoute] Guid organizationId, [FromBody] NewReturnLocation data)
         {
             try
             {
@@ -525,7 +567,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> UpdateReturnLocationsByCustomer(Guid organizationId, Guid returnLocationId, [FromBody] NewReturnLocation data)
+        public async Task<ActionResult> UpdateReturnLocationsByCustomer([FromRoute] Guid organizationId, [FromRoute] Guid returnLocationId, [FromBody] NewReturnLocation data)
         {
             try
             {
@@ -573,7 +615,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> RemoveReturnLocationsByCustomer(Guid organizationId, Guid returnLocationId)
+        public async Task<ActionResult> RemoveReturnLocationsByCustomer([FromRoute] Guid organizationId, [FromRoute] Guid returnLocationId)
         {
             try
             {
@@ -619,7 +661,8 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult<OrigoAsset>> GetAsset(Guid organizationId, Guid assetId)
+        public async Task<ActionResult<OrigoAsset>> GetAsset([FromRoute] Guid organizationId, [FromRoute] Guid assetId,
+            [FromQuery] bool includeAsset = true, bool includeImeis = true, bool includeLabels = true, bool includeContractHolderUser = true)
         {
             try
             {
@@ -657,7 +700,7 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                var asset = await _assetServices.GetAssetForCustomerAsync(organizationId, assetId, filterOptions);
+                var asset = await _assetServices.GetAssetForCustomerAsync(organizationId, assetId, filterOptions, includeAsset, includeImeis, includeLabels, includeContractHolderUser);
                 if (asset == null)
                 {
                     return NotFound();
@@ -682,7 +725,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanCreateAsset)]
-        public async Task<ActionResult> CreateAsset(Guid organizationId, [FromBody] NewAsset asset)
+        public async Task<ActionResult> CreateAsset([FromRoute] Guid organizationId, [FromBody] NewAsset asset)
         {
             try
             {
@@ -740,7 +783,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> SetAssetStatusOnAssets(Guid organizationId, [FromBody] UpdateAssetsStatus updatedAssetStatus)
+        public async Task<ActionResult> SetAssetStatusOnAssets([FromRoute] Guid organizationId, [FromBody] UpdateAssetsStatus updatedAssetStatus)
         {
             try
             {
@@ -800,7 +843,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> MakeAssetAvailable(Guid organizationId, [FromBody] MakeAssetAvailable data)
+        public async Task<ActionResult> MakeAssetAvailable([FromRoute] Guid organizationId, [FromBody] MakeAssetAvailable data)
         {
             try
             {
@@ -860,7 +903,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> ReturnAssetAsync(Guid organizationId, [FromBody] ReturnAsset data)
+        public async Task<ActionResult> ReturnAssetAsync([FromRoute] Guid organizationId, [FromBody] ReturnAsset data)
         {
             try
             {
@@ -924,7 +967,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> BuyoutDeviceAsync(Guid organizationId, [FromBody] BuyoutDevice data)
+        public async Task<ActionResult> BuyoutDeviceAsync([FromRoute] Guid organizationId, [FromBody] BuyoutDevice data)
         {
             try
             {
@@ -996,7 +1039,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> PendingBuyoutDeviceAsync(Guid organizationId, [FromBody] BuyoutDevice data)
+        public async Task<ActionResult> PendingBuyoutDeviceAsync([FromRoute] Guid organizationId, [FromBody] BuyoutDevice data)
         {
             try
             {
@@ -1071,7 +1114,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> ReportDeviceAsync(Guid organizationId, [FromBody] ReportDevice data)
+        public async Task<ActionResult> ReportDeviceAsync([FromRoute] Guid organizationId, [FromBody] ReportDevice data)
         {
             try
             {
@@ -1135,7 +1178,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> ReAssignAssetPersonal(Guid assetId, Guid organizationId, [FromBody] ReAssignmentPersonal data)
+        public async Task<ActionResult> ReAssignAssetPersonal([FromRoute] Guid assetId, [FromRoute] Guid organizationId, [FromBody] ReAssignmentPersonal data)
         {
             try
             {
@@ -1199,7 +1242,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> ReAssignAssetNonPersonal(Guid assetId, Guid organizationId, [FromBody] ReAssignmentNonPersonal data)
+        public async Task<ActionResult> ReAssignAssetNonPersonal([FromRoute] Guid assetId, [FromRoute] Guid organizationId, [FromBody] ReAssignmentNonPersonal data)
         {
             try
             {
@@ -1262,7 +1305,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> UpdateAsset(Guid organizationId, Guid assetId, [FromBody] OrigoUpdateAsset asset)
+        public async Task<ActionResult> UpdateAsset([FromRoute] Guid organizationId, [FromRoute] Guid assetId, [FromBody] OrigoUpdateAsset asset)
         {
             try
             {
@@ -1320,7 +1363,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
-        public async Task<ActionResult<IList<Label>>> GetLabelsForCustomer(Guid organizationId)
+        public async Task<ActionResult<IList<Label>>> GetLabelsForCustomer([FromRoute] Guid organizationId)
         {
             try
             {
@@ -1351,7 +1394,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-        public async Task<ActionResult<IList<Label>>> CreateLabelsForCustomer(Guid organizationId, IList<NewLabel> labels)
+        public async Task<ActionResult<IList<Label>>> CreateLabelsForCustomer([FromRoute] Guid organizationId, [FromBody] IList<NewLabel> labels)
         {
             try
             {
@@ -1397,7 +1440,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-        public async Task<ActionResult<IList<Label>>> DeleteLabelsForCustomer(Guid organizationId, IList<Guid> labelGuids)
+        public async Task<ActionResult<IList<Label>>> DeleteLabelsForCustomer([FromRoute] Guid organizationId, [FromBody] IList<Guid> labelGuids)
         {
             try
             {
@@ -1444,7 +1487,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-        public async Task<ActionResult<IList<Label>>> UpdateLabelsForCustomer(Guid organizationId, IList<Label> labels)
+        public async Task<ActionResult<IList<Label>>> UpdateLabelsForCustomer([FromRoute] Guid organizationId, IList<Label> labels)
         {
             try
             {
@@ -1488,7 +1531,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadAsset, Permission.CanUpdateAsset)]
-        public async Task<ActionResult<IList<OrigoAsset>>> AssignLabelsToAssets(Guid organizationId, AssetLabels assetLabels)
+        public async Task<ActionResult<IList<OrigoAsset>>> AssignLabelsToAssets([FromRoute] Guid organizationId, [FromBody] AssetLabels assetLabels)
         {
             try
             {
@@ -1541,7 +1584,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadAsset, Permission.CanUpdateAsset)]
-        public async Task<ActionResult<IList<OrigoAsset>>> UnAssignLabelsToAssets(Guid organizationId, AssetLabels assetLabels)
+        public async Task<ActionResult<IList<OrigoAsset>>> UnAssignLabelsToAssets([FromRoute] Guid organizationId, [FromBody] AssetLabels assetLabels)
         {
             try
             {
@@ -1619,7 +1662,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(Permission.CanReadAsset)]
-        public async Task<ActionResult> GetBaseMinBuyoutPrice(string? country, int? assetCategoryId)
+        public async Task<ActionResult> GetBaseMinBuyoutPrice([FromQuery] string? country, [FromQuery] int? assetCategoryId)
         {
             try
             {
@@ -1645,7 +1688,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> ChangeLifecycleTypeOnAsset(Guid organizationId, Guid assetId, int newLifecycleType)
+        public async Task<ActionResult> ChangeLifecycleTypeOnAsset([FromRoute] Guid organizationId, [FromRoute] Guid assetId, [FromRoute] int newLifecycleType)
         {
             try
             {
@@ -1707,7 +1750,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoAsset), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> AssignAsset(Guid organizationId, Guid assetId, [FromBody] AssignAsset asset)
+        public async Task<ActionResult> AssignAsset([FromRoute] Guid organizationId, [FromRoute] Guid assetId, [FromBody] AssignAsset asset)
         {
             try
             {
@@ -1763,7 +1806,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoAssetCategory), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [PermissionAuthorize(Permission.CanReadAsset)]
-        public async Task<ActionResult<IEnumerable<OrigoAssetCategory>>> GetAssetCategories(string? language = "EN", bool includeAttributeData = false)
+        public async Task<ActionResult<IEnumerable<OrigoAssetCategory>>> GetAssetCategories([FromQuery] string? language = "EN", [FromQuery] bool includeAttributeData = false)
         {
             var assetCategories = await _assetServices.GetAssetCategoriesAsync(language);
 
@@ -1787,7 +1830,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<AssetAuditLog>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [PermissionAuthorize(Permission.CanReadAsset)]
-        public async Task<ActionResult<IEnumerable<AssetAuditLog>>> GetAssetAuditLog(Guid assetId)
+        public async Task<ActionResult<IEnumerable<AssetAuditLog>>> GetAssetAuditLog([FromRoute] Guid assetId)
         {
             try
             {
@@ -1813,7 +1856,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-        public async Task<ActionResult> UploadAssetFile(Guid organizationId, IFormFile file)
+        public async Task<ActionResult> UploadAssetFile([FromRoute] Guid organizationId, [FromForm] IFormFile file)
         {
             try
             {
@@ -1898,7 +1941,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult> DownloadAssetFile(Guid organizationId, string fileName)
+        public async Task<ActionResult> DownloadAssetFile([FromRoute] Guid organizationId, [FromQuery] string fileName)
         {
             try
             {
@@ -1942,7 +1985,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult<IList<string>>> GetBlobFiles(Guid organizationId)
+        public async Task<ActionResult<IList<string>>> GetBlobFiles([FromRoute] Guid organizationId)
         {
             try
             {
@@ -1983,7 +2026,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult<OrigoCustomerAssetsCounter>> GetAssetLifecycleCounters(Guid organizationId, [FromQuery] FilterOptionsForAsset filter)
+        public async Task<ActionResult<OrigoCustomerAssetsCounter>> GetAssetLifecycleCounters([FromRoute] Guid organizationId, [FromQuery] FilterOptionsForAsset filter)
         {
             try
             {
@@ -2038,7 +2081,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoAsset>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> ActivateAssetStatusOnAssetLifecycle(Guid organizationId, [FromBody] ChangeAssetStatus assetLifecycles)
+        public async Task<ActionResult> ActivateAssetStatusOnAssetLifecycle([FromRoute] Guid organizationId, [FromBody] ChangeAssetStatus assetLifecycles)
         {
             try
             {
@@ -2085,7 +2128,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<HardwareSuperType>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateAsset)]
-        public async Task<ActionResult> DeactivateAssetStatusOnAssetLifecycle(Guid organizationId, [FromBody] ChangeAssetStatus assetLifecycles)
+        public async Task<ActionResult> DeactivateAssetStatusOnAssetLifecycle([FromRoute] Guid organizationId, [FromBody] ChangeAssetStatus assetLifecycles)
         {
             try
             {

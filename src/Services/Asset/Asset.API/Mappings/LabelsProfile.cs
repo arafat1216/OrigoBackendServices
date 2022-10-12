@@ -9,7 +9,7 @@ namespace Asset.API.Mappings
         public LabelsProfile()
         {
             CreateMap<AssetServices.Models.Label, ViewModels.Label>();
-
+            CreateMap<NewLabel, AssetServices.Models.Label>();
         }
     }
 }

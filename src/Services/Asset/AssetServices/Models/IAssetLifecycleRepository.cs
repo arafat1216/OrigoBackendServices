@@ -12,14 +12,17 @@ namespace AssetServices.Models
     {
         Task<AssetLifecycle> AddAsync(AssetLifecycle assetLifecycle);
         Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid? departmentId, Guid callerId);
+        Task<PagedModel<CustomerAssetCount>> GetAssetLifecyclesCountsAsync(IList<Guid> customerIds, int page, int limit, CancellationToken cancellationToken);
         Task<IList<CustomerAssetCount>> GetAssetLifecyclesCountsAsync(IList<Guid> customerIds);
         Task<int> GetAssetLifecyclesCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus? assetLifecycleStatus);
         Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
-           Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string? search, int page, int limit, CancellationToken cancellationToken);
-        Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid customerId, Guid assetId, string? userId, IList<Guid?>? department);
+           Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string? search, int page, int limit, CancellationToken cancellationToken,
+           bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false);
+        Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid customerId, Guid assetLifecycleId, string? userId, IList<Guid?>? department,
+            bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false, bool asNoTracking = false);
         Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid assetLifeCycleId);
-        Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList);
-        Task<IList<AssetLifecycle>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId);
+        Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList, bool includeAsset = false, bool includeImeis = false, bool includeContractHolderUser = false, bool includeLabels = false, bool asNoTracking = false);
+        Task<IList<AssetLifecycle>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId, bool includeAsset = false, bool includeImeis = false, bool includeContractHolderUser = false, bool asNoTracking = false);
         Task<IList<CustomerLabel>> AddCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels);
         Task<IList<CustomerLabel>> GetCustomerLabelsForCustomerAsync(Guid customerId);
         Task<IList<CustomerLabel>> GetCustomerLabelsFromListAsync(IList<Guid> labelsGuid, Guid customerId);
@@ -28,11 +31,11 @@ namespace AssetServices.Models
         Task<IList<CustomerLabel>> UpdateCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels);
         Task<int> SaveEntitiesAsync(CancellationToken cancellationToken = default);
         Task<IList<FunctionalEventLogEntry>> GetAuditLog(Guid assetId);
-        Task<User?> GetUser(Guid userId);
+        Task<User?> GetUser(Guid userId, bool asNoTracking = false);
         Task<decimal> GetCustomerTotalBookValue(Guid customerId);
         Task<AssetLifecycle?> MakeAssetAvailableAsync(Guid customerId, Guid callerId, Guid assetLifeCycleId);
         Task<IList<AssetLifecycle>> GetAssetForUser(Guid userId);
-        Task<CustomerSettings?> GetCustomerSettingsAsync(Guid customerId);
+        Task<CustomerSettings?> GetCustomerSettingsAsync(Guid customerId, bool asNoTracking = false);
 
         Task<LifeCycleSetting?> GetCustomerLifeCycleSettingAssetCategory(Guid customerId, int assetCategoryId);
         Task<ServiceModel.CustomerAssetsCounterDTO> GetAssetLifecycleCountForCustomerAsync(Guid customerId, Guid? userId, IList<AssetLifecycleStatus> statuses);

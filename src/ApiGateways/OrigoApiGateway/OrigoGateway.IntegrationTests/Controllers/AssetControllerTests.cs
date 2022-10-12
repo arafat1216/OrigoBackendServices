@@ -221,6 +221,200 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
+    [Theory]
+    [MemberData(nameof(EmailAccess))]
+    public async Task Get_SecurePageAccessibleOnlyByAdminUsersPagination(string email, PredefinedRole role, HttpStatusCode expected)
+    {
+        var organizationId = Guid.NewGuid();
+        var permissionsIdentity = new ClaimsIdentity();
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "systemadmin@test.io"));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, "systemadmin@test.io"));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, role.ToString()));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadAsset"));
+        permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services =>
+            {
+                var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                services.AddSingleton(userPermissionServiceMock.Object);
+
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                    options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                    TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+                var assetService = new Mock<IAssetServices>();
+
+                var customerAssetCount = new PagedModel<CustomerAssetCount>
+                {
+                    PageSize = 1,
+                    CurrentPage = 1,
+                    TotalItems = 1,
+                    Items = new List<CustomerAssetCount> { new() { OrganizationId = Guid.NewGuid(), Count = 12 } }
+                };
+                assetService.Setup(_ => _.GetAllCustomerAssetsCountAsync(It.IsAny<List<Guid>>(), It.IsAny<int>(), It.IsAny<int>()))
+                    .Returns(Task.FromResult(customerAssetCount));
+                services.AddSingleton(assetService.Object);
+            });
+        }).CreateClient();
+
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+        var response = await client.GetAsync("/origoapi/v1.0/assets/customers/count/pagination");
+
+        Assert.Equal(expected, response.StatusCode);
+    }
+    [Fact]
+    public async Task GetAllCustomerItemCount_BySystemAdminPagination()
+    {
+        var organizationId = Guid.NewGuid();
+        var permissionsIdentity = new ClaimsIdentity();
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "systemadmin@test.io"));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, "systemadmin@test.io"));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, PredefinedRole.SystemAdmin.ToString()));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadAsset"));
+        permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services =>
+            {
+                var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), "systemadmin@test.io", CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                services.AddSingleton(userPermissionServiceMock.Object);
+
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                    options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                    TestAuthenticationHandler.DefaultScheme, options => { options.Email = "systemadmin@test.io"; });
+                var assetService = new Mock<IAssetServices>();
+
+                var customerAssetCount = new PagedModel<CustomerAssetCount>
+                {
+                    PageSize = 1,
+                    CurrentPage = 1,
+                    TotalItems = 1,
+                    Items = new List<CustomerAssetCount> { new() { OrganizationId = Guid.NewGuid(), Count = 12 } }
+                };
+                assetService.Setup(_ => _.GetAllCustomerAssetsCountAsync(It.IsAny<List<Guid>>(), It.IsAny<int>(), It.IsAny<int>()))
+                    .Returns(Task.FromResult(customerAssetCount));
+                services.AddSingleton(assetService.Object);
+            });
+        }).CreateClient();
+
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+        var response = await client.GetAsync("/origoapi/v1.0/assets/customers/count/pagination");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+    [Fact]
+    public async Task GetAllCustomerItemCount_ByPartnerAdminPagination()
+    {
+        var organizationId = Guid.NewGuid();
+        var permissionsIdentity = new ClaimsIdentity();
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "systemadmin@test.io"));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, "systemadmin@test.io"));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, PredefinedRole.PartnerAdmin.ToString()));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadAsset"));
+        permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services =>
+            {
+                var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), "systemadmin@test.io", CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                services.AddSingleton(userPermissionServiceMock.Object);
+
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                    options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                    TestAuthenticationHandler.DefaultScheme, options => { options.Email = "systemadmin@test.io"; });
+                var assetService = new Mock<IAssetServices>();
+                var customerAssetCount = new PagedModel<CustomerAssetCount>
+                {
+                    PageSize = 1,
+                    CurrentPage = 1,
+                    TotalItems = 1,
+                    Items = new List<CustomerAssetCount> { new() { OrganizationId = Guid.NewGuid(), Count = 12 } }
+                };
+                assetService.Setup(_ => _.GetAllCustomerAssetsCountAsync(It.IsAny<List<Guid>>(), It.IsAny<int>(), It.IsAny<int>()))
+                    .Returns(Task.FromResult(customerAssetCount));
+                services.AddSingleton(assetService.Object);
+            });
+        }).CreateClient();
+
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+        var response = await client.GetAsync("/origoapi/v1.0/assets/customers/count/pagination");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+    [Fact]
+    public async Task GetAllCustomerItemCount_ByCustomerAdminPagination()
+    {
+        var organizationId = Guid.NewGuid();
+        var permissionsIdentity = new ClaimsIdentity();
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "systemadmin@test.io"));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, "systemadmin@test.io"));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, PredefinedRole.CustomerAdmin.ToString()));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadAsset"));
+        permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services =>
+            {
+                var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), "systemadmin@test.io", CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                services.AddSingleton(userPermissionServiceMock.Object);
+
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                    options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                    TestAuthenticationHandler.DefaultScheme, options => { options.Email = "systemadmin@test.io"; });
+                var assetService = new Mock<IAssetServices>();
+                var customerAssetCount = new PagedModel<CustomerAssetCount>
+                {
+                    PageSize = 1,
+                    CurrentPage = 1,
+                    TotalItems = 1,
+                    Items = new List<CustomerAssetCount> { new() { OrganizationId = Guid.NewGuid(), Count = 12 } }
+                };
+                assetService.Setup(_ => _.GetAllCustomerAssetsCountAsync(It.IsAny<List<Guid>>(), It.IsAny<int>(), It.IsAny<int>()))
+                    .Returns(Task.FromResult(customerAssetCount));
+                services.AddSingleton(assetService.Object);
+            });
+        }).CreateClient();
+
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+        var response = await client.GetAsync("/origoapi/v1.0/assets/customers/count/pagination");
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
     [Fact]
     public async Task GetAssetsForCustomerAsync_SecurePageAccessibleToAllSystemAdminsWithRightPermissionNames()
     {
@@ -268,7 +462,8 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
                 };
 
                 var assetService = new Mock<IAssetServices>();
-                assetService.Setup(_ => _.GetAssetsForCustomerAsync(Guid.Parse("6c514552-ea67-48c8-91ec-83c2b16248ee"), It.IsAny<FilterOptionsForAsset>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>())).Returns(Task.FromResult(customersAssets));
+                assetService.Setup(_ => _.GetAssetsForCustomerAsync(Guid.Parse("6c514552-ea67-48c8-91ec-83c2b16248ee"), It.IsAny<FilterOptionsForAsset>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(),
+                    It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(Task.FromResult(customersAssets));
                 services.AddSingleton(assetService.Object);
             });
         }).CreateClient();
@@ -389,7 +584,8 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
                 };
 
                 var assetService = new Mock<IAssetServices>();
-                assetService.Setup(_ => _.GetAssetsForCustomerAsync(organizationId, It.IsAny<FilterOptionsForAsset>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>())).Returns(Task.FromResult(customersAssets));
+                assetService.Setup(_ => _.GetAssetsForCustomerAsync(organizationId, It.IsAny<FilterOptionsForAsset>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(),
+                    It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(Task.FromResult(customersAssets));
                 services.AddSingleton(assetService.Object);
             });
         }).CreateClient();

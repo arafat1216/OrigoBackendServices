@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Seedwork;
 using AssetServices.Exceptions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace AssetServices.Infrastructure
 {
@@ -47,6 +48,24 @@ namespace AssetServices.Infrastructure
             return savedAssetLifecycle;
         }
 
+        public async Task<PagedModel<CustomerAssetCount>> GetAssetLifecyclesCountsAsync(IList<Guid> customerIds, int page, int limit, CancellationToken cancellationToken)
+        {
+            IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
+
+            if (customerIds.Any())
+            {
+                query = query.Where(x => customerIds.Contains(x.CustomerId));
+            }
+            var assetCountList = query
+            .GroupBy(a => a.CustomerId)
+            .Select(group => new CustomerAssetCount()
+            {
+                OrganizationId = group.Key,
+                Count = group.Count()
+            }).AsNoTracking();
+
+            return await assetCountList.PaginateAsync(page, limit, cancellationToken);
+        }
         public async Task<IList<CustomerAssetCount>> GetAssetLifecyclesCountsAsync(IList<Guid> customerIds)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
@@ -61,20 +80,21 @@ namespace AssetServices.Infrastructure
             {
                 OrganizationId = group.Key,
                 Count = group.Count()
-            })
+            }).AsNoTracking()
             .ToListAsync();
 
             return assetCountList;
         }
-
         public async Task<int> GetAssetLifecyclesCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus? assetLifecycleStatus)
         {
             if (departmentId != null && departmentId != Guid.Empty)
             {
+                
                 var countStatus = await _assetContext.AssetLifeCycles
                     .Where(a => a.CustomerId == customerId && a.ManagedByDepartmentId == departmentId)
                     .GroupBy(a => a.AssetLifecycleStatus)
                     .Select(c => new { StatusId = c.Key, Count = c.Count() })
+                    .AsNoTracking()
                     .ToListAsync();
                 return assetLifecycleStatus.HasValue
                     ? countStatus.FirstOrDefault(c => c.StatusId == assetLifecycleStatus)?.Count ?? 0
@@ -86,6 +106,7 @@ namespace AssetServices.Infrastructure
                     .Where(a => a.CustomerId == customerId)
                     .GroupBy(a => a.AssetLifecycleStatus)
                     .Select(c => new { StatusId = c.Key, Count = c.Count() })
+                    .AsNoTracking()
                     .ToListAsync();
 
                 return assetLifecycleStatus.HasValue
@@ -103,17 +124,29 @@ namespace AssetServices.Infrastructure
                              a.AssetLifecycleStatus == AssetLifecycleStatus.Repair ||
                              a.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
                              a.AssetLifecycleStatus == AssetLifecycleStatus.Available)
-                ).ToListAsync();
+                ).AsNoTracking().ToListAsync();
             return assets.Sum(x => x.BookValue);
         }
 
         public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
-           Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string? search, int page, int limit, CancellationToken cancellationToken)
+           Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string? search, int page, int limit, CancellationToken cancellationToken,
+           bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
-            query = query.Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis);
-            query = query.Include(al => al.Labels);
-            query = query.Include(al => al.ContractHolderUser);
+            if (includeAsset)
+            {
+                if (includeImeis)
+                    query = query.Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis);
+                else
+                    query = query.Include(al => al.Asset);
+            }
+                
+            if (includeLabels)   
+                query = query.Include(al => al.Labels);
+
+            if (includeContractHolderUser)   
+                query = query.Include(al => al.ContractHolderUser);
+
             query = query.Where(al => al.CustomerId == customerId);
             if (!string.IsNullOrEmpty(search))
             {
@@ -205,176 +238,97 @@ namespace AssetServices.Infrastructure
         }
         public async Task<ServiceModel.CustomerAssetsCounterDTO> GetAssetLifecycleCountForCustomerAsync(Guid customerId, Guid? userId, IList<AssetLifecycleStatus> statuses)
         {
-            ServiceModel.CustomerAssetsCounterDTO customerAssetsCounter = new ServiceModel.CustomerAssetsCounterDTO();
-            ServiceModel.AssetCounter personal = new ServiceModel.AssetCounter();
-            ServiceModel.AssetCounter nonPersonal = new ServiceModel.AssetCounter();
+            IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
+            query = query.Where(a => a.CustomerId == customerId);
 
-            var groups = await _assetContext.AssetLifeCycles.Where(a => a.CustomerId == customerId).GroupBy(c => new
+            if (statuses != null)
             {
-                c.AssetLifecycleStatus,
-                c.IsPersonal
-            }).Select(group => new
-            {
-                AssetLifecycle = group.Key.AssetLifecycleStatus,
-                value = group.Count(),
-                isPersonal = group.Key.IsPersonal
-            })
-                   .ToListAsync();
-
-            foreach (var g in groups)
-            {
-
-
-                if (statuses == null || (statuses.Contains(g.AssetLifecycle)))
-                {
-                    switch (g.AssetLifecycle)
-                    {
-                        case AssetLifecycleStatus.InUse:
-                            if (g.isPersonal) personal.InUse = g.value;
-                            else nonPersonal.InUse = g.value;
-                            break;
-
-                        case AssetLifecycleStatus.InputRequired:
-                            if (g.isPersonal) personal.InputRequired = g.value;
-                            else nonPersonal.InputRequired = g.value;
-                            break;
-
-                        case AssetLifecycleStatus.Active:
-                            if (g.isPersonal) personal.Active = g.value;
-                            else nonPersonal.Active = g.value;
-                            break;
-
-                        case AssetLifecycleStatus.Available:
-                            if (g.isPersonal) personal.Available = g.value;
-                            else nonPersonal.Available = g.value;
-                            break;
-
-                        case AssetLifecycleStatus.Expired:
-                            if (g.isPersonal) personal.Expired = g.value;
-                            else nonPersonal.Expired = g.value;
-                            break;
-
-                        case AssetLifecycleStatus.Repair:
-                            if (g.isPersonal) personal.Repair = g.value;
-                            else nonPersonal.Repair = g.value;
-                            break;
-
-                        case AssetLifecycleStatus.ExpiresSoon:
-                            if (g.isPersonal) personal.ExpiresSoon = g.value;
-                            else nonPersonal.ExpiresSoon = g.value;
-                            break;
-
-                        case AssetLifecycleStatus.PendingReturn:
-                            if (g.isPersonal) personal.PendingReturn = g.value;
-                            else nonPersonal.PendingReturn = g.value;
-                            break;
-
-                        case AssetLifecycleStatus.PendingRecycle:
-                            if (g.isPersonal) personal.PendingRecycle = g.value;
-                            else nonPersonal.PendingRecycle = g.value;
-                            break;
-
-                        default:
-                            break;
-
-                    }
-                }
+                query = query.Where(a => statuses.Contains(a.AssetLifecycleStatus));
             }
 
-            customerAssetsCounter.NonPersonal = nonPersonal;
-            customerAssetsCounter.Personal = personal;
+            var queryCounter = await query.GroupBy(c => new
+            {
+                c.CustomerId,
+            }).Select(group => new ServiceModel.CustomerAssetsCounterDTO
+            {
+                OrganizationId = group.Key.CustomerId,
+                Personal = new ServiceModel.AssetCounter()
+                {
+                    InUse = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.InUse),
+                    InputRequired = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.InputRequired),
+                    Active = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.Active),
+                    Available = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.Available),
+                    Expired = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.Expired),
+                    Repair = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.Repair),
+                    ExpiresSoon = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.ExpiresSoon),
+                    PendingReturn = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn),
+                    PendingRecycle = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.PendingRecycle),
+                },
+                NonPersonal = new ServiceModel.AssetCounter()
+                {
+                    InUse = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.InUse),
+                    InputRequired = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.InputRequired),
+                    Active = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.Active),
+                    Available = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.Available),
+                    Expired = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.Expired),
+                    Repair = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.Repair),
+                    ExpiresSoon = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.ExpiresSoon),
+                    PendingReturn = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn),
+                    PendingRecycle = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.PendingRecycle),
+                },
 
-            customerAssetsCounter.OrganizationId = customerId;
+            }).FirstOrDefaultAsync();
 
-            return customerAssetsCounter;
+            return queryCounter ?? new ServiceModel.CustomerAssetsCounterDTO();
         }
         public async Task<ServiceModel.CustomerAssetsCounterDTO> GetAssetCountForDepartmentAsync(Guid customerId, Guid? userId, IList<AssetLifecycleStatus> statuses, IList<Guid?> departments)
         {
-            ServiceModel.CustomerAssetsCounterDTO baseAssetCounter = new ServiceModel.CustomerAssetsCounterDTO();
-            List<ServiceModel.AssetCounterDepartment> assetCounterDepartmentList = new List<ServiceModel.AssetCounterDepartment>();
+            IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
+            query = query.Where(a => a.CustomerId == customerId && departments.Contains(a.ManagedByDepartmentId));
 
-
-            foreach (var department in departments)
+            if (statuses != null)
             {
-                var departmentCounter = new ServiceModel.AssetCounterDepartment();
-
-                var groups = await _assetContext.AssetLifeCycles.Where(a => a.CustomerId == customerId && a.ManagedByDepartmentId == department).GroupBy(c => new
-                {
-                    c.AssetLifecycleStatus,
-                    c.IsPersonal
-                }).Select(group => new
-                {
-                    AssetLifecycle = group.Key.AssetLifecycleStatus,
-                    value = group.Count(),
-                    isPersonal = group.Key.IsPersonal
-                })
-                  .ToListAsync();
-
-                foreach (var g in groups)
-                {
-                    if (statuses == null || (statuses.Contains(g.AssetLifecycle)))
-                    {
-                        switch (g.AssetLifecycle)
-                        {
-                            case AssetLifecycleStatus.InUse:
-                                if (g.isPersonal) departmentCounter.Personal.InUse = g.value;
-                                else departmentCounter.NonPersonal.InUse = g.value;
-                                break;
-
-                            case AssetLifecycleStatus.InputRequired:
-                                if (g.isPersonal) departmentCounter.Personal.InputRequired = g.value;
-                                else departmentCounter.NonPersonal.InputRequired = g.value;
-                                break;
-
-                            case AssetLifecycleStatus.Active:
-                                if (g.isPersonal) departmentCounter.Personal.Active = g.value;
-                                else departmentCounter.NonPersonal.Active = g.value;
-                                break;
-
-                            case AssetLifecycleStatus.Available:
-                                if (g.isPersonal) departmentCounter.Personal.Available = g.value;
-                                else departmentCounter.NonPersonal.Available = g.value;
-                                break;
-
-                            case AssetLifecycleStatus.Expired:
-                                if (g.isPersonal) departmentCounter.Personal.Expired = g.value;
-                                else departmentCounter.NonPersonal.Expired = g.value;
-                                break;
-
-                            case AssetLifecycleStatus.Repair:
-                                if (g.isPersonal) departmentCounter.Personal.Repair = g.value;
-                                else departmentCounter.NonPersonal.Repair = g.value;
-                                break;
-
-                            case AssetLifecycleStatus.ExpiresSoon:
-                                if (g.isPersonal) departmentCounter.Personal.ExpiresSoon = g.value;
-                                else departmentCounter.NonPersonal.ExpiresSoon = g.value;
-                                break;
-
-                            case AssetLifecycleStatus.PendingReturn:
-                                if (g.isPersonal) departmentCounter.Personal.PendingReturn = g.value;
-                                else departmentCounter.NonPersonal.PendingReturn = g.value;
-                                break;
-
-                            case AssetLifecycleStatus.PendingRecycle:
-                                if (g.isPersonal) departmentCounter.Personal.PendingRecycle = g.value;
-                                else departmentCounter.NonPersonal.PendingRecycle = g.value;
-                                break;
-
-                            default:
-                                break;
-
-                        }
-                    }
-                }
-                departmentCounter.DepartmentId = department;
-                assetCounterDepartmentList.Add(departmentCounter);
-
+                query = query.Where(a => statuses.Contains(a.AssetLifecycleStatus));
             }
 
-            baseAssetCounter.Departments = assetCounterDepartmentList;
-            baseAssetCounter.OrganizationId = customerId;
+            var queryCounter = query.GroupBy(c => new
+            {
+                c.ManagedByDepartmentId,
+            }).Select(group => new ServiceModel.AssetCounterDepartment
+            {
+                DepartmentId = group.Key.ManagedByDepartmentId,
+                Personal = new ServiceModel.AssetCounter()
+                {
+                    InUse = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.InUse),
+                    InputRequired = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.InputRequired),
+                    Active = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.Active),
+                    Available = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.Available),
+                    Expired = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.Expired),
+                    Repair = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.Repair),
+                    ExpiresSoon = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.ExpiresSoon),
+                    PendingReturn = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn),
+                    PendingRecycle = group.Count(x => x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.PendingRecycle),
+                },
+                NonPersonal = new ServiceModel.AssetCounter()
+                {
+                    InUse = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.InUse),
+                    InputRequired = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.InputRequired),
+                    Active = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.Active),
+                    Available = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.Available),
+                    Expired = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.Expired),
+                    Repair = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.Repair),
+                    ExpiresSoon = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.ExpiresSoon),
+                    PendingReturn = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn),
+                    PendingRecycle = group.Count(x => !x.IsPersonal && x.AssetLifecycleStatus == AssetLifecycleStatus.PendingRecycle),
+                },
 
+            });
+
+            var baseAssetCounter = new ServiceModel.CustomerAssetsCounterDTO()
+            {
+                Departments = await queryCounter.ToListAsync(),
+                OrganizationId = customerId
+            };
 
             return baseAssetCounter;
         }
@@ -384,13 +338,30 @@ namespace AssetServices.Infrastructure
         }
 
 
-        public async Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList)
+        public async Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList, bool includeAsset = false, bool includeImeis = false, bool includeContractHolderUser = false, bool includeLabels = false, bool asNoTracking = false)
         {
-            return await _assetContext.AssetLifeCycles
-                .Include(al => al.Labels)
-                .Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis)
-                .Include(al => al.ContractHolderUser)
-                .Where(al => assetGuidList.Contains(al.ExternalId) && al.CustomerId == customerId).AsSplitQuery().ToListAsync();
+            IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
+
+            if (includeAsset)
+                if (includeImeis)
+                    query = query.Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis);
+                else
+                    query = query.Include(al => al.Asset);
+
+            if (includeContractHolderUser)
+                query = query.Include(al => al.ContractHolderUser);
+
+            if (includeLabels)
+                query = query.Include(al => al.Labels);
+
+            query = query.Where(al => assetGuidList.Contains(al.ExternalId) && al.CustomerId == customerId);
+
+            if (asNoTracking)
+                return await query
+                .AsSplitQuery().AsNoTracking().ToListAsync();
+            else
+                return await query
+                .AsSplitQuery().AsTracking().ToListAsync();
         }
 
         public async Task<IList<CustomerLabel>> AddCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)
@@ -398,13 +369,13 @@ namespace AssetServices.Infrastructure
             _assetContext.CustomerLabels.AddRange(labels);
             await SaveEntitiesAsync();
             return await _assetContext.CustomerLabels
-                         .Where(c => c.CustomerId == customerId && !c.IsDeleted).ToListAsync();
+                         .Where(c => c.CustomerId == customerId && !c.IsDeleted).AsNoTracking().ToListAsync();
         }
 
         public async Task<IList<CustomerLabel>> GetCustomerLabelsForCustomerAsync(Guid customerId)
         {
             return await _assetContext.CustomerLabels
-                         .Where(a => a.CustomerId == customerId && !a.IsDeleted).ToListAsync();
+                         .Where(a => a.CustomerId == customerId && !a.IsDeleted).AsNoTracking().ToListAsync();
         }
 
         public async Task<IList<CustomerLabel>> GetCustomerLabelsFromListAsync(IList<Guid> labelsGuid, Guid customerId)
@@ -439,15 +410,27 @@ namespace AssetServices.Infrastructure
             return await GetCustomerLabelsForCustomerAsync(customerId);
         }
 
-        public async Task<IList<AssetLifecycle>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId)
+        public async Task<IList<AssetLifecycle>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId, bool includeAsset = false, bool includeImeis = false, bool includeContractHolderUser = false, bool asNoTracking = false)
         {
-            return await _assetContext.AssetLifeCycles
-                .Include(a => a.ContractHolderUser)
-                .Include(a => a.Asset)
-                .ThenInclude(hw => (hw as MobilePhone).Imeis)
+            IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
+
+            if (includeAsset)
+                if (includeImeis)
+                    query = query.Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis);
+                else
+                    query = query.Include(al => al.Asset);
+
+            if(includeContractHolderUser)
+                query = query.Include(al => al.ContractHolderUser);
+
+            if(asNoTracking)
+                return await query
                 .Where(a => a.CustomerId == customerId && a.ContractHolderUser!.ExternalId == userId)
-                .AsTracking()
-                .ToListAsync();
+                .AsNoTracking().ToListAsync();
+            else
+                return await query
+                .Where(a => a.CustomerId == customerId && a.ContractHolderUser!.ExternalId == userId)
+                .AsTracking().ToListAsync();
         }
 
         public async Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid? departmentId, Guid callerId)
@@ -474,7 +457,6 @@ namespace AssetServices.Infrastructure
             var assetLifecycles = await _assetContext.AssetLifeCycles
                 .Include(al => al.Asset)
                 .ThenInclude(hw => (hw as MobilePhone).Imeis)
-                //.ThenInclude(hw => (hw as Tablet).Imeis)
                 .Include(al => al.ContractHolderUser)
                 .Include(a => a.Labels)
                 .Where(a => a.CustomerId == customerId && a.ExternalId == assetLifeCycleId)
@@ -489,14 +471,25 @@ namespace AssetServices.Infrastructure
         }
 
 
-        public async Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid customerId, Guid assetLifecycleId, string? userId, IList<Guid?>? department)
+        public async Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid customerId, Guid assetLifecycleId, string? userId, IList<Guid?>? department,
+            bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false, bool asNoTracking = false)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
-            query = query.Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis);
-            query = query.Include(al => al.Labels);
-            query = query.Include(al => al.ContractHolderUser);
-            query = query.Where(al => al.CustomerId == customerId);
-            query = query.Where(al => al.ExternalId == assetLifecycleId);
+            if (includeAsset)
+            {
+                if (includeImeis)
+                    query = query.Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis);
+                else
+                    query = query.Include(al => al.Asset);
+            }
+
+            if (includeLabels)
+                query = query.Include(al => al.Labels);
+
+            if (includeContractHolderUser)
+                query = query.Include(al => al.ContractHolderUser);
+
+            query = query.Where(al => al.CustomerId == customerId && al.ExternalId == assetLifecycleId);
 
             if (userId != null)
             {
@@ -506,12 +499,18 @@ namespace AssetServices.Infrastructure
             {
                 query = query.Where(al => department.Contains(al.ManagedByDepartmentId));
             }
-            return await query.FirstOrDefaultAsync();
+            if (asNoTracking)
+                return await query.AsNoTracking().FirstOrDefaultAsync();
+            else
+                return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<User?> GetUser(Guid userId)
+        public async Task<User?> GetUser(Guid userId, bool asNoTracking = false)
         {
-            return await _assetContext.Users.FirstOrDefaultAsync(u => u.ExternalId == userId);
+            if(asNoTracking)
+                return await _assetContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.ExternalId == userId);
+            else
+                return await _assetContext.Users.FirstOrDefaultAsync(u => u.ExternalId == userId);
         }
         public async Task<IList<AssetLifecycle>> GetAssetForUser(Guid userId)
         {
@@ -578,13 +577,16 @@ namespace AssetServices.Infrastructure
             return customerSettings;
         }
 
-        public async Task<CustomerSettings?> GetCustomerSettingsAsync(Guid customerId)
+        public async Task<CustomerSettings?> GetCustomerSettingsAsync(Guid customerId, bool asNoTracking = false)
         {
-            return await _assetContext.CustomerSettings.Include(x => x.LifeCycleSettings).FirstOrDefaultAsync(x => x.CustomerId == customerId);
+            if(asNoTracking)
+                return await _assetContext.CustomerSettings.Include(x => x.LifeCycleSettings).AsNoTracking().FirstOrDefaultAsync(x => x.CustomerId == customerId);
+            else
+                return await _assetContext.CustomerSettings.Include(x => x.LifeCycleSettings).FirstOrDefaultAsync(x => x.CustomerId == customerId);
         }
         public async Task<LifeCycleSetting?> GetCustomerLifeCycleSettingAssetCategory(Guid customerId, int assetCategoryId)
         {
-            var setting = await _assetContext.CustomerSettings.Include(x => x.LifeCycleSettings).FirstOrDefaultAsync(x => x.CustomerId == customerId);
+            var setting = await _assetContext.CustomerSettings.Include(x => x.LifeCycleSettings).AsNoTracking().FirstOrDefaultAsync(x => x.CustomerId == customerId);
             return setting?.LifeCycleSettings.FirstOrDefault(x => x.AssetCategoryId == assetCategoryId);
         }
 

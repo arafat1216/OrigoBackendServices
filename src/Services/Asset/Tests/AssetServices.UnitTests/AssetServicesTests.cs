@@ -65,7 +65,7 @@ public class AssetServicesTests : AssetBaseTest
         var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
 
         // Act
-        var assetsFromUser = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_ONE_ID);
+        var assetsFromUser = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_ONE_ID, includeAsset: true);
 
         // Assert
         Assert.All(assetsFromUser, item => Assert.NotNull(item.Asset));
@@ -318,7 +318,7 @@ public class AssetServicesTests : AssetBaseTest
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
         var assetRepositoryMock = new Mock<IAssetLifecycleRepository>();
-        assetRepositoryMock.Setup(r => r.GetCustomerSettingsAsync(COMPANY_ID))
+        assetRepositoryMock.Setup(r => r.GetCustomerSettingsAsync(COMPANY_ID, false))
             .ReturnsAsync(new CustomerSettings(COMPANY_ID));
         var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepositoryMock.Object, _mapper, new Mock<IEmailService>().Object);
         var newAssetDTO = new NewAssetDTO
@@ -896,15 +896,15 @@ public class AssetServicesTests : AssetBaseTest
             labelGuids.Add(label.ExternalId);
         }
 
-        var assetLifecycle2 = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, ASSETLIFECYCLE_TWO_ID, null, null);
-        var assetLifecycle3 = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, ASSETLIFECYCLE_THREE_ID, null, null);
+        var assetLifecycle2 = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, ASSETLIFECYCLE_TWO_ID, null, null, includeLabels: true);
+        var assetLifecycle3 = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, ASSETLIFECYCLE_THREE_ID, null, null, includeLabels: true);
 
         // Act
         await assetService.AssignLabelsToAssetsAsync(COMPANY_ID, Guid.Empty, new List<Guid> { assetLifecycle2!.ExternalId }, labelGuids);
         await assetService.AssignLabelsToAssetsAsync(COMPANY_ID, Guid.Empty, new List<Guid> { assetLifecycle3!.ExternalId }, labelGuids);
 
-        assetLifecycle2 = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, ASSETLIFECYCLE_TWO_ID, null, null);
-        assetLifecycle3 = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, ASSETLIFECYCLE_THREE_ID, null, null);
+        assetLifecycle2 = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, ASSETLIFECYCLE_TWO_ID, null, null, includeLabels: true);
+        assetLifecycle3 = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, ASSETLIFECYCLE_THREE_ID, null, null, includeLabels: true);
 
         // Assert
         Assert.Equal(labelGuids.Count, assetLifecycle2!.Labels.Count);
@@ -1616,7 +1616,12 @@ public class AssetServicesTests : AssetBaseTest
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
 
         //Act
-        var assetList = await assetRepository.GetAssetLifecyclesFromListAsync(COMPANY_ID, new List<Guid> { ASSETLIFECYCLE_TWO_ID });
+        var assetList = await assetRepository.GetAssetLifecyclesFromListAsync(COMPANY_ID, new List<Guid> { ASSETLIFECYCLE_TWO_ID },
+            includeAsset: true,
+            includeLabels: true,
+            includeContractHolderUser: true,
+            includeImeis: true,
+            asNoTracking: true);
         //Assert
         Assert.Equal(1, assetList[0].Labels.Count);
         Assert.Equal(ASSETHOLDER_TWO_ID, assetList[0].ContractHolderUser!.ExternalId);
@@ -1632,7 +1637,8 @@ public class AssetServicesTests : AssetBaseTest
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
 
         //Act
-        var assetList = await assetRepository.GetAssetLifecyclesAsync(COMPANY_ID, null, null, null, null, null, null, null, null, null, null, 1, 10, CancellationToken.None);
+        var assetList = await assetRepository.GetAssetLifecyclesAsync(COMPANY_ID, null, null, null, null, null, null, null, null, null, null, 1, 10, CancellationToken.None,
+            includeContractHolderUser: true, includeLabels: true);
 
         //Assert
         Assert.Equal(1, assetList.Items[2].Labels.Count);
@@ -1717,7 +1723,8 @@ public class AssetServicesTests : AssetBaseTest
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
 
         //Act
-        var assetList = await assetRepository.GetAssetLifecyclesAsync(COMPANY_ID, null, null, null, null, null, null, null, null, null, "atish", 1, 10, CancellationToken.None);
+        var assetList = await assetRepository.GetAssetLifecyclesAsync(COMPANY_ID, null, null, null, null, null, null, null, null, null, "atish", 1, 10, CancellationToken.None
+            ,includeContractHolderUser: true);
 
         //Assert
         Assert.Equal(1, assetList.Items.Count);

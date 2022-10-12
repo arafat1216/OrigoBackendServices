@@ -29,6 +29,7 @@ using ReturnLocation = Asset.API.ViewModels.ReturnLocation;
 using Common.Model.EventModels;
 using Common.Extensions;
 using Dapr;
+using Common.Interfaces;
 
 namespace Asset.API.Controllers;
 
@@ -58,12 +59,24 @@ public class AssetsController : ControllerBase
     }
 
     /// <summary>
-    /// Get a count of all assets per customer. If customerIds given it will be filtered on those.
+    /// Get a count of all assets per customer in pagedModel. If customerIds given it will be filtered on those.
     /// We need to use POST since the number of customerIds may be too long for it to be a GET query command.
     /// </summary>
     /// <param name="role"></param>
     /// <param name="customerIds"></param>
     /// <returns></returns>
+    [Route("customers/count/pagination")]
+    [HttpPost]
+    [ProducesResponseType(typeof(PagedModel<CustomerAssetCount>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult<PagedModel<CustomerAssetCount>>> GetAllCount(CancellationToken cancellationToken, [FromBody] List<Guid>? customerIds = null, [FromQuery] int page = 1, [FromQuery] int limit = 25)
+    {
+        var assetCountList = await _assetServices.GetAllCustomerAssetsCountAsync(customerIds ?? new List<Guid>(), page, limit,
+            cancellationToken);
+        return Ok(assetCountList);
+    }
+
+    [Obsolete("Should be removed when frontend adapt to pagination")]
     [Route("customers/count")]
     [HttpPost]
     [ProducesResponseType(typeof(IList<CustomerAssetCount>), (int)HttpStatusCode.OK)]
@@ -78,8 +91,8 @@ public class AssetsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<int>> GetCount(Guid customerId, Guid? departmentId,
-        AssetLifecycleStatus? assetLifecycleStatus)
+    public async Task<ActionResult<int>> GetCount([FromRoute] Guid customerId, [FromQuery] Guid? departmentId,
+        [FromQuery] AssetLifecycleStatus? assetLifecycleStatus)
     {
         var count = await _assetServices.GetAssetsCountAsync(customerId, assetLifecycleStatus, departmentId);
 
@@ -90,7 +103,7 @@ public class AssetsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(decimal), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<decimal>> GetCustomerTotalBookValue(Guid customerId)
+    public async Task<ActionResult<decimal>> GetCustomerTotalBookValue([FromRoute] Guid customerId)
     {
         var totalBookValue = await _assetServices.GetCustomerTotalBookValue(customerId);
 
@@ -102,16 +115,17 @@ public class AssetsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> GetAssetsForUser(Guid customerId, Guid userId)
+    public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> GetAssetsForUser([FromRoute] Guid customerId, [FromRoute] Guid userId,
+        [FromQuery] bool includeAsset = true, bool includeImeis = true, bool includeContractHolderUser = true)
     {
-        var assetLifecycles = await _assetServices.GetAssetLifecyclesForUserAsync(customerId, userId);
+        var assetLifecycles = await _assetServices.GetAssetLifecyclesForUserAsync(customerId, userId, includeAsset, includeImeis, includeContractHolderUser);
 
         return Ok(_mapper.Map<IList<ViewModels.Asset>>(assetLifecycles));
     }
 
     [Route("customers/{customerId:guid}/users/{userId:Guid}")]
     [HttpPatch]
-    public async Task<ActionResult> UnAssignAssetsFromUser(Guid customerId, Guid userId,
+    public async Task<ActionResult> UnAssignAssetsFromUser([FromRoute] Guid customerId, [FromRoute] Guid userId,
         [FromBody] UnAssignAssetToUser data)
     {
         await _assetServices.UnAssignAssetLifecyclesForUserAsync(customerId, userId, data.DepartmentId, data.CallerId);
@@ -123,14 +137,10 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<IEnumerable<Label>>> CreateLabelsForCustomer(Guid customerId,
+    public async Task<ActionResult<IEnumerable<Label>>> CreateLabelsForCustomer([FromRoute] Guid customerId,
         [FromBody] AddLabelsData data)
     {
-        var labels = new List<AssetServices.Models.Label>();
-        foreach (var newLabel in data.NewLabels)
-        {
-            labels.Add(new AssetServices.Models.Label(newLabel.Text, newLabel.Color));
-        }
+        var labels = _mapper.Map<IList<AssetServices.Models.Label>>(data.NewLabels);
 
         var labelsAdded = await _assetServices.AddLabelsForCustomerAsync(customerId, data.CallerId, labels);
 
@@ -156,7 +166,7 @@ public class AssetsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> GetLabelsForCustomer(Guid customerId)
+    public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> GetLabelsForCustomer([FromRoute] Guid customerId)
     {
         var labels = await _assetServices.GetCustomerLabelsForCustomerAsync(customerId);
         if (labels == null)
@@ -181,7 +191,7 @@ public class AssetsController : ControllerBase
     [HttpDelete]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult> DeleteLabelsForCustomer(Guid customerId,
+    public async Task<ActionResult> DeleteLabelsForCustomer([FromRoute] Guid customerId,
         [FromBody] DeleteCustomerLabelsData customerLabelsData)
     {
         var assetList = await _assetServices.DeleteLabelsForCustomerAsync(customerId, customerLabelsData.CallerId,
@@ -193,7 +203,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<IEnumerable<Label>>> UpdateLabelsForCustomer(Guid customerId,
+    public async Task<ActionResult<IEnumerable<Label>>> UpdateLabelsForCustomer([FromRoute] Guid customerId,
         [FromBody] UpdateCustomerLabelsData data)
     {
         IList<CustomerLabel> customerLabels = new List<CustomerLabel>();
@@ -222,7 +232,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> AssignLabelsToAssets(Guid customerId,
+    public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> AssignLabelsToAssets([FromRoute] Guid customerId,
         [FromBody] AssetLabels assetLabels)
     {
         var assets = await _assetServices.AssignLabelsToAssetsAsync(customerId, assetLabels.CallerId,
@@ -234,7 +244,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> UnAssignLabelsToAssets(Guid customerId,
+    public async Task<ActionResult<IEnumerable<ViewModels.Asset>>> UnAssignLabelsToAssets([FromRoute] Guid customerId,
         [FromBody] AssetLabels assetLabels)
     {
         var assets = await _assetServices.UnAssignLabelsToAssetsAsync(customerId, assetLabels.CallerId,
@@ -246,9 +256,10 @@ public class AssetsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(PagedAssetList), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<PagedAssetList>> Get(Guid customerId, CancellationToken cancellationToken,
-        [FromQuery(Name = "q")] string? search, int page = 1, int limit = 1000,
-        [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString = null)
+    public async Task<ActionResult<PagedAssetList>> Get([FromRoute] Guid customerId, CancellationToken cancellationToken,
+        [FromQuery(Name = "q")] string? search, int page = 1, int limit = 25,
+        [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString = null,
+        [FromQuery]bool includeAsset = true, bool includeImeis = true, bool includeLabels = true, bool includeContractHolderUser = true)
     {
         FilterOptionsForAsset? filterOptions = null;
         if (!string.IsNullOrEmpty(filterOptionsAsJsonString))
@@ -260,7 +271,7 @@ public class AssetsController : ControllerBase
             filterOptions?.UserId, filterOptions?.Status, filterOptions?.Department, filterOptions?.Category,
             filterOptions?.Label, filterOptions?.IsActiveState, filterOptions?.IsPersonal,
             filterOptions?.EndPeriodMonth, filterOptions?.purchaseMonth, search ?? string.Empty, page, limit,
-            cancellationToken);
+            cancellationToken, includeAsset, includeImeis, includeLabels, includeContractHolderUser);
         var pagedAssetList = _mapper.Map<PagedAssetList>(pagedAssetResult);
         return Ok(pagedAssetList);
     }
@@ -269,8 +280,9 @@ public class AssetsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<ViewModels.Asset>> Get(Guid customerId, Guid assetId,
-        [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString = null)
+    public async Task<ActionResult<ViewModels.Asset>> Get([FromRoute] Guid customerId, [FromRoute] Guid assetId,
+        [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString = null,
+        [FromQuery] bool includeAsset = true, bool includeImeis = true, bool includeLabels = true, bool includeContractHolderUser = true)
     {
         FilterOptionsForAsset? filterOptions = null;
         if (!string.IsNullOrEmpty(filterOptionsAsJsonString))
@@ -279,7 +291,7 @@ public class AssetsController : ControllerBase
         }
 
         var assetLifecycle = await _assetServices.GetAssetLifecycleForCustomerAsync(customerId, assetId,
-            filterOptions?.UserId, filterOptions?.Department);
+            filterOptions?.UserId, filterOptions?.Department, includeAsset, includeImeis, includeLabels, includeContractHolderUser);
         return Ok(_mapper.Map<ViewModels.Asset>(assetLifecycle));
     }
 
@@ -287,7 +299,7 @@ public class AssetsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IList<LifeCycleSetting>), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> GetLifeCycleSetting(Guid customerId)
+    public async Task<ActionResult> GetLifeCycleSetting([FromRoute] Guid customerId)
     {
         var setting = await _assetServices.GetLifeCycleSettingByCustomer(customerId);
         if (setting == null)
@@ -302,7 +314,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(LifeCycleSetting), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> CreateLifeCycleSetting(Guid customerId, [FromBody] NewLifeCycleSetting setting)
+    public async Task<ActionResult> CreateLifeCycleSetting([FromRoute] Guid customerId, [FromBody] NewLifeCycleSetting setting)
     {
         var newSettingDTO = _mapper.Map<LifeCycleSettingDTO>(setting);
         var createdSetting =
@@ -315,7 +327,7 @@ public class AssetsController : ControllerBase
     [HttpPut]
     [ProducesResponseType(typeof(LifeCycleSetting), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> UpdateLifeCycleSetting(Guid customerId, [FromBody] NewLifeCycleSetting setting)
+    public async Task<ActionResult> UpdateLifeCycleSetting([FromRoute] Guid customerId, [FromBody] NewLifeCycleSetting setting)
     {
         var newSettingDTO = _mapper.Map<LifeCycleSettingDTO>(setting);
         var updatedSetting =
@@ -327,7 +339,7 @@ public class AssetsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(DisposeSetting), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> GetDisposeSetting(Guid customerId)
+    public async Task<ActionResult> GetDisposeSetting([FromRoute] Guid customerId)
     {
         var setting = await _assetServices.GetDisposeSettingByCustomer(customerId);
         if (setting == null)
@@ -342,7 +354,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(DisposeSetting), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> CreateDisposeSetting(Guid customerId, [FromBody] NewDisposeSetting setting)
+    public async Task<ActionResult> CreateDisposeSetting([FromRoute] Guid customerId, [FromBody] NewDisposeSetting setting)
     {
         var newSettingDTO = _mapper.Map<DisposeSettingDTO>(setting);
         var createdSetting =
@@ -355,7 +367,7 @@ public class AssetsController : ControllerBase
     [HttpPut]
     [ProducesResponseType(typeof(DisposeSetting), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> UpdateDisposeSetting(Guid customerId, [FromBody] NewDisposeSetting setting)
+    public async Task<ActionResult> UpdateDisposeSetting([FromRoute] Guid customerId, [FromBody] NewDisposeSetting setting)
     {
         var newSettingDTO = _mapper.Map<DisposeSettingDTO>(setting);
         var updatedSetting =
@@ -367,7 +379,7 @@ public class AssetsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> GetReturnLocations(Guid customerId)
+    public async Task<ActionResult> GetReturnLocations([FromRoute] Guid customerId)
     {
         var locations = await _assetServices.GetReturnLocationsByCustomer(customerId);
         return Ok(_mapper.Map<IList<ReturnLocation>>(locations));
@@ -377,7 +389,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ReturnLocation), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> AddReturnLocation(Guid customerId, [FromBody] NewReturnLocation data)
+    public async Task<ActionResult> AddReturnLocation([FromRoute] Guid customerId, [FromBody] NewReturnLocation data)
     {
         var newLocationDTO = _mapper.Map<ReturnLocationDTO>(data);
         var addedLocation =
@@ -389,7 +401,7 @@ public class AssetsController : ControllerBase
     [HttpPut]
     [ProducesResponseType(typeof(ReturnLocation), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> UpdateReturnLocation(Guid customerId, Guid returnLocationId,
+    public async Task<ActionResult> UpdateReturnLocation([FromRoute] Guid customerId, [FromRoute] Guid returnLocationId,
         [FromBody] NewReturnLocation data)
     {
         var newLocationDTO = _mapper.Map<ReturnLocationDTO>(data);
@@ -403,7 +415,7 @@ public class AssetsController : ControllerBase
     [HttpDelete]
     [ProducesResponseType(typeof(IList<ReturnLocation>), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> RemoveReturnLocation(Guid customerId, Guid returnLocationId)
+    public async Task<ActionResult> RemoveReturnLocation([FromRoute] Guid customerId, [FromRoute] Guid returnLocationId)
     {
         var updatedLocations =
             await _assetServices.RemoveReturnLocationsByCustomer(customerId, returnLocationId, Guid.Empty);
@@ -414,7 +426,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> CreateAsset(Guid customerId, [FromBody] NewAsset asset)
+    public async Task<ActionResult> CreateAsset([FromRoute] Guid customerId, [FromBody] NewAsset asset)
     {
         var newAssetDTO = _mapper.Map<NewAssetDTO>(asset);
         var updatedAsset = await _assetServices.AddAssetLifecycleForCustomerAsync(customerId, newAssetDTO);
@@ -427,7 +439,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> SetAssetStatusOnAssets(Guid customerId, [FromBody] UpdateAssetsStatus data,
+    public async Task<ActionResult> SetAssetStatusOnAssets([FromRoute] Guid customerId, [FromBody] UpdateAssetsStatus data,
         int assetStatus)
     {
         var updatedAssets = await _assetServices.UpdateStatusForMultipleAssetLifecycles(customerId, data.CallerId,
@@ -439,7 +451,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> MakeAssetAvailable(Guid customerId, [FromBody] MakeAssetAvailable data)
+    public async Task<ActionResult> MakeAssetAvailable([FromRoute] Guid customerId, [FromBody] MakeAssetAvailable data)
     {
         var dataDTO = _mapper.Map<MakeAssetAvailableDTO>(data);
         var updatedAssets = await _assetServices.MakeAssetAvailableAsync(customerId, dataDTO);
@@ -450,7 +462,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> MakeAssetExpired(Guid customerId, [FromBody] MakeAssetExpired data)
+    public async Task<ActionResult> MakeAssetExpired([FromRoute] Guid customerId, [FromBody] MakeAssetExpired data)
     {
         var updatedAssets =
             await _assetServices.MakeAssetExpiredAsync(customerId, data.AssetLifeCycleId, data.CallerId);
@@ -461,7 +473,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> MakeAssetExpiresSoon(Guid customerId, [FromBody] MakeAssetExpired data)
+    public async Task<ActionResult> MakeAssetExpiresSoon([FromRoute] Guid customerId, [FromBody] MakeAssetExpired data)
     {
         var updatedAssets =
             await _assetServices.MakeAssetExpiresSoonAsync(customerId, data.AssetLifeCycleId, data.CallerId);
@@ -472,7 +484,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> ReturnDeviceAsync(Guid customerId, [FromBody] ReturnDevice data)
+    public async Task<ActionResult> ReturnDeviceAsync([FromRoute] Guid customerId, [FromBody] ReturnDevice data)
     {
         var dataDTO = _mapper.Map<ReturnDeviceDTO>(data);
         var updatedAssets = await _assetServices.ReturnDeviceAsync(customerId, dataDTO);
@@ -483,7 +495,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> BuyoutDeviceAsync(Guid customerId, [FromBody] BuyoutDeviceDTO data)
+    public async Task<ActionResult> BuyoutDeviceAsync([FromRoute] Guid customerId, [FromBody] BuyoutDeviceDTO data)
     {
         var updatedAssets = await _assetServices.BuyoutDeviceAsync(customerId, data);
         return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
@@ -493,7 +505,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> PendingBuyoutDeviceAsync(Guid customerId, [FromBody] PendingBuyoutDeviceDTO data)
+    public async Task<ActionResult> PendingBuyoutDeviceAsync([FromRoute] Guid customerId, [FromBody] PendingBuyoutDeviceDTO data)
     {
         var updatedAssets = await _assetServices.PendingBuyoutDeviceAsync(customerId, data);
         return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
@@ -503,7 +515,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> ConfirmPendingBuyoutDeviceAsync(Guid customerId, [FromBody] BuyoutDeviceDTO data)
+    public async Task<ActionResult> ConfirmPendingBuyoutDeviceAsync([FromRoute] Guid customerId, [FromBody] BuyoutDeviceDTO data)
     {
         var updatedAssets = await _assetServices.ConfirmBuyoutDeviceAsync(customerId, data);
         return Ok(_mapper.Map<ViewModels.Asset>(updatedAssets));
@@ -513,7 +525,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> ReportDeviceAsync(Guid customerId, [FromBody] ReportDevice data)
+    public async Task<ActionResult> ReportDeviceAsync([FromRoute] Guid customerId, [FromBody] ReportDevice data)
     {
         var dataDTO = _mapper.Map<ReportDeviceDTO>(data);
         var updatedAssets = await _assetServices.ReportDeviceAsync(customerId, dataDTO);
@@ -524,7 +536,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> ReAssignAssetLifeCycleToHolder(Guid customerId, Guid assetId,
+    public async Task<ActionResult> ReAssignAssetLifeCycleToHolder([FromRoute] Guid customerId, [FromRoute] Guid assetId,
         [FromBody] ReAssignAsset postData)
     {
         if ((postData.Personal && (postData.DepartmentId == Guid.Empty || postData.UserId == Guid.Empty)) ||
@@ -554,7 +566,7 @@ public class AssetsController : ControllerBase
     [ProducesResponseType(typeof(IList<MinBuyoutPriceBaseline>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public ActionResult GetBaseMinBuyoutPrice(string? country, int? assetCategoryId)
+    public ActionResult GetBaseMinBuyoutPrice([FromQuery] string? country, [FromQuery] int? assetCategoryId)
     {
         var baseBuyoutPrice = _assetServices.GetBaseMinBuyoutPrice(country, assetCategoryId);
         return Ok(baseBuyoutPrice);
@@ -566,7 +578,7 @@ public class AssetsController : ControllerBase
     [ProducesResponseType((int)HttpStatusCode.UnprocessableEntity)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> ChangeLifecycleTypeOnAsset(Guid customerId, Guid assetId,
+    public async Task<ActionResult> ChangeLifecycleTypeOnAsset([FromRoute] Guid customerId, [FromRoute] Guid assetId,
         [FromBody] UpdateAssetLifecycleType data)
     {
         // Check if given int is within valid range of values
@@ -600,7 +612,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    public async Task<IActionResult> UpdateAsset(Guid customerId, Guid assetId, [FromBody] UpdateAsset asset)
+    public async Task<IActionResult> UpdateAsset([FromRoute] Guid customerId, [FromRoute] Guid assetId, [FromBody] UpdateAsset asset)
     {
         var updatedAsset = await _assetServices.UpdateAssetAsync(customerId, assetId, asset.CallerId, asset?.Alias,
             asset?.SerialNumber, asset?.Brand, asset?.ProductName, asset?.PurchaseDate, asset?.Note, asset?.AssetTag,
@@ -614,7 +626,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ViewModels.Asset), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> AssignAssetLifeCycleToHolder(Guid customerId, Guid assetId,
+    public async Task<ActionResult> AssignAssetLifeCycleToHolder([FromRoute] Guid customerId, [FromRoute] Guid assetId,
         [FromBody] AssignAssetToUser asset)
     {
         if ((asset.UserId == Guid.Empty && asset.DepartmentId == Guid.Empty) ||
@@ -637,8 +649,8 @@ public class AssetsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(AssetCategory), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public ActionResult<IEnumerable<AssetCategory>> GetAssetCategories(bool hierarchical = false,
-        string language = "EN")
+    public ActionResult<IEnumerable<AssetCategory>> GetAssetCategories([FromQuery] bool hierarchical = false,
+        [FromQuery] string language = "EN")
     {
         if (language.Length != 2)
         {
@@ -660,8 +672,8 @@ public class AssetsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IList<AssetAuditLog>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<IEnumerable<AssetAuditLog>>> GetAssetAuditLog(Guid assetId, Guid callerId,
-        string role)
+    public async Task<ActionResult<IEnumerable<AssetAuditLog>>> GetAssetAuditLog([FromRoute] Guid assetId, [FromRoute] Guid callerId,
+        [FromRoute] string role)
     {
         // use asset id to find asset log: Mock example just takes any id and returns dummy data
         if (assetId == Guid.Empty)
@@ -678,7 +690,7 @@ public class AssetsController : ControllerBase
     [HttpPut]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> RepairCompleted(Guid assetLifecycleId, AssetLifeCycleRepairCompleted assetLifeCycle)
+    public async Task<ActionResult> RepairCompleted([FromRoute] Guid assetLifecycleId, [FromBody] AssetLifeCycleRepairCompleted assetLifeCycle)
     {
         if (assetLifecycleId == Guid.Empty)
         {
@@ -694,7 +706,7 @@ public class AssetsController : ControllerBase
     [HttpPatch]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> SendToRepair(Guid assetLifecycleId, [FromBody] Guid callerId)
+    public async Task<ActionResult> SendToRepair([FromRoute] Guid assetLifecycleId, [FromBody] Guid callerId)
     {
         if (assetLifecycleId == Guid.Empty)
         {
@@ -710,7 +722,7 @@ public class AssetsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(CustomerAssetsCounter), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult<CustomerAssetsCounter>> GetAssetLifecycleCounters(Guid customerId,
+    public async Task<ActionResult<CustomerAssetsCounter>> GetAssetLifecycleCounters([FromRoute] Guid customerId,
         [FromQuery(Name = "filter")] string? json = null)
     {
         var filterOptions = new FilterOptionsForAsset();
@@ -739,7 +751,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult<IList<ViewModels.Asset>>> ActivateAssetStatusOnAssetLifecycle(Guid customerId,
+    public async Task<ActionResult<IList<ViewModels.Asset>>> ActivateAssetStatusOnAssetLifecycle([FromRoute] Guid customerId,
         [FromBody] ChangeAssetStatus assetLifecycle)
     {
         var activateAssets = await _assetServices.ActivateAssetLifecycleStatus(customerId, assetLifecycle);
@@ -750,7 +762,7 @@ public class AssetsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(IList<ViewModels.Asset>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult<IList<ViewModels.Asset>>> DeactivateAssetStatusOnAssetLifecycle(Guid customerId,
+    public async Task<ActionResult<IList<ViewModels.Asset>>> DeactivateAssetStatusOnAssetLifecycle([FromRoute] Guid customerId,
         [FromBody] ChangeAssetStatus assetLifecycle)
     {
         var activateAssets = await _assetServices.DeactivateAssetLifecycleStatus(customerId, assetLifecycle);
@@ -789,7 +801,7 @@ public class AssetsController : ControllerBase
     [HttpPatch]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> CancelReturn(Guid assetLifecycleId, [FromBody] Guid callerId)
+    public async Task<ActionResult> CancelReturn([FromRoute] Guid assetLifecycleId, [FromBody] Guid callerId)
     {
         if (assetLifecycleId == Guid.Empty)
         {
@@ -812,7 +824,7 @@ public class AssetsController : ControllerBase
     [HttpPatch]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> RecycleAssetLifecycle(Guid assetLifecycleId, [FromBody] RecycleAssetLifecycle assetLifecycle)
+    public async Task<ActionResult> RecycleAssetLifecycle([FromRoute] Guid assetLifecycleId, [FromBody] RecycleAssetLifecycle assetLifecycle)
     {
         if (assetLifecycleId == Guid.Empty)
         {

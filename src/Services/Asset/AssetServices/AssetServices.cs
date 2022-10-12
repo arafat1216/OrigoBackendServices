@@ -48,6 +48,10 @@ public class AssetServices : IAssetServices
         _techstepCoreProductsRepository = techstepCoreProductsRepository;
     }
 
+    public async Task<PagedModel<CustomerAssetCount>> GetAllCustomerAssetsCountAsync(List<Guid> customerIds, int page, int limit, CancellationToken cancellationToken)
+    {
+        return await _assetLifecycleRepository.GetAssetLifecyclesCountsAsync(customerIds, page, limit, cancellationToken);
+    }
     public async Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync(List<Guid> customerIds)
     {
         return await _assetLifecycleRepository.GetAssetLifecyclesCountsAsync(customerIds);
@@ -63,9 +67,13 @@ public class AssetServices : IAssetServices
         return await _assetLifecycleRepository.GetCustomerTotalBookValue(customerId);
     }
 
-    public async Task<IList<AssetLifecycleDTO>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId)
+    public async Task<IList<AssetLifecycleDTO>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId, bool includeAsset = false, bool includeImeis = false, bool includeContractHolderUser = false)
     {
-        var assetLifecyclesForUser = await _assetLifecycleRepository.GetAssetLifecyclesForUserAsync(customerId, userId);
+        var assetLifecyclesForUser = await _assetLifecycleRepository.GetAssetLifecyclesForUserAsync(customerId, userId,
+            includeAsset: includeAsset,
+            includeImeis: includeImeis,
+            includeContractHolderUser: includeContractHolderUser,
+            asNoTracking: true);
         return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecyclesForUser);
     }
 
@@ -75,16 +83,22 @@ public class AssetServices : IAssetServices
     }
 
     public async Task<PagedModel<AssetLifecycleDTO>> GetAssetLifecyclesForCustomerAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
-        Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string? search, int page, int limit, CancellationToken cancellationToken)
+        Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string? search, int page, int limit, CancellationToken cancellationToken, bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false)
     {
-        var pagedAssetLifeCycles = await _assetLifecycleRepository.GetAssetLifecyclesAsync(customerId, userId, status, department, category, label, isActiveState, isPersonal, endPeriodMonth, purchaseMonth, search, page, limit, cancellationToken);
+        var pagedAssetLifeCycles = await _assetLifecycleRepository.GetAssetLifecyclesAsync(customerId, userId, status, department, category, label, isActiveState, isPersonal, endPeriodMonth, purchaseMonth, search, page, limit, cancellationToken,
+            includeAsset, includeImeis, includeLabels, includeContractHolderUser);
         var pagedServiceAssetLifecycles = _mapper.Map<PagedModel<AssetLifecycleDTO>>(pagedAssetLifeCycles);
         return pagedServiceAssetLifecycles;
     }
 
     public async Task CancelUserOffboarding(Guid customerId, Guid userId, Guid callerId)
     {
-        var assets = await _assetLifecycleRepository.GetAssetLifecyclesForUserAsync(customerId, userId);
+        var assets = await _assetLifecycleRepository.GetAssetLifecyclesForUserAsync(customerId, userId,
+            includeAsset: false,
+            includeContractHolderUser: false,
+            includeImeis: false,
+            asNoTracking: false);
+
         if (assets == null) return;
 
         assets = assets.Where(x =>
@@ -101,9 +115,11 @@ public class AssetServices : IAssetServices
     }
 
 
-    public async Task<AssetLifecycleDTO?> GetAssetLifecycleForCustomerAsync(Guid customerId, Guid assetId, string? userId, IList<Guid?>? department)
+    public async Task<AssetLifecycleDTO?> GetAssetLifecycleForCustomerAsync(Guid customerId, Guid assetId, string? userId, IList<Guid?>? department,
+        bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false)
     {
-        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, userId, department);
+        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, userId, department, 
+            includeAsset, includeImeis, includeLabels, includeContractHolderUser, asNoTracking: true);
         return assetLifecycle == null ? null : _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
     }
 
@@ -157,7 +173,12 @@ public class AssetServices : IAssetServices
 
     public async Task<IList<AssetLifecycleDTO>> AssignLabelsToAssetsAsync(Guid customerId, Guid callerId, IList<Guid> assetGuids, IList<Guid> labelGuids)
     {
-        var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids);
+        var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids,
+            includeAsset: true,
+            includeLabels: true,
+            includeContractHolderUser: true,
+            includeImeis: true,
+            asNoTracking: false);
         if (assetLifecycles == null || assetLifecycles.Count == 0)
         {
             throw new ResourceNotFoundException("No assets were found using the given AssetIds. Did you enter the correct customer Id?", Guid.Parse("453ccd21-e0ee-4ef3-a609-aa95924e0f9e"));
@@ -187,7 +208,12 @@ public class AssetServices : IAssetServices
 
     public async Task<IList<AssetLifecycleDTO>> UnAssignLabelsToAssetsAsync(Guid customerId, Guid callerId, IList<Guid> assetGuids, IList<Guid> labelGuids)
     {
-        var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids);
+        var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids,
+            includeAsset: false,
+            includeLabels: true,
+            includeContractHolderUser: false,
+            includeImeis: false,
+            asNoTracking: false);
         if (assetLifecycles == null || assetLifecycles.Count == 0)
         {
             throw new ResourceNotFoundException("No assets were found using the given AssetIds. Did you enter the correct customer Id?", Guid.Parse("0c275a26-5765-48fe-91a2-20a43cb72863"));
@@ -211,7 +237,12 @@ public class AssetServices : IAssetServices
         }
 
         await _assetLifecycleRepository.SaveEntitiesAsync();
-        var assetLifecyclesFromList = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids);
+        var assetLifecyclesFromList = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetGuids,
+            includeAsset: true,
+            includeLabels: true,
+            includeContractHolderUser: true,
+            includeImeis: true,
+            asNoTracking: true);
         return _mapper.Map<IList<AssetLifecycleDTO>>(assetLifecyclesFromList);
 
     }
@@ -264,7 +295,7 @@ public class AssetServices : IAssetServices
 
         if (newAssetDTO.AssetHolderId != null && newAssetDTO.AssetHolderId != Guid.Empty)
         {
-            var user = await _assetLifecycleRepository.GetUser(newAssetDTO.AssetHolderId.Value);
+            var user = await _assetLifecycleRepository.GetUser(newAssetDTO.AssetHolderId.Value, asNoTracking: false);
             assetLifecycle.AssignAssetLifecycleHolder(user != null ? user : new User { ExternalId = newAssetDTO.AssetHolderId.Value }, newAssetDTO.ManagedByDepartmentId,
                 newAssetDTO.CallerId);
         }
@@ -375,7 +406,8 @@ public class AssetServices : IAssetServices
 
     public async Task<AssetLifecycleDTO> ReturnDeviceAsync(Guid customerId, ReturnDeviceDTO data)
     {
-        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null);
+        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null,
+            includeContractHolderUser: true, includeAsset: true, includeImeis: true);
         if (assetLifecycle == null)
             throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", Guid.Parse("05f5d961-2cb4-4067-bd2f-125e5740ef3e"));
 
@@ -439,7 +471,7 @@ public class AssetServices : IAssetServices
     /// <inheritdoc/>
     public async Task<AssetLifecycleDTO> PendingBuyoutDeviceAsync(Guid customerId, PendingBuyoutDeviceDTO data)
     {
-        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null);
+        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null, includeContractHolderUser: true);
         if (assetLifecycle == null)
             throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", Guid.Parse("47308bc8-ceeb-4f79-8910-75224e65ab0d"));
 
@@ -553,7 +585,8 @@ public class AssetServices : IAssetServices
 
     public async Task<AssetLifecycleDTO> BuyoutDeviceAsync(Guid customerId, BuyoutDeviceDTO data)
     {
-        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null);
+        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null,
+            includeContractHolderUser: true, includeAsset: true, includeImeis: true);
         if (assetLifecycle == null)
             throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", Guid.Parse("47308bc8-ceeb-4f79-8910-75224e65ab0d"));
 
@@ -583,7 +616,8 @@ public class AssetServices : IAssetServices
 
     public async Task<AssetLifecycleDTO> ConfirmBuyoutDeviceAsync(Guid customerId, BuyoutDeviceDTO data)
     {
-        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null);
+        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null,
+            includeContractHolderUser: true, includeAsset: true, includeImeis: true);
         if (assetLifecycle == null)
             throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", Guid.Parse("47308bc8-ceeb-4f79-8910-75224e65ab0d"));
 
@@ -610,7 +644,8 @@ public class AssetServices : IAssetServices
 
     public async Task<AssetLifecycleDTO> ReportDeviceAsync(Guid customerId, ReportDeviceDTO data)
     {
-        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null);
+        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, data.AssetLifeCycleId, null, null,
+            includeContractHolderUser: true, includeAsset: true, includeImeis: true);
         if (assetLifecycle == null)
             throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", Guid.Parse("bc644bf3-9f85-475b-bd8c-18f08c5c8cd0"));
 
@@ -659,7 +694,8 @@ public class AssetServices : IAssetServices
 
     public async Task<AssetLifecycleDTO> UpdateAssetAsync(Guid customerId, Guid assetId, Guid callerId, string? alias, string? serialNumber, string? brand, string? model, DateTime? purchaseDate, string? note, string? tag, string? description, IList<long>? imei, string? macAddress)
     {
-        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, null, null);
+        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, null, null,
+            includeAsset: true, includeImeis: true, includeLabels: true, includeContractHolderUser: true);
         if (assetLifecycle == null)
         {
             throw new InvalidAssetDataException($"Asset Lifecycle {assetId} not found",Guid.Parse("175d952c-d23e-44ed-82c2-ca47112958ac"));
@@ -769,11 +805,12 @@ public class AssetServices : IAssetServices
 
     public async Task<AssetLifecycleDTO> AssignAssetLifeCycleToHolder(Guid customerId, Guid assetId, AssignAssetDTO assignAssetDTO)
     {
-        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, null, null);
+        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, null, null,
+            includeContractHolderUser: true, includeAsset: true, includeImeis: true);
         if (assetLifecycle == null) throw new ResourceNotFoundException("No asset were found using the given AssetId. Did you enter the correct Asset Id?", Guid.Parse("d10ebba0-97d1-4065-b302-f580b1604e61"));
         if (assignAssetDTO.UserId != Guid.Empty)
         {
-            var user = await _assetLifecycleRepository.GetUser(assignAssetDTO.UserId) ?? new User { ExternalId = assignAssetDTO.UserId };
+            var user = await _assetLifecycleRepository.GetUser(assignAssetDTO.UserId, asNoTracking: true) ?? new User { ExternalId = assignAssetDTO.UserId };
             if (user == null) throw new ResourceNotFoundException("No User were found using the given UserId. Did you enter the correct User Id?", Guid.Parse("bc855ef2-9445-4e22-a658-bf195b6202ae"));
 
             if (assignAssetDTO.UserAssigneToDepartment != Guid.Empty) assetLifecycle.AssignAssetLifecycleHolder(user, assignAssetDTO.UserAssigneToDepartment, assignAssetDTO.CallerId);
@@ -903,7 +940,7 @@ public class AssetServices : IAssetServices
 
     public async Task<LifeCycleSettingDTO> UpdateLifeCycleSettingForCustomerAsync(Guid customerId, LifeCycleSettingDTO lifeCycleSettingDTO, Guid CallerId)
     {
-        var existingSettings = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
+        var existingSettings = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId, asNoTracking: false);
 
         if (existingSettings == null || existingSettings.LifeCycleSettings.Count < 1)
         {
@@ -936,7 +973,7 @@ public class AssetServices : IAssetServices
     }
     public async Task<IList<LifeCycleSettingDTO>> GetLifeCycleSettingByCustomer(Guid customerId)
     {
-        var existingSetting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
+        var existingSetting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId, asNoTracking: true);
         if (existingSetting == null)
         {
             existingSetting = await _assetLifecycleRepository.AddCustomerSettingAsync(new CustomerSettings(customerId, Guid.Empty), customerId);
@@ -964,7 +1001,7 @@ public class AssetServices : IAssetServices
 
     public async Task<DisposeSettingDTO> UpdateDisposeSettingForCustomerAsync(Guid customerId, DisposeSettingDTO disposeSettingDTO, Guid CallerId)
     {
-        var customerSetting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
+        var customerSetting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId, asNoTracking: true);
 
         if (customerSetting == null || customerSetting.DisposeSetting == null)
         {
@@ -976,7 +1013,7 @@ public class AssetServices : IAssetServices
     }
     public async Task<DisposeSettingDTO> GetDisposeSettingByCustomer(Guid customerId)
     {
-        var existingSetting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
+        var existingSetting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId, asNoTracking: true);
         if (existingSetting == null)
         {
             existingSetting = await _assetLifecycleRepository.AddCustomerSettingAsync(new CustomerSettings(customerId, Guid.Empty), customerId);
@@ -1002,7 +1039,7 @@ public class AssetServices : IAssetServices
     }
     public async Task<IList<ReturnLocationDTO>> GetReturnLocationsByCustomer(Guid customerId)
     {
-        var customerSettings = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
+        var customerSettings = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId, asNoTracking: true);
         if (customerSettings is null || customerSettings.DisposeSetting is null || !customerSettings.DisposeSetting.ReturnLocations.Any())
         {
             return new List<ReturnLocationDTO>();
@@ -1166,7 +1203,12 @@ public class AssetServices : IAssetServices
 
     public async Task<IList<AssetLifecycleDTO>> ActivateAssetLifecycleStatus(Guid customerId, ChangeAssetStatus assetLifecyclesId)
     {
-        var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetLifecyclesId.AssetLifecycleId);
+        var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetLifecyclesId.AssetLifecycleId,
+            includeAsset: true,
+            includeLabels: false,
+            includeContractHolderUser: true,
+            includeImeis: true,
+            asNoTracking: false);
         if (assetLifecycles.Count == 0)
         {
             return new List<AssetLifecycleDTO>();
@@ -1183,7 +1225,12 @@ public class AssetServices : IAssetServices
 
     public async Task<IList<AssetLifecycleDTO>> DeactivateAssetLifecycleStatus(Guid customerId, ChangeAssetStatus assetLifecyclesId)
     {
-        var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetLifecyclesId.AssetLifecycleId);
+        var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetLifecyclesId.AssetLifecycleId,
+            includeAsset: true,
+            includeLabels: true,
+            includeContractHolderUser: true,
+            includeImeis: true,
+            asNoTracking: false);
         if (assetLifecycles.Count == 0)
         {
             return new List<AssetLifecycleDTO>();
@@ -1199,8 +1246,13 @@ public class AssetServices : IAssetServices
 
     public async Task SyncDepartmentForUserToAssetLifecycleAsync(Guid customerId, Guid userId, Guid? departmentId, Guid callerId)
     {
-        var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesForUserAsync(customerId, userId);
-        var user = await _assetLifecycleRepository.GetUser(userId);
+        var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesForUserAsync(customerId, userId,
+            includeAsset: false,
+            includeImeis: false,
+            includeContractHolderUser: true,
+            asNoTracking: false);
+
+        var user = await _assetLifecycleRepository.GetUser(userId, asNoTracking: true);
         if (user == null)
         {
             // We don't care if the user exists in Assets database.

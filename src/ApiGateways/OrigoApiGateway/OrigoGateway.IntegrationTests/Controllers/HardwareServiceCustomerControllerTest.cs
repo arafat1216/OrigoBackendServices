@@ -91,7 +91,8 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         ManagedByDepartmentId = Guid.NewGuid()
                     };
 
-                    assetService.Setup(_ => _.GetAssetForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), null))
+                    assetService.Setup(_ => _.GetAssetForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), null,
+                        It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()))
                         .ReturnsAsync(hardwareSuperType);
                     
                     var hardwareServiceOrderService = new Mock<IHardwareServiceOrderService>();

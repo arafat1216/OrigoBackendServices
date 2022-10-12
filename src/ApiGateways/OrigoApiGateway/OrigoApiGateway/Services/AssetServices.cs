@@ -10,6 +10,8 @@ using OrigoApiGateway.Models.BackendDTO;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
+using IdentityModel.Client;
+using static Humanizer.On;
 
 namespace OrigoApiGateway.Services
 {
@@ -34,6 +36,31 @@ namespace OrigoApiGateway.Services
         private readonly AssetConfiguration _options;
         private readonly IHttpClientFactory _httpClientFactory;
 
+        public async Task<PagedModel<CustomerAssetCount>> GetAllCustomerAssetsCountAsync(List<Guid> customerIds, int page = 1, int limit = 25)
+        {
+            try
+            {
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/customers/count?page={page}&limit={limit}", customerIds);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorDescription = await response.Content.ReadAsStringAsync();
+                    var exception = new BadHttpRequestException(errorDescription, (int)response.StatusCode);
+                    throw exception;
+                }
+                var assetCountList = await response.Content.ReadFromJsonAsync<PagedModel<CustomerAssetCount>>();
+                return assetCountList;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetAllCustomerAssetsCountAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetAllCustomerAssetsCountAsync failed with unknown error.");
+                throw;
+            }
+        }
         public async Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync(List<Guid> customerIds)
         {
             try
@@ -59,7 +86,6 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
-
         public async Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId,
             AssetLifecycleStatus? assetLifecycleStatus)
         {
@@ -115,10 +141,21 @@ namespace OrigoApiGateway.Services
 
 
 
-        public async Task<IList<object>> GetAssetsForUserAsync(Guid customerId, Guid userId)
+        public async Task<IList<object>> GetAssetsForUserAsync(Guid customerId, Guid userId, bool includeAsset = false, bool includeImeis = false, bool includeContractHolderUser = false)
         {
             try
             {
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/users/{userId}";
+
+                if (includeAsset)
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeAsset", $"{includeAsset}");
+
+                if (includeImeis)
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeImeis", $"{includeImeis}");
+
+                if (includeContractHolderUser)
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeContractHolderUser", $"{includeContractHolderUser}");
+
                 var assets = await HttpClient.GetFromJsonAsync<IList<AssetDTO>>($"{_options.ApiPath}/customers/{customerId}/users/{userId}");
 
                 if (assets == null) return null;
@@ -154,12 +191,28 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId, FilterOptionsForAsset filterOptions, string search = "", int page = 1, int limit = 1000)
+        public async Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId, FilterOptionsForAsset filterOptions, string search = "", int page = 1, int limit = 1000,
+            bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false)
         {
             try
             {
                 string json = JsonSerializer.Serialize(filterOptions);
-                var assets = await HttpClient.GetFromJsonAsync<PagedModel<HardwareSuperType>>($"{_options.ApiPath}/customers/{customerId}?q={search}&page={page}&limit={limit}&filterOptions={json}");
+
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}?q={search}&page={page}&limit={limit}&filterOptions={json}";
+
+                if (includeAsset)
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeAsset", $"{includeAsset}");
+
+                if (includeImeis)
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeImeis", $"{includeImeis}");
+
+                if (includeLabels)
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeLabels", $"{includeLabels}");
+
+                if (includeContractHolderUser)
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeContractHolderUser", $"{includeContractHolderUser}");
+
+                var assets = await HttpClient.GetFromJsonAsync<PagedModel<HardwareSuperType>>(requestUri);
 
                 if (assets == null)
                     return null;
@@ -515,18 +568,33 @@ namespace OrigoApiGateway.Services
             assetValidationResults.ValidAssets.RemoveAll(a => a.MatchedUserId == null);
         }
 
-        public async Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId, FilterOptionsForAsset? filterOptions)
+        public async Task<OrigoAsset> GetAssetForCustomerAsync(Guid customerId, Guid assetId, FilterOptionsForAsset? filterOptions,
+            bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false)
         {
             try
             {
-                string url = $"{_options.ApiPath}/{assetId}/customers/{customerId}";
+
+                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}";
+
                 if (filterOptions != null)
                 {
                     string json = JsonSerializer.Serialize(filterOptions);
-                    url = $"{_options.ApiPath}/{assetId}/customers/{customerId}/?filterOptions={json}";
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "filterOptions", $"{json}");
                 }
 
-                var asset = await HttpClient.GetFromJsonAsync<AssetDTO>(url);
+                if (includeAsset)
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeAsset", $"{includeAsset}");
+
+                if (includeImeis)
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeImeis", $"{includeImeis}");
+
+                if (includeLabels)
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeLabels", $"{includeLabels}");
+
+                if (includeContractHolderUser)
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeContractHolderUser", $"{includeContractHolderUser}");
+
+                var asset = await HttpClient.GetFromJsonAsync<AssetDTO>(requestUri);
 
                 OrigoAsset result = null;
                 if (asset != null)

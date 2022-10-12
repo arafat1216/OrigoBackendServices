@@ -420,9 +420,6 @@ namespace OrigoApiGateway.Controllers
                     }
                 }
 
-                //Mapping the frontend model to backend dto and assigning a caller id
-                var updateUserDTO = _mapper.Map<UpdateUserDTO>(updateUser);
-
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 _ = Guid.TryParse(actor, out Guid callerId);
 

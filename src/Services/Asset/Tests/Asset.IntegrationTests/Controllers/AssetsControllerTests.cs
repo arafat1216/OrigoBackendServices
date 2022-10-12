@@ -16,6 +16,7 @@ using AssetServices.Infrastructure;
 using AssetServices.Models;
 using AssetServices.ServiceModel;
 using Common.Enums;
+using Common.Interfaces;
 using Common.Model;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -176,7 +177,6 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var count = await _httpClient.GetFromJsonAsync<int>(requestUri);
         Assert.Equal(12, count);
     }
-
     [Fact]
     public async Task GetAllCount_WithoutCustomerIds()
     {
@@ -187,6 +187,21 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         // Assert
         Assert.Equal(2, assetCounts!.Count);
         Assert.Equal(14, assetCounts.FirstOrDefault()!.Count);
+
+    }
+    [Fact]
+    public async Task GetAllCount_WithoutCustomerIdsPagination()
+    {
+        // Arrange
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
+        // Act
+        var response = await httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/count/pagination", new List<Guid>());
+        var assetCounts = await response.Content.ReadFromJsonAsync<PagedModel<CustomerAssetCount>>();
+
+        // Assert
+        Assert.Equal(2, assetCounts!.TotalItems);
+        Assert.Equal(14, assetCounts.Items.FirstOrDefault()!.Count);
 
     }
     [Fact]
@@ -207,7 +222,24 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         Assert.Equal(14, assetCounts!.FirstOrDefault()!.Count);
 
     }
+    [Fact]
+    public async Task GetAllCount_ByPartnerAdminPagination()
+    {
+        // Arrange
+        var customerIds = new List<Guid>()
+        {
+            Guid.Parse("cab4bb77-3471-4ab3-ae5e-2d4fce450f36")
+        };
 
+        // Act
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/count/pagination", customerIds);
+        var assetCounts = await response.Content.ReadFromJsonAsync<PagedModel<CustomerAssetCount>>();
+
+        // Assert
+        Assert.Equal(1, assetCounts!.TotalItems);
+        Assert.Equal(14, assetCounts!.Items.FirstOrDefault()!.Count);
+
+    }
     [Fact]
     public async Task GetCustomerItemCount_ForCustomerWithDepartment()
     {
