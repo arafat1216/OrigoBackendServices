@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq.Protected;
@@ -52,9 +53,12 @@ public class UserPermissionsTests
         var productCatalogServicesMock = new Mock<IProductCatalogServices>();
         productCatalogServicesMock.Setup(pc => pc.GetProductPermissionsForOrganizationAsync(organizationId))
             .ReturnsAsync(new List<string> { "EmployeeAccess", "ProductPermission1" });
+
+        var cacheServiceMock = new Mock<ICacheService>();
+
         var userPermissionService = new UserPermissionService(Mock.Of<ILogger<UserPermissionService>>(),
             mockFactory.Object, optionsMock.Object, Mock.Of<IMapper>(),
-            productCatalogServicesMock.Object);
+            productCatalogServicesMock.Object, cacheServiceMock.Object);
 
         // Act
         var userIdentity =

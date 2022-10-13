@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Security.Claims;
 using AutoMapper;
+using Common.Infrastructure;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
@@ -14,26 +15,44 @@ public class UserPermissionService : IUserPermissionService
     private readonly ILogger<UserPermissionService> _logger;
     private readonly IMapper _mapper;
     private readonly IProductCatalogServices _productCatalogServices;
+    private readonly ICacheService _cacheService;
     private readonly IHttpClientFactory _httpClientFactory;
     private HttpClient HttpClient => _httpClientFactory.CreateClient("userpermissionservices");
 
     public UserPermissionService(ILogger<UserPermissionService> logger, IHttpClientFactory httpClientFactory,
-        IOptions<UserPermissionsConfigurations> options, IMapper mapper, IProductCatalogServices productCatalogServices)
+        IOptions<UserPermissionsConfigurations> options, IMapper mapper, IProductCatalogServices productCatalogServices, ICacheService cacheService)
     {
         _httpClientFactory = httpClientFactory;
         _options = options.Value;
         _logger = logger;
         _mapper = mapper;
         _productCatalogServices = productCatalogServices;
+        _cacheService = cacheService;
+    }
+
+    private async Task<IList<T>> GetFromCache<T>(string key, Func<Task<IEnumerable<T>>> lambda)
+    {
+        var values = await _cacheService.Get<IList<T>>(key);
+        if (values is null)
+        {
+            values = (await lambda()).ToList();
+            if (values.Any())
+            {
+                await _cacheService.Save(key, values, $"{60 * 60 * 24}");
+            }
+        }
+        return values;
     }
 
     public async Task<ClaimsIdentity> GetUserPermissionsIdentityAsync(string sub, string userName,
         CancellationToken cancellationToken)
     {
         var encodedUserName = WebUtility.UrlEncode(userName);
-        var userPermissions =
-            await HttpClient.GetFromJsonAsync<IList<UserPermissionsDTO>>(
-                $"{_options.ApiPath}/users/{encodedUserName}/permissions", cancellationToken);
+
+        var userPermissions = await GetFromCache<UserPermissionsDTO>(
+            $"{nameof(UserPermissionsDTO)}-{userName}", 
+            async () => await HttpClient.GetFromJsonAsync<IList<UserPermissionsDTO>>($"{_options.ApiPath}/users/{encodedUserName}/permissions", cancellationToken));
+
         if (userPermissions == null || !userPermissions.Any())
         {
             return new ClaimsIdentity();
@@ -58,7 +77,10 @@ public class UserPermissionService : IUserPermissionService
         var mainOrganizationId = userPermissions.First()?.MainOrganizationId;
         if (mainOrganizationId != null)
         {
-            var productPermissions = await _productCatalogServices.GetProductPermissionsForOrganizationAsync(mainOrganizationId.Value);
+            var productPermissions = await GetFromCache(
+                $"ProductPermissionsForOrganization-{mainOrganizationId.ToString()}", 
+                async () => await _productCatalogServices.GetProductPermissionsForOrganizationAsync(mainOrganizationId.Value));
+
             permissionsIdentity.AddClaims(productPermissions.Select(p => new Claim("Permissions", p)));
             permissionsIdentity.AddClaim(new Claim("MainOrganization", mainOrganizationId.Value.ToString()));
         }

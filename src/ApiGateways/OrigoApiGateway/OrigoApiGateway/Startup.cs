@@ -15,6 +15,7 @@ using OrigoApiGateway.Helpers;
 using OrigoApiGateway.Services;
 using System.Reflection;
 using System.Security.Claims;
+using Common.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
 
 namespace OrigoApiGateway
@@ -46,6 +47,7 @@ namespace OrigoApiGateway
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers().AddDapr();
+            services.AddSingleton<ICacheService, CacheService>();
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddApiVersioning(config =>
             {

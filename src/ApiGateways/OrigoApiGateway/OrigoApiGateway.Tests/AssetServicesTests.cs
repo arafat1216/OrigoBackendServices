@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Common.Enums;
+using Common.Infrastructure;
 using Common.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -81,8 +82,9 @@ public class AssetServicesTests
         var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object,
             departmentOptionsMock.Object, _mapper);
         var userPermissionOptionsMock = new Mock<IOptions<UserPermissionsConfigurations>>();
+        var cacheService = new Mock<ICacheService>();
         var userPermissionService = new UserPermissionService(Mock.Of<ILogger<UserPermissionService>>(),
-            mockFactory.Object, userPermissionOptionsMock.Object, _mapper, Mock.Of<IProductCatalogServices>());
+            mockFactory.Object, userPermissionOptionsMock.Object, _mapper, Mock.Of<IProductCatalogServices>(), cacheService.Object);
 
         var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), mockFactory.Object,
             optionsMock.Object, userService, userPermissionService, _mapper, departmentService);
@@ -166,8 +168,9 @@ public class AssetServicesTests
         var departmentService = new DepartmentsServices(Mock.Of<ILogger<DepartmentsServices>>(), mockFactory.Object,
             departmentOptionsMock.Object, _mapper);
         var userPermissionOptionsMock = new Mock<IOptions<UserPermissionsConfigurations>>();
+        var cacheService = new Mock<ICacheService>();
         var userPermissionService = new UserPermissionService(Mock.Of<ILogger<UserPermissionService>>(),
-            mockFactory.Object, userPermissionOptionsMock.Object, _mapper, Mock.Of<IProductCatalogServices>());
+            mockFactory.Object, userPermissionOptionsMock.Object, _mapper, Mock.Of<IProductCatalogServices>(), cacheService.Object);
 
         var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), mockFactory.Object,
             optionsMock.Object, userService, userPermissionService, _mapper, departmentService);
