@@ -78,7 +78,7 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<TEntity>> GetByIdAsync<TEntity>(IEnumerable<int> ids, bool asNoTracking = false) where TEntity : EntityV2, IDbSetEntity
+        public async Task<IEnumerable<TEntity>> GetByIdAsync<TEntity>(IEnumerable<int> ids, bool asNoTracking) where TEntity : EntityV2, IDbSetEntity
         {
             IQueryable<TEntity> query = _hardwareServiceOrderContext.Set<TEntity>()
                                                                     .Where(e => ids.Contains(e.Id));

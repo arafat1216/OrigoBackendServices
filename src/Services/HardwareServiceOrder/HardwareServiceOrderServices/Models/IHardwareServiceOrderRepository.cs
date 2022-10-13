@@ -51,7 +51,7 @@ namespace HardwareServiceOrderServices.Models
         ///     However, if any write operations will occur, then this should always be set to <see langword="false"/>. </para>
         /// </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains a list of all retrieved entities. </returns>
-        Task<IEnumerable<TEntity>> GetByIdAsync<TEntity>(IEnumerable<int> ids, bool asNoTracking = false) where TEntity : EntityV2, IDbSetEntity;
+        Task<IEnumerable<TEntity>> GetByIdAsync<TEntity>(IEnumerable<int> ids, bool asNoTracking) where TEntity : EntityV2, IDbSetEntity;
 
         /// <summary>
         ///     Updates an existing entity, and saves it to the database.
