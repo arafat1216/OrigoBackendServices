@@ -1,15 +1,10 @@
-﻿using System;
-using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using Okta.AspNetCore;
 using OrigoApiGateway.Services;
+using System.Security.Claims;
 
 namespace OrigoGateway.IntegrationTests
 {

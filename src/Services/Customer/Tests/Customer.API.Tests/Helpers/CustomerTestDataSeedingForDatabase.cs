@@ -1,8 +1,5 @@
 ﻿using CustomerServices.Infrastructure.Context;
 using CustomerServices.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Customer.API.IntegrationTests.Helpers
 {
@@ -10,7 +7,7 @@ namespace Customer.API.IntegrationTests.Helpers
     {
 
         public static readonly Guid ORGANIZATION_ID = Guid.Parse("f5635deb-9b38-411c-9577-5423c9290106");
-        public static readonly Guid ORGANIZATION_TWO_ID = Guid.Parse("e454f5c8-f19c-4c76-ae9e-cc53ecefb21a"); 
+        public static readonly Guid ORGANIZATION_TWO_ID = Guid.Parse("e454f5c8-f19c-4c76-ae9e-cc53ecefb21a");
         public static readonly Guid ORGANIZATION_THREE_ID = Guid.Parse("701d5de6-7264-41a5-9edd-f8e842edebda");
         public static readonly Guid PARTNER_CUSTOMER_ID = Guid.Parse("5bf9322d-4c60-47a5-84e5-8118c2917df9");
         public static readonly Guid TECHSTEP_CUSTOMER_ID = Guid.Parse("c601dd7f-9930-46e2-944a-d994855663da");
@@ -220,7 +217,7 @@ namespace Customer.API.IntegrationTests.Helpers
                                 new UserPreference("no", CALLER_ID),
                                 CALLER_ID);
 
-            userTwo.OffboardingInitiated(DateTime.UtcNow.AddDays(60) ,CALLER_ID);
+            userTwo.OffboardingInitiated(DateTime.UtcNow.AddDays(60), CALLER_ID);
             userTwo.AssignDepartment(subDepartment, CALLER_ID);
 
             var userThree = new User(organization,
@@ -242,7 +239,7 @@ namespace Customer.API.IntegrationTests.Helpers
                               "EID:909093",
                               new UserPreference("no", CALLER_ID),
                               CALLER_ID);
-            
+
             var userFive = new User(organization,
                               USER_FIVE_ID,
                               "Ole",
@@ -301,7 +298,8 @@ namespace Customer.API.IntegrationTests.Helpers
             var userFourPermission = new UserPermissions(userFour, new Role("Manager"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
             var userFivePermission = new UserPermissions(userFive, new Role("Manager"), new List<Guid> { ORGANIZATION_ID }, CALLER_ID);
 
-
+            userFive.AssignDepartment(subDepartment, CALLER_ID);
+            userFive.AssignManagerToDepartment(subDepartment, CALLER_ID);
 
             customerContext.UserPermissions.Add(userOnePermission);
             customerContext.UserPermissions.Add(userTwoPermission);

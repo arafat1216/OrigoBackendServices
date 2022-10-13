@@ -1,24 +1,15 @@
-﻿using Common.Interfaces;
+﻿using Common.Enums;
+using Common.Interfaces;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 using OrigoApiGateway.Services;
 using OrigoGateway.IntegrationTests.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Common.Enums;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace OrigoGateway.IntegrationTests.Controllers
 {
@@ -67,7 +58,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
                     var userService = new Mock<IUserServices>();
 
-                    var count = new CustomerUserCount {OrganizationId = organizationId, Count = 1, NotOnboarded = 1};
+                    var count = new CustomerUserCount { OrganizationId = organizationId, Count = 1, NotOnboarded = 1 };
 
                     userService.Setup(_ => _.GetUsersCountAsync(organizationId, It.IsAny<FilterOptionsForUser>()))
                         .ReturnsAsync(count);
@@ -115,7 +106,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
                     var userService = new Mock<IUserServices>();
 
-                    var count = new CustomerUserCount {OrganizationId = organizationId1, Count = 1, NotOnboarded = 1};
+                    var count = new CustomerUserCount { OrganizationId = organizationId1, Count = 1, NotOnboarded = 1 };
 
                     userService.Setup(_ => _.GetUsersCountAsync(organizationId1, It.IsAny<FilterOptionsForUser>()))
                         .ReturnsAsync(count);
@@ -162,7 +153,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
                     var userService = new Mock<IUserServices>();
 
-                   FilterOptionsForUser filter = new FilterOptionsForUser { Roles = new[] { role } };
+                    FilterOptionsForUser filter = new FilterOptionsForUser { Roles = new[] { role } };
                     userService.Setup(_ => _.GetUsersCountAsync(organization_NOTreadRights, filter))
                         .Returns(Task.FromResult(new CustomerUserCount { Count = 2, NotOnboarded = 3, OrganizationId = organization_NOTreadRights }));
                     services.AddSingleton(userService.Object);
@@ -303,7 +294,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                     var users = new PagedModel<OrigoUser>()
                     {
                         CurrentPage = 1,
-                        Items = new List<OrigoUser> { 
+                        Items = new List<OrigoUser> {
                             new OrigoUser { FirstName = "Name"} },
                         TotalItems = 1,
                         TotalPages = 1,
@@ -381,7 +372,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
 
-            var newUser = new NewUser { Email = "tesst@mail.com", MobileNumber = "+4745545457"};
+            var newUser = new NewUser { Email = "tesst@mail.com", MobileNumber = "+4745545457" };
 
             var client = _factory.WithWebHostBuilder(builder =>
             {
@@ -417,20 +408,20 @@ namespace OrigoGateway.IntegrationTests.Controllers
                                 PartnerId = partnerId,
                                 ProductTypeId = 2,
                                 Translations = new List<OrigoApiGateway.Models.ProductCatalog.Translation>
-                                { 
-                                    new OrigoApiGateway.Models.ProductCatalog.Translation 
+                                {
+                                    new OrigoApiGateway.Models.ProductCatalog.Translation
                                     {
                                          Language = "en",
                                          Description = "Simple Asset Management for units purchased transactionally in Techstep's own WebShop.",
                                          Name = "Implement"
-                                    } 
+                                    }
                                 }
-                            } 
+                            }
                     };
-                   
+
 
                     var productOrderMock = new Mock<IProductCatalogServices>();
-                    productOrderMock.Setup(_ => _.GetOrderedProductsByPartnerAndOrganizationAsync(partnerId,organizationId))
+                    productOrderMock.Setup(_ => _.GetOrderedProductsByPartnerAndOrganizationAsync(partnerId, organizationId))
                       .ReturnsAsync(order);
                     services.AddSingleton(productOrderMock.Object);
 

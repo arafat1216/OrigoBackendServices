@@ -1,20 +1,13 @@
-﻿using Xunit;
+﻿using Common.Extensions;
+using Common.Interfaces;
+using Customer.API.IntegrationTests.Helpers;
 using Customer.API.Tests;
-using System.Net.Http;
-using System;
-using Xunit.Abstractions;
+using Customer.API.ViewModels;
+using Customer.API.WriteModels;
+using CustomerServices.ServiceModels;
 using System.Net.Http.Json;
 using System.Text.Json;
-using CustomerServices.ServiceModels;
-using System.Threading.Tasks;
-using System.Net;
-using System.Collections.Generic;
-using Customer.API.WriteModels;
-using System.Linq;
-using Common.Extensions;
-using Customer.API.IntegrationTests.Helpers;
-using Customer.API.ViewModels;
-//Customer.API.IntegrationTests.Controllers
+
 namespace Customer.API.IntegrationTests.Controllers
 {
     public class OrganizationsControllerTests : IClassFixture<CustomerWebApplicationFactory<Startup>>
@@ -97,6 +90,7 @@ namespace Customer.API.IntegrationTests.Controllers
             // Check asserts
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
+
         [Fact]
         public async Task CreateOrganization_OrganizationNumberAlreadyExists_ReturnedErrorMessage()
         {
@@ -206,6 +200,7 @@ namespace Customer.API.IntegrationTests.Controllers
             // Check asserts
             Assert.True(readOrganization!.AddUsersToOkta);
         }
+
         [Fact]
         public async Task CreateOrganization_WithTechstepAsPartner_SaveTechstepCustomerIdAndAccountOwner()
         {
@@ -261,9 +256,10 @@ namespace Customer.API.IntegrationTests.Controllers
 
 
             // Check asserts
-            Assert.Equal(accountOwner,organization?.AccountOwner);
-            Assert.Equal(techstepCustomerId,organization?.TechstepCustomerId);
+            Assert.Equal(accountOwner, organization?.AccountOwner);
+            Assert.Equal(techstepCustomerId, organization?.TechstepCustomerId);
         }
+
         [Fact]
         public async Task CreateOrganization_PartnerNotTechstep_NotSaveTechstepCustomerId()
         {
@@ -428,6 +424,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(orgData.Name, updatedOrg!.Name);
             Assert.Equal(org!.PayrollContactEmail, updatedOrg!.PayrollContactEmail);
         }
+
         [Fact]
         public async Task GetAllLocationInOrganization()
         {
@@ -437,6 +434,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var locations = await httpClient.GetFromJsonAsync<IList<LocationDTO>>(requestUri);
             Assert.Equal(1, locations!.Count);
         }
+
         [Fact]
         public async Task DeleteLocationAsync()
         {
@@ -445,7 +443,7 @@ namespace Customer.API.IntegrationTests.Controllers
             _testOutputHelper.WriteLine(requestUri);
             var locations = await httpClient.GetFromJsonAsync<IList<LocationDTO>>(requestUri);
             var selectedLocation = locations!.FirstOrDefault();
-            
+
 
             var delCont = new DeleteContent()
             {
@@ -473,7 +471,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
             Assert.Equal(1, locations!.Count);
             Assert.Equal(0, newLocations!.Count);
-            Assert.DoesNotContain(newLocations, x =>x.Id == selectedLocation.Id);
+            Assert.DoesNotContain(newLocations, x => x.Id == selectedLocation.Id);
         }
 
         [Fact]
@@ -559,22 +557,24 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.True(returnedLocation!.IsPrimary);
             Assert.True(returnedLocation!.Id == Org!.Location.Id);
         }
+
         [Fact]
         public async Task InitiateOnbarding_ChangeOnboardingStatus()
         {
-            
+
             // Arrange
             var requestUri = $"/api/v1/organizations/{_organizationId}/initiate-onboarding";
 
-            //Act
+            // Act
             var response = await _httpClient.PostAsync(requestUri, null);
             var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(Common.Enums.CustomerStatus.StartedOnboarding,organization?.Status);
+            Assert.Equal(Common.Enums.CustomerStatus.StartedOnboarding, organization?.Status);
             Assert.Equal("StartedOnboarding", organization?.StatusName);
         }
+
         [Fact]
         public async Task InitiateOnbarding_OrganizationNotFound()
         {
@@ -582,16 +582,17 @@ namespace Customer.API.IntegrationTests.Controllers
             var organizationId = Guid.NewGuid();
             var requestUri = $"/api/v1/organizations/{organizationId}/initiate-onboarding";
 
-            //Act
+            // Act
             var response = await _httpClient.PostAsync(requestUri, null);
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
+
         [Fact]
         public async Task InitiateOnbarding_NoUsersForCustomer_ExceptionGetsThrown()
         {
-            //add new organization
+            // add new organization
             var requestUri = $"/api/v1/organizations";
             _testOutputHelper.WriteLine(requestUri);
 
@@ -630,17 +631,17 @@ namespace Customer.API.IntegrationTests.Controllers
                 Preferences = null
             };
 
-            //Act
+            // Act
             var response = await _httpClient.PostAsJsonAsync(requestUri, newOrganization);
             var organization = await response.Content.ReadFromJsonAsync<OrganizationDTO>();
 
-            //Assert
+            // Assert
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
             // Arrange
             var requestInit = $"/api/v1/organizations/{organization.OrganizationId}/initiate-onboarding";
 
-            //Act
+            // Act
             var responseInit = await _httpClient.PostAsync(requestInit, null);
             var errorMessage = await responseInit.Content.ReadAsStringAsync();
 
@@ -649,17 +650,18 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal("Customers need to have at least one user imported to initiate the onboarding process.", errorMessage);
 
         }
+
         [Fact]
         public async Task GetOrganizationUserCountAsync_ForSystemAdmin()
         {
             // Arrange
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
-            FilterOptionsForUser filter = new FilterOptionsForUser { Roles = new string[] {"SystemAdmin"} };
+            FilterOptionsForUser filter = new FilterOptionsForUser { Roles = new string[] { "SystemAdmin" } };
             var json = JsonSerializer.Serialize(filter);
             var requestUri = $"/api/v1/organizations/userCount?filterOptions={json}";
 
-            //Act
+            // Act
             var response = await httpClient.GetAsync(requestUri);
             var organizationCount = await response.Content.ReadFromJsonAsync<IList<CustomerServices.Models.OrganizationUserCount>>();
 
@@ -667,22 +669,23 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal(3, organizationCount?.Count);
             Assert.Collection(organizationCount,
-               item => Assert.Equal(0,item.Count),
-               item => Assert.Equal(1,item.Count),
-               item => Assert.Equal(1,item.Count)
+               item => Assert.Equal(0, item.Count),
+               item => Assert.Equal(1, item.Count),
+               item => Assert.Equal(1, item.Count)
            );
         }
+
         [Fact]
         public async Task GetOrganizationUserCountAsync_ForAdmin()
         {
             // Arrange
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
-            FilterOptionsForUser filter = new FilterOptionsForUser {AssignedToDepartments= new Guid[] { _organizationId, _departmentId }, Roles = new string[] { "Admin" } };
+            FilterOptionsForUser filter = new FilterOptionsForUser { AssignedToDepartments = new Guid[] { _organizationId, _departmentId }, Roles = new string[] { "Admin" } };
             var json = JsonSerializer.Serialize(filter);
             var requestUri = $"/api/v1/organizations/userCount?filterOptions={json}";
 
-            //Act
+            // Act
             var response = await httpClient.GetAsync(requestUri);
             var organizationCount = await response.Content.ReadFromJsonAsync<IList<CustomerServices.Models.OrganizationUserCount>>();
 
@@ -693,13 +696,14 @@ namespace Customer.API.IntegrationTests.Controllers
                item => Assert.Equal(1, item.Count)
            );
         }
+
         [Fact]
         public async Task GetOrganizationUserCountAsync_ShouldNotCountDeletedUsers()
         {
-            //Arrange
+            // Arrange
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
-            //Delete a user
+            // Delete a user
             var url = $"/api/v1/organizations/{_organizationId}/users/{_userOneId}";
             var request = new HttpRequestMessage(HttpMethod.Delete, url);
             request.Content = JsonContent.Create(Guid.NewGuid());
@@ -715,7 +719,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var jsonBasedOnGuids = JsonSerializer.Serialize(filterBasedOnGuids);
             var requestUri = $"/api/v1/organizations/userCount?filterOptions={jsonBasedOnGuids}";
 
-            //Act
+            // Act
             var response = await httpClient.GetAsync(requestUri);
             var organizationCount = await response.Content.ReadFromJsonAsync<IList<CustomerServices.Models.OrganizationUserCount>>();
 
@@ -730,11 +734,11 @@ namespace Customer.API.IntegrationTests.Controllers
             );
 
             // Arrange - all customers
-            FilterOptionsForUser filterEmpty = new FilterOptionsForUser {};
+            FilterOptionsForUser filterEmpty = new FilterOptionsForUser { };
             var jsonEmpty = JsonSerializer.Serialize(filterEmpty);
             var requestAllOrganizations = $"/api/v1/organizations/userCount?filterOptions={jsonEmpty}";
-            
-            //Act
+
+            // Act
             var responseAllOrganizations = await httpClient.GetAsync(requestAllOrganizations);
             var allOrganizationCount = await responseAllOrganizations.Content.ReadFromJsonAsync<IList<CustomerServices.Models.OrganizationUserCount>>();
 
@@ -747,7 +751,7 @@ namespace Customer.API.IntegrationTests.Controllers
                item => Assert.Equal(1, item.Count)
            );
             Assert.Collection(allOrganizationCount,
-               item => Assert.Equal(1, item.NotOnboarded), 
+               item => Assert.Equal(1, item.NotOnboarded),
                item => Assert.Equal(1, item.NotOnboarded),
                item => Assert.Equal(2, item.NotOnboarded)
            );
@@ -769,18 +773,19 @@ namespace Customer.API.IntegrationTests.Controllers
             var json = JsonSerializer.Serialize(filter);
             var requestUri = $"/api/v1/organizations/userCount?filterOptions={json}";
 
-            //Act
+            // Act
             var response = await httpClient.GetAsync(requestUri);
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
+
         [Fact]
         public async Task GetOrganizationUserCountAsync_ForSystemAdmin_CountAll()
         {
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
-            //Arrange
+            // Arrange
             var body = new NewUser
             {
                 Email = "test@mail.com",
@@ -797,7 +802,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var postUser = await httpClient.PostAsJsonAsync(request, body);
             var user = await postUser.Content.ReadFromJsonAsync<ViewModels.User>();
 
-            //Assert
+            // Assert
             Assert.NotNull(user);
             Assert.Equal(2, user?.UserStatus);
             Assert.Equal("Invited", user?.UserStatusName);
@@ -809,7 +814,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var json = JsonSerializer.Serialize(filter);
             var requestUri = $"/api/v1/organizations/userCount?filterOptions={json}";
 
-            //Act
+            // Act
             var response = await httpClient.GetAsync(requestUri);
             var organizationCount = await response.Content.ReadFromJsonAsync<IList<CustomerServices.Models.OrganizationUserCount>>();
 
@@ -830,10 +835,11 @@ namespace Customer.API.IntegrationTests.Controllers
               item => Assert.Equal(_organizationTwoId, item.OrganizationId),
               item => Assert.Equal(_organizationIdThree, item.OrganizationId),
               item => Assert.Equal(_organizationId, item.OrganizationId)
-              
+
           );
 
         }
+
         [Fact]
         public async Task UpdateOrganizationTechstepCore_UpdateToNewChanges()
         {
@@ -859,13 +865,13 @@ namespace Customer.API.IntegrationTests.Controllers
             };
             var requestUri = $"/api/v1/organizations/techstep-core-update";
 
-            //Act
+            // Act
             var response = await _httpClient.PostAsJsonAsync(requestUri, techstepInfo);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            //Get the customer and check if values is changed
+            // Get the customer and check if values is changed
 
             var getRequestUri = $"/api/v1/organizations/{_organizationIdThree}/true";
             var organization = await _httpClient.GetFromJsonAsync<OrganizationDTO>(getRequestUri);
@@ -898,13 +904,13 @@ namespace Customer.API.IntegrationTests.Controllers
             };
             var requestUri = $"/api/v1/organizations/techstep-core-update";
 
-            //Act
+            // Act
             var response = await _httpClient.PostAsJsonAsync(requestUri, techstepInfo);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            //Get the customer and check if values is changed
+            // Get the customer and check if values is changed
 
             var getRequestUri = $"/api/v1/organizations/{_organizationIdThree}/true";
             var organization = await _httpClient.GetFromJsonAsync<OrganizationDTO>(getRequestUri);
@@ -912,6 +918,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(oldCountryCode.ToLower(), organization?.Preferences.PrimaryLanguage);
             Assert.Equal(oldOrganizationNumber, organization?.OrganizationNumber);
         }
+
         [Fact]
         public async Task GetOrganization_CheckAccountOwner()
         {
@@ -919,8 +926,9 @@ namespace Customer.API.IntegrationTests.Controllers
             var organization = await _httpClient.GetFromJsonAsync<OrganizationDTO>(getRequestUri);
             Assert.NotNull(organization);
             Assert.NotEmpty(organization.AccountOwner);
-            Assert.Equal("Rolf Sjødal",organization.AccountOwner);
+            Assert.Equal("Rolf Sjødal", organization.AccountOwner);
         }
+
         [Fact]
         public async Task GetOrganizations_PartnerAccess()
         {
@@ -929,10 +937,65 @@ namespace Customer.API.IntegrationTests.Controllers
             var getRequestUri = $"/api/v1/organizations/true/?partnerId={_techstepPartnerId}";
             var organization = await httpClient.GetFromJsonAsync<IList<OrganizationDTO>>(getRequestUri);
             Assert.NotNull(organization);
-            Assert.Equal(1,organization.Count);
+            Assert.Equal(1, organization.Count);
             Assert.All(organization, org => Assert.Equal("ORGANIZATION THREE", org.Name));
             Assert.All(organization, org => Assert.Equal(_techstepPartnerId, org.PartnerId));
         }
 
+
+        [Fact]
+        public async Task GetPaginatedOrganizations_PartnerFilter_Async()
+        {
+            // Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            // Act
+            var getRequestUri = $"/api/v1/organizations?partnerId={_techstepPartnerId}";
+            var result = await httpClient.GetFromJsonAsync<PagedModel<OrganizationDTO>>(getRequestUri);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(1, result.TotalItems);
+            Assert.Equal(1, result.Items.Count);
+
+            Assert.All(result.Items, org => Assert.Equal(_techstepPartnerId, org.PartnerId));
+        }
+
+
+        [Fact]
+        public async Task GetPaginatedOrganizations_NoIncludes_Async()
+        {
+            // Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            // Act
+            var getRequestUri = $"/api/v1/organizations?includePreferences=false";
+            var result = await httpClient.GetFromJsonAsync<PagedModel<OrganizationDTO>>(getRequestUri);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(5, result.TotalItems); // Change this number as we add more seeding-data.
+            Assert.Equal(result.TotalItems, result.Items.Count);
+
+            Assert.All(result.Items, org => Assert.Null(org.Preferences));
+        }
+
+        [Fact]
+        public async Task GetPaginatedOrganizations_WithIncludes_Async()
+        {
+            // Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            // Act
+            var getRequestUri = $"/api/v1/organizations?includePreferences=true";
+            var result = await httpClient.GetFromJsonAsync<PagedModel<OrganizationDTO>>(getRequestUri);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(5, result.TotalItems); // Change this number as we add more seeding-data.
+            Assert.Equal(result.TotalItems, result.Items.Count);
+
+            Assert.Contains(result.Items, org => org.Preferences is not null);
+        }
     }
 }

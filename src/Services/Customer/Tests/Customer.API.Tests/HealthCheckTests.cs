@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
-using System.Net.Http;
-using System.Net;
-using System.Threading.Tasks;
-using Xunit;
-using Customer.API.Controllers;
+﻿using Customer.API.Controllers;
+using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Customer.API.Tests
 {
@@ -21,7 +17,7 @@ namespace Customer.API.Tests
         {
             var response = await _httpClient.GetAsync("/healthz");
 
-        
+
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
     }

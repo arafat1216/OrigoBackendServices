@@ -1,23 +1,13 @@
-﻿
-using Microsoft.AspNetCore.TestHost;
+﻿using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
 using OrigoGateway.IntegrationTests.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace OrigoGateway.IntegrationTests.Controllers
 {
@@ -32,7 +22,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             _output = output;
             factory.ClientOptions.AllowAutoRedirect = false;
         }
-       
+
         [Fact]
         public async Task GetPermissions_ManagerShouldContainMultipleGuidsInAccessList()
         {
@@ -52,9 +42,9 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
             permissionsIdentity.AddClaim(new Claim("AccessList", departmentId.ToString()));
 
-            
-            var userInfo = new UserInfoDTO 
-            { 
+
+            var userInfo = new UserInfoDTO
+            {
                 OrganizationId = organizationId,
                 UserName = "user@mail.com",
                 DepartmentId = departmentId
@@ -68,7 +58,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                     userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
                     var userPermissions = new List<OrigoUserPermissions> { new OrigoUserPermissions() };
                     userPermissionServiceMock.Setup(_ => _.GetUserPermissionsAsync(userInfo.UserName)).ReturnsAsync(userPermissions);
-                    
+
                     var userService = new Mock<IUserServices>();
                     userService.Setup(_ => _.GetUserInfo(userInfo.UserName, Guid.Empty)).ReturnsAsync(userInfo);
 
@@ -92,7 +82,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
             var response = await client.GetAsync($"origoapi/v1.0/customers/users/{userInfo.UserName}/permissions");
 
-            
+
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
@@ -109,14 +99,14 @@ namespace OrigoGateway.IntegrationTests.Controllers
             new object[] {  "Admin", "PartnerReadOnlyAdmin", HttpStatusCode.Forbidden },
             new object[] {  "Admin", "SystemAdmin", HttpStatusCode.Forbidden }, 
             //Customer admin
-            new object[] {  "CustomerAdmin", "SystemAdmin", HttpStatusCode.Forbidden }, 
-            new object[] {  "CustomerAdmin", "PartnerReadOnlyAdmin", HttpStatusCode.Forbidden }, 
-            new object[] {  "CustomerAdmin", "PartnerAdmin", HttpStatusCode.Forbidden }, 
+            new object[] {  "CustomerAdmin", "SystemAdmin", HttpStatusCode.Forbidden },
+            new object[] {  "CustomerAdmin", "PartnerReadOnlyAdmin", HttpStatusCode.Forbidden },
+            new object[] {  "CustomerAdmin", "PartnerAdmin", HttpStatusCode.Forbidden },
             new object[] {  "CustomerAdmin", "GroupAdmin", HttpStatusCode.Forbidden },
             new object[] {  "CustomerAdmin", "EndUser", HttpStatusCode.Created },
-            new object[] {  "CustomerAdmin", "DepartmentManager", HttpStatusCode.Created }, 
-            new object[] {  "CustomerAdmin", "Manager", HttpStatusCode.Created }, 
-            new object[] {  "CustomerAdmin", "CustomerAdmin", HttpStatusCode.Created }, 
+            new object[] {  "CustomerAdmin", "DepartmentManager", HttpStatusCode.Created },
+            new object[] {  "CustomerAdmin", "Manager", HttpStatusCode.Created },
+            new object[] {  "CustomerAdmin", "CustomerAdmin", HttpStatusCode.Created },
             new object[] {  "CustomerAdmin", "Admin", HttpStatusCode.Created }
         };
         [Theory]
@@ -138,7 +128,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
 
             var updatedUserPermission = new NewUsersPermissions
-            { 
+            {
                 UserPermissions = new List<NewUserPermission>
                 {
                     new NewUserPermission
@@ -240,7 +230,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                 }
             };
 
-            
+
             var userInfo = new UserInfoDTO { OrganizationId = organizationId, UserName = "user@mail.com", UserId = userId, DepartmentId = departmentId };
 
             var client = _factory.WithWebHostBuilder(builder =>
@@ -321,12 +311,12 @@ namespace OrigoGateway.IntegrationTests.Controllers
             };
 
 
-            var userInfo = new UserInfoDTO 
-            { 
-                OrganizationId = organizationId, 
-                UserName = "user@mail.com", 
-                UserId = userId, 
-                DepartmentId = differentDepartmentId 
+            var userInfo = new UserInfoDTO
+            {
+                OrganizationId = organizationId,
+                UserName = "user@mail.com",
+                UserId = userId,
+                DepartmentId = differentDepartmentId
             };
 
             var client = _factory.WithWebHostBuilder(builder =>
@@ -404,7 +394,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
 
 
-            
+
             var userInfo = new UserInfoDTO
             {
                 OrganizationId = organizationId,
@@ -424,7 +414,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         Role = removeRole
 
                     };
-                    userPermissionServiceMock.Setup(_ => _.RemoveUserPermissionsForUserAsync(userInfo.UserName,It.IsAny<NewUserPermissionsDTO>())).ReturnsAsync(newPermission);
+                    userPermissionServiceMock.Setup(_ => _.RemoveUserPermissionsForUserAsync(userInfo.UserName, It.IsAny<NewUserPermissionsDTO>())).ReturnsAsync(newPermission);
 
                     var userService = new Mock<IUserServices>();
                     userService.Setup(_ => _.GetUserInfo(userInfo.UserName, Guid.Empty)).ReturnsAsync(userInfo);
@@ -446,7 +436,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
-            
+
             var sendUserPermission = new NewUserPermissions
             {
                 AccessList = new List<Guid> { organizationId },
@@ -510,7 +500,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
             permissionsIdentity.AddClaim(new Claim("AccessList", departmentId.ToString()));
 
-            
+
             var userInfo = new UserInfoDTO
             {
                 OrganizationId = organizationId,

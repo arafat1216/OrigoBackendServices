@@ -1,23 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
-using Common.Enums;
+﻿using Common.Enums;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.HardwareServiceOrder;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 using OrigoApiGateway.Services;
 using OrigoGateway.IntegrationTests.Helpers;
-using Xunit;
-using Xunit.Abstractions;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Security.Claims;
 
 namespace OrigoGateway.IntegrationTests.Controllers
 {
@@ -53,7 +45,8 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId2.ToString()));
             var hardwareServiceOrder = new NewHardwareServiceOrder()
             {
-                DeliveryAddress = new () {
+                DeliveryAddress = new()
+                {
                     RecipientType = RecipientTypeEnum.Personal,
                     Recipient = "[Recipient]",
                     Address1 = "[Address1]",
@@ -71,11 +64,11 @@ namespace OrigoGateway.IntegrationTests.Controllers
                 builder.ConfigureTestServices(services =>
                 {
                     var userPermissionServiceMock = new Mock<IUserPermissionService>();
-                    userPermissionServiceMock.Setup(_ => 
+                    userPermissionServiceMock.Setup(_ =>
                         _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None))
                         .Returns(Task.FromResult(permissionsIdentity));
                     services.AddSingleton(userPermissionServiceMock.Object);
-                    
+
                     services.AddAuthentication(options =>
                     {
                         options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
@@ -94,13 +87,13 @@ namespace OrigoGateway.IntegrationTests.Controllers
                     assetService.Setup(_ => _.GetAssetForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), null,
                         It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()))
                         .ReturnsAsync(hardwareSuperType);
-                    
+
                     var hardwareServiceOrderService = new Mock<IHardwareServiceOrderService>();
 
-                    hardwareServiceOrderService.Setup(_ => 
+                    hardwareServiceOrderService.Setup(_ =>
                         _.CreateHardwareServiceOrderAsync(
-                            It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>(), 
-                            It.IsAny<OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request.NewHardwareServiceOrder>(), 
+                            It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>(),
+                            It.IsAny<OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request.NewHardwareServiceOrder>(),
                             It.IsAny<HardwareSuperType>()))
                         .ReturnsAsync(new OrigoApiGateway.Models.HardwareServiceOrder.Backend.HardwareServiceOrder() { });
 
@@ -113,7 +106,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             var response = await client.PostAsJsonAsync($"origoapi/v1.0/hardware-service/organization/{organizationId2}/orders/remarketing", hardwareServiceOrder);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
-        
+
         [Fact]
         public async Task GetServiceOrderByIdAndOrganizationAsync_Test_For_PartnerAdmin()
         {
@@ -139,21 +132,21 @@ namespace OrigoGateway.IntegrationTests.Controllers
                 builder.ConfigureTestServices(services =>
                 {
                     var userPermissionServiceMock = new Mock<IUserPermissionService>();
-                    userPermissionServiceMock.Setup(_ => 
+                    userPermissionServiceMock.Setup(_ =>
                         _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None))
                         .Returns(Task.FromResult(permissionsIdentity));
                     services.AddSingleton(userPermissionServiceMock.Object);
-                    
+
                     services.AddAuthentication(options =>
                     {
                         options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
                         options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                     }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
                         TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
-                    
+
                     var hardwareServiceOrderService = new Mock<IHardwareServiceOrderService>();
 
-                    hardwareServiceOrderService.Setup(_ => 
+                    hardwareServiceOrderService.Setup(_ =>
                         _.GetServiceOrderByIdAndOrganizationAsync(It.IsAny<Guid>(), It.IsAny<Guid>()))
                         .ReturnsAsync(new OrigoApiGateway.Models.HardwareServiceOrder.Backend.HardwareServiceOrder() { });
 

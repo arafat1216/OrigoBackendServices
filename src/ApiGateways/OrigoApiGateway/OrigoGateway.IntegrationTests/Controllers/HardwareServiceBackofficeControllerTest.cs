@@ -1,20 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
-using Common.Enums;
+﻿using Common.Enums;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response;
 using OrigoApiGateway.Services;
 using OrigoGateway.IntegrationTests.Helpers;
-using Xunit;
-using Xunit.Abstractions;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 
 namespace OrigoGateway.IntegrationTests.Controllers
 {
@@ -22,7 +14,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
     {
         private readonly OrigoGatewayWebApplicationFactory<HardwareServiceBackofficeController> _factory;
         private readonly ITestOutputHelper _output;
-        
+
         public HardwareServiceBackofficeControllerTest(OrigoGatewayWebApplicationFactory<HardwareServiceBackofficeController> factory, ITestOutputHelper output)
         {
             _factory = factory;
@@ -54,21 +46,21 @@ namespace OrigoGateway.IntegrationTests.Controllers
                 builder.ConfigureTestServices(services =>
                 {
                     var userPermissionServiceMock = new Mock<IUserPermissionService>();
-                    userPermissionServiceMock.Setup(_ => 
+                    userPermissionServiceMock.Setup(_ =>
                         _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None))
                         .Returns(Task.FromResult(permissionsIdentity));
                     services.AddSingleton(userPermissionServiceMock.Object);
-                    
+
                     services.AddAuthentication(options =>
                     {
                         options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
                         options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                     }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
                         TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
-                    
+
                     var hardwareServiceOrderService = new Mock<IHardwareServiceOrderService>();
 
-                    hardwareServiceOrderService.Setup(_ => 
+                    hardwareServiceOrderService.Setup(_ =>
                         _.GetCustomerServiceProvidersAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<bool>()))
                         .ReturnsAsync(new List<CustomerServiceProvider>());
 

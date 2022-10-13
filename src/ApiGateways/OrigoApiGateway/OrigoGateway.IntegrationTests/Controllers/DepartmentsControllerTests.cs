@@ -1,20 +1,14 @@
-﻿using Microsoft.AspNetCore.TestHost;
+﻿using Common.Interfaces;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
 using OrigoGateway.IntegrationTests.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace OrigoGateway.IntegrationTests.Controllers
 {
@@ -23,7 +17,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
         private readonly OrigoGatewayWebApplicationFactory<DepartmentsController> _factory;
         private readonly ITestOutputHelper _output;
         private readonly Guid ORGANIZATION_ID;
-        private readonly Guid DEPARTMENT_ID; 
+        private readonly Guid DEPARTMENT_ID;
 
         public DepartmentsControllerTests(OrigoGatewayWebApplicationFactory<DepartmentsController> factory, ITestOutputHelper output)
         {
@@ -34,13 +28,13 @@ namespace OrigoGateway.IntegrationTests.Controllers
             DEPARTMENT_ID = Guid.Parse("6c514552-ea67-48c8-91ec-83c2b16248ee");
         }
 
-       // public static IEnumerable<object[]> EmailAccess =>
-       // new List<object[]>
-       //{
-       //     new object[] { "unknown@test.io", HttpStatusCode.Forbidden, new List<string> { "CanReadCustomer", "CanUpdateCustomer" } },
-       //     new object[] { "admin@test.io", HttpStatusCode.Forbidden, new List<string> { "CanReadCustomer", "CanUpdateCustomer" } },
-       //     new object[] { "systemadmin@test.io", HttpStatusCode.OK, new List<string> { "CanReadCustomer", "CanUpdateCustomer" } }
-       //};
+        // public static IEnumerable<object[]> EmailAccess =>
+        // new List<object[]>
+        //{
+        //     new object[] { "unknown@test.io", HttpStatusCode.Forbidden, new List<string> { "CanReadCustomer", "CanUpdateCustomer" } },
+        //     new object[] { "admin@test.io", HttpStatusCode.Forbidden, new List<string> { "CanReadCustomer", "CanUpdateCustomer" } },
+        //     new object[] { "systemadmin@test.io", HttpStatusCode.OK, new List<string> { "CanReadCustomer", "CanUpdateCustomer" } }
+        //};
 
 
 
@@ -67,22 +61,24 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
                         options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                     }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
-                        TestAuthenticationHandler.DefaultScheme, options => {
+                        TestAuthenticationHandler.DefaultScheme, options =>
+                        {
                             options.Email = "systemadmin@test.io";
                         });
                     var departmentService = new Mock<IDepartmentsServices>();
 
 
-                    var organization = new OrigoDepartment { 
+                    var organization = new OrigoDepartment
+                    {
                         DepartmentId = DEPARTMENT_ID
-                        };
+                    };
 
                     departmentService.Setup(x => x.DeleteDepartmentPatchAsync(ORGANIZATION_ID, DEPARTMENT_ID, It.IsAny<Guid>())).Returns(Task.FromResult(organization));
 
                     services.AddSingleton(departmentService.Object);
                 });
             }).CreateClient();
-            
+
             var response = await client.DeleteAsync($"/origoapi/v1.0/customers/{ORGANIZATION_ID}/departments/{DEPARTMENT_ID}");
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -114,7 +110,8 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
                         options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                     }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
-                        TestAuthenticationHandler.DefaultScheme, options => {
+                        TestAuthenticationHandler.DefaultScheme, options =>
+                        {
                             options.Email = "admin@test.io";
                         });
                     var departmentService = new Mock<IDepartmentsServices>();
@@ -161,7 +158,8 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
                         options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                     }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
-                        TestAuthenticationHandler.DefaultScheme, options => {
+                        TestAuthenticationHandler.DefaultScheme, options =>
+                        {
                             options.Email = "admin@test.io";
                         });
                     var departmentService = new Mock<IDepartmentsServices>();
@@ -178,11 +176,12 @@ namespace OrigoGateway.IntegrationTests.Controllers
                 });
             }).CreateClient();
 
-            var department = new UpdateDepartment { DepartmentId = DEPARTMENT_ID, Name = "Department"};
+            var department = new UpdateDepartment { DepartmentId = DEPARTMENT_ID, Name = "Department" };
             var response = await client.PatchAsync($"/origoapi/v1.0/customers/{ORGANIZATION_ID}/departments/{DEPARTMENT_ID}", JsonContent.Create(department));
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
+
         [Fact]
         public async Task PutDepartment_AdminAccsess()
         {
@@ -208,8 +207,9 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
                         options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                     }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
-                        TestAuthenticationHandler.DefaultScheme, options => {
-                            options.Email = "admin@test.io"; 
+                        TestAuthenticationHandler.DefaultScheme, options =>
+                        {
+                            options.Email = "admin@test.io";
                         });
 
                     var departmentService = new Mock<IDepartmentsServices>();
@@ -231,6 +231,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
+
         [Fact]
         public async Task PostDepartment_AdminAccsess()
         {
@@ -240,8 +241,8 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "Admin"));
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
             permissionsIdentity.AddClaim(new Claim("AccessList", ORGANIZATION_ID.ToString()));
-            permissionsIdentity.AddClaim(new Claim("Permissions","CanReadCustomer"));
-            permissionsIdentity.AddClaim(new Claim("Permissions","CanUpdateCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
 
             var client = _factory.WithWebHostBuilder(builder =>
             {
@@ -256,7 +257,8 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
                         options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                     }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
-                        TestAuthenticationHandler.DefaultScheme, options => {
+                        TestAuthenticationHandler.DefaultScheme, options =>
+                        {
                             options.Email = "admin@test.io";
                         });
                     var departmentService = new Mock<IDepartmentsServices>();
@@ -275,13 +277,15 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
             var department = new NewDepartment
             {
-                ParentDepartmentId = DEPARTMENT_ID, Name = "Department" 
+                ParentDepartmentId = DEPARTMENT_ID,
+                Name = "Department"
             };
 
             var response = await client.PostAsync($"/origoapi/v1.0/customers/{ORGANIZATION_ID}/departments", JsonContent.Create(department));
 
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
+
         [Fact]
         public async Task PostDepartment_EndUserDeniedAccsess()
         {
@@ -304,7 +308,8 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
                         options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                     }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
-                        TestAuthenticationHandler.DefaultScheme, options => {
+                        TestAuthenticationHandler.DefaultScheme, options =>
+                        {
                             options.Email = "unknown@test.io";
                         });
                     var departmentService = new Mock<IDepartmentsServices>();
@@ -332,6 +337,66 @@ namespace OrigoGateway.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
+
+
+        [Fact]
+        public async Task GetPaginatedDepartmentsAsync()
+        {
+            // Arrange
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "admin@test.io"));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, "admin@test.io"));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "Admin"));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
+            permissionsIdentity.AddClaim(new Claim("AccessList", ORGANIZATION_ID.ToString()));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), "admin@test.io", CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options =>
+                        {
+                            options.Email = "admin@test.io";
+                        });
+                    var departmentService = new Mock<IDepartmentsServices>();
+
+
+                    var pagedResponse = new PagedModel<OrigoDepartment>()
+                    {
+                        CurrentPage = 1,
+                        Items = new List<OrigoDepartment>() 
+                        { 
+                            new() { DepartmentId = Guid.NewGuid(), Name = "Department 1" },
+                        },
+                        PageSize = 25,
+                        TotalItems = 1,
+                        TotalPages = 1
+                    };
+
+                    departmentService.Setup(x => x.GetPaginatedDepartmentsAsync(ORGANIZATION_ID, It.IsAny<CancellationToken>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<int>()))
+                                     .Returns(Task.FromResult(pagedResponse));
+
+                    services.AddSingleton(departmentService.Object);
+                });
+            }).CreateClient();
+
+            // Act
+            var response = await client.GetAsync($"/origoapi/v1.0/customers/{ORGANIZATION_ID}/departments/paginated");
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
 
     }
 }

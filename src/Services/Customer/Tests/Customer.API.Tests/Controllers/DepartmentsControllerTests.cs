@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
-using Common.Extensions;
+﻿using Common.Extensions;
+using Common.Interfaces;
 using Customer.API.IntegrationTests.Helpers;
 using Customer.API.Tests;
 using Customer.API.ViewModels;
 using Customer.API.WriteModels;
-using Xunit;
-using Xunit.Abstractions;
+using System.Net.Http.Json;
 
 namespace Customer.API.IntegrationTests.Controllers;
 
@@ -60,6 +54,32 @@ public class DepartmentsControllerTests : IClassFixture<CustomerWebApplicationFa
 
         _testOutputHelper.WriteLine(read?[0].Name);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetPaginatedDepartments_NoIncludes_Async()
+    {
+        var rawResponse = await _httpClient.GetAsync($"/api/v1/organizations/{_organizationId}/departments/paginated?includeManagers=false");
+        var jsonResponse = await rawResponse.Content.ReadFromJsonAsync<PagedModel<Department>>();
+
+        Assert.Equal(HttpStatusCode.OK, rawResponse.StatusCode);
+        Assert.NotNull(jsonResponse);
+        Assert.True(jsonResponse.Items.Any());
+
+        Assert.All(jsonResponse.Items, department => Assert.Empty(department.ManagedBy));
+    }
+
+    [Fact]
+    public async Task GetPaginatedDepartments_WithIncludes_Async()
+    {
+        var rawResponse = await _httpClient.GetAsync($"/api/v1/organizations/{_organizationId}/departments/paginated?includeManagers=true");
+        var jsonResponse = await rawResponse.Content.ReadFromJsonAsync<PagedModel<Department>>();
+
+        Assert.Equal(HttpStatusCode.OK, rawResponse.StatusCode);
+        Assert.NotNull(jsonResponse);
+        Assert.True(jsonResponse.Items.Any());
+
+        Assert.Contains(jsonResponse.Items, department => department.ManagedBy is not null);
     }
 
     [Fact]
@@ -200,10 +220,10 @@ public class DepartmentsControllerTests : IClassFixture<CustomerWebApplicationFa
         var request = new NewDepartment
         {
             ParentDepartmentId = _departmentId,
-           Name = "Department one",
-           Description = "Test",
-           CostCenterId= "CostCenter",
-            ManagedBy = new List<Guid> {_userOne, _userTwo}
+            Name = "Department one",
+            Description = "Test",
+            CostCenterId = "CostCenter",
+            ManagedBy = new List<Guid> { _userOne, _userTwo }
         };
 
         var userEmailOne = "kari@normann.no";
@@ -526,7 +546,7 @@ public class DepartmentsControllerTests : IClassFixture<CustomerWebApplicationFa
             CallerId = Guid.NewGuid(),
             ManagedBy = new List<Guid> { _userFive }
         };
-        
+
         var responseFourth = await httpClient.PostAsJsonAsync(
             $"/api/v1/organizations/{_organizationId}/departments/{_departmentId}", fourthUpdatedepartment);
 

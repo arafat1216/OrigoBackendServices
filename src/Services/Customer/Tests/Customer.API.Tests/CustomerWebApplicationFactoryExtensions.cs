@@ -1,8 +1,6 @@
-﻿using CustomerServices.Infrastructure.Context;
+﻿using Common.Extensions;
+using CustomerServices.Infrastructure.Context;
 using Microsoft.AspNetCore.Mvc.Testing;
-using System;
-using System.Net.Http;
-using Common.Extensions;
 
 namespace Customer.API.IntegrationTests
 {

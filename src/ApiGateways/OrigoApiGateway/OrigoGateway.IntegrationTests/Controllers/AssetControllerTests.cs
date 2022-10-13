@@ -1,20 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Reflection;
-using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
-using Common.Enums;
+﻿using Common.Enums;
 using Common.Interfaces;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Moq;
 using Moq.Protected;
 using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Mappings;
@@ -22,8 +11,9 @@ using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
 using OrigoApiGateway.Services;
 using OrigoGateway.IntegrationTests.Helpers;
-using Xunit;
-using Xunit.Abstractions;
+using System.Net.Http.Headers;
+using System.Reflection;
+using System.Security.Claims;
 using Services = OrigoApiGateway.Services;
 
 namespace OrigoGateway.IntegrationTests.Controllers;
@@ -438,7 +428,8 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
                     options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
                     options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                 }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
-                    TestAuthenticationHandler.DefaultScheme, options => {
+                    TestAuthenticationHandler.DefaultScheme, options =>
+                    {
                         options.Email = "systemadmin@test.io";
                     });
                 var customersAssets = new PagedModel<HardwareSuperType>()
@@ -467,7 +458,7 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
             });
         }).CreateClient();
 
-       
+
         var response = await client.GetAsync("/origoapi/v1.0/assets/customers/6c514552-ea67-48c8-91ec-83c2b16248ee");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -498,15 +489,16 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
                     options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
                     options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                 }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
-                    TestAuthenticationHandler.DefaultScheme, options => {
+                    TestAuthenticationHandler.DefaultScheme, options =>
+                    {
                         options.Email = "systemadmin@test.io";
                     });
                 var assetService = new Mock<IAssetServices>();
                 var customerService = new Mock<ICustomerServices>();
 
                 var customerLifeCycleList =
-                   new List<LifeCycleSetting> { new() { 
-                       CustomerId = Guid.NewGuid(), 
+                   new List<LifeCycleSetting> { new() {
+                       CustomerId = Guid.NewGuid(),
                        AssetCategoryId = 1,
                        AssetCategoryName = "Catagory",
                        BuyoutAllowed = true,
@@ -560,7 +552,8 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
                     options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
                     options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                 }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
-                    TestAuthenticationHandler.DefaultScheme, options => {
+                    TestAuthenticationHandler.DefaultScheme, options =>
+                    {
                         options.Email = email;
                     });
                 var customersAssets = new PagedModel<HardwareSuperType>()
@@ -625,19 +618,21 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
                     options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
                     options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                 }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
-                    TestAuthenticationHandler.DefaultScheme, options => {
+                    TestAuthenticationHandler.DefaultScheme, options =>
+                    {
                         options.Email = email;
                     });
                 var counter = new OrigoCustomerAssetsCounter
                 {
-                    Personal = new OrigoAssetCounter {
+                    Personal = new OrigoAssetCounter
+                    {
                         Active = 1
                     }
                 };
 
                 var assetService = new Mock<IAssetServices>();
                 assetService.Setup(_ => _.GetAssetLifecycleCountersAsync(organizationId, It.IsAny<FilterOptionsForAsset>())).Returns(Task.FromResult(counter));
-            services.AddSingleton(assetService.Object);
+                services.AddSingleton(assetService.Object);
             });
         }).CreateClient();
 
@@ -678,7 +673,8 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
                     options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
                     options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                 }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
-                    TestAuthenticationHandler.DefaultScheme, options => {
+                    TestAuthenticationHandler.DefaultScheme, options =>
+                    {
                         options.Email = email;
                     });
 

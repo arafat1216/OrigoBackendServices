@@ -12,9 +12,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Moq;
-using System;
-using System.Linq;
 
 namespace Customer.API.Tests;
 
@@ -56,7 +53,7 @@ public class CustomerWebApplicationFactory<TProgram> : WebApplicationFactory<TPr
             using var scope = serviceProvider.CreateScope();
             using var customerContext = scope.ServiceProvider.GetRequiredService<CustomerContext>();
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<CustomerWebApplicationFactory<TProgram>>>();
-            
+
             try
             {
                 CustomerTestDataSeedingForDatabase.PopulateData(customerContext);

@@ -1,22 +1,14 @@
-﻿using Microsoft.AspNetCore.TestHost;
-using OrigoApiGateway.Controllers;
-using OrigoGateway.IntegrationTests.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Net.Http.Headers;
-using System.Net;
-using System.Threading.Tasks;
-using Xunit;
-using Xunit.Abstractions;
+﻿using Common.Enums;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using System.Security.Claims;
-using OrigoApiGateway.Services;
-using System.Threading;
-using Common.Enums;
-using OrigoApiGateway.Models.ProductCatalog;
+using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.ProductCatalog;
+using OrigoApiGateway.Services;
+using OrigoGateway.IntegrationTests.Helpers;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Security.Claims;
 
 namespace OrigoGateway.IntegrationTests.Controllers
 {
@@ -61,7 +53,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                     }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
                         TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
-                    
+
                     var productCatalogServices = new Mock<IProductCatalogServices>();
                     productCatalogServices.Setup(_ => _.ReplaceOrderedProductsAsync(It.IsAny<Guid>(), It.IsAny<Guid>(),
                         It.IsAny<ProductOrdersDTO>()));

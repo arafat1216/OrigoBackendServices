@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
-using Common.Enums;
+﻿using Common.Enums;
 using Common.Extensions;
 using Customer.API.IntegrationTests.Helpers;
 using Customer.API.Tests;
 using Customer.API.ViewModels;
 using Customer.API.WriteModels;
 using CustomerServices.ServiceModels;
-using Xunit;
-using Xunit.Abstractions;
+using System.Net.Http.Json;
 
 namespace Customer.API.IntegrationTests.Controllers;
 
@@ -314,7 +307,7 @@ public class UserPermissionsControllerTests : IClassFixture<CustomerWebApplicati
     public async Task GetUserPermission_ChangeStatusToOnboardingInitated_WhenUserIsNotDeleted()
     {
         var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
-       
+
         //Get user to show it has Invited as status
         var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}";
         var response = await _httpClient.GetAsync(requestUri);

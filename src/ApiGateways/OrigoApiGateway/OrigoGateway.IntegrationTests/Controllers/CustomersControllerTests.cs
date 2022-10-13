@@ -1,9 +1,8 @@
-﻿using AutoMapper;
+﻿using Common.Interfaces;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Moq;
 using Moq.Protected;
 using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Mappings;
@@ -11,21 +10,11 @@ using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
 using OrigoGateway.IntegrationTests.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace OrigoGateway.IntegrationTests.Controllers
 {
@@ -619,7 +608,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
                     var customerService = new Mock<ICustomerServices>();
                     var organizations = new Organization { OrganizationId = organizationId, PartnerId = partnerId };
-                    customerService.Setup(_ => _.CreateCustomerAsync(created,callerId)).ReturnsAsync(organizations);
+                    customerService.Setup(_ => _.CreateCustomerAsync(created, callerId)).ReturnsAsync(organizations);
                     services.AddSingleton(customerService.Object);
                 });
 
@@ -674,5 +663,64 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
+
+
+        [Fact]
+        public async Task GetPaginatedOrganizationsAsync()
+        {
+            var partnerId = Guid.NewGuid();
+            var organizationId = Guid.NewGuid();
+            var differentOrganizationId = Guid.NewGuid();
+            var email = "partnerAdmin@test.io";
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "PartnerAdmin"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", partnerId.ToString()));
+            permissionsIdentity.AddClaim(new Claim("AccessList", differentOrganizationId.ToString()));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+
+                    var customerService = new Mock<ICustomerServices>();
+
+                    PagedModel<Organization> pagedModel = new()
+                    {
+                        CurrentPage = 1,
+                        PageSize = 25,
+                        Items = new List<Organization>
+                        {
+                            new() { OrganizationId = organizationId, PartnerId = partnerId },
+                        },
+                        TotalPages = 1,
+                        TotalItems = 1
+                    };
+
+                    customerService.Setup(_ => _.GetPaginatedCustomersAsync(It.IsAny<CancellationToken>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<Guid?>(), It.IsAny<bool>())).ReturnsAsync(pagedModel);
+                    services.AddSingleton(customerService.Object);
+                });
+
+
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.GetAsync($"/origoapi/v1.0/customers/pagination");
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
     }
 }

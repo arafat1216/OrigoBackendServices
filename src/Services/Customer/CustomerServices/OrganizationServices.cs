@@ -113,12 +113,13 @@ namespace CustomerServices
             }
 
             // TODO: We need to refactor this when we have time, as this may result in a lot of queries and higher loading times.
+            // TODO: The 'includePartner: true' is required to load the foreign key (partnerId). Once we have converted this shadow-property to a normal property, we should be able to remove the include.
             if (!hierarchical)
             {
                 if (partner is null)
-                    pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, customersOnly: customersOnly, page: page, limit: limit);
+                    pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, customersOnly: customersOnly, includePartner: true, page: page, limit: limit);
                 else
-                    pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, whereFilter: entity => entity.Partner == partner, customersOnly: customersOnly, page: page, limit: limit);
+                    pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, whereFilter: entity => entity.Partner == partner, customersOnly: customersOnly, includePartner: true, page: page, limit: limit);
 
                 if (includePreferences)
                 {
@@ -131,9 +132,9 @@ namespace CustomerServices
             else
             {
                 if (partner is null)
-                    pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, whereFilter: entity => entity.ParentId == null, customersOnly: customersOnly, page: page, limit: limit);
+                    pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, whereFilter: entity => entity.ParentId == null, customersOnly: customersOnly, includePartner: true, page: page, limit: limit);
                 else
-                    pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, whereFilter: (entity => entity.ParentId == null && entity.Partner == partner), customersOnly: customersOnly, page: page, limit: limit);
+                    pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, whereFilter: (entity => entity.ParentId == null && entity.Partner == partner), customersOnly: customersOnly, includePartner: true, page: page, limit: limit);
 
                 foreach (var organization in pagedOrganizations.Items)
                 {

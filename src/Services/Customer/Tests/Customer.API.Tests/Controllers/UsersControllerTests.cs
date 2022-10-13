@@ -1,21 +1,13 @@
 ﻿using Common.Enums;
+using Common.Extensions;
 using Common.Interfaces;
 using Customer.API.IntegrationTests.Helpers;
 using Customer.API.Tests;
 using Customer.API.ViewModels;
 using Customer.API.WriteModels;
 using CustomerServices.ServiceModels;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Threading.Tasks;
-using Common.Extensions;
-using Xunit;
-using Xunit.Abstractions;
-using CustomerServices.Exceptions;
 
 namespace Customer.API.IntegrationTests.Controllers
 {
@@ -83,7 +75,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var users = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(5,users?.TotalItems);
+            Assert.Equal(5, users?.TotalItems);
         }
 
         [Fact]
@@ -287,8 +279,8 @@ namespace Customer.API.IntegrationTests.Controllers
 
             var permission = await responsePermissionsCheck.Content.ReadFromJsonAsync<List<UserPermissions>>();
             Assert.Equal(HttpStatusCode.OK, responsePermissionsCheck.StatusCode);
-            Assert.Equal(1,permission?.Count);
-            Assert.Equal(3,permission?[0].AccessList?.Count);
+            Assert.Equal(1, permission?.Count);
+            Assert.Equal(3, permission?[0].AccessList?.Count);
         }
         [Fact]
         public async Task UnassignManagerFromDepartment_ReturnsOk()
@@ -305,11 +297,11 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.NotNull(user);
 
             //Assign role to user
-            var role = new NewUserPermission 
-            { 
-                AccessList = new List<Guid> { _customerId }, 
-                Role = "DepartmentManager", 
-                CallerId = _callerId 
+            var role = new NewUserPermission
+            {
+                AccessList = new List<Guid> { _customerId },
+                Role = "DepartmentManager",
+                CallerId = _callerId
             };
             var requestPermissions = $"/api/v1/organizations/users/{user?.Email}/permissions";
             var putPermission = httpClient.PutAsJsonAsync(requestPermissions, role);
@@ -685,7 +677,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.NotNull(userInfo);
             Assert.Equal(_customerId, userInfo?.OrganizationId);
             Assert.Equal(_userOneId, userInfo?.UserId);
-            Assert.Equal(_headDepartmentId,userInfo?.DepartmentId);
+            Assert.Equal(_headDepartmentId, userInfo?.DepartmentId);
             Assert.Equal(_userOneEmail, userInfo?.UserName);
 
         }
@@ -816,7 +808,7 @@ namespace Customer.API.IntegrationTests.Controllers
                 Method = HttpMethod.Delete,
                 RequestUri = new Uri(requestUri_headDepartment, UriKind.Relative)
             };
-            
+
 
             //Unassign a manager
             var responseUnassignManager_user = await httpClient.SendAsync(requestUnassignManager_user);
@@ -954,7 +946,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var body = new NewUser
             {
                 CallerId = _callerId,
-                Email = "olanormann",  
+                Email = "olanormann",
                 FirstName = "test",
                 LastName = "user",
                 EmployeeId = "123",
@@ -986,7 +978,7 @@ namespace Customer.API.IntegrationTests.Controllers
         public async Task GetUsersCount_NotValidACustomer_ReturnsCountEmpty()
         {
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
-            
+
             var filter = new FilterOptionsForUser { Roles = new[] { "SystemAdmin" } };
             string json = JsonSerializer.Serialize(filter);
 
@@ -1010,7 +1002,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var assigneUserToDepartment = await httpClient.PostAsync(url, JsonContent.Create(_callerId));
             Assert.Equal(HttpStatusCode.OK, assigneUserToDepartment.StatusCode);
 
-            var filter = new FilterOptionsForUser { AssignedToDepartments = new Guid[] { _headDepartmentId} };
+            var filter = new FilterOptionsForUser { AssignedToDepartments = new Guid[] { _headDepartmentId } };
             string json = JsonSerializer.Serialize(filter);
 
             var request = $"/api/v1/organizations/{_customerId}/users/count/?filterOptions={json}";
@@ -1136,7 +1128,7 @@ namespace Customer.API.IntegrationTests.Controllers
 
             Assert.Equal(HttpStatusCode.OK, get_recreated_user_response.StatusCode);
             Assert.NotNull(get_user_recreated);
-            Assert.Equal("Hans",get_user_recreated?.FirstName);
+            Assert.Equal("Hans", get_user_recreated?.FirstName);
             Assert.Equal("Manager", get_user_recreated?.Role);
         }
         [Fact]
@@ -1184,7 +1176,7 @@ namespace Customer.API.IntegrationTests.Controllers
             var response_recreate = await httpClient.PostAsJsonAsync(request_recreate, body2);
             Assert.Equal(HttpStatusCode.Conflict, response_recreate.StatusCode);
             Assert.Equal("Email address is already in use.", response_recreate.Content.ReadAsStringAsync().Result);
-      
+
 
             //Get user
             var get_recreated_user_request = $"/api/v1/organizations/{_customerId}/users/{userId}";
@@ -1231,7 +1223,7 @@ namespace Customer.API.IntegrationTests.Controllers
             //Assert
             var response = await _httpClient.PostAsync(requestUri, JsonContent.Create(_callerId));
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-            var read =  await response.Content.ReadAsStringAsync();
+            var read = await response.Content.ReadAsStringAsync();
             Assert.Equal("Unable to change user status.", read);
 
         }
@@ -1271,7 +1263,7 @@ namespace Customer.API.IntegrationTests.Controllers
 
             //Assert
             Assert.NotNull(user);
-            Assert.Equal(2,user?.UserStatus);
+            Assert.Equal(2, user?.UserStatus);
             Assert.Equal("Invited", user?.UserStatusName);
             Assert.True(user?.IsActiveState);
         }
@@ -1301,7 +1293,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(3, user?.UserStatus);
             Assert.Equal("NotInvited", user?.UserStatusName);
             Assert.False(user?.IsActiveState);
-            Assert.Equal("no",user?.UserPreference.Language);
+            Assert.Equal("no", user?.UserPreference.Language);
 
         }
 
@@ -1325,10 +1317,10 @@ namespace Customer.API.IntegrationTests.Controllers
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal((int)UserStatus.OffboardInitiated, user!.UserStatus);
-            if(lastWorkingDate == "2022-08-17T00:00:00.000Z")
+            if (lastWorkingDate == "2022-08-17T00:00:00.000Z")
             {
-                Assert.Equal(new DateTime(2022,8,15).ToString("yyyy/MM/DD"), user!.LastDayForReportingSalaryDeduction!.Value.ToString("yyyy/MM/DD"));
-                Assert.Equal(new DateTime(2022,8,17).ToString("yyyy/MM/DD"), user!.LastWorkingDay!.Value.ToString("yyyy/MM/DD"));
+                Assert.Equal(new DateTime(2022, 8, 15).ToString("yyyy/MM/DD"), user!.LastDayForReportingSalaryDeduction!.Value.ToString("yyyy/MM/DD"));
+                Assert.Equal(new DateTime(2022, 8, 17).ToString("yyyy/MM/DD"), user!.LastWorkingDay!.Value.ToString("yyyy/MM/DD"));
             }
             if (lastWorkingDate == "2022-08-14T00:00:00.000Z")
             {
@@ -1523,7 +1515,7 @@ namespace Customer.API.IntegrationTests.Controllers
             // Act
             var response = await httpClient.PostAsJsonAsync(requestUri, body);
             var error = await response.Content.ReadFromJsonAsync<ExceptionMessages>();
-            
+
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.NotNull(error);
@@ -1570,9 +1562,9 @@ namespace Customer.API.IntegrationTests.Controllers
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.NotNull(error);
-            Assert.Equal(1,error?.Exceptions.Count);
+            Assert.Equal(1, error?.Exceptions.Count);
             Assert.Collection(error?.Exceptions, error => Assert.Equal("Manager has no rights to make action on behalf of user atish@normann.no.", error));
-        
+
         }
 
         [Fact]
@@ -1612,7 +1604,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.NotNull(deleted_user);
             Assert.Equal(_userOneId, deleted_user!.Id);
 
-            var filter = new FilterOptionsForUser { Roles = new string[] { "SystemAdmin" }};
+            var filter = new FilterOptionsForUser { Roles = new string[] { "SystemAdmin" } };
             string json = JsonSerializer.Serialize(filter);
             var requestUri = $"/api/v1/organizations/{_customerId}/users/re-send-invitation/?filterOptions={json}";
 
@@ -1630,7 +1622,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Collection(error?.Exceptions, error => Assert.Equal($"User kari@normann.no is an deleted user and needs to be activated before it can be deleted.", error));
 
         }
-       
+
         [Fact]
         public async Task CompleteOnboarding_UserDontHaveOnboardingInitiated_ReturnsBadRequest()
         {
@@ -1644,7 +1636,7 @@ namespace Customer.API.IntegrationTests.Controllers
 
             //Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-            Assert.Equal("User has not onboarding initiated, and can not get activated. User has current status: NotInvited.",error);
+            Assert.Equal("User has not onboarding initiated, and can not get activated. User has current status: NotInvited.", error);
 
             //check the user if the status is the same as before
 
@@ -1660,7 +1652,7 @@ namespace Customer.API.IntegrationTests.Controllers
         {
             //Arrange
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
-            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userThreeId}/onboarding-completed";   
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userThreeId}/onboarding-completed";
 
             //Act
             var response = await httpClient.PostAsync(requestUri, null);
@@ -1700,7 +1692,7 @@ namespace Customer.API.IntegrationTests.Controllers
         {
             //Arrange
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
-            
+
             //Delete a user
             var url = $"/api/v1/organizations/{_customerId}/users/{_userOneId}";
             var request = new HttpRequestMessage(HttpMethod.Delete, url);

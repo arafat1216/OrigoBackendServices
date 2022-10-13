@@ -1,21 +1,11 @@
 ﻿using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Services;
 using OrigoGateway.IntegrationTests.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Claims;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace OrigoGateway.IntegrationTests.Controllers
 {
@@ -87,7 +77,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             Assert.Equal(expected, response.StatusCode);
         }
 
-        
+
         [Theory]
         [MemberData(nameof(EmailAccess))]
         public async Task GetPartnerAsync_SecurePageAccessibleByUserWithPartnerRights(string email, string role, HttpStatusCode expected)
