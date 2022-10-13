@@ -21,10 +21,10 @@ namespace AssetServices.Models
         Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid customerId, Guid assetLifecycleId, string? userId, IList<Guid?>? department,
             bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false, bool asNoTracking = false);
         Task<AssetLifecycle?> GetAssetLifecycleAsync(Guid assetLifeCycleId);
-        Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList, bool includeAsset = false, bool includeImeis = false, bool includeContractHolderUser = false, bool includeLabels = false, bool asNoTracking = false);
-        Task<IList<AssetLifecycle>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId, bool includeAsset = false, bool includeImeis = false, bool includeContractHolderUser = false, bool asNoTracking = false);
+        Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList, bool asNoTracking, bool includeAsset = false, bool includeImeis = false, bool includeContractHolderUser = false, bool includeLabels = false);
+        Task<IList<AssetLifecycle>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId, bool asNoTracking, bool includeAsset = false, bool includeImeis = false, bool includeContractHolderUser = false);
         Task<IList<CustomerLabel>> AddCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels);
-        Task<IList<CustomerLabel>> GetCustomerLabelsForCustomerAsync(Guid customerId);
+        Task<IList<CustomerLabel>> GetCustomerLabelsForCustomerAsync(Guid customerId, bool asNoTracking);
         Task<IList<CustomerLabel>> GetCustomerLabelsFromListAsync(IList<Guid> labelsGuid, Guid customerId);
         Task<CustomerLabel?> GetCustomerLabelAsync(Guid labelGuid, Guid customerId);
         Task<IList<CustomerLabel>> DeleteCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels);

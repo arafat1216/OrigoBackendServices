@@ -131,7 +131,7 @@ public class AssetServices : IAssetServices
 
     public async Task<IList<CustomerLabel>> GetCustomerLabelsForCustomerAsync(Guid customerId)
     {
-        return await _assetLifecycleRepository.GetCustomerLabelsForCustomerAsync(customerId);
+        return await _assetLifecycleRepository.GetCustomerLabelsForCustomerAsync(customerId, true);
     }
 
     public async Task<IList<CustomerLabel>> GetCustomerLabelsAsync(IList<Guid> customerLabelGuids, Guid customerId)
@@ -162,7 +162,7 @@ public class AssetServices : IAssetServices
             label.Delete(callerId);
         }
         await _assetLifecycleRepository.SaveEntitiesAsync();
-        return await _assetLifecycleRepository.GetCustomerLabelsForCustomerAsync(customerId);
+        return await _assetLifecycleRepository.GetCustomerLabelsForCustomerAsync(customerId, true);
 
     }
 
@@ -348,7 +348,7 @@ public class AssetServices : IAssetServices
     [Obsolete("This will be deleted in the future")]
     public async Task<IList<AssetLifecycleDTO>> UpdateStatusForMultipleAssetLifecycles(Guid customerId, Guid callerId, IList<Guid> assetLifecycleIdList, AssetLifecycleStatus lifecycleStatus)
     {
-        var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetLifecycleIdList);
+        var assetLifecycles = await _assetLifecycleRepository.GetAssetLifecyclesFromListAsync(customerId, assetLifecycleIdList, false);
         if (assetLifecycles.Count == 0)
         {
             return new List<AssetLifecycleDTO>();
@@ -356,7 +356,7 @@ public class AssetServices : IAssetServices
 
         //foreach (var assetLifecycle in assetLifecycles)
         //{
-        //    assetLifecycle.UpdateAssetStatus(lifecycleStatus, callerId);
+        //    assetLifecycle.UpdateAssetStatus(lifecycleStatus, callerId);fv
         //}
 
         //await _assetLifecycleRepository.SaveEntitiesAsync();

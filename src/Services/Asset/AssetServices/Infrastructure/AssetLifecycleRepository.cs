@@ -337,7 +337,7 @@ namespace AssetServices.Infrastructure
         }
 
 
-        public async Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList, bool includeAsset = false, bool includeImeis = false, bool includeContractHolderUser = false, bool includeLabels = false, bool asNoTracking = false)
+        public async Task<IList<AssetLifecycle>> GetAssetLifecyclesFromListAsync(Guid customerId, IList<Guid> assetGuidList, bool asNoTracking, bool includeAsset = false, bool includeImeis = false, bool includeContractHolderUser = false, bool includeLabels = false)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
 
@@ -356,11 +356,9 @@ namespace AssetServices.Infrastructure
             query = query.Where(al => assetGuidList.Contains(al.ExternalId) && al.CustomerId == customerId);
 
             if (asNoTracking)
-                return await query
-                .AsSplitQuery().AsNoTracking().ToListAsync();
-            else
-                return await query
-                .AsSplitQuery().AsTracking().ToListAsync();
+                query.AsNoTracking();
+
+            return await query.AsSplitQuery().ToListAsync();
         }
 
         public async Task<IList<CustomerLabel>> AddCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)
@@ -371,10 +369,16 @@ namespace AssetServices.Infrastructure
                          .Where(c => c.CustomerId == customerId && !c.IsDeleted).AsNoTracking().ToListAsync();
         }
 
-        public async Task<IList<CustomerLabel>> GetCustomerLabelsForCustomerAsync(Guid customerId)
+        public async Task<IList<CustomerLabel>> GetCustomerLabelsForCustomerAsync(Guid customerId, bool asNoTracking)
         {
-            return await _assetContext.CustomerLabels
-                         .Where(a => a.CustomerId == customerId && !a.IsDeleted).AsNoTracking().ToListAsync();
+            IQueryable<CustomerLabel> query = _assetContext.Set<CustomerLabel>();
+
+            query = query.Where(a => a.CustomerId == customerId && !a.IsDeleted);
+
+            if (asNoTracking)
+                query.AsNoTracking();
+
+            return await query.ToListAsync();
         }
 
         public async Task<IList<CustomerLabel>> GetCustomerLabelsFromListAsync(IList<Guid> labelsGuid, Guid customerId)
@@ -394,7 +398,7 @@ namespace AssetServices.Infrastructure
 
             _assetContext.CustomerLabels.RemoveRange(labels);
             await SaveEntitiesAsync();
-            return await GetCustomerLabelsForCustomerAsync(customerId);
+            return await GetCustomerLabelsForCustomerAsync(customerId, true);
         }
 
         public async Task<IList<CustomerLabel>> UpdateCustomerLabelsForCustomerAsync(Guid customerId, IList<CustomerLabel> labels)
@@ -406,12 +410,14 @@ namespace AssetServices.Infrastructure
             }
 
             await SaveEntitiesAsync();
-            return await GetCustomerLabelsForCustomerAsync(customerId);
+            return await GetCustomerLabelsForCustomerAsync(customerId, true);
         }
 
-        public async Task<IList<AssetLifecycle>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId, bool includeAsset = false, bool includeImeis = false, bool includeContractHolderUser = false, bool asNoTracking = false)
+        public async Task<IList<AssetLifecycle>> GetAssetLifecyclesForUserAsync(Guid customerId, Guid userId, bool asNoTracking, bool includeAsset = false, bool includeImeis = false, bool includeContractHolderUser = false)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
+
+            query = query.Where(a => a.CustomerId == customerId && a.ContractHolderUser!.ExternalId == userId);
 
             if (includeAsset)
                 if (includeImeis)
@@ -422,14 +428,10 @@ namespace AssetServices.Infrastructure
             if(includeContractHolderUser)
                 query = query.Include(al => al.ContractHolderUser);
 
-            if(asNoTracking)
-                return await query
-                .Where(a => a.CustomerId == customerId && a.ContractHolderUser!.ExternalId == userId)
-                .AsNoTracking().ToListAsync();
-            else
-                return await query
-                .Where(a => a.CustomerId == customerId && a.ContractHolderUser!.ExternalId == userId)
-                .AsTracking().ToListAsync();
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            return await query.ToListAsync();
         }
 
         public async Task UnAssignAssetLifecyclesForUserAsync(Guid customerId, Guid userId, Guid? departmentId, Guid callerId)

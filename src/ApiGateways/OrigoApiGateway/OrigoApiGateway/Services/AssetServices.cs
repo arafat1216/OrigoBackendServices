@@ -143,18 +143,9 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var requestUri = $"{_options.ApiPath}/customers/{customerId}/users/{userId}";
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}/users/{userId}?includeAsset={includeAsset}&includeImeis={includeImeis}&includeContractHolderUser={includeContractHolderUser}";
 
-                if (includeAsset)
-                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeAsset", $"{includeAsset}");
-
-                if (includeImeis)
-                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeImeis", $"{includeImeis}");
-
-                if (includeContractHolderUser)
-                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeContractHolderUser", $"{includeContractHolderUser}");
-
-                var assets = await HttpClient.GetFromJsonAsync<IList<AssetDTO>>($"{_options.ApiPath}/customers/{customerId}/users/{userId}");
+                var assets = await HttpClient.GetFromJsonAsync<IList<AssetDTO>>(requestUri);
 
                 if (assets == null) return null;
                 var origoAssets = new List<object>();
@@ -196,19 +187,7 @@ namespace OrigoApiGateway.Services
             {
                 string json = JsonSerializer.Serialize(filterOptions);
 
-                var requestUri = $"{_options.ApiPath}/customers/{customerId}?q={search}&page={page}&limit={limit}&filterOptions={json}";
-
-                if (includeAsset)
-                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeAsset", $"{includeAsset}");
-
-                if (includeImeis)
-                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeImeis", $"{includeImeis}");
-
-                if (includeLabels)
-                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeLabels", $"{includeLabels}");
-
-                if (includeContractHolderUser)
-                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeContractHolderUser", $"{includeContractHolderUser}");
+                var requestUri = $"{_options.ApiPath}/customers/{customerId}?includeAsset={includeAsset}&includeImeis={includeImeis}&includeLabels={includeLabels}&includeContractHolderUser={includeContractHolderUser}&q={search}&page={page}&limit={limit}&filterOptions={json}";
 
                 var assets = await HttpClient.GetFromJsonAsync<PagedModel<HardwareSuperType>>(requestUri);
 
@@ -572,25 +551,13 @@ namespace OrigoApiGateway.Services
             try
             {
 
-                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}";
+                var requestUri = $"{_options.ApiPath}/{assetId}/customers/{customerId}?includeAsset={includeAsset}&includeImeis={includeImeis}&includeLabels={includeLabels}&includeContractHolderUser={includeContractHolderUser}";
 
                 if (filterOptions != null)
                 {
                     string json = JsonSerializer.Serialize(filterOptions);
                     requestUri = QueryHelpers.AddQueryString(requestUri, "filterOptions", $"{json}");
                 }
-
-                if (includeAsset)
-                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeAsset", $"{includeAsset}");
-
-                if (includeImeis)
-                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeImeis", $"{includeImeis}");
-
-                if (includeLabels)
-                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeLabels", $"{includeLabels}");
-
-                if (includeContractHolderUser)
-                    requestUri = QueryHelpers.AddQueryString(requestUri, "includeContractHolderUser", $"{includeContractHolderUser}");
 
                 var asset = await HttpClient.GetFromJsonAsync<AssetDTO>(requestUri);
 

@@ -47,7 +47,7 @@ namespace AssetServices
                 foreach (Guid organizationId in organizationIds)
                 {
                     var customerLabels = Seed.GetCustomerLables(organizationId);
-                    var existingLabels = await _assetLifecycleRepository.GetCustomerLabelsForCustomerAsync(organizationId);
+                    var existingLabels = await _assetLifecycleRepository.GetCustomerLabelsForCustomerAsync(organizationId, true);
                     foreach (var label in customerLabels)
                     {
                         if (existingLabels.FirstOrDefault(l => l.ExternalId == label.ExternalId) == null)
