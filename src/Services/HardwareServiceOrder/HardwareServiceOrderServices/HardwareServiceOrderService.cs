@@ -204,7 +204,7 @@ namespace HardwareServiceOrderServices
         /// <inheritdoc/>
         public async Task<HardwareServiceOrderDTO?> GetServiceOrderByIdAsync(Guid serviceOrderId, Guid? organizationId = null)
         {
-            var orderEntity = await _hardwareServiceOrderRepository.GetServiceOrderByIdAsync(serviceOrderId, organizationId);
+            var orderEntity = await _hardwareServiceOrderRepository.GetServiceOrderByIdAsync(serviceOrderId, true, organizationId: organizationId);
 
             return _mapper.Map<HardwareServiceOrderDTO?>(orderEntity);
         }

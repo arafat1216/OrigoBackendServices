@@ -101,7 +101,7 @@ namespace HardwareServiceOrderServices.Models
         /// </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the queried service-order if a result was found.
         ///     Otherwise the value will be <see langword="null"/>. </returns>
-        Task<HardwareServiceOrder?> GetServiceOrderByIdAsync(Guid serviceOrderId, Guid? organizationId = null, bool asNoTracking = false);
+        Task<HardwareServiceOrder?> GetServiceOrderByIdAsync(Guid serviceOrderId, bool asNoTracking, Guid? organizationId = null);
 
         /// <summary>
         ///     Retrieves all service-orders that matches the parameters.

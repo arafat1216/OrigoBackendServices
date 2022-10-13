@@ -208,7 +208,7 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
-        public async Task<HardwareServiceOrder?> GetServiceOrderByIdAsync(Guid serviceOrderId, Guid? organizationId = null, bool asNoTracking = false)
+        public async Task<HardwareServiceOrder?> GetServiceOrderByIdAsync(Guid serviceOrderId, bool asNoTracking, Guid? organizationId = null)
         {
             IQueryable<HardwareServiceOrder> query = _hardwareServiceOrderContext.HardwareServiceOrders;
 
