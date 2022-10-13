@@ -146,8 +146,8 @@ namespace HardwareServiceOrderServices
                     }
                 case (int)ServiceTypeEnum.Remarketing:
                     {
-                        var aftermarketProvider = await _providerFactory.GetAftermarketProviderAsync(serviceOrderDTO.ServiceProviderId, 
-                            _hardwareServiceOrderRepository.Decrypt(apiCredential?.ApiUsername, customerId.ToString()), 
+                        var aftermarketProvider = await _providerFactory.GetAftermarketProviderAsync(serviceOrderDTO.ServiceProviderId,
+                            _hardwareServiceOrderRepository.Decrypt(apiCredential?.ApiUsername, customerId.ToString()),
                             _hardwareServiceOrderRepository.Decrypt(apiCredential?.ApiPassword, customerId.ToString()));
                         externalOrderResponseDTO = await aftermarketProvider.CreateAftermarketOrderAsync(newExternalServiceOrder, serviceOrderDTO.ServiceTypeId, $"{newOrderId}");
                         break;
@@ -213,7 +213,7 @@ namespace HardwareServiceOrderServices
         /// <inheritdoc/>
         public async Task<PagedModel<HardwareServiceOrderDTO>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
         {
-            var orderEntities = await _hardwareServiceOrderRepository.GetAllServiceOrdersForOrganizationAsync(organizationId, userId, serviceTypeId, activeOnly, page, limit, cancellationToken);
+            var orderEntities = await _hardwareServiceOrderRepository.GetAllServiceOrdersForOrganizationAsync(organizationId, userId, serviceTypeId, activeOnly, page, limit, true, cancellationToken);
 
             return new PagedModel<HardwareServiceOrderDTO>
             {
@@ -247,10 +247,11 @@ namespace HardwareServiceOrderServices
                 var apiCredentials = customerServiceProvider?.ApiCredentials;
                 if (apiCredentials is null || apiCredentials.Count == 0)
                     continue;
+
                 foreach (var apiCredential in apiCredentials)
                 {
-                    var provider = await _providerFactory.GetRepairProviderAsync(customerServiceProvider.ServiceProviderId, 
-                        _hardwareServiceOrderRepository.Decrypt(apiCredential?.ApiUsername, customerServiceProvider.CustomerId.ToString()), 
+                    var provider = await _providerFactory.GetRepairProviderAsync(customerServiceProvider.ServiceProviderId,
+                        _hardwareServiceOrderRepository.Decrypt(apiCredential?.ApiUsername, customerServiceProvider.CustomerId.ToString()),
                         _hardwareServiceOrderRepository.Decrypt(apiCredential?.ApiPassword, customerServiceProvider.CustomerId.ToString()));
 
                     var updateStarted = DateTimeOffset.UtcNow;

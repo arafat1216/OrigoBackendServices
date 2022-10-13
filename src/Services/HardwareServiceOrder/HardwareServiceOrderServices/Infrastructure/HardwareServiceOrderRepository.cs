@@ -2,11 +2,9 @@
 using Common.Interfaces;
 using Common.Seedwork;
 using HardwareServiceOrderServices.Models;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using System.Linq;
-using HardwareServiceOrderServices.Exceptions;
-using Microsoft.AspNetCore.DataProtection;
 
 namespace HardwareServiceOrderServices.Infrastructure
 {
@@ -80,11 +78,15 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<TEntity>> GetByIdAsync<TEntity>(IEnumerable<int> ids) where TEntity : EntityV2, IDbSetEntity
+        public async Task<IEnumerable<TEntity>> GetByIdAsync<TEntity>(IEnumerable<int> ids, bool asNoTracking = false) where TEntity : EntityV2, IDbSetEntity
         {
-            return await _hardwareServiceOrderContext.Set<TEntity>()
-                                                     .Where(e => ids.Contains(e.Id))
-                                                     .ToListAsync();
+            IQueryable<TEntity> query = _hardwareServiceOrderContext.Set<TEntity>()
+                                                                    .Where(e => ids.Contains(e.Id));
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            return await query.ToListAsync();
         }
 
 
@@ -178,50 +180,54 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
-        public async Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, int page, int limit, CancellationToken cancellationToken)
+        public async Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, int page, int limit, bool asNoTracking, CancellationToken cancellationToken)
         {
-            var orders = _hardwareServiceOrderContext.HardwareServiceOrders
-                .Where(m => m.CustomerId == organizationId);
+            var query = _hardwareServiceOrderContext.HardwareServiceOrders
+                                                    .Where(m => m.CustomerId == organizationId);
 
             if (userId is not null)
-                orders = orders.Where(m => m.Owner.UserId == userId);
+                query = query.Where(m => m.Owner.UserId == userId);
 
             if (serviceTypeId is not null)
-                orders = orders.Where(e => e.ServiceTypeId == serviceTypeId);
+                query = query.Where(e => e.ServiceTypeId == serviceTypeId);
 
             if (activeOnly)
-                orders = orders.Where(m => m.StatusId == (int)ServiceStatusEnum.Registered || m.StatusId == (int)ServiceStatusEnum.RegisteredInTransit ||
-                m.StatusId == (int)ServiceStatusEnum.RegisteredUserActionNeeded || m.StatusId == (int)ServiceStatusEnum.Ongoing ||
-                m.StatusId == (int)ServiceStatusEnum.OngoingInTransit || m.StatusId == (int)ServiceStatusEnum.OngoingReadyForPickup ||
-                m.StatusId == (int)ServiceStatusEnum.OngoingUserActionNeeded || m.StatusId == (int)ServiceStatusEnum.Unknown);
+                query = query.Where(m => m.StatusId == (int)ServiceStatusEnum.Registered 
+                                               || m.StatusId == (int)ServiceStatusEnum.RegisteredInTransit 
+                                               || m.StatusId == (int)ServiceStatusEnum.RegisteredUserActionNeeded 
+                                               || m.StatusId == (int)ServiceStatusEnum.Ongoing 
+                                               || m.StatusId == (int)ServiceStatusEnum.OngoingInTransit 
+                                               || m.StatusId == (int)ServiceStatusEnum.OngoingReadyForPickup 
+                                               || m.StatusId == (int)ServiceStatusEnum.OngoingUserActionNeeded 
+                                               || m.StatusId == (int)ServiceStatusEnum.Unknown);
 
-            return await orders.OrderByDescending(m => m.DateCreated).PaginateAsync(page, limit, cancellationToken);
+            return await query.OrderByDescending(m => m.DateCreated)
+                              .PaginateAsync(page, limit, cancellationToken);
 
         }
 
 
         /// <inheritdoc/>
-        public async Task<HardwareServiceOrder?> GetServiceOrderByIdAsync(Guid serviceOrderId, Guid? organizationId = null)
+        public async Task<HardwareServiceOrder?> GetServiceOrderByIdAsync(Guid serviceOrderId, Guid? organizationId = null, bool asNoTracking = false)
         {
-            HardwareServiceOrder? order;
+            IQueryable<HardwareServiceOrder> query = _hardwareServiceOrderContext.HardwareServiceOrders;
 
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            // Conditional returns
             if (organizationId is null)
-            {
-                order = await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == serviceOrderId);
-            }
+                return await query.FirstOrDefaultAsync(m => m.ExternalId == serviceOrderId);
             else
-            {
-                order = await _hardwareServiceOrderContext.HardwareServiceOrders.FirstOrDefaultAsync(m => m.ExternalId == serviceOrderId && m.CustomerId == organizationId);
-            }
-
-            return order;
+                return await query.FirstOrDefaultAsync(m => m.ExternalId == serviceOrderId && m.CustomerId == organizationId);
         }
 
 
         /// <inheritdoc/>
         public async Task<CustomerSettings?> GetSettingsAsync(Guid customerId)
         {
-            return await _hardwareServiceOrderContext.CustomerSettings.FirstOrDefaultAsync(m => m.CustomerId == customerId);
+            return await _hardwareServiceOrderContext.CustomerSettings
+                                                     .FirstOrDefaultAsync(m => m.CustomerId == customerId);
         }
 
 
@@ -289,7 +295,6 @@ namespace HardwareServiceOrderServices.Infrastructure
         {
             return await _hardwareServiceOrderContext
                 .HardwareServiceOrders
-                .Include(m => m.ServiceEvents)
                 .FirstOrDefaultAsync(m => m.ServiceProviderOrderId1 == serviceProviderOrderId);
         }
 

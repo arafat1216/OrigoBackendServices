@@ -28,10 +28,10 @@ namespace HardwareServiceOrderServices.Models
         Task DeleteAndSaveAsync<TEntity>(TEntity entityToBeDeleted) where TEntity : Auditable, IDbSetEntity;
 
         /// <summary>
-        ///     Retrieves a entity by it's primary-key.
+        ///     Retrieves a list of entities by it's primary-keys.
         /// </summary>
-        /// <typeparam name="TEntity"> The entities datatype. </typeparam>
-        /// <param name="id"> The entities primary key. </param>
+        /// <typeparam name="TEntity"> The entity datatype. </typeparam>
+        /// <param name="id"> The entities primary keys. </param>
         /// <returns> 
         ///     A task that represents the asynchronous operation. The task result contains the retrieved entity, 
         ///     or <see langword="null"/> if no matches was found.
@@ -43,8 +43,15 @@ namespace HardwareServiceOrderServices.Models
         /// </summary>
         /// <typeparam name="TEntity"> The entities datatype. </typeparam>
         /// <param name="ids"> A list containing the entities primary-keys. </param>
+        /// <param name="asNoTracking"> 
+        ///     Should the query be run using '<c>AsNoTracking</c>'? 
+        ///     
+        ///     <para>
+        ///     To improve performance, this should be set to <see langword="true"/> for read-only operations.
+        ///     However, if any write operations will occur, then this should always be set to <see langword="false"/>. </para>
+        /// </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains a list of all retrieved entities. </returns>
-        Task<IEnumerable<TEntity>> GetByIdAsync<TEntity>(IEnumerable<int> ids) where TEntity : EntityV2, IDbSetEntity;
+        Task<IEnumerable<TEntity>> GetByIdAsync<TEntity>(IEnumerable<int> ids, bool asNoTracking = false) where TEntity : EntityV2, IDbSetEntity;
 
         /// <summary>
         ///     Updates an existing entity, and saves it to the database.
@@ -85,9 +92,16 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="serviceOrderId"> The ID of the service-order that should be retrieved. </param>
         /// <param name="organizationId"> An optional safety-check that ensures we will only retrieve the result, if it actually belongs to this customer.
         ///     When the value is <see langword="null"/>, the filter is ignored. </param>
+        /// <param name="asNoTracking"> 
+        ///     Should the query be run using '<c>AsNoTracking</c>'? 
+        ///     
+        ///     <para>
+        ///     To improve performance, this should be set to <see langword="true"/> for read-only operations.
+        ///     However, if any write operations will occur, then this should always be set to <see langword="false"/>. </para>
+        /// </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the queried service-order if a result was found.
         ///     Otherwise the value will be <see langword="null"/>. </returns>
-        Task<HardwareServiceOrder?> GetServiceOrderByIdAsync(Guid serviceOrderId, Guid? organizationId = null);
+        Task<HardwareServiceOrder?> GetServiceOrderByIdAsync(Guid serviceOrderId, Guid? organizationId = null, bool asNoTracking = false);
 
         /// <summary>
         ///     Retrieves all service-orders that matches the parameters.
@@ -98,9 +112,16 @@ namespace HardwareServiceOrderServices.Models
         /// <param name="activeOnly"> When <see langword="true"/>, only active/ongoing service-orders are retrieved. When <see langword="false"/>, the filter is ignored. </param>
         /// <param name="page"> The paginated page that should be retrieved. </param>
         /// <param name="limit"> The number of items to retrieve per <paramref name="page"/>. </param>
+        /// <param name="asNoTracking"> 
+        ///     Should the query be run using '<c>AsNoTracking</c>'? 
+        ///     
+        ///     <para>
+        ///     To improve performance, this should be set to <see langword="true"/> for read-only operations.
+        ///     However, if any write operations will occur, then this should always be set to <see langword="false"/>. </para>
+        /// </param>
         /// <param name="cancellationToken"></param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the retrieved, paginated results. </returns>
-        Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, int page, int limit, CancellationToken cancellationToken);
+        Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, int page, int limit, bool asNoTracking, CancellationToken cancellationToken);
 
 
         /*
