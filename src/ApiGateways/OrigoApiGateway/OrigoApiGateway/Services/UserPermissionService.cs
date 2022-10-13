@@ -38,7 +38,7 @@ public class UserPermissionService : IUserPermissionService
             values = (await lambda()).ToList();
             if (values.Any())
             {
-                await _cacheService.Save(key, values, $"{60 * 60 * 24}");
+                await _cacheService.Save(key, values, $"{60 * 60}");
             }
         }
         return values;
