@@ -97,13 +97,11 @@ namespace SubscriptionManagementServices.Infrastructure
         public async Task<int> GetTotalSubscriptionOrdersCountForCustomer(Guid organizationId)
         {
             var subscriptionsCount = await _subscriptionManagementContext.TransferSubscriptionOrders
-                .Include(o => o.PrivateSubscription)
-                .Include(o => o.BusinessSubscription)
                 .Where(o => o.OrganizationId == organizationId)
                 .CountAsync();
 
             var transferToPrivateOrdersCount = await _subscriptionManagementContext.TransferToPrivateSubscriptionOrders
-                .Include(o => o.UserInfo).Where(o => o.OrganizationId == organizationId)
+                .Where(o => o.OrganizationId == organizationId)
                 .CountAsync();
             subscriptionsCount += transferToPrivateOrdersCount;
 

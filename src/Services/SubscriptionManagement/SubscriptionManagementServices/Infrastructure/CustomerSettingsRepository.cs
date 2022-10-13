@@ -23,22 +23,48 @@ namespace SubscriptionManagementServices.Infrastructure
             _mediator = mediator;
         }
 
-        public async Task<CustomerSettings?> GetCustomerSettingsAsync(Guid organizationId)
+        public async Task<CustomerSettings?> GetCustomerSettingsAsync(Guid organizationId, bool asNoTracking, bool includeCustomerOperatorSettings = false, bool includeOperator = false,
+            bool includeStandardPrivateSubscriptionProduct = false, bool includeCustomerOperatorAccounts = false, bool includeAvailableSubscriptionProducts = false,
+            bool includeGlobalSubscriptionProduct = false, bool includeDataPackages = false, bool includeCustomerReferenceFields = false)
         {
-            return await _subscriptionManagementContext.CustomerSettings
-                .Include(cs => cs.CustomerOperatorSettings)
-                .ThenInclude(o => o.Operator)
-                .Include(cs => cs.CustomerOperatorSettings)
-                .ThenInclude(o => o.StandardPrivateSubscriptionProduct)
-                .Include(cs => cs.CustomerOperatorSettings)
-                .ThenInclude(o => o.CustomerOperatorAccounts)
-                .Include(cs => cs.CustomerOperatorSettings)
-                .ThenInclude(op => op.AvailableSubscriptionProducts)
-                .ThenInclude(d => d.GlobalSubscriptionProduct)
-                .Include(cs => cs.CustomerOperatorSettings)
-                .ThenInclude(op => op.AvailableSubscriptionProducts)
-                .ThenInclude(d => d.DataPackages)
-                .Include(cs => cs.CustomerReferenceFields).AsSplitQuery()
+            IQueryable<CustomerSettings> query = _subscriptionManagementContext.Set<CustomerSettings>();
+
+            if (includeCustomerOperatorSettings)
+                query = query.Include(cs => cs.CustomerOperatorSettings);
+
+            if (includeOperator)
+                query = query.Include(cs => cs.CustomerOperatorSettings)
+                    .ThenInclude(o => o.Operator);
+
+            if (includeStandardPrivateSubscriptionProduct)
+                query = query.Include(cs => cs.CustomerOperatorSettings)
+                    .ThenInclude(o => o.StandardPrivateSubscriptionProduct);
+
+            if (includeCustomerOperatorAccounts)
+                query = query.Include(cs => cs.CustomerOperatorSettings)
+                    .ThenInclude(o => o.CustomerOperatorAccounts);
+
+            if (includeAvailableSubscriptionProducts)
+                query = query.Include(cs => cs.CustomerOperatorSettings)
+                    .ThenInclude(o => o.AvailableSubscriptionProducts);
+
+            if (includeGlobalSubscriptionProduct)
+                query = query.Include(cs => cs.CustomerOperatorSettings)
+                    .ThenInclude(o => o.AvailableSubscriptionProducts)
+                    .ThenInclude(o => o.GlobalSubscriptionProduct);
+
+            if (includeDataPackages)
+                query = query.Include(cs => cs.CustomerOperatorSettings)
+                    .ThenInclude(o => o.AvailableSubscriptionProducts)
+                    .ThenInclude(o => o.DataPackages);
+
+            if (includeCustomerReferenceFields)
+                query = query.Include(cs => cs.CustomerReferenceFields);
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            return await query.AsSplitQuery()
                 .FirstOrDefaultAsync(m => m.CustomerId == organizationId);
         }
 
@@ -108,11 +134,16 @@ namespace SubscriptionManagementServices.Infrastructure
             await _subscriptionManagementContext.SaveChangesAsync();
         }
 
-        public async Task<IReadOnlyCollection<CustomerReferenceField>> GetCustomerReferenceFieldsAsync(Guid organizationId)
+        public async Task<IReadOnlyCollection<CustomerReferenceField>> GetCustomerReferenceFieldsAsync(Guid organizationId, bool asNoTracking)
         {
-            var customerSetting = await _subscriptionManagementContext.CustomerSettings
-                .Include(cs => cs.CustomerReferenceFields)
-                .AsSplitQuery()
+            IQueryable<CustomerSettings> query = _subscriptionManagementContext.Set<CustomerSettings>();
+
+            query = query.Include(o => o.CustomerReferenceFields).AsSplitQuery();
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            var customerSetting = await query
                 .FirstOrDefaultAsync(m => m.CustomerId == organizationId);
             if (customerSetting == null || customerSetting.CustomerReferenceFields == null)
             {
@@ -131,13 +162,16 @@ namespace SubscriptionManagementServices.Infrastructure
             return subscriptionProduct;
         }
 
-        public async Task<IList<SubscriptionProduct>?> GetAllOperatorSubscriptionProducts()
+        public async Task<IList<SubscriptionProduct>?> GetAllOperatorSubscriptionProducts(bool asNoTracking)
         {
-            return await _subscriptionManagementContext.SubscriptionProducts
-                .Include(o => o.Operator)
-                .Include(d => d.DataPackages)
-                .AsSplitQuery()
-                .ToListAsync();
+            IQueryable<SubscriptionProduct> query = _subscriptionManagementContext.Set<SubscriptionProduct>();
+
+            query = query.Include(o => o.Operator).Include(d => d.DataPackages).AsSplitQuery();
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            return await query.ToListAsync();
         }
 
 

@@ -19,7 +19,7 @@ namespace SubscriptionManagementServices.Infrastructure
 
         public async Task<IList<Operator>> GetAllOperatorsAsync()
         {
-            return await _subscriptionContext.Operators.ToListAsync();
+            return await _subscriptionContext.Operators.OrderBy(o => o.OperatorName).ToListAsync();
         }
     }
 }

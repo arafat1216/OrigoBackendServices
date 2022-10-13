@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using AutoMapper;
 using Common.Enums;
@@ -49,7 +48,8 @@ public class SubscriptionManagementService : ISubscriptionManagementService
     public async Task<TransferToBusinessSubscriptionOrderDTOResponse> TransferPrivateToBusinessSubscriptionOrderAsync(
         Guid organizationId, TransferToBusinessSubscriptionOrderDTO order)
     {
-        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeOperator: true,
+            includeGlobalSubscriptionProduct:true, includeDataPackages:true, asNoTracking: false);
         if (customerSettings == null) throw new ArgumentException($"Customer {organizationId} not configured.");
 
         //Needs to have a value for one of these
@@ -161,7 +161,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             order.AddOnProducts.Select(m => new SubscriptionAddOnProduct(m, order.CallerId));
 
         //Checking order.CustomerReferenceFields
-        var existingFields = await _customerSettingsRepository.GetCustomerReferenceFieldsAsync(organizationId);
+        var existingFields = await _customerSettingsRepository.GetCustomerReferenceFieldsAsync(organizationId, true);
         foreach (var field in order.CustomerReferenceFields)
             if (existingFields.All(m => m.Name != field.Name))
             {
@@ -266,7 +266,8 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         Guid organizationId, TransferToPrivateSubscriptionOrderDTO subscriptionOrder)
     {
      
-        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeOperator: true, includeStandardPrivateSubscriptionProduct: true,
+            includeDataPackages: true, asNoTracking: false);
         if (customerSettings != null)
         {
             var privateStandardProduct = customerSettings.CustomerOperatorSettings.
@@ -346,7 +347,8 @@ public class SubscriptionManagementService : ISubscriptionManagementService
     public async Task<ChangeSubscriptionOrderDTO> ChangeSubscriptionOrder(Guid organizationId, NewChangeSubscriptionOrder subscriptionOrder)
     {
 
-        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeOperator: true, includeDataPackages: true,
+            asNoTracking: false);
 
         Operator @operator;
 
@@ -546,7 +548,8 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
     public async Task<NewSubscriptionOrderDTO> NewSubscriptionOrderAsync(Guid organizationId, NewSubscriptionOrderRequestDTO newSubscriptionOrder)
     {
-        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeOperator: true, includeCustomerOperatorAccounts: true, includeDataPackages: true,
+            asNoTracking: false);
 
         if (customerSettings is null)
             throw new CustomerSettingsException($"Customer dont have setting", Guid.Parse("3186539a-6897-4e89-9df5-0d5a0d056322"));
@@ -609,7 +612,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
 
         var subscriptionAddOnProducts = newSubscriptionOrder.AddOnProducts.Select(ap => new SubscriptionAddOnProduct(ap, newSubscriptionOrder.CallerId));
-        var existingFields = await _customerSettingsRepository.GetCustomerReferenceFieldsAsync(organizationId);
+        var existingFields = await _customerSettingsRepository.GetCustomerReferenceFieldsAsync(organizationId, true);
 
         foreach (var field in newSubscriptionOrder.CustomerReferenceFields)
         {
@@ -740,7 +743,8 @@ public class SubscriptionManagementService : ISubscriptionManagementService
     {
         DetailViewSubscriptionOrderLog detailViewSubscriptionOrder;
         CustomerOperatorSettings @operator;
-        var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeOperator: true, includeCustomerOperatorAccounts: true,
+            asNoTracking: true);
         if (customerSetting == null)
             throw new CustomerSettingsException($"Customer {organizationId} is not configured.", Guid.Parse("b0cdc324-f97a-4749-87dd-6a0e18a9aad6"));
 

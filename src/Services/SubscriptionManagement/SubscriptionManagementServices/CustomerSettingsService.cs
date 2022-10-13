@@ -27,20 +27,20 @@ public class CustomerSettingsService : ICustomerSettingsService
 
     public async Task<IList<OperatorDTO>> GetAllOperatorsForCustomerAsync(Guid organizationId)
     {
-        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeOperator: true, asNoTracking: true);
         return _mapper.Map<List<OperatorDTO>>(customerSettings?.CustomerOperatorSettings.Select(o => o.Operator).OrderBy(co => co.OperatorName));
     }
 
     public async Task<IList<CustomerReferenceFieldDTO>> GetCustomerReferenceFieldsAsync(Guid organizationId)
     {
-        var customerReferenceFields = await _customerSettingsRepository.GetCustomerReferenceFieldsAsync(organizationId);
+        var customerReferenceFields = await _customerSettingsRepository.GetCustomerReferenceFieldsAsync(organizationId, true);
         return _mapper.Map<List<CustomerReferenceFieldDTO>>(customerReferenceFields.OrderBy(r => r.Name));
     }
 
     public async Task<CustomerReferenceFieldDTO> AddCustomerReferenceFieldAsync(Guid organizationId, string name,
         string type, Guid callerId)
     {
-        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeCustomerReferenceFields: true, asNoTracking: false);
         if (customerSettings == null) customerSettings = new CustomerSettings(organizationId, callerId);
 
         if (string.IsNullOrWhiteSpace(name))
@@ -65,7 +65,7 @@ public class CustomerSettingsService : ICustomerSettingsService
     public async Task<CustomerReferenceFieldDTO?> DeleteCustomerReferenceFieldsAsync(Guid organizationId,
         int customerReferenceFieldId)
     {
-        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeCustomerReferenceFields: true, asNoTracking: false);
         if (customerSettings == null) return null;
 
         var customerReferenceField = customerSettings.RemoveCustomerReferenceField(customerReferenceFieldId);
@@ -81,14 +81,13 @@ public class CustomerSettingsService : ICustomerSettingsService
         if (@operator == null)
             throw new ArgumentException($"No operator exists with ID {operatorId}");
 
-        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeOperator:true, includeCustomerOperatorAccounts:true, asNoTracking: false);
 
         if (customerSettings == null) customerSettings = new CustomerSettings(organizationId, callerId);
 
         var operatorAccount =
             customerSettings.AddCustomerOperatorAccount(accountNumber, accountName, @operator, callerId, connectedOrganizationNumber);
         
-
         if (customerSettings.Id > 0)
             await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSettings);
         else
@@ -103,7 +102,7 @@ public class CustomerSettingsService : ICustomerSettingsService
         if (@operator == null)
             throw new ArgumentException($"No operator exists with ID {operatorId}");
 
-        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeOperator:true, includeCustomerOperatorAccounts: true, asNoTracking: false);
         if (customerSettings == null) return;
         customerSettings.DeleteCustomerOperatorAccountAsync(accountNumber, @operator);
         await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSettings);
@@ -112,7 +111,7 @@ public class CustomerSettingsService : ICustomerSettingsService
     public async Task<IEnumerable<CustomerOperatorAccountDTO>> GetAllOperatorAccountsForCustomerAsync(
         Guid organizationId)
     {
-        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeCustomerOperatorAccounts: true, asNoTracking: true);
         return _mapper.Map<List<CustomerOperatorAccountDTO>>(customerSettings?.CustomerOperatorSettings.SelectMany(o => o.CustomerOperatorAccounts).OrderBy(o => o.AccountName));
     }
 
@@ -123,7 +122,8 @@ public class CustomerSettingsService : ICustomerSettingsService
         if (@operator == null)
             throw new ArgumentException($"No operator exists with ID {operatorId}");
 
-        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeOperator: true,
+            includeAvailableSubscriptionProducts: true, includeGlobalSubscriptionProduct: true, includeDataPackages: true, asNoTracking: false);
 
         if (customerSettings == null) customerSettings = new CustomerSettings(organizationId, callerId);
 
@@ -142,7 +142,7 @@ public class CustomerSettingsService : ICustomerSettingsService
     public async Task<CustomerSubscriptionProductDTO?> DeleteOperatorSubscriptionProductForCustomerAsync(
         Guid organizationId, int subscriptionId)
     {
-        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeAvailableSubscriptionProducts: true, includeOperator: true, asNoTracking: false);
         if (customerSettings == null)
             throw new ArgumentException($"Customer has no customer settings for id {organizationId}");
 
@@ -158,7 +158,7 @@ public class CustomerSettingsService : ICustomerSettingsService
     public async Task<CustomerSubscriptionProductDTO> UpdateSubscriptionProductForCustomerAsync(Guid organizationId,
         CustomerSubscriptionProductDTO subscriptionProduct)
     {
-        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeGlobalSubscriptionProduct: true, includeDataPackages: true, asNoTracking: false);
         if (customerSettings == null)
             throw new ArgumentException($"Customer has no customer settings for id {organizationId}");
 
@@ -170,7 +170,7 @@ public class CustomerSettingsService : ICustomerSettingsService
     public async Task<IList<CustomerSubscriptionProductDTO>> GetAllCustomerSubscriptionProductsAsync(
         Guid organizationId)
     {
-        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeDataPackages: true, asNoTracking: true);
         if (customerSettings == null) return new List<CustomerSubscriptionProductDTO>();
         var customerSubscriptionProducts =
             customerSettings.CustomerOperatorSettings.SelectMany(o => o.AvailableSubscriptionProducts);
@@ -182,7 +182,7 @@ public class CustomerSettingsService : ICustomerSettingsService
 
     public async Task<IList<GlobalSubscriptionProductDTO>> GetAllOperatorSubscriptionProductAsync()
     {
-        var operatorsSubscriptionProduct = await _customerSettingsRepository.GetAllOperatorSubscriptionProducts();
+        var operatorsSubscriptionProduct = await _customerSettingsRepository.GetAllOperatorSubscriptionProducts(true);
         List<GlobalSubscriptionProductDTO> operatorSubscriptionProducts = new();
         operatorSubscriptionProducts.AddRange(
             _mapper.Map<List<GlobalSubscriptionProductDTO>>(operatorsSubscriptionProduct?.OrderBy(p => p.SubscriptionName)));
@@ -195,7 +195,7 @@ public class CustomerSettingsService : ICustomerSettingsService
         var @operator = await _operatorRepository.GetOperatorAsync(standardProduct.OperatorId);
         if (@operator == null) throw new InvalidOperatorIdInputDataException(standardProduct.OperatorId, Guid.Parse("d1f782a4-248d-4d14-9a17-af96106e5c91"));
 
-        var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeOperator: true, includeStandardPrivateSubscriptionProduct: true, asNoTracking: false);
 
         if (customerSetting == null) throw new CustomerSettingsException($"Missing customer settings for customer with id: {organizationId}",Guid.Parse("2d376d22-980b-43af-8f5b-543c0a66518c"));
 
@@ -212,7 +212,7 @@ public class CustomerSettingsService : ICustomerSettingsService
 
     public async Task<IList<CustomerStandardPrivateSubscriptionProductDTO>> GetStandardPrivateSubscriptionProductsAsync(Guid organizationId)
     {
-        var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeOperator: true, includeDataPackages: true, includeStandardPrivateSubscriptionProduct: true, asNoTracking: true);
         
         if (customerSetting == null) return new List<CustomerStandardPrivateSubscriptionProductDTO>();
             
@@ -237,7 +237,7 @@ public class CustomerSettingsService : ICustomerSettingsService
         if (@operator == null) throw new InvalidOperatorIdInputDataException(operatorId, Guid.Parse("1ed448d7-ad4f-4971-96a4-f2d39c554c94"));
 
 
-        var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId);
+        var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeOperator: true, includeStandardPrivateSubscriptionProduct: true, asNoTracking: false);
         if (customerSetting == null) throw new CustomerSettingsException($"Missing customer settings for customer with id: {organizationId}", Guid.Parse("574e9a9b-a9c8-4a5d-836b-da81199cedc2"));
 
 
