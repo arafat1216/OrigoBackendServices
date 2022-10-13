@@ -13,7 +13,7 @@ namespace Common.Utilities
         /// Validate currency code (ISO-4217)
         /// </summary>
         /// <param name="currencyCode">Upper case</param>
-        /// <returns></returns>
+        /// <returns>Currency code is valid or not</returns>
         public static bool Validate(string currencyCode)
         {
             
@@ -25,10 +25,10 @@ namespace Common.Utilities
 
 
         /// <summary>
-        /// Get currency code by region/country code (ISO-3166)
+        /// Get currency code by region/country code 
         /// </summary>
-        /// <param name="regionCode"></param>
-        /// <returns></returns>
+        /// <param name="regionCode">Region/Country code (ISO-3166)</param>
+        /// <returns>Currency code(ISO-4217), return empty if region/country code is invalid</returns>
         public static string GetCurrencyCode(string regionCode)
         {
             try
