@@ -80,11 +80,12 @@ public class UsersController : ControllerBase
     /// <param name="search"></param>
     /// <param name="page"></param>
     /// <param name="limit"></param>
+    /// <param name="onlyNames">Will only return the users with the id and name</param>
     /// <returns></returns>
     [HttpGet]
     [ProducesResponseType(typeof(PagedModel<User>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<PagedModel<User>>> GetAllUsers([FromRoute] Guid customerId, [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString, CancellationToken cancellationToken, [FromQuery(Name = "q")] string? search, int page = 1, int limit = 25)
+    public async Task<ActionResult> GetAllUsers([FromRoute] Guid customerId, [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString, CancellationToken cancellationToken, [FromQuery(Name = "q")] string? search, int page = 1, int limit = 25)
     {
         FilterOptionsForUser? filterOptions = null;
         if (!string.IsNullOrEmpty(filterOptionsAsJsonString))

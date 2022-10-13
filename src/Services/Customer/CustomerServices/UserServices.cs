@@ -807,5 +807,10 @@ namespace CustomerServices
 
             return _mapper.Map<UserDTO>(user);
         }
+
+        public async Task<List<UserNamesDTO>> GetAllUsersWithNameOnly(Guid customerId, CancellationToken cancellationToken)
+        {
+            return await _organizationRepository.GetAllUsersWithNameOnly(customerId, cancellationToken);
+        }
     }
 }

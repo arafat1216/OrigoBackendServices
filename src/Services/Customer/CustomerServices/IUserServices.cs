@@ -12,7 +12,14 @@ namespace CustomerServices
     public interface IUserServices
     {
         Task<OrganizationUserCount?> GetUsersCountAsync(Guid customerId, Guid[]? assignedToDepartment, string[]? role);        
-        Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 25);
+        Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100);
+        /// <summary>
+        /// Gets a list of all users for a customer. The list only contains user id and full name and is sorted by userid so we can do a faster lookup.
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<List<UserNamesDTO>> GetAllUsersWithNameOnly(Guid customerId, CancellationToken cancellationToken);
         Task<UserDTO> GetUserWithRoleAsync(Guid customerId, Guid userId);
         Task<UserDTO> GetUserWithRoleAsync(Guid userId);
         Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName, string email,

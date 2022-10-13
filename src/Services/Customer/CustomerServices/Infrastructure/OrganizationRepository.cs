@@ -688,5 +688,17 @@ namespace CustomerServices.Infrastructure
                             .ToListAsync();
             return organizationList.Select(o => o.OrgId).ToList();
         }
+
+        public async Task<List<UserNamesDTO>> GetAllUsersWithNameOnly(Guid customerId, CancellationToken cancellationToken)
+        {
+            var users = _customerContext.Users
+                .Include(u => u.Customer)
+                .Where(u => u.Customer.OrganizationId == customerId)
+                .OrderBy(u => u.UserId)
+                .AsNoTracking()
+                .Select(u => new UserNamesDTO { UserId = u.UserId, UserName = $"{u.FirstName} {u.LastName}" });
+
+            return await users.ToListAsync(cancellationToken);
+        }
     }
 }

@@ -311,5 +311,6 @@ namespace CustomerServices.Models
 
         Task<Organization?> GetOrganizationByTechstepCustomerIdAsync(long techstepCustomerId);
         Task<IList<Guid>> GetOrganizationIdsForPartnerAsync(Guid partnerId);
+        Task<List<UserNamesDTO>> GetAllUsersWithNameOnly(Guid customerId, CancellationToken cancellationToken);
     }
 }

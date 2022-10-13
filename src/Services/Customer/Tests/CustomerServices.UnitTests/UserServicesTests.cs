@@ -518,6 +518,23 @@ public class UserServicesTests
 
     [Fact]
     [Trait("Category", "UnitTest")]
+    public async Task GetAllUsers_WithOnlyNames()
+    {
+        // Arrange
+        await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
+        var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>()),
+            Mock.Of<IOktaServices>(), _mapper, Mock.Of<IUserPermissionServices>(), Mock.Of<IEmailService>());
+
+        // Act
+        var users = await userServices.GetAllUsersWithNameOnly(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, new CancellationToken());
+
+        Assert.Equal(4, users.Count);
+        Assert.Equal("Robert De Niro", users[0].UserName);
+        Assert.Equal(UnitTestDatabaseSeeder.USER_FIVE_ID, users[0].UserId);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
     public async Task GetAllUsers_OffboardUsers()
     {
         // Arrange
