@@ -100,7 +100,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var user = await HttpClient.GetFromJsonAsync<UserDTO>($"{_options.ApiPath}/{customerId}/users/{userId}");
+                var user = await HttpClient.GetFromJsonAsync<UserDTO>($"{_options.ApiPath}/users/{userId}");
 
                 if (user == null)
                 {
@@ -112,7 +112,7 @@ namespace OrigoApiGateway.Services
                 if (customerId != null)
                 {
                     var productPermissions = await _productCatalogServices.GetProductPermissionsForOrganizationAsync(customerId.Value);
-                    var productPermissionsMainOrganization = await _productCatalogServices.GetProductPermissionsForOrganizationAsync(mainOrganizationId);                                        new List<string>();
+                    var productPermissionsMainOrganization = await _productCatalogServices.GetProductPermissionsForOrganizationAsync(mainOrganizationId);
                     var permissionsWithoutProductPermissions = permissions.Except(productPermissionsMainOrganization);
                     permissions = permissionsWithoutProductPermissions.Concat(productPermissions).ToList();
                 }
