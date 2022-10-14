@@ -1,9 +1,7 @@
 ﻿using AssetServices.DomainEvents;
-using AssetServices.Exceptions;
 using Common.Seedwork;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace AssetServices.Models

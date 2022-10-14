@@ -10,6 +10,7 @@ namespace AssetServices.Models
     {
         [Required]
         public Guid OrganizationId { get; set; }
+
         [Required]
         public int Count { get; set; }
     }

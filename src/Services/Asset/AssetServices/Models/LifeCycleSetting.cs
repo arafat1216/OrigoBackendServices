@@ -23,6 +23,7 @@ public class LifeCycleSetting : Entity
     ///     The external uniquely identifying id across systems.
     /// </summary>
     public Guid ExternalId { get; private set; } = Guid.NewGuid();
+
     /// <summary>
     ///     Is buyout feature on or off for this customer.
     /// </summary>

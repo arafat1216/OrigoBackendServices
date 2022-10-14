@@ -1,22 +1,33 @@
 ﻿using AssetServices.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AssetServices.Infrastructure.EntityConfiguration;
 
-internal class AssetConfiguration : IEntityTypeConfiguration<Models.Asset>
+internal class AssetConfiguration : EntityBaseConfiguration<Asset>
 {
-    private readonly bool _isSqLite;
-
-    public AssetConfiguration(bool isSqLite)
+    public AssetConfiguration(bool isSqLite) : base(isSqLite)
     {
-        _isSqLite = isSqLite;
     }
 
-    public void Configure(EntityTypeBuilder<Models.Asset> builder)
+
+    /// <inheritdoc/>
+    public override void Configure(EntityTypeBuilder<Asset> builder)
     {
-        builder.Property(s => s.LastUpdatedDate)
-            .HasDefaultValueSql(_isSqLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
-        builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
+        // Call the parent that configures the shared properties from the inherited 'Entity'-class
+        base.Configure(builder);
+
+
+        /*
+         * DB table configuration (keys, constraints, indexing, etc.)
+         */
+
+        builder.HasAlternateKey(entity => entity.ExternalId);
+
+
+        /*
+         * Configure properties
+         */
+
+
     }
 }

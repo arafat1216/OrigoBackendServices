@@ -19,7 +19,7 @@ public class AssetsContext : DbContext
         }
     }
 
-    public DbSet<Models.Asset> Assets => Set<Models.Asset>();
+    public DbSet<Asset> Assets => Set<Asset>();
     public DbSet<MobilePhone> MobilePhones => Set<MobilePhone>();
     public DbSet<Tablet> Tablets => Set<Tablet>();
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
@@ -27,6 +27,8 @@ public class AssetsContext : DbContext
     public DbSet<CustomerLabel> CustomerLabels => Set<CustomerLabel>();
     public DbSet<User> Users => Set<User>();
     public DbSet<CustomerSettings> CustomerSettings => Set<CustomerSettings>();
+
+    /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new AssetConfiguration(IsSQLite));
@@ -34,5 +36,8 @@ public class AssetsContext : DbContext
         modelBuilder.ApplyConfiguration(new SalaryDeductionTransactionConfiguration(IsSQLite));
         modelBuilder.ApplyConfiguration(new LifeCycleSettingConfiguration(IsSQLite));
         modelBuilder.ApplyConfiguration(new CustomerSettingConfiguration(IsSQLite));
+        
+        
+        modelBuilder.ApplyConfiguration(new UserConfiguration(IsSQLite));
     }
 }

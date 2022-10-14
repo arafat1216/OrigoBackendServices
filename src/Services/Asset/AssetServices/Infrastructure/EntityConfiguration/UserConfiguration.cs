@@ -1,18 +1,17 @@
 ﻿using AssetServices.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AssetServices.Infrastructure.EntityConfiguration
 {
-    internal class LifeCycleSettingConfiguration : EntityBaseConfiguration<LifeCycleSetting>
+    internal class UserConfiguration : EntityBaseConfiguration<User>
     {
-        public LifeCycleSettingConfiguration(bool isSqLite) : base(isSqLite)
+        public UserConfiguration(bool isSqLite) : base(isSqLite)
         {
         }
 
 
         /// <inheritdoc/>
-        public override void Configure(EntityTypeBuilder<LifeCycleSetting> builder)
+        public override void Configure(EntityTypeBuilder<User> builder)
         {
             // Call the parent that configures the shared properties from the inherited 'Entity'-class
             base.Configure(builder);
@@ -22,15 +21,14 @@ namespace AssetServices.Infrastructure.EntityConfiguration
              * DB table configuration (keys, constraints, indexing, etc.)
              */
 
-            builder.HasAlternateKey(entity => entity.ExternalId); 
+            builder.HasAlternateKey(entity => entity.ExternalId);
 
 
             /*
              * Configure properties
              */
 
-            builder.Property(a => a.MinBuyoutPrice)
-                   .HasColumnType("decimal(18,2)");
+            // Add as needed.
         }
     }
 }

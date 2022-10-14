@@ -27,14 +27,17 @@ public class AssetLifecycle : Entity, IAggregateRoot
     /// The external uniquely identifying id across systems.
     /// </summary>
     public Guid ExternalId { get; private set; } = Guid.NewGuid();
+
     /// <summary>
     /// The customer for this asset lifecycle.
     /// </summary>
     public Guid CustomerId { get; init; }
+
     /// <summary>
     /// The name/reference of the contract signed for these asset lifecycles.
     /// </summary>
     public string ContractReferenceName { get; init; } = string.Empty;
+
     /// <summary>
     /// An alias describing this asset lifecycle.
     /// </summary>
@@ -43,15 +46,19 @@ public class AssetLifecycle : Entity, IAggregateRoot
         get => _alias;
         init => _alias = value;
     }
+
     private string _alias;
+
     /// <summary>
     /// The start period for this asset lifecycle.
     /// </summary>
     public DateTime? StartPeriod { get; init; }
+
     /// <summary>
     /// The end period for this asset lifecycle.
     /// </summary>
     public DateTime? EndPeriod { get; init; }
+
     /// <summary>
     /// The purchase date of the asset lifecycle.
     /// </summary>
@@ -60,7 +67,9 @@ public class AssetLifecycle : Entity, IAggregateRoot
         get => _purchaseDate;
         init => _purchaseDate = value;
     }
+
     private DateTime _purchaseDate;
+
     /// <summary>
     /// A comment related to the asset lifecycle.
     /// </summary>
@@ -69,15 +78,19 @@ public class AssetLifecycle : Entity, IAggregateRoot
         get => _note;
         init => _note = value;
     }
+
     private string _note = string.Empty;
+
     /// <summary>
     /// A description of this asset lifecycle.
     /// </summary>
     public string Description { get; init; } = string.Empty;
+
     /// <summary>
     /// Person who purchased this Asset.
     /// </summary>
     public string PurchasedBy { get; init; } = string.Empty;
+
 
     /// <summary>
     /// The Currency code related to this asset lifecycle.

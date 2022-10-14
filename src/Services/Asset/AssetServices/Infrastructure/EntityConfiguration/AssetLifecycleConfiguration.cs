@@ -4,21 +4,39 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AssetServices.Infrastructure.EntityConfiguration;
 
-internal class AssetLifecycleConfiguration : IEntityTypeConfiguration<AssetLifecycle>
+internal class AssetLifecycleConfiguration : EntityBaseConfiguration<AssetLifecycle>
 {
-    private readonly bool _isSqLite;
-
-    public AssetLifecycleConfiguration(bool isSqLite)
+    public AssetLifecycleConfiguration(bool isSqLite) : base(isSqLite)
     {
-        _isSqLite = isSqLite;
     }
 
-    public void Configure(EntityTypeBuilder<AssetLifecycle> builder)
+
+    /// <inheritdoc/>
+    public override void Configure(EntityTypeBuilder<AssetLifecycle> builder)
     {
-        builder.Property(a => a.PaidByCompany).HasColumnType("decimal(18,2)");
-        builder.Property(a => a.OffboardBuyoutPrice).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
-        builder.Property(s => s.LastUpdatedDate)
-            .HasDefaultValueSql(_isSqLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
-        builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
+        // Call the parent that configures the shared properties from the inherited 'Entity'-class
+        base.Configure(builder);
+
+
+        /*
+         * DB table configuration (keys, constraints, indexing, etc.)
+         */
+
+        builder.HasAlternateKey(entity => entity.ExternalId);
+
+        builder.HasIndex(entity => entity.CustomerId);
+
+
+        /*
+         * Configure properties
+         */
+
+        builder.Property(a => a.PaidByCompany)
+               .HasColumnType("decimal(18,2)");
+
+        builder.Property(a => a.OffboardBuyoutPrice)
+               .HasColumnType("decimal(18,2)")
+               .HasDefaultValue(0m);
+
     }
 }
