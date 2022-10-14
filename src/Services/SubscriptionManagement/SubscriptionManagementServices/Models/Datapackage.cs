@@ -1,4 +1,6 @@
 ﻿using Common.Seedwork;
+using System.ComponentModel.DataAnnotations;
+
 namespace SubscriptionManagementServices.Models
 {
     public class DataPackage : Entity
@@ -13,7 +15,7 @@ namespace SubscriptionManagementServices.Models
             CreatedBy = callerId;
             UpdatedBy = callerId;
         }
-
+        [MaxLength(50)]
         public string DataPackageName { get; set; }
         public virtual ICollection<CustomerSubscriptionProduct>? CustomerSubscriptionProducts { get; set; }
     }

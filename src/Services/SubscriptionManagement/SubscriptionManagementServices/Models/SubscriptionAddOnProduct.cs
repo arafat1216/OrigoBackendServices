@@ -1,4 +1,5 @@
 ﻿using Common.Seedwork;
+using System.ComponentModel.DataAnnotations;
 
 namespace SubscriptionManagementServices.Models
 {
@@ -14,7 +15,7 @@ namespace SubscriptionManagementServices.Models
             UpdatedBy = callerId;
             CreatedBy = callerId;
         }
-
+        [MaxLength(50)]
         public string AddOnProductName { get; set; }
 
         public IReadOnlyCollection<TransferToBusinessSubscriptionOrder>? TransferToBusinessSubscriptionOrders { get; set; }

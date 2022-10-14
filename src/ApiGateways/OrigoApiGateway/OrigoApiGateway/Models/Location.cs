@@ -12,6 +12,7 @@ namespace OrigoApiGateway.Models
         public string Address2 { get; set; }
         public string PostalCode { get; set; }
         public string City { get; set; }
+        [MaxLength(2)]
         public string Country { get; set; }
         public RecipientType RecipientType { get; set; }
     }

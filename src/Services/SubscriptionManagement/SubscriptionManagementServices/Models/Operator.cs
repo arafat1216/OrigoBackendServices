@@ -1,4 +1,5 @@
 ﻿using Common.Seedwork;
+using System.ComponentModel.DataAnnotations;
 
 namespace SubscriptionManagementServices.Models
 {
@@ -26,8 +27,9 @@ namespace SubscriptionManagementServices.Models
             OperatorName = operatorName;
             Country = country;
         }
-
+        [MaxLength(50)]
         public string OperatorName { get; set; }
+        [MaxLength(2)]
         public string Country { get; set; }
         public virtual ICollection<SubscriptionProduct>? SubscriptionProducts { get; set; }
         public virtual ICollection<CustomerOperatorAccount>? CustomerOperatorAccounts { get; set; }

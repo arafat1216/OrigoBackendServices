@@ -16,6 +16,7 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
         /// <summary>
         ///     Reference for account
         /// </summary>
+        [MaxLength(15)]
         public string? OperatorAccountPhoneNumber { get; set; }
 
         /// <summary>
@@ -31,6 +32,7 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
         /// <summary>
         ///     Data package name
         /// </summary>
+        [MaxLength(50)]
         public string? DataPackage { get; set; }
         /// <summary>
         ///     Date of transfer
@@ -43,6 +45,7 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
         /// <summary>
         ///     Sim card number
         /// </summary>
+        [MaxLength(22)]
         public string? SimCardNumber { get; set; }
 
         /// <summary>

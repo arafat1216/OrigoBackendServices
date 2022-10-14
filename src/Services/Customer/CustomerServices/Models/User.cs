@@ -4,6 +4,7 @@ using CustomerServices.DomainEvents;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.Json.Serialization;
 
@@ -44,12 +45,14 @@ namespace CustomerServices.Models
         public Guid UserId { get; set; }
         public string FirstName { get; protected set; }
         public string LastName { get; protected set; }
+        [MaxLength(320)]
         public string Email { get; protected set; }
         public DateTime? LastWorkingDay { get; protected set; } = null;
 
         /// <summary>
         /// TODO: this will be remove in a later version
         /// </summary>
+        [MaxLength(15)]
         public string MobileNumber { get; protected set; }
 
         /// <summary>

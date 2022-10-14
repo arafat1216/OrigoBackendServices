@@ -14,6 +14,7 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
         /// <summary>
         /// The mobile number to be transferred
         /// </summary>
+        [MaxLength(15)]
         public string MobileNumber { get; set; }
 
         /// <summary>
@@ -34,11 +35,13 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
         /// <summary>
         ///     Data package name
         /// </summary>
+        [MaxLength(50)]
         public string? DataPackage { get; set; }
 
         /// <summary>
         ///     SIM card number
         /// </summary>
+        [MaxLength(22)]
         public string? SIMCardNumber { get; set; }
 
         /// <summary>
@@ -62,6 +65,7 @@ namespace OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request
         public List<string> AddOnProducts { get; set; } = new List<string>();
 
         public List<NewCustomerReferenceValue> CustomerReferenceFields { get; set; } = new();
+        [MaxLength(15)]
         public string? OperatorAccountPhoneNumber { get; set; }
         public NewOperatorAccountRequested? NewOperatorAccount { get; set; }
     }

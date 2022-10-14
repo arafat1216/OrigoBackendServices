@@ -19,6 +19,11 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             builder.Property(s => s.CreatedDate).HasDefaultValueSql(_isSqlLite ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()");
 
             builder.HasOne(m => m.UserInfo);
+
+            builder.Property(e => e.MobileNumber)
+               .HasComment("A phone-number using E.164 format.")
+               .HasMaxLength(15)
+               .IsUnicode(false);
         }
     }
 }

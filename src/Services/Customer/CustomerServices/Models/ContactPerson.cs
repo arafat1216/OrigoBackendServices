@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Common.Seedwork;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,9 +25,9 @@ namespace CustomerServices.Models
 
         public string FirstName { get; private set; }
         public string LastName { get; private set; }
-
+        [MaxLength(320)]
         public string Email { get; private set; }
-
+        [MaxLength(15)]
         public string PhoneNumber { get; private set; }
 
         protected override IEnumerable<object> GetEqualityComponents()

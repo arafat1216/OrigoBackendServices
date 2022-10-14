@@ -17,6 +17,7 @@ namespace OrigoApiGateway.Models
         /// <example> US </example>
         [RegularExpression("^[a-zA-Z]{2}")] // Exactly 2 characters
         [Required]
+        [MaxLength(2)]
         public string Country { get; set; }
         public bool IsPrimary { get; set; } = false;
     }

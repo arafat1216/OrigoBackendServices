@@ -2,6 +2,7 @@
 using Common.Seedwork;
 using CustomerServices.DomainEvents;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 #nullable enable
@@ -25,6 +26,7 @@ namespace CustomerServices.Models
         public string Address2 { get; protected set; } = string.Empty;
         public string PostalCode { get; protected set; } = string.Empty;
         public string City { get; protected set; } = string.Empty;
+        [MaxLength(2)]
         public string Country { get; protected set; } = string.Empty;
         public bool IsPrimary { get; protected set; } = false;
 

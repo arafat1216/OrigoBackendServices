@@ -31,6 +31,7 @@ namespace Customer.API.WriteModels
         /// </summary>
         /// <example> US </example>
         [RegularExpression("^[a-zA-Z]{2}")] // Exactly 2 characters
+        [MaxLength(2)]
         public string Country
         {
             get { return _country; }

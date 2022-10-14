@@ -1,5 +1,5 @@
 ﻿using Common.Seedwork;
-
+using System.ComponentModel.DataAnnotations;
 
 namespace SubscriptionManagementServices.Models
 {
@@ -32,7 +32,9 @@ namespace SubscriptionManagementServices.Models
         }
 
         public Guid OrganizationId { get; set; }
+        [MaxLength(50)]
         public string AccountNumber { get; set; }
+        [MaxLength(40)]
         public string AccountName { get; set; }
         public virtual Operator Operator { get; set; }
         public int OperatorId { get; set; }

@@ -10,7 +10,7 @@
         public string Postcode { get; init; }
 
         public string City { get; init; }
-
+        [MaxLength(2)]
         public string Country { get; init; }
     }
 }

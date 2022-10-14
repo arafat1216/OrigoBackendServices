@@ -23,6 +23,7 @@ namespace OrigoApiGateway.Models
         [JsonIgnore]
         [Obsolete("This is not used..")]
         [EmailAddress]
+        [MaxLength(320)]
         public new string? ContactEmail { get; private set; } = null;
 
         // Partner's can't have another partner.

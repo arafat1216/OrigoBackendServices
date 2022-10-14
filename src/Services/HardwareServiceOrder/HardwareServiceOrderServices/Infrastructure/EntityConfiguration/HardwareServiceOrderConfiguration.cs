@@ -26,7 +26,7 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
                v => v
             );
 
-
+            
             /*
              * DB table configuration (keys, constraints, indexing, etc.)
              */
@@ -82,6 +82,11 @@ namespace HardwareServiceOrderServices.Infrastructure.EntityConfiguration
                  */
 
                 builder.HasIndex(e => e.UserId);
+
+                builder.Property(e => e.PhoneNumber)
+                       .HasComment("A phone-number using E.164 format.")
+                       .HasMaxLength(15)
+                       .IsUnicode(false);
             });
 
 

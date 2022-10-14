@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Common.Seedwork;
 using SubscriptionManagementServices.Types;
 
@@ -12,6 +13,7 @@ namespace SubscriptionManagementServices.Models
         }
 
         public PrivateSubscription UserInfo { get; set; }
+        [MaxLength(15)]
         public string MobileNumber { get; set; }
         public string OperatorName { get; set; }
         public string NewSubscription { get; set; }

@@ -77,6 +77,7 @@ namespace CustomerServices.Models
         /// <summary>
         ///     Email where notification will ben sent for payroll information.
         /// </summary>
+        [MaxLength(320)]
         public string PayrollContactEmail { get; protected set; } = string.Empty;
         /// <summary>
         /// Customers Techstep id.

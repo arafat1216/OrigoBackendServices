@@ -1,6 +1,7 @@
 ﻿using Common.Seedwork;
 using SubscriptionManagementServices.DomainEvents;
 using SubscriptionManagementServices.Types;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SubscriptionManagementServices.Models
@@ -22,7 +23,7 @@ namespace SubscriptionManagementServices.Models
             CreatedBy = callerId;
             AddDomainEvent(new ActivateSimOrderCreatedDomainEvent(this, callerId));
         }
-
+        [MaxLength(15)]
         public string MobileNumber { get; set; }
         public string OperatorName { get; set; }
         public string SimCardNumber { get; set; } 

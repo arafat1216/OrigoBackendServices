@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Common.Seedwork;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +14,7 @@ namespace CustomerServices.Models
         public string PostCode { get; private set; }
 
         public string City { get; private set; }
+        [MaxLength(2)]
         public string Country { get; private set; }
 
         public Address() { }

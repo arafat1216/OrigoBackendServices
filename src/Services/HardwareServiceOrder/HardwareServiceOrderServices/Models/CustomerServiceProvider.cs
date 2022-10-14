@@ -20,7 +20,7 @@ namespace HardwareServiceOrderServices.Models
 
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ContactDetails"/>-class.
+        ///     Initializes a new instance of the <see cref="CustomerServiceProvider"/>-class.
         /// </summary>
         /// <param name="organizationId"> The organization/customer identifier. </param>
         /// <param name="serviceProviderId"> The service-provider identifier. </param>
