@@ -8,6 +8,7 @@ using Common.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq.Protected;
+using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
 
 namespace OrigoApiGateway.Tests;
@@ -55,6 +56,13 @@ public class UserPermissionsTests
             .ReturnsAsync(new List<string> { "EmployeeAccess", "ProductPermission1" });
 
         var cacheServiceMock = new Mock<ICacheService>();
+
+        cacheServiceMock.Setup(m => m.Get<IEnumerable<UserPermissionsDTO>>(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(value: null);
+        cacheServiceMock.Setup(m => m.Get<IEnumerable<string>>(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(value: null);
+        cacheServiceMock.Setup(m => m.Save(It.IsAny<string>(), It.IsAny<It.IsAnyType>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.FromResult(default(object)));
 
         var userPermissionService = new UserPermissionService(Mock.Of<ILogger<UserPermissionService>>(),
             mockFactory.Object, optionsMock.Object, Mock.Of<IMapper>(),

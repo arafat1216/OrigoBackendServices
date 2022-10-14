@@ -13,7 +13,7 @@ public interface ICacheService
     /// <param name="stateStoreName"></param>
     /// <typeparam name="T">The fetched value will be serialized to type "T"</typeparam>
     /// <returns></returns>
-    Task<T> Get<T>(string key, string stateStoreName = "statestore");
+    Task<T?> Get<T>(string key, string stateStoreName = "statestore");
 
     /// <summary>
     /// Cache the value of type T against the provided key

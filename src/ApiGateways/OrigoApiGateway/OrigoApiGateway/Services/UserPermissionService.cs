@@ -30,12 +30,12 @@ public class UserPermissionService : IUserPermissionService
         _cacheService = cacheService;
     }
 
-    private async Task<IList<T>> GetFromCache<T>(string key, Func<Task<IEnumerable<T>>> lambda)
+    private async Task<IEnumerable<T>> GetFromCache<T>(string key, Func<Task<IEnumerable<T>>> lambda)
     {
-        var values = await _cacheService.Get<IList<T>>(key);
+        var values = await _cacheService.Get<IEnumerable<T>>(key);
         if (values is null)
         {
-            values = (await lambda()).ToList();
+            values = await lambda();
             if (values.Any())
             {
                 await _cacheService.Save(key, values, $"{5 * 60}");

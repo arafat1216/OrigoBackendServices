@@ -13,7 +13,7 @@ public class CacheService : ICacheService
     }
 
     /// <inheritdoc />
-    public async Task<T> Get<T>(string key, string stateStoreName = "statestore")
+    public async Task<T?> Get<T>(string key, string stateStoreName = "statestore")
     {
         return await _daprClient.GetStateAsync<T>(stateStoreName, key);
     }
