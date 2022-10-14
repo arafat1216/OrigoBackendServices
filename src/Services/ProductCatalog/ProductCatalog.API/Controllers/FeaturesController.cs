@@ -6,7 +6,6 @@ using System.Text.Json;
 namespace ProductCatalog.API.Controllers
 {
     [ApiController]
-    //[ApiVersion("2.0-RC1", Deprecated = false)]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
     [SwaggerTag("Actions for handling features, permission sets and corresponding translations.")]
@@ -27,8 +26,8 @@ namespace ProductCatalog.API.Controllers
         ///     Resolves all permission-nodes for a given organization.
         /// </summary>
         /// <remarks>
-        ///     Resolves a given organizations active orders, and based upon this it returns a list of all the permission nodes that the 
-        ///     organization currently has access to.
+        ///     Resolves a given organizations active orders, and based upon this it returns a list of all the permission nodes (features)
+        ///     that the organization currently has access to.
         /// </remarks>
         /// <param name="organizationId"> The organization you are retrieving permission-nodes for. </param>
         /// <returns> A list containing all permission-nodes for the given organization. </returns>

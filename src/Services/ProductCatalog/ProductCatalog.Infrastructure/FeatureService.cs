@@ -41,7 +41,7 @@ namespace ProductCatalog.Infrastructure
         public async Task<bool> ValidateFeatureListRequirements(IEnumerable<int> newFeatureIds)
         {
             var newFeatureIdsAsHash = newFeatureIds.ToHashSet();
-            var newFeatures = await _unitOfWork.Features.GetAsync(filter: e => newFeatureIdsAsHash.Contains(e.Id));
+            var newFeatures = await _unitOfWork.Features.GetAsync(filter: e => newFeatureIdsAsHash.Contains(e.Id), asNoTracking: true);
 
             // Make sure all products actually exist by comparing the list counts.
             if (newFeatureIds.Count() != newFeatures.Count())

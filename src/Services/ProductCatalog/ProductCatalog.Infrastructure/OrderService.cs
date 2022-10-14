@@ -30,13 +30,13 @@ namespace ProductCatalog.Infrastructure
             IEnumerable<Order>? result;
 
             if (organizationId is null && partnerId is null) // Both are null
-                result = await _unitOfWork.Orders.GetAsync();
+                result = await _unitOfWork.Orders.GetAsync(asNoTracking: true);
             else if (partnerId is null) // One is null, so the other one isn't
-                result = await _unitOfWork.Orders.GetAsync(e => e.OrganizationId == organizationId);
+                result = await _unitOfWork.Orders.GetAsync(e => e.OrganizationId == organizationId, asNoTracking: true);
             else if (organizationId is null) // One is null, so the other one isn't
-                result = await _unitOfWork.Orders.GetAsync(e => e.Product!.PartnerId == partnerId);
+                result = await _unitOfWork.Orders.GetAsync(e => e.Product!.PartnerId == partnerId, asNoTracking: true);
             else
-                result = await _unitOfWork.Orders.GetAsync(e => e.OrganizationId == organizationId && e.Product!.PartnerId == partnerId);
+                result = await _unitOfWork.Orders.GetAsync(e => e.OrganizationId == organizationId && e.Product!.PartnerId == partnerId, asNoTracking: true);
 
             return new EntityAdapter().ToDTO(result);
         }
@@ -46,29 +46,29 @@ namespace ProductCatalog.Infrastructure
         public async Task<IEnumerable<int>> GetOrderedProductIdsAsync(Guid? organizationId, Guid? partnerId)
         {
             if (organizationId is null && partnerId is null) // Both are null
-                return await _unitOfWork.Orders.GetProductIdsFromOrdersAsync();
+                return await _unitOfWork.Orders.GetProductIdsFromOrdersAsync(true);
             else if (partnerId is null) // One is null, so the other one isn't
-                return await _unitOfWork.Orders.GetProductIdsFromOrdersAsync(e => e.OrganizationId == organizationId);
+                return await _unitOfWork.Orders.GetProductIdsFromOrdersAsync(true, order => order.OrganizationId == organizationId);
             else if (organizationId is null) // One is null, so the other one isn't
-                return await _unitOfWork.Orders.GetProductIdsFromOrdersAsync(e => e.Product!.PartnerId == partnerId);
+                return await _unitOfWork.Orders.GetProductIdsFromOrdersAsync(true, order => order.Product!.PartnerId == partnerId);
             else // None are null
-                return await _unitOfWork.Orders.GetProductIdsFromOrdersAsync(e => e.Product!.PartnerId == partnerId && e.OrganizationId == organizationId);
+                return await _unitOfWork.Orders.GetProductIdsFromOrdersAsync(true, order => order.Product!.PartnerId == partnerId && order.OrganizationId == organizationId);
         }
 
 
         // TODO: Rework later to support partners (so a partner that's adding or removing products can't access anything that's purchased through another partner)
-        public async Task<IEnumerable<ProductGet>> GetOrderedProductsAsync(Guid? organizationId, Guid? partnerId)
+        public async Task<IEnumerable<ProductGet>> GetOrderedProductsAsync(bool includeTranslations, Guid? organizationId, Guid? partnerId)
         {
             IEnumerable<Product>? result;
 
             if (organizationId is null && partnerId is null) // Both are null
-                result = await _unitOfWork.Orders.GetProductsFromOrdersAsync();
+                result = await _unitOfWork.Orders.GetProductsFromOrdersAsync(includeTranslations, true);
             else if (partnerId is null) // One is null, so the other one isn't
-                result = await _unitOfWork.Orders.GetProductsFromOrdersAsync(e => e.OrganizationId == organizationId);
+                result = await _unitOfWork.Orders.GetProductsFromOrdersAsync(includeTranslations, true, e => e.OrganizationId == organizationId);
             else if (organizationId is null) // One is null, so the other one isn't
-                result = await _unitOfWork.Orders.GetProductsFromOrdersAsync(e => e.Product!.PartnerId == partnerId);
+                result = await _unitOfWork.Orders.GetProductsFromOrdersAsync(includeTranslations, true, e => e.Product!.PartnerId == partnerId);
             else // None are null
-                result = await _unitOfWork.Orders.GetProductsFromOrdersAsync(e => e.Product!.PartnerId == partnerId && e.OrganizationId == organizationId);
+                result = await _unitOfWork.Orders.GetProductsFromOrdersAsync(includeTranslations, true, e => e.Product!.PartnerId == partnerId && e.OrganizationId == organizationId);
 
             return new EntityAdapter().ToDTO(result);
         }

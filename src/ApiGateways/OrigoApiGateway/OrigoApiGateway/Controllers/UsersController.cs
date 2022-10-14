@@ -289,7 +289,7 @@ namespace OrigoApiGateway.Controllers
                 var includeOnboarding = false;
                 if (customer.PartnerId.HasValue && customer.PartnerId != Guid.Empty)
                 {
-                    var customerOrders = await _productCatalogServices.GetOrderedProductsByPartnerAndOrganizationAsync(customer.PartnerId.Value, organizationId);
+                    var customerOrders = await _productCatalogServices.GetOrderedProductsByPartnerAndOrganizationAsync(customer.PartnerId.Value, organizationId, false);
                     includeOnboarding = customerOrders.FirstOrDefault(a => a.Id == 2) != null ? false : true;
                 }
                 var updatedUser = await _userServices.AddUserForCustomerAsync(organizationId, newUser, callerId, includeOnboarding);

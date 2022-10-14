@@ -74,7 +74,8 @@ namespace ProductCatalog.Infrastructure
         {
             var newProductIdsAsHash = newProductIds.ToHashSet();
             var newProducts = await _unitOfWork.Products.GetAsync(filter: e => newProductIdsAsHash.Contains(e.Id)
-                                                                               && e.PartnerId == partnerId);
+                                                                               && e.PartnerId == partnerId,
+                                                                  asNoTracking: true);
 
             // Make sure all products actually exist by comparing the list counts.
             if (newProductIds.Count() != newProducts.Count())

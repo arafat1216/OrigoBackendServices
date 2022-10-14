@@ -56,14 +56,20 @@ namespace ProductCatalog.API.Controllers
         /// <remarks>
         ///     Lists all products that currently has an active order. The result includes data from all partners and organizations.
         /// </remarks>
+        /// <param name="includeTranslations">
+        ///     When <c><see langword="true"/></c>, the <c>Translations</c> property is loaded/included in the retrieved data. 
+        ///     
+        ///     <para>
+        ///     This property contains all localization-values for the product. 
+        /// </para></param>
         /// <returns> A collection containing all corresponding products. </returns>
         [HttpGet("products")]
         [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsAsync()
+        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsAsync([FromQuery] bool includeTranslations = true)
         {
             try
             {
-                var result = await new OrderService().GetOrderedProductsAsync(null, null);
+                var result = await new OrderService().GetOrderedProductsAsync(includeTranslations, null, null);
 
                 return Ok(result);
             }
@@ -82,14 +88,20 @@ namespace ProductCatalog.API.Controllers
         ///     in <code><paramref name="partnerId"/></code>.
         /// </remarks>
         /// <param name="partnerId"> The partner used for filtering product-orders. </param>
+        /// <param name="includeTranslations">
+        ///     When <c><see langword="true"/></c>, the <c>Translations</c> property is loaded/included in the retrieved data. 
+        ///     
+        ///     <para>
+        ///     This property contains all localization-values for the product. 
+        /// </para></param>
         /// <returns> A collection containing all corresponding products. </returns>
         [HttpGet("products/partner/{partnerId}")]
         [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByPartnerAsync([FromRoute] Guid partnerId)
+        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByPartnerAsync([FromRoute] Guid partnerId, [FromQuery] bool includeTranslations = true)
         {
             try
             {
-                var result = await new OrderService().GetOrderedProductsAsync(null, partnerId);
+                var result = await new OrderService().GetOrderedProductsAsync(includeTranslations, null, partnerId);
 
                 return Ok(result);
             }
@@ -108,14 +120,20 @@ namespace ProductCatalog.API.Controllers
         ///     the provided <code><paramref name="organizationId"/></code>.
         /// </remarks>
         /// <param name="organizationId"> The organization to retrieve orders for. </param>
+        /// <param name="includeTranslations">
+        ///     When <c><see langword="true"/></c>, the <c>Translations</c> property is loaded/included in the retrieved data. 
+        ///     
+        ///     <para>
+        ///     This property contains all localization-values for the product. 
+        /// </para></param>
         /// <returns> A collection of all corresponding products. </returns>
         [HttpGet("products/organization/{organizationId}/")]
         [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByOrganizationAsync([FromRoute] Guid organizationId)
+        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByOrganizationAsync([FromRoute] Guid organizationId, [FromQuery] bool includeTranslations = true)
         {
             try
             {
-                var result = await new OrderService().GetOrderedProductsAsync(organizationId, null);
+                var result = await new OrderService().GetOrderedProductsAsync(includeTranslations, organizationId, null);
 
                 return Ok(result);
             }
@@ -135,14 +153,20 @@ namespace ProductCatalog.API.Controllers
         /// </remarks>
         /// <param name="partnerId"> The partner the orders are restricted to. </param>
         /// <param name="organizationId"> The organization to retrieve orders for. </param>
+        /// <param name="includeTranslations">
+        ///     When <c><see langword="true"/></c>, the <c>Translations</c> property is loaded/included in the retrieved data. 
+        ///     
+        ///     <para>
+        ///     This property contains all localization-values for the product. 
+        /// </para></param>
         /// <returns> A collection containing all corresponding products. </returns>
         [HttpGet("partner/{partnerId}/organization/{organizationId}")]
         [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByPartnerAndOrganizationAsync([FromRoute] Guid partnerId, [FromRoute] Guid organizationId)
+        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByPartnerAndOrganizationAsync([FromRoute] Guid partnerId, [FromRoute] Guid organizationId, [FromQuery] bool includeTranslations = true)
         {
             try
             {
-                var result = await new OrderService().GetOrderedProductsAsync(organizationId, partnerId);
+                var result = await new OrderService().GetOrderedProductsAsync(includeTranslations, organizationId, partnerId);
 
                 return Ok(result);
             }

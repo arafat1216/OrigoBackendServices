@@ -68,9 +68,9 @@ namespace OrigoApiGateway.Services
 
         #region Orders
 
-        public async Task<IEnumerable<ProductGet>> GetOrderedProductsByPartnerAndOrganizationAsync(Guid partnerId, Guid organizationId)
+        public async Task<IEnumerable<ProductGet>> GetOrderedProductsByPartnerAndOrganizationAsync(Guid partnerId, Guid organizationId, bool includeTranslations)
         {
-            return await GetAsync<IEnumerable<ProductGet>>($"{OrdersApiPath}/partner/{partnerId}/organization/{organizationId}", nameof(GetOrderedProductsByPartnerAndOrganizationAsync));
+            return await GetAsync<IEnumerable<ProductGet>>($"{OrdersApiPath}/partner/{partnerId}/organization/{organizationId}?includeTranslations={includeTranslations}", nameof(GetOrderedProductsByPartnerAndOrganizationAsync));
         }
 
 

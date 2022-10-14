@@ -57,8 +57,14 @@ namespace OrigoApiGateway.Services
         /// </summary>
         /// <param name="partnerId"> The partner to retrieve orders for. </param>
         /// <param name="organizationId"> The organization to retrieve orders for. </param>
+        /// <param name="includeTranslations">
+        ///     When <c><see langword="true"/></c>, the <c>Translations</c> property is loaded/included in the retrieved data. 
+        ///     
+        ///     <para>
+        ///     This property contains all localization-values for the product. 
+        /// </para></param>
         /// <returns> A collection containing all corresponding products. </returns>
-        Task<IEnumerable<ProductGet>> GetOrderedProductsByPartnerAndOrganizationAsync(Guid partnerId, Guid organizationId);
+        Task<IEnumerable<ProductGet>> GetOrderedProductsByPartnerAndOrganizationAsync(Guid partnerId, Guid organizationId, bool includeTranslations);
 
 
         /// <summary>

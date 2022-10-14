@@ -13,50 +13,36 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Repositories
         }
 
         /// <inheritdoc/>
-        /// <exception cref="ArgumentNullException"> Thrown when all parameters are <see langword="null"/>. </exception>
-        public async Task<IEnumerable<int>> GetProductIdsFromOrdersAsync(Expression<Func<Order, bool>>? filter = null)
+        public async Task<IEnumerable<int>> GetProductIdsFromOrdersAsync(bool asNoTracking, Expression<Func<Order, bool>>? filter = null)
         {
-            if (filter is null)
-            {
-                return await _context.Orders
-                                     .Select(e => e.ProductId)
-                                     .Distinct()
-                                     .ToListAsync();
-            }
-            else
-            {
-                return await _context.Orders
-                                     .Where(filter)
-                                     .Select(e => e.ProductId)
-                                     .Distinct()
-                                     .ToListAsync();
-            }
+            IQueryable<Order> query = _context.Orders;
 
+            if (filter is not null)
+                query = query.Where(filter);
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            return await query.Select(e => e.ProductId)
+                              .Distinct()
+                              .ToListAsync();
         }
 
         // TODO: Add includes for the requirements
         /// <inheritdoc/>
-        /// <exception cref="ArgumentNullException"> Thrown when all parameters are <see langword="null"/>. </exception>
-        public async Task<IEnumerable<Product>> GetProductsFromOrdersAsync(Expression<Func<Order, bool>>? filter = null)
+        public async Task<IEnumerable<Product>> GetProductsFromOrdersAsync(bool includeTranslations, bool asNoTracking, Expression<Func<Order, bool>>? filter = null)
         {
-            if (filter is null)
-            {
-                return await _context.Orders
-                                     .Include(e => e.Product!.Translations)
-                                     .Select(e => e.Product!)
-                                     .Distinct()
-                                     .ToListAsync();
-            }
-            else
-            {
-                return await _context.Orders
-                                     .Where(filter)
-                                     .Include(e => e.Product!.Translations)
-                                     .Select(e => e.Product!)
-                                     .Distinct()
-                                     .ToListAsync();
-            }
+            IQueryable<Order> query = _context.Orders;
 
+            if (filter is not null)
+                query = query.Where(filter);
+
+            if (includeTranslations)
+                query = query.Include(e => e.Product!.Translations);
+
+            return await query.Select(e => e.Product!)
+                              .Distinct()
+                              .ToListAsync();
         }
     }
 }

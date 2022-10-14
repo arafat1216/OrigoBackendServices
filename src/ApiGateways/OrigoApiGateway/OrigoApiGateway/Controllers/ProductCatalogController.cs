@@ -178,6 +178,12 @@ namespace OrigoApiGateway.Controllers
         /// </remarks>
         /// <param name="partnerId"> The partner the orders are restricted to. </param>
         /// <param name="organizationId"> The organization to retrieve orders for. </param>
+        /// <param name="includeTranslations">
+        ///     When <c><see langword="true"/></c>, the <c>Translations</c> property is loaded/included in the retrieved data. 
+        ///     
+        ///     <para>
+        ///     This property contains all localization-values for the product. 
+        /// </para></param>
         /// <returns> A collection containing all corresponding products. </returns>
         [HttpGet("partner/{partnerId}/organization/{organizationId}")]
         [SwaggerOperation(
@@ -186,7 +192,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
         [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin,Admin")]
 
-        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByPartnerAndOrganizationAsync([FromRoute] Guid partnerId, [FromRoute] Guid organizationId)
+        public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByPartnerAndOrganizationAsync([FromRoute] Guid partnerId, [FromRoute] Guid organizationId, [FromQuery] bool includeTranslations = true)
         {
             try
             {
@@ -200,7 +206,8 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-                return Ok(await _productCatalogServices.GetOrderedProductsByPartnerAndOrganizationAsync(partnerId, organizationId));
+
+                return Ok(await _productCatalogServices.GetOrderedProductsByPartnerAndOrganizationAsync(partnerId, organizationId, includeTranslations));
             }
             catch (MicroserviceErrorResponseException e)
             {
@@ -261,7 +268,7 @@ namespace OrigoApiGateway.Controllers
 
                 var customer = await _customerServices.GetCustomerAsync(organizationId);
 
-                if(customer != null && customer.PartnerId.HasValue && customer.PartnerId.Value != partnerId)
+                if (customer != null && customer.PartnerId.HasValue && customer.PartnerId.Value != partnerId)
                 {
                     _logger.LogError($"{nameof(ReplaceOrderedProductsAsync)} failed as the Customer ID: '{organizationId}' does not belong to the Parter ID: '{partnerId}'");
                     return Problem(statusCode: 500);

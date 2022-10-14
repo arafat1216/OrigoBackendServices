@@ -421,7 +421,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
 
                     var productOrderMock = new Mock<IProductCatalogServices>();
-                    productOrderMock.Setup(_ => _.GetOrderedProductsByPartnerAndOrganizationAsync(partnerId, organizationId))
+                    productOrderMock.Setup(_ => _.GetOrderedProductsByPartnerAndOrganizationAsync(partnerId,organizationId, It.IsAny<bool>()))
                       .ReturnsAsync(order);
                     services.AddSingleton(productOrderMock.Object);
 
