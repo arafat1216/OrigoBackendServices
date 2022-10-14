@@ -231,7 +231,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult> Get([FromRoute] Guid organizationId, [FromQuery] FilterOptionsForAsset filterOptions, [FromQuery(Name = "q")] string search = "", int page = 1, [Range(1, 100)] int limit = 25,
+        public async Task<ActionResult> Get([FromRoute] Guid organizationId, CancellationToken cancellationToken, [FromQuery] FilterOptionsForAsset filterOptions, [FromQuery(Name = "q")] string search = "", int page = 1, [Range(1, 100)] int limit = 25,
             [FromQuery] bool includeAsset = true, bool includeImeis = true, bool includeLabels = true, bool includeContractHolderUser = true)
         {
             try

@@ -179,7 +179,6 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
-
         public async Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId,
             CancellationToken cancellationToken, FilterOptionsForAsset filterOptions, string search = "", int page = 1,
             int limit = 25, bool includeAsset = false, bool includeImeis = false, bool includeLabels = false,

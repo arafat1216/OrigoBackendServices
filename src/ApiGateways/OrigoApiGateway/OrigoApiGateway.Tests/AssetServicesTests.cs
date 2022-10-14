@@ -18,6 +18,7 @@ using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Mappings;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
+using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
 
 namespace OrigoApiGateway.Tests;
@@ -182,7 +183,7 @@ public class AssetServicesTests
     public async Task GetAvailableAssetForCustomer()
     {
         // Arrange
-        const string CUSTOMER_ID = "20ef7dbd-a0d1-44c3-b855-19799cceb347";
+        var CUSTOMER_ID = new Guid("20ef7dbd-a0d1-44c3-b855-19799cceb347");
         var mockFactory = new Mock<IHttpClientFactory>();
         var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
         mockHttpMessageHandler.Protected()
@@ -192,7 +193,96 @@ public class AssetServicesTests
             {
                 StatusCode = HttpStatusCode.OK,
                 Content = new StringContent(
-                    @"{""items"":[{""id"":""6c38b551-a5c2-4f53-8df8-221bf8485c61"",""organizationId"":""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",""alias"":""alias_1"",""note"":"""",""description"":"""",""assetTag"":"""",""assetCategoryId"":1,""assetCategoryName"":""Mobile phone"",""brand"":""Apple"",""productName"":""Apple iPhone 8"",""lifecycleType"":0,""lifecycleName"":""NoLifecycle"",""paidByCompany"":0,""bookValue"":0,""buyoutPrice"":0.00,""purchaseDate"":""0001-01-01T00:00:00"",""createdDate"":""2022-04-28T14:18:11.9616155"",""managedByDepartmentId"":null,""assetHolderId"":""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",""assetStatus"":3,""assetStatusName"":""Available"",""labels"":[],""serialNumber"":""123456789012364"",""imei"":[546366434558702],""macAddress"":""487027C99FA1"",""orderNumber"":"""",""productId"":"""",""invoiceNumber"":"""",""transactionId"":"""",""isPersonal"":false},{""id"":""bdb4c26c-33fd-40d7-a237-e74728609c1c"",""organizationId"":""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",""alias"":""alias_3"",""note"":"""",""description"":"""",""assetTag"":"""",""assetCategoryId"":1,""assetCategoryName"":""Mobile phone"",""brand"":""Apple"",""productName"":""iPhone 11 Pro"",""lifecycleType"":0,""lifecycleName"":""NoLifecycle"",""paidByCompany"":0,""bookValue"":0,""buyoutPrice"":0.00,""purchaseDate"":""0001-01-01T00:00:00"",""createdDate"":""2022-04-28T14:18:11.9628902"",""managedByDepartmentId"":null,""departmentName"":null,""assetHolderId"":""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",""assetHolderName"":""Jens Andersen"",""assetStatus"":3,""assetStatusName"":""Available"",""labels"":[],""serialNumber"":""123456789012397"",""imei"":[512217111821624],""macAddress"":""840F1D0C06AB"",""orderNumber"":"""",""productId"":"""",""invoiceNumber"":"""",""transactionId"":"""",""isPersonal"":false},{""id"":""4315bba8-698f-4ddd-aee2-82554c91721f"",""organizationId"":""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",""alias"":""alias_4"",""note"":"""",""description"":"""",""assetTag"":"""",""assetCategoryId"":1,""assetCategoryName"":""Mobile phone"",""brand"":""Apple"",""productName"":""iPhone 11 Pro"",""lifecycleType"":0,""lifecycleName"":""NoLifecycle"",""paidByCompany"":0,""bookValue"":0,""buyoutPrice"":0.00,""purchaseDate"":""0001-01-01T00:00:00"",""createdDate"":""2022-04-28T14:18:11.9628964"",""managedByDepartmentId"":""6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72"",""assetHolderId"":""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",""assetStatus"":3,""assetStatusName"":""Available"",""labels"":[],""serialNumber"":""123456789012397"",""imei"":[512217111821624],""macAddress"":""840F1D0C06AB"",""orderNumber"":"""",""productId"":"""",""invoiceNumber"":"""",""transactionId"":"""",""isPersonal"":false}],""currentPage"":1,""totalItems"":3,""totalPages"":1,""pageSize"":1000}
+                    @"{""items"":[
+                        {
+                            ""id"":""6c38b551-a5c2-4f53-8df8-221bf8485c61"",
+                            ""organizationId"":""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                            ""alias"":""alias_1"",
+                            ""note"":"""",
+                            ""description"":"""",
+                            ""assetTag"":"""",
+                            ""assetCategoryId"":1,
+                            ""assetCategoryName"":""Mobile phone"",
+                            ""brand"":""Apple"",
+                            ""productName"":""Apple iPhone 8"",
+                            ""lifecycleType"":0,
+                            ""lifecycleName"":""NoLifecycle"",
+                            ""paidByCompany"":0,
+                            ""bookValue"":0,
+                            ""buyoutPrice"":0.00,
+                            ""purchaseDate"":""0001-01-01T00:00:00"",
+                            ""createdDate"":""2022-04-28T14:18:11.9616155"",
+                            ""managedByDepartmentId"":null,
+                            ""assetHolderId"":""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",
+                            ""assetStatus"":3,
+                            ""assetStatusName"":""Available"",
+                            ""labels"":[],
+                            ""serialNumber"":""123456789012364"",
+                            ""imei"":[546366434558702],
+                            ""macAddress"":""487027C99FA1"",
+                            ""orderNumber"":"""",
+                            ""productId"":"""",
+                            ""invoiceNumber"":"""",
+                            ""transactionId"":"""",
+                            ""isPersonal"":false
+                        },
+                        {
+                            ""id"":""bdb4c26c-33fd-40d7-a237-e74728609c1c"",
+                            ""organizationId"":""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                            ""alias"":""alias_3"",
+                            ""note"":"""",
+                            ""description"":"""",
+                            ""assetTag"":"""",
+                            ""assetCategoryId"":1,
+                            ""assetCategoryName"":""Mobile phone"",
+                            ""brand"":""Apple"",
+                            ""productName"":""iPhone 11 Pro"",
+                            ""lifecycleType"":0,
+                            ""lifecycleName"":""NoLifecycle"",
+                            ""paidByCompany"":0,
+                            ""bookValue"":0,
+                            ""buyoutPrice"":0.00,
+                            ""purchaseDate"":""0001-01-01T00:00:00"",
+                            ""createdDate"":""2022-04-28T14:18:11.9628902"",
+                            ""managedByDepartmentId"":null,
+                            ""departmentName"":null,
+                            ""assetHolderId"":""fd6cd6c6-4bc2-11ed-a881-00155d2b0464"",
+                            ""assetHolderName"":""Jens Andersen"",
+                            ""assetStatus"":3,
+                            ""assetStatusName"":""Available"",
+                            ""labels"":[],
+                            ""serialNumber"":""123456789012397"",
+                            ""imei"":[512217111821624],
+                            ""macAddress"":""840F1D0C06AB"",
+                            ""orderNumber"":"""",
+                            ""productId"":"""",
+                            ""invoiceNumber"":"""",
+                            ""transactionId"":"""",
+                            ""isPersonal"":false
+                        },{
+                            ""id"":""4315bba8-698f-4ddd-aee2-82554c91721f"",
+                            ""organizationId"":""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                            ""alias"":""alias_4"",
+                            ""note"":"""",
+                            ""description"":"""",
+                            ""assetTag"":"""",
+                            ""assetCategoryId"":1,""assetCategoryName"":""Mobile phone"",
+                            ""brand"":""Apple"",
+                            ""productName"":""iPhone 11 Pro"",
+                            ""lifecycleType"":0,""lifecycleName"":""NoLifecycle"",
+                            ""paidByCompany"":0,""bookValue"":0,""buyoutPrice"":0.00,""purchaseDate"":""0001-01-01T00:00:00"",
+                            ""createdDate"":""2022-04-28T14:18:11.9628964"",
+                            ""managedByDepartmentId"":""6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72"",
+                            ""assetHolderId"":""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",
+                            ""assetStatus"":3,""assetStatusName"":""Available"",
+                            ""labels"":[],""serialNumber"":""123456789012397"",
+                            ""imei"":[512217111821624],""macAddress"":""840F1D0C06AB"",
+                            ""orderNumber"":"""",
+                            ""productId"":"""",
+                            ""invoiceNumber"":"""",
+                            ""transactionId"":"""",
+                            ""isPersonal"":false
+                        }],""currentPage"":1,""totalItems"":3,""totalPages"":1,""pageSize"":1000}
                     ")
             });
 
@@ -204,7 +294,7 @@ public class AssetServicesTests
 
         var mockUser = new Mock<OrigoUser>();
         var mockUserService = new Mock<IUserServices>();
-        mockUserService.Setup(p => p.GetUserAsync(Guid.Empty, Guid.Empty).Result).Returns(mockUser.Object);
+        mockUserService.Setup(p => p.GetAllUsersNamesAsync(CUSTOMER_ID, It.IsAny<CancellationToken>()).Result).Returns(new List<UserNamesDTO>{new UserNamesDTO{UserId = new Guid("fd6cd6c6-4bc2-11ed-a881-00155d2b0464"), UserName = "John Smith"}});
 
         var mockDepartment = new Mock<OrigoDepartment>();
         var mockDepartmentService = new Mock<IDepartmentsServices>();
@@ -220,7 +310,7 @@ public class AssetServicesTests
 
         // Act
         var pagedAsset =
-            await assetService.GetAssetsForCustomerAsync(new Guid(CUSTOMER_ID), CancellationToken.None, new FilterOptionsForAsset());
+            await assetService.GetAssetsForCustomerAsync(CUSTOMER_ID, CancellationToken.None, new FilterOptionsForAsset());
 
         // Assert
         Assert.True(pagedAsset.TotalItems == 3);
