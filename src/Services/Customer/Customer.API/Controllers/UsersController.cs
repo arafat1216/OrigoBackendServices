@@ -15,6 +15,7 @@ using System.Net;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerServices.ServiceModels;
 
 namespace Customer.API.Controllers;
 
@@ -85,8 +86,12 @@ public class UsersController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(PagedModel<User>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult> GetAllUsers([FromRoute] Guid customerId, [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString, CancellationToken cancellationToken, [FromQuery(Name = "q")] string? search, int page = 1, int limit = 25)
+    public async Task<ActionResult> GetAllUsers([FromRoute] Guid customerId, [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString, CancellationToken cancellationToken, [FromQuery(Name = "q")] string? search, [FromQuery] int page = 1, [FromQuery] int limit = 25, [FromQuery] bool onlyNames = false)
     {
+        if (onlyNames)
+        {
+            return Ok(await _userServices.GetAllUsersWithNameOnly(customerId, cancellationToken));
+        }
         FilterOptionsForUser? filterOptions = null;
         if (!string.IsNullOrEmpty(filterOptionsAsJsonString))
         {

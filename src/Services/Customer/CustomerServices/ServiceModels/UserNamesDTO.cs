@@ -1,9 +1,6 @@
-﻿#nullable enable
-using System;
+﻿namespace CustomerServices.ServiceModels;
 
-namespace CustomerServices.ServiceModels;
-
-public class UserNamesDTO
+public record UserNamesDTO
 {
     public Guid UserId { get; init; }
     public string UserName { get; init; }

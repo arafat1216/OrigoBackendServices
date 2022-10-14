@@ -312,12 +312,12 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<List<UserNamesDTO>> GetAllUsersNamesAsync(Guid customerId, CancellationToken cancellationToken)
+        public async Task<HashSet<UserNamesDTO>> GetAllUsersNamesAsync(Guid customerId, CancellationToken cancellationToken)
         {
             try
             {
-                var users = await HttpClient.GetFromJsonAsync<List<UserNamesDTO>>($"{_options.ApiPath}/{customerId}/users?onlyNames=true", cancellationToken);
-                return users ?? new List<UserNamesDTO>();
+                var users = await HttpClient.GetFromJsonAsync<HashSet<UserNamesDTO>>($"{_options.ApiPath}/{customerId}/users?onlyNames=true", cancellationToken);
+                return users ?? new HashSet<UserNamesDTO>();
             }
             catch (HttpRequestException exception)
             {

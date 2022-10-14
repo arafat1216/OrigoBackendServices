@@ -53,11 +53,17 @@ namespace Customer.API.Controllers
         ///     Returns all departments
         /// </summary>
         /// <param name="customerId"> The organization you are retrieving departments from. </param>
+        /// <param name="cancellationToken"></param>
+        /// <param name="onlyNames">Will only return the id and name of the departments</param>
         /// <returns> An asynchronous task. The task results contain the appropriate <see cref="ActionResult"/>. </returns>
         [HttpGet]
         [ProducesResponseType(typeof(IList<Department>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IList<Department>>> GetDepartments([FromRoute] Guid customerId)
+        public async Task<ActionResult<IList<Department>>> GetDepartments([FromRoute] Guid customerId, CancellationToken cancellationToken, [FromQuery] bool onlyNames = false)
         {
+            if (onlyNames)
+            {
+                return Ok(await _departmentServices.GetAllDepartmentNamesAsync(customerId, cancellationToken));
+            }
             var departmentList = await _departmentServices.GetDepartmentsAsync(customerId);
             var departmentView = _mapper.Map<IList<Department>>(departmentList);
 

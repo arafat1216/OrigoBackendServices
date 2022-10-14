@@ -294,12 +294,10 @@ public class AssetServicesTests
 
         var mockUser = new Mock<OrigoUser>();
         var mockUserService = new Mock<IUserServices>();
-        mockUserService.Setup(p => p.GetAllUsersNamesAsync(CUSTOMER_ID, It.IsAny<CancellationToken>()).Result).Returns(new List<UserNamesDTO>{new UserNamesDTO{UserId = new Guid("fd6cd6c6-4bc2-11ed-a881-00155d2b0464"), UserName = "John Smith"}});
+        mockUserService.Setup(p => p.GetAllUsersNamesAsync(CUSTOMER_ID, It.IsAny<CancellationToken>()).Result).Returns(new HashSet<UserNamesDTO>{new() {UserId = new Guid("fd6cd6c6-4bc2-11ed-a881-00155d2b0464"), UserName = "John Smith"}});
 
-        var mockDepartment = new Mock<OrigoDepartment>();
         var mockDepartmentService = new Mock<IDepartmentsServices>();
-        mockDepartmentService.Setup(p => p.GetDepartmentAsync(Guid.Empty, Guid.Empty).Result)
-            .Returns(mockDepartment.Object);
+        mockDepartmentService.Setup(p => p.GetAllDepartmentNamesAsync(CUSTOMER_ID, It.IsAny<CancellationToken>()).Result).Returns(new HashSet<DepartmentNamesDTO>{new() {DepartmentId = new Guid("6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72"), DepartmentName = "DeptName"}});
 
         var mockUserPermissionService = new Mock<IUserPermissionService>();
 

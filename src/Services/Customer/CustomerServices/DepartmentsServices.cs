@@ -5,12 +5,6 @@ using CustomerServices.Exceptions;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace CustomerServices
 {
@@ -215,6 +209,11 @@ namespace CustomerServices
 
             return _mapper.Map<DepartmentDTO>(department);
 
+        }
+
+        public async Task<List<DepartmentNamesDTO>> GetAllDepartmentNamesAsync(Guid customerId, CancellationToken cancellationToken)
+        {
+            return await _customerRepository.GetAllDepartmentNamesAsync(customerId, cancellationToken) ?? new List<DepartmentNamesDTO>();
         }
     }
 }

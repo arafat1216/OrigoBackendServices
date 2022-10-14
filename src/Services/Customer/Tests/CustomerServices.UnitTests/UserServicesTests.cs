@@ -529,8 +529,7 @@ public class UserServicesTests
         var users = await userServices.GetAllUsersWithNameOnly(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, new CancellationToken());
 
         Assert.Equal(4, users.Count);
-        Assert.Equal("Robert De Niro", users[0].UserName);
-        Assert.Equal(UnitTestDatabaseSeeder.USER_FIVE_ID, users[0].UserId);
+        Assert.Contains(new UserNamesDTO() { UserId = UnitTestDatabaseSeeder.USER_FIVE_ID, UserName = "Robert De Niro" }, users);
     }
 
     [Fact]

@@ -189,13 +189,10 @@ namespace OrigoApiGateway.Services
                 string json = JsonSerializer.Serialize(filterOptions);
 
                 var requestUri = $"{_options.ApiPath}/customers/{customerId}?includeAsset={includeAsset}&includeImeis={includeImeis}&includeLabels={includeLabels}&includeContractHolderUser={includeContractHolderUser}&q={search}&page={page}&limit={limit}&filterOptions={json}";
-
-                var assets = await HttpClient.GetFromJsonAsync<PagedModel<HardwareSuperType>>(requestUri);
-
-                if (assets == null)
-                    return null;
-
+                var assets = await HttpClient.GetFromJsonAsync<PagedModel<HardwareSuperType>>(requestUri, cancellationToken);
+                if (assets == null) return new PagedModel<HardwareSuperType>();
                 var users = await _userServices.GetAllUsersNamesAsync(customerId, cancellationToken);
+                var departments = await _departmentsServices.GetAllDepartmentNamesAsync(customerId, cancellationToken);
 
                 foreach (var asset in assets.Items)
                 {
@@ -203,17 +200,19 @@ namespace OrigoApiGateway.Services
                     {
                         if (asset.ManagedByDepartmentId != null)
                         {
-                            var department = await _departmentsServices.GetDepartmentAsync(asset.OrganizationId,
-                                asset.ManagedByDepartmentId ?? throw new ArgumentNullException("DepartmentId"));
-                            if (department != null) asset.DepartmentName = department.Name;
+                            var departmentName = string.Empty;
+                            if (departments.TryGetValue(new DepartmentNamesDTO { DepartmentId = asset.ManagedByDepartmentId.Value }, out var foundDepartmentNamesDTO))
+                            {
+                                departmentName = foundDepartmentNamesDTO.DepartmentName;
+                            }
+                            asset.DepartmentName = departmentName;
                         }
 
                         if (asset.AssetHolderId == null) continue;
                         var userName = string.Empty;
-                        var foundUserIndex = users.BinarySearch(new UserNamesDTO { UserId = asset.AssetHolderId.Value });
-                        if (foundUserIndex >= 0)
+                        if(users.TryGetValue(new UserNamesDTO { UserId = asset.AssetHolderId.Value }, out var foundUserNamesDTO))
                         {
-                            userName = users[foundUserIndex].UserName;
+                            userName = foundUserNamesDTO.UserName;
                         }
 
                         asset.AssetHolderName = userName;

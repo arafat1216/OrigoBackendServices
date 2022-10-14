@@ -14,7 +14,7 @@ namespace OrigoApiGateway.Services
         Task<OrigoMeUser?> GetUserWithPermissionsAsync(Guid? customerId, Guid mainOrganizationId, Guid userId, List<string> permissions,
             List<string> accessList);
         Task<PagedModel<OrigoUser>> GetAllUsersAsync(Guid customerId, FilterOptionsForUser filterOptions, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 25);
-        Task<List<UserNamesDTO>> GetAllUsersNamesAsync(Guid customerId, CancellationToken cancellationToken);
+        Task<HashSet<UserNamesDTO>> GetAllUsersNamesAsync(Guid customerId, CancellationToken cancellationToken);
         Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUser newUser, Guid callerId, bool includeOnboarding);
         Task<OrigoUser> PutUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser, Guid callerId);
         Task<OrigoUser> PatchUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser, Guid callerId);

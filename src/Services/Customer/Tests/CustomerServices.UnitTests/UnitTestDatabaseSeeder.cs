@@ -23,7 +23,9 @@ public class UnitTestDatabaseSeeder
     public static readonly Guid TECHSTEP_CUSTOMER_ID = new("c601dd7f-9930-46e2-944a-d994855663da");
 
     public static readonly Guid DEPARTMENT_ONE_ID = new("f0680388-145a-11ec-a469-00155d98690f");
+    public static readonly string DEPARTMENT_ONE_NAME = "Cust1Dept1";
     public static readonly Guid DEPARTMENT_TWO_ID = new("424f4485-53cc-4e59-8fae-59b27f12ff61");
+    public static readonly string DEPARTMENT_TWO_NAME = "Department2";
 
     public static readonly Guid USER_ONE_ID = new("42803f8e-5608-4beb-a3e6-029b8e229d91");
     public static readonly string USER_ONE_EMAIL = "jane@doe.com";
@@ -119,10 +121,10 @@ public class UnitTestDatabaseSeeder
             customerThree.Preferences, customerFour.Preferences);
         context.Locations.AddRange(customerOne.PrimaryLocation!, customerTwo.PrimaryLocation!,
             customerThree.PrimaryLocation!, customerFour.PrimaryLocation!);
-        var departmentOneForCustomerOne = new Department("Cust1Dept1", "1123", "Department one for customer one",
+        var departmentOneForCustomerOne = new Department(DEPARTMENT_ONE_NAME, "1123", "Department one for customer one",
             customerOne, DEPARTMENT_ONE_ID, Guid.Empty);
         var departmentTwoForCustomerOne =
-            new Department("Department1", "456", "Desc", customerOne, DEPARTMENT_TWO_ID, Guid.Empty);
+            new Department(DEPARTMENT_TWO_NAME, "456", "Desc", customerOne, DEPARTMENT_TWO_ID, Guid.Empty);
 
         context.Add(departmentTwoForCustomerOne);
         context.Add(departmentOneForCustomerOne);
@@ -130,8 +132,8 @@ public class UnitTestDatabaseSeeder
         var userPreferences1 = new UserPreference("NO", EMPTY_CALLER_ID);
         var userPreferences2 = new UserPreference("EN", EMPTY_CALLER_ID);
         var userPreferences3 = new UserPreference("EN", EMPTY_CALLER_ID);
-        var partnerAdminUserPreference = new UserPreference("EN", UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
-        var systemAdminPreference = new UserPreference("EN", UnitTestDatabaseSeeder.EMPTY_CALLER_ID);
+        var partnerAdminUserPreference = new UserPreference("EN", EMPTY_CALLER_ID);
+        var systemAdminPreference = new UserPreference("EN", EMPTY_CALLER_ID);
 
         var partnerAdminUser = new User(techstepOrganization, Guid.NewGuid(), "Partner", "Admin", "partneradmin@doe.com", "+4799559999", "007",
             partnerAdminUserPreference, EMPTY_CALLER_ID);

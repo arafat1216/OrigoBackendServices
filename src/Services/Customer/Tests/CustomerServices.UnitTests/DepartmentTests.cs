@@ -12,6 +12,7 @@ namespace CustomerServices.UnitTests
     public class DepartmentTests
     {
         [Fact]
+        [Trait("Category", "UnitTest")]
         public void SubDepartments_CheckWithOneLevel_ReturnsSupDepartments()
         {
             // Arrange

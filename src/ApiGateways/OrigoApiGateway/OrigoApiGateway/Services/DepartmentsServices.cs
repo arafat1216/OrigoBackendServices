@@ -195,5 +195,30 @@ namespace OrigoApiGateway.Services
                 throw;
             }
         }
+
+        public async Task<HashSet<DepartmentNamesDTO>> GetAllDepartmentNamesAsync(Guid customerId,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var departments = await HttpClient.GetFromJsonAsync<HashSet<DepartmentNamesDTO>>($"{_options.ApiPath}/{customerId}/departments?onlyNames=true", cancellationToken);
+                return departments ?? new HashSet<DepartmentNamesDTO>();
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetDepartment failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetDepartment failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetDepartment unknown error.");
+                throw;
+            }
+        }
     }
 }
