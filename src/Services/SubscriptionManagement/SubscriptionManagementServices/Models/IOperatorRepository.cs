@@ -2,7 +2,7 @@
 {
     public interface IOperatorRepository
     {
-        Task<IList<Operator>> GetAllOperatorsAsync();
+        Task<IList<Operator>> GetAllOperatorsAsync(bool asNoTracking);
         Task<Operator?> GetOperatorAsync(int id);
     }
 }

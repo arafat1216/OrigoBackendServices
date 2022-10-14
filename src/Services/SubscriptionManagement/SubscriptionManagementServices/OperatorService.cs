@@ -18,7 +18,7 @@ namespace SubscriptionManagementServices
         public async Task<IList<OperatorDTO>> GetAllOperatorsAsync()
         {
 
-            var allOperators = await _operatorRepository.GetAllOperatorsAsync();
+            var allOperators = await _operatorRepository.GetAllOperatorsAsync(true);
             return _mapper.Map<List<OperatorDTO>>(allOperators);
         }
 

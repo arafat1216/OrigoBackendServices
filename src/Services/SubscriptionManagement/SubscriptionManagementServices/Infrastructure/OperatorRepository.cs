@@ -17,9 +17,16 @@ namespace SubscriptionManagementServices.Infrastructure
             return await _subscriptionContext.Operators.FindAsync(id);
         }
 
-        public async Task<IList<Operator>> GetAllOperatorsAsync()
+        public async Task<IList<Operator>> GetAllOperatorsAsync(bool asNoTracking)
         {
-            return await _subscriptionContext.Operators.OrderBy(o => o.OperatorName).ToListAsync();
+            IQueryable<Operator> query = _subscriptionContext.Set<Operator>();
+
+            query = query.OrderBy(o => o.OperatorName);
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            return await query.ToListAsync();
         }
     }
 }
