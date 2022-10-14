@@ -164,7 +164,7 @@ public class CustomerSettingsTests : SubscriptionManagementServiceBaseTests
     public async Task UpdateSubscriptionProductForCustomer_WithGlobalProduct()
     {
         var newDataPackages = new List<string> { "Data Package" };
-        var operators = await _operatorRepository.GetAllOperatorsAsync();
+        var operators = await _operatorRepository.GetAllOperatorsAsync(true);
         var operatorId = operators.FirstOrDefault(a => a.OperatorName == "Op1");
 
 
@@ -270,7 +270,7 @@ public class CustomerSettingsTests : SubscriptionManagementServiceBaseTests
     public async Task AddOperatorSubscriptionProductForCustomerAsync_WithGlobalProduct()
     {
         var newDataPackages = new List<string> { "Data Package" };
-        var operators = await _operatorRepository.GetAllOperatorsAsync();
+        var operators = await _operatorRepository.GetAllOperatorsAsync(true);
         var operatorId = operators.FirstOrDefault(a => a.OperatorName == "Op1");
 
 
@@ -289,7 +289,7 @@ public class CustomerSettingsTests : SubscriptionManagementServiceBaseTests
     public async Task AddOperatorSubscriptionProductForCustomerAsync_WithCustomProduct()
     {
         var newDataPackages = new List<string> { "New Datapackage", "New Datapackage 2" };
-        var operators = await _operatorRepository.GetAllOperatorsAsync();
+        var operators = await _operatorRepository.GetAllOperatorsAsync(true);
         var operatorId = operators.FirstOrDefault(a => a.OperatorName == "Op1");
 
 
@@ -309,7 +309,7 @@ public class CustomerSettingsTests : SubscriptionManagementServiceBaseTests
     {
         var newDataPackages = new List<string> { "New Datapackage" };
 
-        var operators = await _operatorRepository.GetAllOperatorsAsync();
+        var operators = await _operatorRepository.GetAllOperatorsAsync(true);
         var operatorId = operators.FirstOrDefault(a => a.OperatorName == "Op1");
 
 
@@ -329,7 +329,7 @@ public class CustomerSettingsTests : SubscriptionManagementServiceBaseTests
     {
         var newDataPackages = new List<string> { "Data Package" };
 
-        var operators = await _operatorRepository.GetAllOperatorsAsync();
+        var operators = await _operatorRepository.GetAllOperatorsAsync(true);
         var operatorId = operators.FirstOrDefault(a => a.OperatorName == "Op1");
 
 
@@ -349,7 +349,7 @@ public class CustomerSettingsTests : SubscriptionManagementServiceBaseTests
     public async Task CreateStandardPrivateSubscriptionProductsAsync_CheckOperatorId()
     {
         // Arrange
-        var operators = await _operatorRepository.GetAllOperatorsAsync();
+        var operators = await _operatorRepository.GetAllOperatorsAsync(true);
         var @operator = operators.FirstOrDefault(a => a.OperatorName == "Op1");
 
         // Act
