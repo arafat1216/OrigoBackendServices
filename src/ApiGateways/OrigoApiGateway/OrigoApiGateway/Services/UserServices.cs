@@ -3,11 +3,12 @@ using AutoMapper;
 using Common.Enums;
 using Common.Interfaces;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
+using System.Collections.Generic;
 using System.Text.Json;
+using static Humanizer.On;
 
 namespace OrigoApiGateway.Services
 {
@@ -293,6 +294,30 @@ namespace OrigoApiGateway.Services
                     TotalItems = users.TotalItems,
                     TotalPages = users.TotalPages
                 };
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetAllUsersAsync failed with HttpRequestException.");
+                throw;
+            }
+            catch (NotSupportedException exception)
+            {
+                _logger.LogError(exception, "GetAllUsersAsync failed with content type is not valid.");
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "GetAllUsersAsync unknown error.");
+                throw;
+            }
+        }
+
+        public async Task<List<UserNamesDTO>> GetAllUsersNamesAsync(Guid customerId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var users = await HttpClient.GetFromJsonAsync<List<UserNamesDTO>>($"{_options.ApiPath}/{customerId}/users?onlyNames=true", cancellationToken);
+                return users ?? new List<UserNamesDTO>();
             }
             catch (HttpRequestException exception)
             {

@@ -180,8 +180,10 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId, FilterOptionsForAsset filterOptions, string search = "", int page = 1, int limit = 25,
-            bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false)
+        public async Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId,
+            CancellationToken cancellationToken, FilterOptionsForAsset filterOptions, string search = "", int page = 1,
+            int limit = 25, bool includeAsset = false, bool includeImeis = false, bool includeLabels = false,
+            bool includeContractHolderUser = false)
         {
             try
             {
@@ -194,20 +196,28 @@ namespace OrigoApiGateway.Services
                 if (assets == null)
                     return null;
 
+                var users = await _userServices.GetAllUsersNamesAsync(customerId, cancellationToken);
+
                 foreach (var asset in assets.Items)
                 {
                     try
                     {
                         if (asset.ManagedByDepartmentId != null)
                         {
-                            var department = await _departmentsServices.GetDepartmentAsync(asset.OrganizationId, asset.ManagedByDepartmentId ?? throw new ArgumentNullException("DepartmentId"));
+                            var department = await _departmentsServices.GetDepartmentAsync(asset.OrganizationId,
+                                asset.ManagedByDepartmentId ?? throw new ArgumentNullException("DepartmentId"));
                             if (department != null) asset.DepartmentName = department.Name;
                         }
-                        if (asset.AssetHolderId != null)
+
+                        if (asset.AssetHolderId == null) continue;
+                        var userName = string.Empty;
+                        var foundUserIndex = users.BinarySearch(new UserNamesDTO { UserId = asset.AssetHolderId.Value });
+                        if (foundUserIndex >= 0)
                         {
-                            var user = await _userServices.GetUserAsync(asset.AssetHolderId ?? throw new ArgumentNullException("UserId"));
-                            if (user != null) asset.AssetHolderName = user.DisplayName;
+                            userName = users[foundUserIndex].UserName;
                         }
+
+                        asset.AssetHolderName = userName;
                     }
                     catch (HttpRequestException ex)
                     {

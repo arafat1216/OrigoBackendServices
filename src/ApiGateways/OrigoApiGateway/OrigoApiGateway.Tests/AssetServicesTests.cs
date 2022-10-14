@@ -220,7 +220,7 @@ public class AssetServicesTests
 
         // Act
         var pagedAsset =
-            await assetService.GetAssetsForCustomerAsync(new Guid(CUSTOMER_ID), new FilterOptionsForAsset());
+            await assetService.GetAssetsForCustomerAsync(new Guid(CUSTOMER_ID), CancellationToken.None, new FilterOptionsForAsset());
 
         // Assert
         Assert.True(pagedAsset.TotalItems == 3);

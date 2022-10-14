@@ -231,7 +231,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanReadAsset)]
-        public async Task<ActionResult> Get([FromRoute] Guid organizationId, [FromQuery] FilterOptionsForAsset filterOptions, [FromQuery(Name = "q")] string search = "", [FromQuery] int page = 1, [FromQuery][Range(1, 100)] int limit = 25,
+        public async Task<ActionResult> Get([FromRoute] Guid organizationId, [FromQuery] FilterOptionsForAsset filterOptions, [FromQuery(Name = "q")] string search = "", int page = 1, [Range(1, 100)] int limit = 25,
             [FromQuery] bool includeAsset = true, bool includeImeis = true, bool includeLabels = true, bool includeContractHolderUser = true)
         {
             try
@@ -270,7 +270,7 @@ namespace OrigoApiGateway.Controllers
 
                 filterOptions.UserId = filterOptions.UserId == "me" ? HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value : null;
 
-                var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId, filterOptions, search, page, limit, includeAsset, includeImeis, includeLabels, includeContractHolderUser);
+                var assets = await _assetServices.GetAssetsForCustomerAsync(organizationId, cancellationToken, filterOptions, search, page: page, limit: limit, includeAsset: includeAsset, includeImeis: includeImeis, includeLabels: includeLabels, includeContractHolderUser: includeContractHolderUser);
                 if (assets == null)
                 {
                     return NotFound();

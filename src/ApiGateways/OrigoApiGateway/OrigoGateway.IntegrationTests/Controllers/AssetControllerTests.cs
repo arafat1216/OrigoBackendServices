@@ -452,8 +452,8 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
                 };
 
                 var assetService = new Mock<IAssetServices>();
-                assetService.Setup(_ => _.GetAssetsForCustomerAsync(Guid.Parse("6c514552-ea67-48c8-91ec-83c2b16248ee"), It.IsAny<FilterOptionsForAsset>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(),
-                    It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(Task.FromResult(customersAssets));
+                assetService.Setup(_ => _.GetAssetsForCustomerAsync(Guid.Parse("6c514552-ea67-48c8-91ec-83c2b16248ee"), It.IsAny<CancellationToken>(), It.IsAny<FilterOptionsForAsset>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(),
+                    It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(customersAssets);
                 services.AddSingleton(assetService.Object);
             });
         }).CreateClient();
@@ -544,7 +544,7 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
             builder.ConfigureTestServices(services =>
             {
                 var userPermissionServiceMock = new Mock<IUserPermissionService>();
-                userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).ReturnsAsync(permissionsIdentity);
                 services.AddSingleton(userPermissionServiceMock.Object);
 
                 services.AddAuthentication(options =>
@@ -576,8 +576,8 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
                 };
 
                 var assetService = new Mock<IAssetServices>();
-                assetService.Setup(_ => _.GetAssetsForCustomerAsync(organizationId, It.IsAny<FilterOptionsForAsset>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(),
-                    It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(Task.FromResult(customersAssets));
+                assetService.Setup(_ => _.GetAssetsForCustomerAsync(organizationId, It.IsAny<CancellationToken>(), It.IsAny<FilterOptionsForAsset>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(),
+                    It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(customersAssets);
                 services.AddSingleton(assetService.Object);
             });
         }).CreateClient();
@@ -586,8 +586,8 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
         var response = await client.GetAsync($"/origoapi/v1.0/assets/customers/{organizationId}");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
     }
+
     [Fact]
     public async Task GetAssetLifecycleCounters_Manager()
     {
