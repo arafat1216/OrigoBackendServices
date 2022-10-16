@@ -25,6 +25,7 @@ internal class AssetLifecycleConfiguration : EntityBaseConfiguration<AssetLifecy
         builder.HasAlternateKey(entity => entity.ExternalId);
 
         builder.HasIndex(entity => entity.CustomerId);
+        builder.HasIndex(entity => entity.ManagedByDepartmentId);
 
 
         /*
