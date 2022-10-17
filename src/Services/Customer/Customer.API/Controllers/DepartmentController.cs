@@ -52,12 +52,8 @@ namespace Customer.API.Controllers
         /// <returns> An asynchronous task. The task results contain the appropriate <see cref="ActionResult"/>. </returns>
         [HttpGet]
         [ProducesResponseType(typeof(IList<Department>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IList<Department>>> GetDepartments([FromRoute] Guid customerId, CancellationToken cancellationToken, [FromQuery] bool onlyNames = false)
+        public async Task<ActionResult<IList<Department>>> GetDepartments([FromRoute] Guid customerId, CancellationToken cancellationToken)
         {
-            if (onlyNames)
-            {
-                return Ok(await _departmentServices.GetAllDepartmentNamesAsync(customerId, cancellationToken));
-            }
             var departmentList = await _departmentServices.GetDepartmentsAsync(customerId);
             var departmentView = _mapper.Map<IList<Department>>(departmentList);
 
