@@ -34,7 +34,7 @@ namespace AssetServices.Migrations
 
                     b.HasIndex("LabelsId");
 
-                    b.ToTable("AssetLifecycleCustomerLabel", (string)null);
+                    b.ToTable("AssetLifecycleCustomerLabel");
                 });
 
             modelBuilder.Entity("AssetServices.Models.Asset", b =>
@@ -116,7 +116,7 @@ namespace AssetServices.Migrations
 
                     b.HasIndex("TabletId");
 
-                    b.ToTable("AssetImei", (string)null);
+                    b.ToTable("AssetImei");
                 });
 
             modelBuilder.Entity("AssetServices.Models.AssetLifecycle", b =>
@@ -281,7 +281,7 @@ namespace AssetServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CustomerLabels", (string)null);
+                    b.ToTable("CustomerLabels");
                 });
 
             modelBuilder.Entity("AssetServices.Models.CustomerSettings", b =>
@@ -378,7 +378,7 @@ namespace AssetServices.Migrations
 
                     b.HasIndex("CustomerSettingsId");
 
-                    b.ToTable("LifeCycleSetting", (string)null);
+                    b.ToTable("LifeCycleSetting");
                 });
 
             modelBuilder.Entity("AssetServices.Models.SalaryDeductionTransaction", b =>
@@ -433,7 +433,7 @@ namespace AssetServices.Migrations
 
                     b.HasIndex("AssetLifecycleId");
 
-                    b.ToTable("SalaryDeductionTransaction", (string)null);
+                    b.ToTable("SalaryDeductionTransaction");
                 });
 
             modelBuilder.Entity("AssetServices.Models.User", b =>
@@ -564,8 +564,8 @@ namespace AssetServices.Migrations
 
             modelBuilder.Entity("AssetServices.Models.CustomerLabel", b =>
                 {
-                    b.OwnsOne("AssetServices.Models.CustomerLabel.Label#AssetServices.Models.Label", "Label", b1 =>
-                        {
+                    b.OwnsOne("AssetServices.Models.Label", "Label", b1 => 
+                    {
                             b1.Property<int>("CustomerLabelId")
                                 .HasColumnType("int");
 
@@ -578,7 +578,7 @@ namespace AssetServices.Migrations
 
                             b1.HasKey("CustomerLabelId");
 
-                            b1.ToTable("CustomerLabels", (string)null);
+                            b1.ToTable("CustomerLabels");
 
                             b1.WithOwner()
                                 .HasForeignKey("CustomerLabelId");
@@ -590,8 +590,8 @@ namespace AssetServices.Migrations
 
             modelBuilder.Entity("AssetServices.Models.CustomerSettings", b =>
                 {
-                    b.OwnsOne("AssetServices.Models.CustomerSettings.DisposeSetting#AssetServices.Models.DisposeSetting", "DisposeSetting", b1 =>
-                        {
+                    b.OwnsOne("AssetServices.Models.DisposeSetting", "DisposeSetting", b1 => 
+                    {
                             b1.Property<int>("CustomerSettingsId")
                                 .HasColumnType("int");
 
@@ -618,12 +618,12 @@ namespace AssetServices.Migrations
 
                             b1.HasKey("CustomerSettingsId");
 
-                            b1.ToTable("CustomerSettings", (string)null);
+                            b1.ToTable("CustomerSettings");
 
                             b1.WithOwner()
                                 .HasForeignKey("CustomerSettingsId");
 
-                            b1.OwnsMany("AssetServices.Models.CustomerSettings.DisposeSetting#AssetServices.Models.DisposeSetting.ReturnLocations#AssetServices.Models.ReturnLocation", "ReturnLocations", b2 =>
+                            b1.OwnsMany("AssetServices.Models.ReturnLocation", "ReturnLocations", b2 =>
                                 {
                                     b2.Property<int>("DisposeSettingCustomerSettingsId")
                                         .HasColumnType("int");
