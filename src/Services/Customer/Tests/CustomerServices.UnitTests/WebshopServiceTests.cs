@@ -22,26 +22,6 @@ namespace CustomerServices.UnitTests
 {
     public class WebshopServiceTests
     {
-        private readonly IMapper _mapper;
-        private readonly OrganizationRepository OrganizationRepository;
-        private DbContextOptions<CustomerContext> ContextOptions { get; }
-
-        public WebshopServiceTests()
-        {
-            ContextOptions = new DbContextOptionsBuilder<CustomerContext>()
-                .UseSqlite($"Data Source={Guid.NewGuid()}.db").Options;
-            new UnitTestDatabaseSeeder().SeedUnitTestDatabase(ContextOptions);
-            var mappingConfig =
-                new MapperConfiguration(mc => { mc.AddMaps(Assembly.GetAssembly(typeof(LocationDTO))); });
-            _mapper = mappingConfig.CreateMapper();
-            var apiRequesterServiceMock = new Mock<IApiRequesterService>();
-            apiRequesterServiceMock.Setup(r => r.AuthenticatedUserId).Returns(UnitTestDatabaseSeeder.CALLER_ID);
-            var context = new CustomerContext(ContextOptions, apiRequesterServiceMock.Object);
-            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
-            OrganizationRepository = organizationRepository;
-        }
-
-
         [Fact]
         [Trait("Category", "UnitTest")]
         public async Task CheckAndProvisionImplementWebShopUser_NullUser()
