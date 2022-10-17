@@ -17,7 +17,7 @@ namespace AssetServices.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.8")
+                .HasAnnotation("ProductVersion", "6.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -85,8 +85,6 @@ namespace AssetServices.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasAlternateKey("ExternalId");
 
                     b.ToTable("Assets");
 
@@ -234,15 +232,9 @@ namespace AssetServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("ExternalId");
-
                     b.HasIndex("AssetId");
 
                     b.HasIndex("ContractHolderUserId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("ManagedByDepartmentId");
 
                     b.ToTable("AssetLifeCycles");
                 });
@@ -319,8 +311,6 @@ namespace AssetServices.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("CustomerId");
-
                     b.ToTable("CustomerSettings");
                 });
 
@@ -373,8 +363,6 @@ namespace AssetServices.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasAlternateKey("ExternalId");
 
                     b.HasIndex("CustomerSettingsId");
 
@@ -448,9 +436,7 @@ namespace AssetServices.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -462,9 +448,7 @@ namespace AssetServices.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("LastUpdatedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSUTCDATETIME()");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -474,8 +458,6 @@ namespace AssetServices.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasAlternateKey("ExternalId");
 
                     b.ToTable("Users");
                 });

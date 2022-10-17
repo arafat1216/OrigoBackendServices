@@ -1,7 +1,6 @@
 ﻿using AssetServices.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Security.Cryptography.Xml;
 
 namespace AssetServices.Infrastructure.EntityConfiguration
 {
@@ -23,7 +22,7 @@ namespace AssetServices.Infrastructure.EntityConfiguration
              * DB table configuration (keys, constraints, indexing, etc.)
              */
 
-            builder.HasAlternateKey(entity => entity.CustomerId);
+            //builder.HasAlternateKey(entity => entity.CustomerId);
 
 
             /*
@@ -37,8 +36,8 @@ namespace AssetServices.Infrastructure.EntityConfiguration
              * Register and configure owned properties
              */
 
-            builder.OwnsOne(s=>s.DisposeSetting)
-                   .OwnsMany(x=>x.ReturnLocations)
+            builder.OwnsOne(s => s.DisposeSetting)
+                   .OwnsMany(x => x.ReturnLocations)
                    .ToTable(nameof(ReturnLocation));
         }
     }
