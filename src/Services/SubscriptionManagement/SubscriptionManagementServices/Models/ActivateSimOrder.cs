@@ -26,6 +26,7 @@ namespace SubscriptionManagementServices.Models
         [MaxLength(15)]
         public string MobileNumber { get; set; }
         public string OperatorName { get; set; }
+        [MaxLength(22)]
         public string SimCardNumber { get; set; } 
         public string SimCardType { get; set; }
         public Guid OrganizationId { get; set; }

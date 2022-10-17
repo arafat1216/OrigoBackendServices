@@ -1,6 +1,7 @@
 ﻿using Common.Seedwork;
 using SubscriptionManagementServices.DomainEvents;
 using SubscriptionManagementServices.Types;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SubscriptionManagementServices.Models
@@ -39,6 +40,7 @@ namespace SubscriptionManagementServices.Models
         public string Postcode { get; protected set; }
 
         public string City { get; protected set; }
+        [MaxLength(2)]
 
         public string Country { get; protected set; }
 

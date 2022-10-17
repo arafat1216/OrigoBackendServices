@@ -34,6 +34,17 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
                .HasComment("A phone-number using E.164 format.")
                .HasMaxLength(15)
                .IsUnicode(false);
+
+            builder.Property(e => e.OperatorAccountPhoneNumber)
+               .HasComment("A phone-number using E.164 format.")
+               .HasMaxLength(15)
+               .IsUnicode(false);
+
+            builder.Property(e => e.SimCardCountry)
+                   .HasComment("The 2-character country-code using the uppercase 'ISO 3166 alpha-2' standard.")
+                   .HasMaxLength(2)
+                   .IsFixedLength()
+                   .IsUnicode(false);
         }
     }
 }

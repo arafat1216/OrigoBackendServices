@@ -1,4 +1,6 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
+
 namespace SubscriptionManagementServices.ServiceModels
 {
     public class NewSubscriptionOrderRequestDTO
@@ -6,7 +8,7 @@ namespace SubscriptionManagementServices.ServiceModels
         public int OperatorId { get; set; }
 
         public int? OperatorAccountId { get; set; }
-        
+        [MaxLength(15)]
         public string? OperatorAccountPhoneNumber { get; set; }
         public NewOperatorAccountRequestedDTO? NewOperatorAccount { get; set; }
 
@@ -18,7 +20,7 @@ namespace SubscriptionManagementServices.ServiceModels
         public DateTime OrderExecutionDate { get; set; }
 
         public IList<string> AddOnProducts { get; set; } = new List<string>();
-
+        [MaxLength(22)]
         public string? SimCardNumber { get; set; }
 
 

@@ -28,6 +28,7 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
                .HasComment("A phone-number using E.164 format.")
                .HasMaxLength(15)
                .IsUnicode(false);
+            builder.Property(s => s.SimCardNumber).HasMaxLength(22);
         }
     }
 }

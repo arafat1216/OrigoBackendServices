@@ -1,4 +1,6 @@
 ﻿namespace SubscriptionManagementServices.ServiceModels
+
+namespace SubscriptionManagementServices.ServiceModels
 {
     public class TransferToPrivateSubscriptionOrderDTO
     {
@@ -18,6 +20,8 @@
         }
 
         public PrivateSubscriptionResponse PrivateSubscription { get; set; }
+        [Phone]
+        [MaxLength(15)]
         public string MobileNumber { get; set; }
         public int OperatorId { get; set; }
         public string OperatorName { get; set; }

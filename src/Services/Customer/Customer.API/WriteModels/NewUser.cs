@@ -11,6 +11,7 @@ namespace Customer.API.WriteModels
         public string LastName { get; set; }
 
         [EmailAddress]
+        [MaxLength(320)]
         public string Email { get; set; }
 
         public UserPreference UserPreference { get; set; }
@@ -18,6 +19,8 @@ namespace Customer.API.WriteModels
         /// <summary>
         /// NB! This Will be removed in a later version
         /// </summary>
+        [Phone]
+        [MaxLength(15)]
         public string MobileNumber { get; set; }
 
         /// <summary>

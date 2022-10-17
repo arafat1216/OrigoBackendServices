@@ -1,4 +1,6 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
+
 namespace SubscriptionManagementServices.ServiceModels
 {
     public class SimCardAddressRequestDTO
@@ -8,6 +10,7 @@ namespace SubscriptionManagementServices.ServiceModels
         public string? Address { get; set; }
         public string? PostalCode { get; set; }
         public string? PostalPlace { get; set; }
+        [MaxLength(2)]
         public string? Country { get; set; }
     }
 }

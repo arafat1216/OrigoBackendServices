@@ -2,8 +2,10 @@
 {
     public class LoanDevice
     {
+        [MaxLength(15)]
         public string? PhoneNumber { get; set; }
         [RequiredIfProvidesLoanDevice]
+        [MaxLength(320)]
         public string? Email { get; set; }
         public bool ProvidesLoanDevice { get; set; }
         public Guid CallerId { get; set; }

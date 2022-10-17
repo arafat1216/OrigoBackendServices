@@ -67,6 +67,7 @@ namespace SubscriptionManagementServices.Models
         public string? OperatorAccountOrganizationNumber { get; set; }
 
         public string? OperatorAccountNumber { get; set; }
+        [MaxLength(15)]
         public string? OperatorAccountPhoneNumber { get; set; }
 
         public string? OperatorName { get; set; }
@@ -82,6 +83,7 @@ namespace SubscriptionManagementServices.Models
         public string? SimCardReciverLastName { get; set; }
         public string? SimCardPostalCode { get; set; }
         public string? SimCardPostalPlace { get; set; }
+        [MaxLength(2)]
         public string? SimCardCountry { get; set; }
         public string? SimCardAddress { get; set; }
         public Guid OrganizationId { get; set; }

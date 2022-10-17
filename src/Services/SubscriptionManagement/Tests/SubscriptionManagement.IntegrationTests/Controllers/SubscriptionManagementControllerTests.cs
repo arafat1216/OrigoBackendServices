@@ -414,7 +414,7 @@ public class
         var newOrderSimSubscriptionOrder = new NewOrderSimSubscriptionOrder()
         {
             SendToName = "My Name",
-            Address = new Address() { Street = "No name", Postcode = "1111", City = "Oslo", Country = "Norway" },
+            Address = new Address() { Street = "No name", Postcode = "1111", City = "Oslo", Country = "NO" },
             OperatorId = _operatorId,
             Quantity = 2,
             CallerId = Guid.NewGuid()
@@ -687,7 +687,7 @@ public class
                 Address = "K. K. Lien vei 54F",
                 PostalCode = "4812",
                 PostalPlace = "KONGSHAVN",
-                Country = "M@H.COM",
+                Country = "NO",
                 Email = "me@example.com",
                 BirthDate = DateTime.Parse("1986-06-04T00:00:00.000Z"),
                 OperatorName = "Telia - NO"
@@ -738,7 +738,7 @@ public class
                 Address = "K. K. Lien vei 54F",
                 PostalCode = "4812",
                 PostalPlace = "KONGSHAVN",
-                Country = "M@H.COM",
+                Country = "NO",
                 Email = "me@example.com",
                 BirthDate = DateTime.Parse("1986-06-04T00:00:00.000Z"),
                 OperatorName = "Telia - NO"
@@ -839,7 +839,7 @@ public class
                 Address = "K. K. Lien vei 54F",
                 PostalCode = "4812",
                 PostalPlace = "KONGSHAVN",
-                Country = "M@H.COM",
+                Country = "NO",
                 Email = "me@example.com",
                 BirthDate = DateTime.Parse("1986-06-04T00:00:00.000Z"),
                 OperatorName = "Telia - NO"

@@ -1,4 +1,6 @@
-﻿namespace SubscriptionManagementServices.ServiceModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SubscriptionManagementServices.ServiceModels
 {
     public class TransferToBusinessSubscriptionOrderDTO
     {
@@ -10,6 +12,8 @@
         /// <summary>
         /// The mobile number to be transferred
         /// </summary>
+        [Phone]
+        [MaxLength(15)]
         public string MobileNumber { get; set; }
         /// <summary>
         /// The operator id they get from the business subscription
@@ -29,6 +33,7 @@
         /// <summary>
         ///     SIM card number
         /// </summary>
+        [MaxLength(22)]
         public string? SIMCardNumber { get; set; }
 
         /// <summary>
@@ -54,6 +59,7 @@
         /// <summary>
         ///     A phone number referencing the billing account
         /// </summary>
+        [MaxLength(15)]
         public string? OperatorAccountPhoneNumber { get; set; }
         /// <summary>
         ///     New operator account identifier

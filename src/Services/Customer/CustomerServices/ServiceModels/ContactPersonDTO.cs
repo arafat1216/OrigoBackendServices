@@ -20,12 +20,15 @@ namespace CustomerServices.ServiceModels
         public string LastName { get; set; }
 
         [EmailAddress]
+        [MaxLength(2)]
         public string Email { get; set; }
 
         /// <summary>
         /// The persons phone-number, standardized using the <c>E.164</c> format.
         /// </summary>
         /// <example>+4712345678</example>
+        [Phone]
+        [MaxLength(15)]
         public string PhoneNumber { get; set; }
     }
 }

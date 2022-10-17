@@ -10,6 +10,7 @@ namespace OrigoApiGateway.Models
         public string LogoUrl { get; set; }
         public string OrganizationNotes { get; set; }
         public bool? EnforceTwoFactorAuth { get; set; }
+        [MaxLength(2)]
         public string PrimaryLanguage { get; set; }
         public short? DefaultDepartmentClassification { get; set; }
     }

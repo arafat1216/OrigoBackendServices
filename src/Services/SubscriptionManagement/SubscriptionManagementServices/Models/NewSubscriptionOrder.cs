@@ -81,6 +81,7 @@ namespace SubscriptionManagementServices.Models
         public string? DataPackageName { get; set; }
         public DateTime OrderExecutionDate { get; set; }
         public string? OperatorAccountNumber { get; set; }
+        [MaxLength(15)]
         public string? OperatorAccountPhoneNumber { get; set; }
         public string? OperatorAccountName { get; set; }
         public string? OperatorAccountOwner { get; set; }
@@ -98,6 +99,7 @@ namespace SubscriptionManagementServices.Models
         public string? SimCardReceiverAddress { get; set; }
         public string? SimCardReceiverPostalCode { get; set; }
         public string? SimCardReceiverPostalPlace { get; set; }
+        [MaxLength(2)]
         public string? SimCardReceiverCountry { get; set; }
         public string CustomerReferenceFields { get; set; }
 
