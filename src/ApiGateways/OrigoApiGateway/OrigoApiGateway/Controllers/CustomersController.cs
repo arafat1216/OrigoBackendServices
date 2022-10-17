@@ -495,6 +495,8 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(Organization), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.OnAndOffboarding)]
+
         public async Task<ActionResult<Organization>> InitiateOnboarding(Guid organizationId)
         {
             try
@@ -544,6 +546,7 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/operators")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<OrigoOperator>), (int)HttpStatusCode.OK)]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult> GetAllOperatorsForCustomer(Guid organizationId)
         {
             // If role is not System admin, check access list
@@ -571,6 +574,7 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/operators")]
         [HttpPost]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult> CreateOperatorListForCustomerAsync(Guid organizationId, [FromBody] List<int> operators)
         {
             // If role is not System admin, check access list
@@ -612,6 +616,7 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/operators/{id}")]
         [HttpDelete]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanDeleteCustomer, Permission.SubscriptionManagement)]
         public async Task<ActionResult> DeleteFromCustomersOperatorList(Guid organizationId, int id)
         {
             // If role is not System admin, check access list
@@ -636,6 +641,7 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoSubscriptionProduct>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult<IList<OrigoSubscriptionProduct>>> GetSubscriptionProductsForCustomer(Guid organizationId, [FromQuery] bool includeOperator = true)
         {
             try
@@ -665,6 +671,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoSubscriptionProduct), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult<OrigoSubscriptionProduct>> CreateSubscriptionProductForCustomer(Guid organizationId, [FromBody] NewSubscriptionProduct newSubscriptionProduct)
         {
             try
@@ -702,6 +709,7 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/subscription-products/{subscriptionProductId}")]
         [ProducesResponseType(typeof(OrigoSubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult<OrigoSubscriptionProduct>> UpdateOperatorSubscriptionProductForCustomer(Guid organizationId, int subscriptionProductId, [FromBody] UpdateSubscriptionProduct subscriptionProduct)
         {
             try
@@ -739,6 +747,7 @@ namespace OrigoApiGateway.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(OrigoSubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult<OrigoSubscriptionProduct>> DeleteSubscriptionProductsForCustomer(Guid organizationId, int subscriptionProductId)
         {
             try
@@ -776,6 +785,7 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoCustomerOperatorAccount>), (int)HttpStatusCode.OK)]
         [Route("{organizationId:Guid}/operator-accounts")]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<IActionResult> GetAllOperatorAccountsForCustomer(Guid organizationId)
         {
             // If role is not System admin, check access list
@@ -803,6 +813,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoCustomerOperatorAccount), (int)HttpStatusCode.Created)]
         [Route("{organizationId:Guid}/operator-accounts")]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<IActionResult> AddOperatorAccountForCustomer(Guid organizationId, [FromBody] NewOperatorAccount customerOperatorAccount)
         {
             // If role is not System admin, check access list
@@ -834,6 +845,7 @@ namespace OrigoApiGateway.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(OrigoCustomerOperatorAccount), (int)HttpStatusCode.OK)]
         [Route("{organizationId:Guid}/operator-accounts")]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<IActionResult> DeleteOperatorAccountForCustomer(Guid organizationId, [FromQuery] string accountNumber, [FromQuery] int operatorId)
         {
             // If role is not System admin, check access list
@@ -863,9 +875,10 @@ namespace OrigoApiGateway.Controllers
         /// <param name="organizationId"></param>
         /// <param name="order"></param>
         /// <returns></returns>
+        [HttpPost]
         [Route("{organizationId:Guid}/subscription-transfer-to-business")]
         [ProducesResponseType(typeof(OrigoTransferToBusinessSubscriptionOrder), (int)HttpStatusCode.OK)]
-        [HttpPost]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult> TransferSubscriptionToBusiness(Guid organizationId, [FromBody] TransferToBusinessSubscriptionOrder order)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -888,9 +901,10 @@ namespace OrigoApiGateway.Controllers
             return Ok(response);
         }
 
+        [HttpPost]
         [Route("{organizationId:Guid}/subscription-transfer-to-private")]
         [ProducesResponseType(typeof(OrigoTransferToPrivateSubscriptionOrder), (int)HttpStatusCode.OK)]
-        [HttpPost]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult> TransferSubscriptionToPrivate(Guid organizationId, [FromBody] TransferToPrivateSubscriptionOrder order)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -922,6 +936,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoOrderSim), (int)HttpStatusCode.Created)]
         [Route("{organizationId:Guid}/order-sim")]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<IActionResult> OrderSim(Guid organizationId, [FromBody] OrderSim order)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -951,8 +966,9 @@ namespace OrigoApiGateway.Controllers
         /// <param name="organizationId"></param>
         /// <param name="order"></param>
         /// <returns></returns>
-        [Route("{organizationId:Guid}/subscription-cancel")]
         [HttpPost]
+        [Route("{organizationId:Guid}/subscription-cancel")]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult> CancelSubscription(Guid organizationId, [FromBody] CancelSubscriptionOrder order)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -985,10 +1001,11 @@ namespace OrigoApiGateway.Controllers
         /// <param name="organizationId"></param>
         /// <param name="order"></param>
         /// <returns></returns>
+        [HttpPost]
         [Route("{organizationId:Guid}/change-subscription")]
         [ProducesResponseType(typeof(OrigoChangeSubscriptionOrder), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-        [HttpPost]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult> ChangeSubscriptionOrder(Guid organizationId,
             [FromBody] ChangeSubscriptionOrder order)
         {
@@ -1026,10 +1043,11 @@ namespace OrigoApiGateway.Controllers
         /// <param name="organizationId"></param>
         /// <param name="order"></param>
         /// <returns></returns>
+        [HttpPost]
         [Route("{organizationId:Guid}/activate-sim")]
         [ProducesResponseType(typeof(OrigoActivateSimOrder), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-        [HttpPost]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult> ActivateSimCard(Guid organizationId, [FromBody] NewActivateSimOrder order)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -1061,10 +1079,12 @@ namespace OrigoApiGateway.Controllers
         /// <param name="organizationId"></param>
         /// <param name="order"></param>
         /// <returns></returns>
+        [HttpPost]
         [Route("{organizationId:Guid}/new-subscription")]
         [ProducesResponseType(typeof(OrigoNewSubscriptionOrder), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-        [HttpPost]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
+
         public async Task<ActionResult> NewSubscriptionOrder(Guid organizationId, [FromBody] NewSubscriptionOrder order)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -1091,9 +1111,10 @@ namespace OrigoApiGateway.Controllers
             return CreatedAtAction(nameof(NewSubscriptionOrder), response);
         }
 
+        [HttpGet]
         [Route("{organizationId:Guid}/subscription-orders")]
         [ProducesResponseType(typeof(IList<OrigoSubscriptionOrderListItem>), (int)HttpStatusCode.OK)]
-        [HttpGet]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult> GetSubscriptionOrders(Guid organizationId)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -1118,6 +1139,7 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/subscription-orders/count")]
         [ProducesResponseType(typeof(OrigoSubscriptionOrdersCount), (int)HttpStatusCode.OK)]
         [HttpGet]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult> GetSubscriptionOrdersCount(Guid organizationId)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -1141,6 +1163,7 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/subscription-orders-detail-view/{orderId:Guid}/{orderType:int}")]
         [ProducesResponseType(typeof(OrigoSubscriptionOrderDetailView), (int)HttpStatusCode.OK)]
         [HttpGet]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult> GetSubscriptionOrderDetailView(Guid organizationId, Guid orderId, int orderType)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -1166,6 +1189,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IList<OrigoCustomerStandardPrivateSubscriptionProduct>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [HttpGet]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult> GetCustomerStandardPrivateSubscriptionProduct(Guid organizationId)
         {
 
@@ -1196,6 +1220,7 @@ namespace OrigoApiGateway.Controllers
         [Route("{organizationId:Guid}/standard-private-subscription-products")]
         [ProducesResponseType(typeof(OrigoCustomerStandardPrivateSubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult> PostCustomerStandardPrivateSubscriptionProduct(Guid organizationId, [FromBody] NewStandardPrivateProduct standardPrivateProduct)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -1231,6 +1256,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoCustomerStandardPrivateSubscriptionProduct), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult> DeleteCustomerStandardPrivateSubscriptionProduct(Guid organizationId, int operatorId)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -1263,6 +1289,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer)]
         [HttpGet]
+        [PermissionAuthorize(Permission.AssetBookValue)]
         public async Task<ActionResult> GetAssetsTotalBookValue(Guid organizationId)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;

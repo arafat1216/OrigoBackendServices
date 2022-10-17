@@ -53,6 +53,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, role));
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "OnAndOffboarding"));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
 
             var client = _factory.WithWebHostBuilder(builder =>
@@ -108,6 +109,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, role));
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "OnAndOffboarding"));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
 
             var client = _factory.WithWebHostBuilder(builder =>

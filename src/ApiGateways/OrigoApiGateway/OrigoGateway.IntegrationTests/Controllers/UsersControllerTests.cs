@@ -37,6 +37,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "Manager"));
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "OnAndOffboarding"));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
             permissionsIdentity.AddClaim(new Claim("AccessList", departmentId.ToString()));
 
@@ -85,6 +86,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, nameof(PredefinedRole.PartnerAdmin)));
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "OnAndOffboarding"));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId1.ToString()));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId2.ToString()));
 
@@ -181,6 +183,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, role));
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, callerId.ToString()));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "SubscriptionManagement"));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
             permissionsIdentity.AddClaim(new Claim("AccessList", departmentId.ToString()));
 
@@ -322,6 +325,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             var permissionsIdentity = new ClaimsIdentity();
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, callerId.ToString()));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "OnAndOffboarding"));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
 
             var client = _factory.WithWebHostBuilder(builder =>

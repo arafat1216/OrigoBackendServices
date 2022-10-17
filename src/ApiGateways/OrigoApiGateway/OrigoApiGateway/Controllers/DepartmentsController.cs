@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Common.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Common.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using OrigoApiGateway.Authorization;
@@ -14,7 +15,7 @@ namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    //[Authorize]
+    [Authorize]
     [Route("origoapi/v{version:apiVersion}/Customers/{organizationId:guid}/[controller]")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
@@ -35,7 +36,7 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
+        [PermissionAuthorize(PermissionOperator.And,Permission.CanReadCustomer,Permission.DepartmentStructure)]
         public async Task<ActionResult<OrigoDepartment>> GetDepartment(Guid organizationId, Guid departmentId)
         {
             try
@@ -65,7 +66,7 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoDepartment>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.DepartmentStructure)]
         public async Task<ActionResult<OrigoDepartment>> GetDepartments(Guid organizationId)
         {
             try
@@ -110,7 +111,8 @@ namespace OrigoApiGateway.Controllers
         [HttpGet("paginated")]
         [ProducesResponseType(typeof(PagedModel<OrigoDepartment>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.DepartmentStructure)]
+
         public async Task<ActionResult<PagedModel<OrigoDepartment>>> GetPaginatedDepartmentsAsync([FromRoute] Guid organizationId, CancellationToken cancellationToken, [FromQuery] bool includeManagers = false, [FromQuery] int page = 1, [FromQuery][Range(1, 100)] int limit = 25)
         {
             try
@@ -140,7 +142,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer, Permission.DepartmentStructure)]
         public async Task<ActionResult<OrigoDepartment>> CreateDepartmentForCustomer(Guid organizationId, [FromBody] NewDepartment newDepartment)
         {
             try
@@ -185,7 +187,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPut]
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer, Permission.DepartmentStructure)]
         public async Task<ActionResult<OrigoDepartment>> PutDepartmentForCustomer(Guid organizationId, Guid departmentId, [FromBody] UpdateDepartment updateDepartment)
         {
             try
@@ -229,7 +231,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer, Permission.DepartmentStructure)]
         public async Task<ActionResult<OrigoDepartment>> PatchDepartmentForCustomer(Guid organizationId, Guid departmentId, [FromBody] UpdateDepartment updateDepartment)
         {
             try
@@ -273,7 +275,7 @@ namespace OrigoApiGateway.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(OrigoDepartment), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer, Permission.DepartmentStructure)]
         public async Task<ActionResult<OrigoDepartment>> DeleteDepartmentForCustomer(Guid organizationId, Guid departmentId)
         {
             try

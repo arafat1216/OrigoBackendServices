@@ -125,6 +125,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, callerId.ToString()));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanCreateCustomer"));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "DepartmentStructure"));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
 
             var updatedUserPermission = new NewUsersPermissions
@@ -214,6 +215,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, callerId.ToString()));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanCreateCustomer"));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "DepartmentStructure"));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
             permissionsIdentity.AddClaim(new Claim("AccessList", departmentId.ToString()));
 

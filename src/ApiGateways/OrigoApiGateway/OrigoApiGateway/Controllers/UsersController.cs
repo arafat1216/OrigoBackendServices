@@ -48,7 +48,7 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(CustomerUserCount), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.OnAndOffboarding)]
         public async Task<ActionResult<CustomerUserCount>> GetUsersCount(Guid organizationId)
         {
             try
@@ -151,7 +151,7 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.OnAndOffboarding)]
         public async Task<ActionResult<OnboardingTilesPreference>> GetOnBoardingTilesPreferences(Guid organizationId)
         {
 
@@ -281,17 +281,15 @@ namespace OrigoApiGateway.Controllers
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 _ = Guid.TryParse(actor, out Guid callerId);
 
-                // TODO: The includeOnboarding variable and all code related to it should be removed when Onboarding process is required for all customers and employees.
-                // This is to ensure that all current users of customers with Implement as a product will be activated user.
-                var customer = await _customerServices.GetCustomerAsync(organizationId);
-                if (customer == null) return NotFound("Customer not found.");
-                
+                //The customer that has Transactional and the feature OnAndOffboarding handels the creation of user in a different way then the customers with Implement 
+                var permissions = HttpContext.User.Claims.Where(c => c.Type == "Permissions").Select(c => c.Value).ToList();
                 var includeOnboarding = false;
-                if (customer.PartnerId.HasValue && customer.PartnerId != Guid.Empty)
+
+                if (permissions.Contains(Permission.OnAndOffboarding.ToString()))
                 {
-                    var customerOrders = await _productCatalogServices.GetOrderedProductsByPartnerAndOrganizationAsync(customer.PartnerId.Value, organizationId, false);
-                    includeOnboarding = customerOrders.FirstOrDefault(a => a.Id == 2) != null ? false : true;
+                   includeOnboarding = true;
                 }
+
                 var updatedUser = await _userServices.AddUserForCustomerAsync(organizationId, newUser, callerId, includeOnboarding);
 
                 return CreatedAtAction(nameof(CreateUserForCustomer), new { id = updatedUser.Id }, updatedUser);
@@ -482,8 +480,8 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-        public async Task<ActionResult<OrigoUser>> AssignDepartmentForCustomer(Guid organizationId, Guid userId, Guid departmentId)
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer, Permission.DepartmentStructure)]
+        public async Task<ActionResult<OrigoUser>> AssignUserToDepartment(Guid organizationId, Guid userId, Guid departmentId)
         {
             try
             {
@@ -520,8 +518,8 @@ namespace OrigoApiGateway.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-        public async Task<ActionResult<OrigoUser>> RemoveAssignedDepartmentForCustomer(Guid organizationId, Guid userId, Guid departmentId)
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer, Permission.DepartmentStructure)]
+        public async Task<ActionResult<OrigoUser>> UnassignUserFromDepartment(Guid organizationId, Guid userId, Guid departmentId)
         {
             try
             {
@@ -557,7 +555,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer, Permission.DepartmentStructure)]
         public async Task<ActionResult> AssignManagerToDepartment(Guid organizationId, Guid userId, Guid departmentId)
         {
             try
@@ -593,7 +591,7 @@ namespace OrigoApiGateway.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer, Permission.DepartmentStructure)]
         public async Task<ActionResult> UnassignManagerFromDepartment(Guid organizationId, Guid userId, Guid departmentId)
         {
             try
@@ -629,7 +627,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
+        [PermissionAuthorize(PermissionOperator.And,Permission.CanReadCustomer, Permission.OnAndOffboarding)]
         public async Task<ActionResult<OrigoUser>> InitiateOffboarding(Guid organizationId, Guid userId, [FromBody] OffboardInitiate postData)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -667,7 +665,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.OnAndOffboarding)]
         public async Task<ActionResult<OrigoUser>> CancelOffboarding(Guid organizationId, Guid userId)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -708,7 +706,8 @@ namespace OrigoApiGateway.Controllers
         [Route("re-send-invitation")]
         [HttpPost]
         [ProducesResponseType(typeof(OrigoExceptionMessages), (int)HttpStatusCode.OK)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.OnAndOffboarding)]
+
         public async Task<ActionResult<OrigoExceptionMessages>> ResendOrigoInvitationMail(Guid organizationId, [FromBody] InviteUsers users)
         {
             try
@@ -764,7 +763,8 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(Permission.CanReadCustomer)]
+        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.OnAndOffboarding)]
+
         public async Task<ActionResult<OrigoUser>> CompleteOnboarding(Guid organizationId)
         {
             try

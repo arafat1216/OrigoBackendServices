@@ -147,11 +147,19 @@ namespace OrigoApiGateway.Controllers
             try
             {
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
                 if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
                 {
                     return Forbid();
                 }
+
+                if (userPermissions.Role == PredefinedRole.DepartmentManager.ToString() || userPermissions.Role == PredefinedRole.Manager.ToString()) 
+                { 
+                    var permissions = HttpContext.User.Claims.Where(c => c.Type == "Permissions").Select(c => c.Value).ToList();
+
+                    if (!permissions.Contains(Permission.DepartmentStructure.ToString())) return Forbid("Customer does not have the right product to be able to add managers.");
+                
+                }
+
                 if(role != PredefinedRole.SystemAdmin.ToString())
                 {
                     //User that is requested access to
@@ -202,6 +210,15 @@ namespace OrigoApiGateway.Controllers
                 
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
+                //Customer needs to have the feature of Department Structure to be able to give a user the role Department Manager
+                if (usersPermissions.UserPermissions.Select(a => a.Role).Contains(PredefinedRole.DepartmentManager.ToString()) || usersPermissions.UserPermissions.Select(a => a.Role).Contains(PredefinedRole.Manager.ToString()))
+                {
+                    var permissions = HttpContext.User.Claims.Where(c => c.Type == "Permissions").Select(c => c.Value).ToList();
+
+                    if (!permissions.Contains(Permission.DepartmentStructure.ToString())) return Forbid();
+
+                }
+
                 if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
@@ -212,6 +229,7 @@ namespace OrigoApiGateway.Controllers
 
                     foreach (var permission in usersPermissions.UserPermissions)
                     {
+                       
                         var user = await _userServices.GetUserInfo(null, permission.UserId);
                         if (!accessList.Any() || !accessList.Contains(user.OrganizationId.ToString())) return Forbid();
 

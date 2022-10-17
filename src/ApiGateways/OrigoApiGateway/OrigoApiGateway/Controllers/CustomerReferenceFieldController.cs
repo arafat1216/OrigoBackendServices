@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Models.SubscriptionManagement;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
@@ -39,6 +40,7 @@ namespace OrigoApiGateway.Controllers
         /// </remarks>
         [HttpGet]
         [ProducesResponseType(typeof(IList<OrigoCustomerReferenceField>), (int)HttpStatusCode.OK)]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<IActionResult> GetAllCustomerReferenceFields(Guid organizationId)
         {
             // If role is not System admin, check access list
@@ -67,6 +69,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(OrigoCustomerReferenceField), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult<OrigoSubscriptionProduct>> CreateCustomerReferenceField(Guid organizationId, [FromBody] NewCustomerReferenceField newCustomerReferenceField)
         {
             try
@@ -105,6 +108,7 @@ namespace OrigoApiGateway.Controllers
         [Route("{customerReferenceId:int}")]
         [ProducesResponseType(typeof(OrigoCustomerReferenceField), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult<OrigoSubscriptionProduct>> DeleteCustomerReferenceField(Guid organizationId, int customerReferenceId)
         {
             try
