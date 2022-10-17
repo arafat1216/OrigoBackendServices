@@ -4,6 +4,7 @@ using AssetServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AssetServices.Migrations
 {
     [DbContext(typeof(AssetsContext))]
-    partial class AssetsContextModelSnapshot : ModelSnapshot
+    [Migration("20221017121024_added_alternate_keys")]
+    partial class added_alternate_keys
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -562,8 +564,8 @@ namespace AssetServices.Migrations
 
             modelBuilder.Entity("AssetServices.Models.CustomerLabel", b =>
                 {
-                    b.OwnsOne("AssetServices.Models.Label", "Label", b1 => 
-                    {
+                    b.OwnsOne("AssetServices.Models.Label", "Label", b1 =>
+                        {
                             b1.Property<int>("CustomerLabelId")
                                 .HasColumnType("int");
 
@@ -588,8 +590,8 @@ namespace AssetServices.Migrations
 
             modelBuilder.Entity("AssetServices.Models.CustomerSettings", b =>
                 {
-                    b.OwnsOne("AssetServices.Models.DisposeSetting", "DisposeSetting", b1 => 
-                    {
+                    b.OwnsOne("AssetServices.Models.DisposeSetting", "DisposeSetting", b1 =>
+                        {
                             b1.Property<int>("CustomerSettingsId")
                                 .HasColumnType("int");
 
