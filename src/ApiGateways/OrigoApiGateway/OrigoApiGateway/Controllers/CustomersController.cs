@@ -1097,7 +1097,7 @@ namespace OrigoApiGateway.Controllers
         public async Task<ActionResult> GetSubscriptionOrders(Guid organizationId)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            if (role == PredefinedRole.EndUser.ToString())
             {
                 return Forbid();
             }
@@ -1121,7 +1121,7 @@ namespace OrigoApiGateway.Controllers
         public async Task<ActionResult> GetSubscriptionOrdersCount(Guid organizationId)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            if (role == PredefinedRole.EndUser.ToString())
             {
                 return Forbid();
             }
@@ -1144,7 +1144,7 @@ namespace OrigoApiGateway.Controllers
         public async Task<ActionResult> GetSubscriptionOrderDetailView(Guid organizationId, Guid orderId, int orderType)
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            if (role == PredefinedRole.EndUser.ToString())
             {
                 return Forbid();
             }
