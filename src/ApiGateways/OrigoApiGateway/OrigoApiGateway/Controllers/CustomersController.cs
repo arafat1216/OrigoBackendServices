@@ -883,10 +883,6 @@ namespace OrigoApiGateway.Controllers
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
-            {
-                return Forbid();
-            }
 
             if (role != PredefinedRole.SystemAdmin.ToString())
             {
@@ -909,10 +905,6 @@ namespace OrigoApiGateway.Controllers
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
-            {
-                return Forbid();
-            }
 
             if (role != PredefinedRole.SystemAdmin.ToString())
             {
@@ -973,10 +965,6 @@ namespace OrigoApiGateway.Controllers
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
-            {
-                return Forbid();
-            }
 
             if (role != PredefinedRole.SystemAdmin.ToString())
             {
@@ -1089,10 +1077,6 @@ namespace OrigoApiGateway.Controllers
         {
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
-            {
-                return Forbid();
-            }
 
             if (role != PredefinedRole.SystemAdmin.ToString())
             {
@@ -1194,11 +1178,6 @@ namespace OrigoApiGateway.Controllers
         {
 
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
-            if (role == PredefinedRole.EndUser.ToString())
-            {
-                return Forbid();
-            }
 
             if (role != PredefinedRole.SystemAdmin.ToString())
             {
