@@ -20,7 +20,7 @@ namespace CustomerServices.ServiceModels
         public string LastName { get; set; }
 
         [EmailAddress]
-        [MaxLength(2)]
+        [MaxLength(320)]
         public string Email { get; set; }
 
         /// <summary>

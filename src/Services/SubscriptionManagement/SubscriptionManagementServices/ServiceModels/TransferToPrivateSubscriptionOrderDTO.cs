@@ -1,4 +1,4 @@
-﻿namespace SubscriptionManagementServices.ServiceModels
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace SubscriptionManagementServices.ServiceModels
 {

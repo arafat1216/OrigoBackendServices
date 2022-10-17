@@ -44,6 +44,8 @@ namespace Customer.API.IntegrationTests.Controllers
         public async Task CreateOrganizationTest()
         {
             // Setup
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
             var requestUri = $"/api/v1/organizations";
             _testOutputHelper.WriteLine(requestUri);
 
@@ -84,7 +86,7 @@ namespace Customer.API.IntegrationTests.Controllers
 
             // Do the request
             _testOutputHelper.WriteLine(JsonSerializer.Serialize(newOrganization));
-            var response = await _httpClient.PostAsJsonAsync(requestUri, newOrganization);
+            var response = await httpClient.PostAsJsonAsync(requestUri, newOrganization);
             var responseMessage = await response.Content.ReadAsStringAsync();
 
             // Check asserts
