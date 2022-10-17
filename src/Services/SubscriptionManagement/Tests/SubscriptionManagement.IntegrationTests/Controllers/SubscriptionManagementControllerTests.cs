@@ -80,6 +80,18 @@ public class
     }
 
     [Fact]
+    public async Task GetOperatorSubscriptionProductForCustomer()
+    {
+        var modelList =
+            await _httpClient.GetFromJsonAsync<IList<CustomerSubscriptionProductDTO>>(
+                $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-products?includeOperator=true");
+
+        Assert.True(modelList!.Count > 0);
+        Assert.True(modelList.FirstOrDefault()!.OperatorId != 0);
+    }
+
+
+    [Fact]
     public async Task CreateAndUpdateCustomerSubscriptionProduct()
     {
         var customerSubscriptionProduct = new NewSubscriptionProduct

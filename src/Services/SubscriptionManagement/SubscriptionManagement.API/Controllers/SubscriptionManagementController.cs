@@ -374,9 +374,9 @@ namespace SubscriptionManagement.API.Controllers
         [ProducesResponseType(typeof(IList<CustomerSubscriptionProductDTO>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [SwaggerOperation(Tags = new[] { "Customer Subscription Products" })]
-        public async Task<ActionResult<IEnumerable<CustomerSubscriptionProductDTO>>> GetOperatorSubscriptionProductForCustomer(Guid organizationId)
+        public async Task<ActionResult<IEnumerable<CustomerSubscriptionProductDTO>>> GetOperatorSubscriptionProductForCustomer(Guid organizationId, [FromQuery] bool includeOperator = false)
         {
-            var subscriptionProducts = await _customerSettingsService.GetAllCustomerSubscriptionProductsAsync(organizationId);
+            var subscriptionProducts = await _customerSettingsService.GetAllCustomerSubscriptionProductsAsync(organizationId, includeOperator);
 
             return Ok(subscriptionProducts);
         }

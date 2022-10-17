@@ -45,8 +45,16 @@ namespace SubscriptionManagementServices.Infrastructure
                     .ThenInclude(o => o.CustomerOperatorAccounts);
 
             if (includeAvailableSubscriptionProducts)
-                query = query.Include(cs => cs.CustomerOperatorSettings)
+            {
+                if (includeOperator)
+                    query = query.Include(cs => cs.CustomerOperatorSettings)
+                    .ThenInclude(o => o.AvailableSubscriptionProducts)
+                    .ThenInclude(a => a.Operator);
+                else
+                    query = query.Include(cs => cs.CustomerOperatorSettings)
                     .ThenInclude(o => o.AvailableSubscriptionProducts);
+            }
+                
 
             if (includeGlobalSubscriptionProduct)
                 query = query.Include(cs => cs.CustomerOperatorSettings)
@@ -54,9 +62,16 @@ namespace SubscriptionManagementServices.Infrastructure
                     .ThenInclude(o => o.GlobalSubscriptionProduct);
 
             if (includeDataPackages)
+            {
                 query = query.Include(cs => cs.CustomerOperatorSettings)
                     .ThenInclude(o => o.AvailableSubscriptionProducts)
                     .ThenInclude(o => o.DataPackages);
+                if (includeOperator)
+                    query = query.Include(cs => cs.CustomerOperatorSettings)
+                    .ThenInclude(o => o.AvailableSubscriptionProducts)
+                    .ThenInclude(a => a.Operator);
+            }
+                
 
             if (includeCustomerReferenceFields)
                 query = query.Include(cs => cs.CustomerReferenceFields);

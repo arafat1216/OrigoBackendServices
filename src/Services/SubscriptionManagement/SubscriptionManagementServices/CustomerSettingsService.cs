@@ -168,9 +168,9 @@ public class CustomerSettingsService : ICustomerSettingsService
     }
 
     public async Task<IList<CustomerSubscriptionProductDTO>> GetAllCustomerSubscriptionProductsAsync(
-        Guid organizationId)
+        Guid organizationId, bool includeOperator = false)
     {
-        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeDataPackages: true, asNoTracking: true);
+        var customerSettings = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId,includeOperator: includeOperator,includeAvailableSubscriptionProducts:true, includeDataPackages: true, asNoTracking: true);
         if (customerSettings == null) return new List<CustomerSubscriptionProductDTO>();
         var customerSubscriptionProducts =
             customerSettings.CustomerOperatorSettings.SelectMany(o => o.AvailableSubscriptionProducts);

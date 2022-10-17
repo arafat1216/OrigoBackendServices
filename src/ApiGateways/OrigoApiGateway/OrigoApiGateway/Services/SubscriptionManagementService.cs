@@ -149,11 +149,11 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<IList<OrigoSubscriptionProduct>> GetAllSubscriptionProductForCustomerAsync(Guid organizationId)
+        public async Task<IList<OrigoSubscriptionProduct>> GetAllSubscriptionProductForCustomerAsync(Guid organizationId, bool includeOperator = false)
         {
             try
             {
-                var subscriptionProduct = await HttpClient.GetFromJsonAsync<IList<OrigoSubscriptionProduct>>($"{_options.ApiPath}/{organizationId}/subscription-products");
+                var subscriptionProduct = await HttpClient.GetFromJsonAsync<IList<OrigoSubscriptionProduct>>($"{_options.ApiPath}/{organizationId}/subscription-products?includeOperator={includeOperator}");
 
                 return subscriptionProduct;
             }
