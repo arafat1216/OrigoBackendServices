@@ -27,8 +27,6 @@ namespace CustomerServices.Mappings
                 .ForMember(u => u.OrganizationId, opt => opt.MapFrom(src => src.Customer.OrganizationId))
                 .ForMember(u => u.DepartmentId, opt => opt.MapFrom(src => src.Department.ExternalDepartmentId))
                 .ForMember(u => u.UserName, opt => opt.MapFrom(src => src.Email));
-
-;
         }
     }
 }

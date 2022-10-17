@@ -1,4 +1,6 @@
-﻿using Common.Extensions;
+﻿using Common.Enums;
+using Common.Exceptions;
+using Common.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -7,11 +9,13 @@ using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using OrigoApiGateway.Filters;
+using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Services;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading;
@@ -25,15 +29,21 @@ namespace OrigoApiGateway.Controllers
     [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class WebshopController : ControllerBase
     {
-        private readonly IWebshopService _webshopService;
-        private ILogger<WebshopController> _logger { get; }
-        private readonly WebshopConfiguration _webshopConfiguration;
+        private readonly IWebshopService WebshopService;
+        private ILogger<WebshopController> Logger { get; }
+        private readonly WebshopConfiguration WebshopConfiguration;
+        private IUserServices UserServices { get; }
 
-        public WebshopController(IWebshopService webshopService, IOptions<WebshopConfiguration> options, ILogger<WebshopController> logger)
+        public WebshopController(
+            IUserServices userServices,
+            IWebshopService webshopService, 
+            IOptions<WebshopConfiguration> options, 
+            ILogger<WebshopController> logger)
         {
-            _webshopConfiguration = options.Value;
-            _webshopService = webshopService;
-            _logger = logger;
+            UserServices = userServices;
+            WebshopConfiguration = options.Value;
+            WebshopService = webshopService;
+            Logger = logger;
         }
 
         private static async Task<JwtSecurityToken> ValidateToken(
@@ -41,7 +51,7 @@ namespace OrigoApiGateway.Controllers
             string issuer,
             IEnumerable<String> audiences,
             IConfigurationManager<OpenIdConnectConfiguration> configurationManager,
-            CancellationToken ct = default(CancellationToken))
+            CancellationToken ct = default)
         {
             if (string.IsNullOrEmpty(token)) throw new ArgumentNullException(nameof(token));
             if (string.IsNullOrEmpty(issuer)) throw new ArgumentNullException(nameof(issuer));
@@ -91,8 +101,8 @@ namespace OrigoApiGateway.Controllers
                 var scheme = headerValue.Scheme; // "Bearer"
                 var parameter = headerValue.Parameter; // Token
 
-                var issuer = _webshopConfiguration.Issuer;
-                var audiences = _webshopConfiguration.Audiences;
+                var issuer = WebshopConfiguration.Issuer;
+                var audiences = WebshopConfiguration.Audiences;
                 var configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(
                     $"{issuer}/.well-known/oauth-authorization-server",
                     new OpenIdConnectConfigurationRetriever(),
@@ -101,21 +111,21 @@ namespace OrigoApiGateway.Controllers
                 var jsonToken = await ValidateToken(parameter, issuer, audiences, configurationManager);
                 if (jsonToken == null)
                 {
-                    _logger.LogInformation("Invalid ID Token recieved");
+                    Logger.LogInformation("Invalid ID Token recieved");
                     return Forbid();
                 }
 
                 var expectedAlg = SecurityAlgorithms.RsaSha256; //Okta uses RS256
                 if (jsonToken.Header?.Alg == null || jsonToken.Header?.Alg != expectedAlg)
                 {
-                    _logger.LogInformation("Token signing algorithm is not RS256");
+                    Logger.LogInformation("Token signing algorithm is not RS256");
                     return Forbid();
                 }
 
                 var email = jsonToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
                 if (string.IsNullOrWhiteSpace(email))
                 {
-                    _logger.LogInformation("No email found in the token");
+                    Logger.LogInformation("No email found in the token");
                     return BadRequest();
                 }
 
@@ -126,18 +136,46 @@ namespace OrigoApiGateway.Controllers
 
                 try
                 {
-                    await _webshopService.ProvisionUserAsync(email);
-                    return Ok(_webshopConfiguration.WebshopRedirectUrl);
+                    await WebshopService.ProvisionImplementUserAsync(email);
+                    return Ok(WebshopConfiguration.WebshopRedirectUrl);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("{0}", ex.Message);
+                    Logger.LogError("{0}", ex.Message);
                     return BadRequest();
                 }
             }
 
-            _logger.LogInformation("Unable to parse the bearer token");
+            Logger.LogInformation("Unable to parse the bearer token");
             return BadRequest();
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [Authorize]
+        public async Task<ActionResult> ProvisionUserIntoWebshop(Guid organizationId)
+        {
+            try
+            {
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                if (!Guid.TryParse(actor, out Guid callerId))
+                    throw new BadHttpRequestException("Invalid callerId");
+
+                await WebshopService.ProvisionUserWithEmployeeRoleAsync(callerId);
+                
+                return Ok(WebshopConfiguration.WebshopRedirectUrl);
+            }
+            catch (BadHttpRequestException exception)
+            {
+                Logger.LogError("Error in ProvisionUserIntoWebshop", exception);
+                return BadRequest();
+            }
+            catch (Exception)
+            {
+                Logger.LogInformation("Unexpected exception in ProvisionUserIntoWebshop.");
+                return BadRequest("Something went wrong during user provisioning into the web shop.");
+            }
         }
     }
 }
