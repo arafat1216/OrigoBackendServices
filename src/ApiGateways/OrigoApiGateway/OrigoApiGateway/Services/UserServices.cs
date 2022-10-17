@@ -314,7 +314,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var users = await HttpClient.GetFromJsonAsync<HashSet<UserNamesDTO>>($"{_options.ApiPath}/{customerId}/users?onlyNames=true", cancellationToken);
+                var users = await HttpClient.GetFromJsonAsync<HashSet<UserNamesDTO>>($"{_options.ApiPath}/{customerId}/users/names", cancellationToken);
                 return users ?? new HashSet<UserNamesDTO>();
             }
             catch (HttpRequestException exception)

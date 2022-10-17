@@ -3,17 +3,11 @@ using Common.Interfaces;
 using Customer.API.ViewModels;
 using Customer.API.WriteModels;
 using CustomerServices;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Swashbuckle.AspNetCore.Annotations;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
+using CustomerServices.ServiceModels;
 
 namespace Customer.API.Controllers
 {
@@ -68,6 +62,20 @@ namespace Customer.API.Controllers
             var departmentView = _mapper.Map<IList<Department>>(departmentList);
 
             return Ok(departmentView);
+        }
+
+        /// <summary>
+        ///     Returns all department names including department id.
+        /// </summary>
+        /// <param name="customerId"> The organization you are retrieving departments from. </param>
+        /// <param name="cancellationToken"></param>
+        /// <returns> An asynchronous task. The task results contain the appropriate <see cref="ActionResult"/>. </returns>
+        [Route("names")]
+        [HttpGet]
+        [ProducesResponseType(typeof(List<DepartmentNamesDTO>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<List<DepartmentNamesDTO>>> GetDepartmentNames([FromRoute] Guid customerId, CancellationToken cancellationToken)
+        {
+                return Ok(await _departmentServices.GetAllDepartmentNamesAsync(customerId, cancellationToken));
         }
 
         /// <summary>

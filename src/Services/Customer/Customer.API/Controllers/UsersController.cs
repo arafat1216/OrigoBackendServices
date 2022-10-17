@@ -7,14 +7,9 @@ using Customer.API.WriteModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using CustomerServices.ServiceModels;
 
 namespace Customer.API.Controllers;
@@ -86,7 +81,7 @@ public class UsersController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(PagedModel<User>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult> GetAllUsers([FromRoute] Guid customerId, [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString, CancellationToken cancellationToken, [FromQuery(Name = "q")] string? search, [FromQuery] int page = 1, [FromQuery] int limit = 25, [FromQuery] bool onlyNames = false)
+    public async Task<ActionResult<PagedModel<User>>> GetAllUsers([FromRoute] Guid customerId, [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString, CancellationToken cancellationToken, [FromQuery(Name = "q")] string? search, [FromQuery] int page = 1, [FromQuery] int limit = 25, [FromQuery] bool onlyNames = false)
     {
         if (onlyNames)
         {
@@ -109,6 +104,21 @@ public class UsersController : ControllerBase
             TotalPages = users.TotalPages
         };
         return Ok(response);
+    }
+
+    /// <summary>
+    /// Get all usernames including userid for a customer.
+    /// </summary>
+    /// <param name="customerId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [Route("names")]
+    [HttpGet]
+    [ProducesResponseType(typeof(List<UserNamesDTO>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult<List<UserNamesDTO>>> GetAllUserNames([FromRoute] Guid customerId, CancellationToken cancellationToken)
+    {
+            return Ok(await _userServices.GetAllUsersWithNameOnly(customerId, cancellationToken));
     }
 
     [Route("{userId:Guid}")]
