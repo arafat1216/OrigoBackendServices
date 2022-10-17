@@ -22,6 +22,7 @@ namespace AssetServices.Infrastructure.EntityConfiguration
              * DB table configuration (keys, constraints, indexing, etc.)
              */
 
+            // TODO: Re-add this key/index once bug #11063 has been fixed, and the duplicate unique items has been cleared out.
             //builder.HasAlternateKey(entity => entity.CustomerId);
 
 
