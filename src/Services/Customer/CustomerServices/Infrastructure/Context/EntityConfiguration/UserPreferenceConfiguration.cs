@@ -27,7 +27,13 @@ namespace CustomerServices.Infrastructure.Context.EntityConfiguration
             builder.Property(e => e.IsAssetTileClosed).HasDefaultValue(true);
             builder.Property(e => e.IsSubscriptionTileClosed).HasDefaultValue(true);
 
-            
+            builder.Property(e => e.Language)
+               .HasComment("A Language using ISO-634 format.")
+               .HasMaxLength(2)
+               .IsUnicode(false);
+
+
+
         }
     }
 }

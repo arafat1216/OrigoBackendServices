@@ -2,6 +2,7 @@
 using Common.Seedwork;
 using CustomerServices.DomainEvents;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace CustomerServices.Models
 {
@@ -15,6 +16,7 @@ namespace CustomerServices.Models
         public string? LogoUrl { get; protected set; }
         public string? OrganizationNotes { get; protected set; }
         public bool EnforceTwoFactorAuth { get; protected set; }
+        [MaxLength(2, ErrorMessage = "Country code max length is 2")]
         public string PrimaryLanguage { get; protected set; }
         public short DefaultDepartmentClassification { get; protected set; }
 
