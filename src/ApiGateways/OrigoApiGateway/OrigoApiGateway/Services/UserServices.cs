@@ -6,9 +6,7 @@ using Microsoft.Extensions.Options;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
-using System.Collections.Generic;
 using System.Text.Json;
-using static Humanizer.On;
 
 namespace OrigoApiGateway.Services
 {

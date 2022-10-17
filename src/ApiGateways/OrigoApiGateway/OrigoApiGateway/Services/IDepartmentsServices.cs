@@ -1,9 +1,6 @@
 ﻿using Common.Interfaces;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace OrigoApiGateway.Services
 {
@@ -16,6 +13,12 @@ namespace OrigoApiGateway.Services
         Task<OrigoDepartment> UpdateDepartmentPutAsync(Guid customerId, Guid departmentId, UpdateDepartmentDTO department);
         Task<OrigoDepartment> UpdateDepartmentPatchAsync(Guid customerId, Guid departmentId, UpdateDepartmentDTO department);
         Task<OrigoDepartment> DeleteDepartmentPatchAsync(Guid customerId, Guid departmentId, Guid callerId);
+        /// <summary>
+        /// Will fetch a list of all department names including the departmentId
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         Task<HashSet<DepartmentNamesDTO>> GetAllDepartmentNamesAsync(Guid customerId, CancellationToken cancellationToken);
     }
 }

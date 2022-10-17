@@ -311,7 +311,19 @@ namespace CustomerServices.Models
 
         Task<Organization?> GetOrganizationByTechstepCustomerIdAsync(long techstepCustomerId);
         Task<IList<Guid>> GetOrganizationIdsForPartnerAsync(Guid partnerId);
+        /// <summary>
+        /// Returns a list of all users but only the user name and id.
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         Task<List<UserNamesDTO>> GetAllUsersWithNameOnly(Guid customerId, CancellationToken cancellationToken);
+        /// <summary>
+        /// Returns a list of all departments but only the department name and id.
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         Task<List<DepartmentNamesDTO>> GetAllDepartmentNamesAsync(Guid organizationId, CancellationToken cancellationToken);
     }
 }
