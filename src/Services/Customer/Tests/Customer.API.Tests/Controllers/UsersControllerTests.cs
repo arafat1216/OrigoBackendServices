@@ -150,6 +150,7 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal("Test", user?.Result?.FirstName);
         }
 
+
         [Fact]
         public async Task UpdateUserPutAsync_ReturnsOK()
         {
@@ -175,6 +176,78 @@ namespace Customer.API.IntegrationTests.Controllers
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal("Test", user?.Result?.FirstName);
+        }
+        [Fact]
+        public async Task UpdateUserPutAsync_MobileNumberNULL()
+        {
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}";
+
+            var updateUser = new UpdateUser
+            {
+                Email = "test@test.no",
+                FirstName = "Test",
+                LastName = "Testi",
+                EmployeeId = "EID123",
+                UserPreference = new UserPreference
+                {
+                    Language = "no"
+                },
+                CallerId = _callerId
+            };
+            var response = await _httpClient.PutAsJsonAsync(requestUri, updateUser);
+
+            var user = response.Content.ReadFromJsonAsync<User>();
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("Test", user?.Result?.FirstName);
+        }
+        [Fact]
+        public async Task UpdateUserPatch_MobileNumberNULL()
+        {
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}";
+
+            var updateUser = new UpdateUser
+            {
+                Email = "test@test.no",
+                FirstName = "Test",
+                LastName = "Testi",
+                EmployeeId = "EID123",
+                UserPreference = new UserPreference
+                {
+                    Language = "no"
+                },
+                CallerId = _callerId
+            };
+            var response = await _httpClient.PostAsJsonAsync(requestUri, updateUser);
+
+            var user = response.Content.ReadFromJsonAsync<User>();
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("Test", user?.Result?.FirstName);
+        }
+        [Fact]
+        public async Task UpdateUserPatch_UserPreferenceUpdate_ReturnsOK()
+        {
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userOneId}";
+
+            var updateUser = new UpdateUser
+            {
+                UserPreference = new UserPreference
+                {
+                    IsAssetTileClosed = true,
+                },
+                CallerId = _callerId
+            };
+            var response = await _httpClient.PostAsJsonAsync(requestUri, updateUser);
+
+            var user = response.Content.ReadFromJsonAsync<User>();
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(true, user?.Result?.UserPreference.IsAssetTileClosed);
+            Assert.Equal(false, user?.Result?.UserPreference.IsSubscriptionTileClosed);
         }
 
         [Fact]

@@ -10,9 +10,11 @@ namespace CustomerServices.Models
     {
         protected UserPreference() { }
 
-        public UserPreference(string language,Guid callerId)
+        public UserPreference(string language, Guid callerId, bool? isAssetTileClosed = null, bool? isSubscriptionTileClosed = null)
         {
             Language = language;
+            IsAssetTileClosed = isAssetTileClosed;
+            IsSubscriptionTileClosed = isSubscriptionTileClosed;
             CreatedBy = callerId;
         }
 
@@ -21,23 +23,23 @@ namespace CustomerServices.Models
         /// <summary>
         /// Is onboarding Asset Tile Closed by the User.
         /// </summary>
-        public bool IsAssetTileClosed { get; private set; } = true;
+        public bool? IsAssetTileClosed { get; private set; } = true;
         /// <summary>
         /// Is onboarding Asset Tile Closed by the User.
         /// </summary>
-        public bool IsSubscriptionTileClosed { get; private set; } = true;
+        public bool? IsSubscriptionTileClosed { get; private set; } = true;
 
         internal void SetDeleteStatus(bool isDeleted)
         {
             IsDeleted = isDeleted;
         }
 
-        public void SetOnboardingTiles(User user, Guid callerId)
+        public void SetOnboardingTiles(User user, bool? isAssetTileClosed, bool? isSubscriptionTileClosed, Guid callerId)
         {
             UpdatedBy = callerId;
-            IsAssetTileClosed = false;
-            IsSubscriptionTileClosed = false;
-            AddDomainEvent(new SetOnboardingTilesDomainEvent(user, callerId));
+            IsAssetTileClosed = isAssetTileClosed;
+            IsSubscriptionTileClosed = isSubscriptionTileClosed;
+            AddDomainEvent(new SetOnboardingTilesDomainEvent(this, user, callerId));
             LastUpdatedDate = DateTime.UtcNow;
         }
     }

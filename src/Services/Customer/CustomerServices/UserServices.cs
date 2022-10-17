@@ -377,16 +377,21 @@ namespace CustomerServices
             {
                 user.ChangeEmployeeId(employeeId, callerId);
             }
-            if (!string.IsNullOrEmpty(user.MobileNumber) && !user.MobileNumber.Equals(mobileNumber.Trim()))
+            if (!string.IsNullOrEmpty(mobileNumber) && !string.IsNullOrEmpty(user.MobileNumber) && !user.MobileNumber.Equals(mobileNumber.Trim()))
             {
                 // Check if mobile address is used by another user
                 var mobileNumberInUse = await _organizationRepository.GetUserByMobileNumber(mobileNumber, customerId);
                 if (mobileNumberInUse != null) throw new InvalidPhoneNumberException("Phone number already in use.");
                 user.ChangeMobileNumber(mobileNumber, callerId);
             }
-            if (userPreference != null && userPreference.Language != null &&
-                userPreference.Language != user.UserPreference?.Language)
-                user.ChangeUserPreferences(userPreference, callerId);
+
+            if (userPreference != null)
+            {
+                if (userPreference.Language != null && userPreference.Language != user.UserPreference?.Language)
+                    user.ChangeUserPreferences(userPreference, callerId);
+                if (userPreference.IsAssetTileClosed != null || userPreference.IsSubscriptionTileClosed != null)
+                    user.UserPreference?.SetOnboardingTiles(user, userPreference.IsAssetTileClosed, userPreference.IsSubscriptionTileClosed, callerId);
+            }       
 
             var userDTO = _mapper.Map<UserDTO>(user);
             if (userDTO == null)
@@ -425,7 +430,7 @@ namespace CustomerServices
             }
             user.ChangeEmailAddress(email, callerId);
             user.ChangeEmployeeId(employeeId, callerId);
-            if (!string.IsNullOrEmpty(user.MobileNumber) && !user.MobileNumber.Equals(mobileNumber.Trim()))
+            if (!string.IsNullOrEmpty(mobileNumber) && !string.IsNullOrEmpty(user.MobileNumber) && !user.MobileNumber.Equals(mobileNumber.Trim()))
             {
                 // Check if mobile address is used by another user
                 var mobileNumberInUse = await _organizationRepository.GetUserByMobileNumber(mobileNumber, customerId);

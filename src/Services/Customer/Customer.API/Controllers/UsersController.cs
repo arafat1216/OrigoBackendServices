@@ -211,7 +211,8 @@ public class UsersController : ControllerBase
     {
         try
         {
-            var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language, updateUser.CallerId);
+            var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language, updateUser.CallerId, updateUser.UserPreference?.IsAssetTileClosed,
+                updateUser.UserPreference?.IsSubscriptionTileClosed);
             var updatedUser = await _userServices.UpdateUserPatchAsync(customerId, userId, updateUser.FirstName,
                 updateUser.LastName, updateUser.Email, updateUser.EmployeeId, updateUser.MobileNumber, userPreference, updateUser.CallerId);
             if (updatedUser == null)

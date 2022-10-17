@@ -139,7 +139,7 @@ namespace CustomerServices.Models
                 AddDomainEvent(new UserOnboardingInitiatedDomainEvent(this));
 
                 if (UserPreference != null)
-                    UserPreference.SetOnboardingTiles(this, UserId);
+                    UserPreference.SetOnboardingTiles(this, false,false, UserId);
             }
         }
         public void OffboardingInitiated(DateTime lastWorkingDay, Guid callerId)
