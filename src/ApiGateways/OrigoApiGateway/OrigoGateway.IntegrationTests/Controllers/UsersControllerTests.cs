@@ -15,7 +15,6 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Security.Claims;
-using Common.Infrastructure;
 
 namespace OrigoGateway.IntegrationTests.Controllers
 {
@@ -342,9 +341,6 @@ namespace OrigoGateway.IntegrationTests.Controllers
                     userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), "mail@mail.com", CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
                     services.AddSingleton(userPermissionServiceMock.Object);
 
-                    var cacheServiceMock = new Mock<ICacheService>();
-                    cacheServiceMock.Setup(m => m.Delete(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(default(object)));
-
                     services.AddAuthentication(options =>
                     {
                         options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
@@ -363,7 +359,6 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         .ReturnsAsync(user);
 
                     services.AddSingleton(usersService.Object);
-                    services.AddSingleton(cacheServiceMock.Object);
                 });
             }).CreateClient();
 
