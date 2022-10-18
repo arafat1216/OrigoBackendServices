@@ -17,7 +17,10 @@ public class CacheService : ICacheService
     {
         try
         {
-            return await _daprClient.GetStateAsync<T>(stateStoreName, key);
+            var value = await _daprClient.GetStateAsync<T>(stateStoreName, key);
+            if (typeof(T) == typeof(string) && string.IsNullOrEmpty(value as string))
+                return default(T);
+            return value;
         }
         catch (Exception e)
         {
