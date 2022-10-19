@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Common.Enums;
+using Common.Model;
 
 namespace AssetServices.ServiceModel
 {
@@ -69,7 +70,7 @@ namespace AssetServices.ServiceModel
         /// The payment amount by company for the asset. For mobile phones and other devices
         /// This is the amount that company covered/paid for the asset's overall cost
         /// </summary>
-        public decimal? PaidByCompany { get; set; }
+        public Money? PaidByCompany { get; set; } = new();
 
         /// <summary>
         /// Tags associated with this asset.

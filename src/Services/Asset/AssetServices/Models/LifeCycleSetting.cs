@@ -1,12 +1,13 @@
 ﻿using System;
 using AssetServices.DomainEvents;
+using Common.Model;
 using Common.Seedwork;
 
 namespace AssetServices.Models;
 
 public class LifeCycleSetting : Entity
 {
-    public LifeCycleSetting(int assetCategoryId, bool buyoutAllowed, decimal minBuyoutPrice, int runtime, Guid callerId)
+    public LifeCycleSetting(int assetCategoryId, bool buyoutAllowed, Money minBuyoutPrice, int runtime, Guid callerId)
     {
         BuyoutAllowed = buyoutAllowed;
         MinBuyoutPrice = minBuyoutPrice;
@@ -32,7 +33,7 @@ public class LifeCycleSetting : Entity
     /// <summary>
     /// the min buyout price for this category and for this customer.
     /// </summary>
-    public decimal MinBuyoutPrice { get; protected set; } = decimal.Zero;
+    public Money MinBuyoutPrice { get; protected set; } = new();
 
     /// <summary>
     /// The category id that the setting is for.
@@ -84,7 +85,7 @@ public class LifeCycleSetting : Entity
     {
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
-        MinBuyoutPrice = buyoutPrice;
+        MinBuyoutPrice = new Money(buyoutPrice);
         AddDomainEvent(new SetBuyoutPriceDomainEvent(this, callerId));
     }
 

@@ -73,12 +73,12 @@ public class AssetLifecycleTests
         };
         var assetLifeCycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
         Assert.Equal(36, assetLifeCycle.SalaryDeductionTransactionList.Count);
-        Assert.Equal(120, assetLifeCycle.SalaryDeductionTransactionList.First().Amount);
+        Assert.Equal(120, assetLifeCycle.SalaryDeductionTransactionList.First().Deduction.Amount);
         Assert.Equal(3, assetLifeCycle.SalaryDeductionTransactionList.First().Month);
         Assert.Equal(2022, assetLifeCycle.SalaryDeductionTransactionList.First().Year);
         Assert.False(assetLifeCycle.SalaryDeductionTransactionList.First().Cancelled);
 
-        Assert.Equal(120, assetLifeCycle.SalaryDeductionTransactionList.Last().Amount);
+        Assert.Equal(120, assetLifeCycle.SalaryDeductionTransactionList.Last().Deduction.Amount);
         Assert.Equal(2, assetLifeCycle.SalaryDeductionTransactionList.Last().Month);
         Assert.Equal(2025, assetLifeCycle.SalaryDeductionTransactionList.Last().Year);
         Assert.False(assetLifeCycle.SalaryDeductionTransactionList.Last().Cancelled);

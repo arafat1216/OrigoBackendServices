@@ -9,6 +9,7 @@ using AssetServices.Utility;
 using AutoMapper;
 using Common.Enums;
 using Common.Logging;
+using Common.Model;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -440,7 +441,7 @@ public class AssetServicesTests : AssetBaseTest
             ManagedByDepartmentId = Guid.NewGuid(),
             Note = "Test note",
             Description = "description",
-            PaidByCompany = 20.33m
+            PaidByCompany = new Money(20.33m)
         };
 
         // Act
@@ -449,7 +450,7 @@ public class AssetServicesTests : AssetBaseTest
 
         // Assert
         Assert.NotNull(newAssetRead);
-        Assert.Equal(20.33M, newAssetRead.PaidByCompany);
+        Assert.Equal(20.33M, newAssetRead.PaidByCompany.Amount);
     }
 
     [Fact]
@@ -485,7 +486,7 @@ public class AssetServicesTests : AssetBaseTest
 
         // Assert
         Assert.NotNull(newAssetRead);
-        Assert.Equal(0, newAssetRead.PaidByCompany);
+        Assert.Equal(0, newAssetRead.PaidByCompany.Amount);
     }
 
     [Fact]
@@ -989,7 +990,7 @@ public class AssetServicesTests : AssetBaseTest
             ManagedByDepartmentId = Guid.NewGuid(),
             Note = "Test note",
             Description = "description",
-            PaidByCompany = paidByCompany
+            PaidByCompany = new Money(paidByCompany)
         };
 
         // Act
@@ -1024,7 +1025,7 @@ public class AssetServicesTests : AssetBaseTest
             ManagedByDepartmentId = Guid.NewGuid(),
             Note = "Test note",
             Description = "description",
-            PaidByCompany = 7000
+            PaidByCompany = new Money(7000)
         };
 
         // Act
@@ -1059,7 +1060,7 @@ public class AssetServicesTests : AssetBaseTest
             ManagedByDepartmentId = Guid.NewGuid(),
             Note = "Test note",
             Description = "description",
-            PaidByCompany = 7000
+            PaidByCompany = new Money(7000)
         };
 
         var newAssetDTO2 = new NewAssetDTO
@@ -1078,7 +1079,7 @@ public class AssetServicesTests : AssetBaseTest
             ManagedByDepartmentId = Guid.NewGuid(),
             Note = "Test note",
             Description = "description",
-            PaidByCompany = 5889.88m
+            PaidByCompany = new Money(5889.88m)
         };
 
         // Act
@@ -1265,7 +1266,7 @@ public class AssetServicesTests : AssetBaseTest
         var lifeCycleSetting = new LifeCycleSettingDTO()
         {
             AssetCategoryId = 1,
-            MinBuyoutPrice = 800M
+            MinBuyoutPrice = new Money(800M)
         };
 
         // Act and assert
@@ -1285,7 +1286,7 @@ public class AssetServicesTests : AssetBaseTest
         var lifeCycleSetting = new LifeCycleSettingDTO()
         {
             AssetCategoryId = 2,
-            MinBuyoutPrice = 800M,
+            MinBuyoutPrice = new Money(800M),
             Runtime = 24
         };
 
@@ -1313,7 +1314,7 @@ public class AssetServicesTests : AssetBaseTest
         var lifeCycleSetting = new LifeCycleSettingDTO()
         {
             AssetCategoryId = 1,
-            MinBuyoutPrice = 800M
+            MinBuyoutPrice = new Money(800M)
         };
 
         // Act

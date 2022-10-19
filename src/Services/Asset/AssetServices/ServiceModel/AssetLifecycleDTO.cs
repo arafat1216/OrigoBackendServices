@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Common.Enums;
+using Common.Model;
 
 namespace AssetServices.ServiceModel;
 
@@ -14,11 +15,10 @@ public record AssetLifecycleDTO
     public DateTime EndPeriod { get; init; }
     public DateTime PurchaseDate { get; init; }
     public string PurchasedBy { get; init; } = string.Empty;
-    public decimal OffboardBuyoutPrice { get; init; }
+    public Money OffboardBuyoutPrice { get; init; } = new();
     public string Note { get; init; } = string.Empty;
     public string Description { get; init; } = string.Empty;
-    public decimal PaidByCompany { get; init; } = 0;
-    public CurrencyCode CurrencyCode { get; init; }
+    public Money PaidByCompany { get; init; } = new();
     public AssetDTO? Asset { get; init; }
     public int AssetCategoryId { get; init; }
     public decimal BookValue { get; init; }

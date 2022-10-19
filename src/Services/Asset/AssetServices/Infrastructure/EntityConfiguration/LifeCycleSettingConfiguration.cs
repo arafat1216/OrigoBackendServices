@@ -29,8 +29,10 @@ namespace AssetServices.Infrastructure.EntityConfiguration
              * Configure properties
              */
 
-            builder.Property(a => a.MinBuyoutPrice)
-                   .HasColumnType("decimal(18,2)");
+            builder.OwnsOne(a => a.MinBuyoutPrice, b =>
+            {
+                b.Property(p => p.CurrencyCode).HasConversion(CurrencyConverter);
+            });
         }
     }
 }

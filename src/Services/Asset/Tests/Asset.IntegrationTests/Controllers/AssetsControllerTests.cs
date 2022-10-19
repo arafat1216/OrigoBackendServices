@@ -365,7 +365,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
             Description = DESCRIPTION,
             Imei = new List<long> { FIRST_IMEI },
             CallerId = _callerId,
-            PaidByCompany = PAID_BY_COMPANY,
+            PaidByCompany = new Money(PAID_BY_COMPANY),
             OrderNumber = ORDER_NUMBER,
             ProductId = PRODUCT_ID,
             MonthlySalaryDeduction = MONTHLY_SALARY_DEDUCTION,
@@ -1165,7 +1165,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
 
         Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
         Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.PendingBuyout);
-        Assert.True(updatedAsset!.OffboardBuyoutPrice == 1510.41m);
+        Assert.True(updatedAsset!.OffboardBuyoutPrice.Amount == 1510.41m);
     }
     [Fact]
     public async Task PendigBuyoutDeviceAsync_ManagerPerforming()
@@ -1191,7 +1191,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
 
         Assert.Equal(HttpStatusCode.OK, responsePost.StatusCode);
         Assert.True(updatedAsset!.AssetStatus == AssetLifecycleStatus.PendingBuyout);
-        Assert.True(updatedAsset!.OffboardBuyoutPrice == 1510.41m);
+        Assert.True(updatedAsset!.OffboardBuyoutPrice.Amount == 1510.41m);
     }
     [Fact]
     public async Task ConfirmBuyoutDeviceAsync()

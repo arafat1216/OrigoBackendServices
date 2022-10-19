@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Common.Logging;
 using MediatR;
 using Moq;
+using Common.Model;
 
 // ReSharper disable InconsistentNaming
 
@@ -154,7 +155,7 @@ namespace AssetServices.UnitTests
             assetLifecycleThirteen.MakeReturnRequest(CALLER_ID);
 
 
-            var lifeCycleSetting = new LifeCycleSetting(1, true, 500M, 24, Guid.Empty);
+            var lifeCycleSetting = new LifeCycleSetting(1, true, new Money(500M), 24, Guid.Empty);
             var customerSetting = new CustomerSettings(COMPANY_ID, new List<LifeCycleSetting>() { lifeCycleSetting });
 
 

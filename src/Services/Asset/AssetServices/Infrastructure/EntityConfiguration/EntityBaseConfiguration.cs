@@ -1,6 +1,7 @@
 ﻿using Common.Seedwork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AssetServices.Infrastructure.EntityConfiguration
 {
@@ -24,6 +25,8 @@ namespace AssetServices.Infrastructure.EntityConfiguration
         {
             _isSqLite = isSqLite;
         }
+
+        protected ValueConverter<string?, string> CurrencyConverter = new ValueConverter<string?, string>(v => v, v => v.ToUpper());
 
 
         /// <inheritdoc/>

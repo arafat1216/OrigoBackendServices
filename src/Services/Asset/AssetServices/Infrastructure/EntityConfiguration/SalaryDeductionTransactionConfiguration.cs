@@ -29,7 +29,9 @@ internal class SalaryDeductionTransactionConfiguration : EntityBaseConfiguration
          * Configure properties
          */
 
-        builder.Property(a => a.Amount)
-               .HasColumnType("decimal(18,2)");
+        builder.OwnsOne(a => a.Deduction, b =>
+        {
+            b.Property(p => p.CurrencyCode).HasConversion(CurrencyConverter);
+        });
     }
 }

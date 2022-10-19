@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Model;
+using System;
 
 namespace AssetServices.ServiceModel
 {
@@ -9,7 +10,7 @@ namespace AssetServices.ServiceModel
         public string AssetCategoryName { get; init; }
         public int AssetCategoryId { get; init; }
         public bool BuyoutAllowed { get; set; }
-        public decimal MinBuyoutPrice { get; set; }
+        public Money MinBuyoutPrice { get; set; } = new();
         public DateTime CreatedDate { get; set; }
         public int Runtime { get; set; }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Common.Enums;
+using Common.Model;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
@@ -72,7 +73,7 @@ public record Asset
     /// <summary>
     ///     the amount that company covered/paid for the asset's overall cost.
     /// </summary>
-    public decimal PaidByCompany { get; init; }
+    public Money PaidByCompany { get; init; } = new();
 
     /// <summary>
     ///     Calculated Book Value for the asset's overall cost.
@@ -106,7 +107,7 @@ public record Asset
     /// The end period for this asset lifecycle.
     /// </summary>
     public DateTime? EndPeriod { get; init; }
-    public decimal OffboardBuyoutPrice { get; init; }
+    public Money OffboardBuyoutPrice { get; init; } = new();
 
     /// <summary>
     ///     The department or cost center this asset is assigned to.

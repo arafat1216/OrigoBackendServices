@@ -960,7 +960,7 @@ public class AssetServices : IAssetServices
 
         if (lifeCycleSetting.MinBuyoutPrice != lifeCycleSettingDTO.MinBuyoutPrice)
         {
-            lifeCycleSetting.SetMinBuyoutPrice(lifeCycleSettingDTO.MinBuyoutPrice, CallerId);
+            lifeCycleSetting.SetMinBuyoutPrice(lifeCycleSettingDTO.MinBuyoutPrice.Amount, CallerId);
         }
 
         if (lifeCycleSetting.Runtime != lifeCycleSettingDTO.Runtime)

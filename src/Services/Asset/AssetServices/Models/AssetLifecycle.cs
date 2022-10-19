@@ -8,6 +8,7 @@ using AssetServices.DomainEvents.EndOfLifeCycleEvents;
 using AssetServices.Exceptions;
 using AssetServices.ServiceModel;
 using Common.Enums;
+using Common.Model;
 using Common.Seedwork;
 
 namespace AssetServices.Models;
@@ -93,19 +94,14 @@ public class AssetLifecycle : Entity, IAggregateRoot
 
 
     /// <summary>
-    /// The Currency code related to this asset lifecycle.
+    /// the amount/currency that company covered/paid for the asset's overall cost.
     /// </summary>
-    public CurrencyCode CurrencyCode { get; init; }
+    public Money PaidByCompany { get; init; } = new();
 
     /// <summary>
-    /// the amount that company covered/paid for the asset's overall cost.
+    /// the buyout amount/currency that will be deduce after last working day
     /// </summary>
-    public decimal PaidByCompany { get; init; } = decimal.Zero;
-
-    /// <summary>
-    /// the buyout amount that will be deduce after last working day
-    /// </summary>
-    public decimal OffboardBuyoutPrice { get; private set; } = decimal.Zero;
+    public Money OffboardBuyoutPrice { get; private set; } = new();
 
     /// <summary>
     /// Is a personal or non-personal asset.
@@ -148,7 +144,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
             if (AssetLifecycleType != LifecycleType.Transactional)
                 return 0;
             var differenceInMonth = ((DateTime.UtcNow.Year - PurchaseDate.Year) * 12) + DateTime.UtcNow.Month - PurchaseDate.Month;
-            var bookValue = PaidByCompany - (PaidByCompany / 36 * differenceInMonth);
+            var bookValue = PaidByCompany.Amount - (PaidByCompany.Amount / 36 * differenceInMonth);
             return bookValue < 0 ? 0 : decimal.Round(bookValue, 2, MidpointRounding.AwayFromZero);
         }
     }
@@ -494,7 +490,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         var previousLifecycleStatus = _assetLifecycleStatus;
-        AddDomainEvent(new BuyoutDeviceDomainEvent(this, callerId, OffboardBuyoutPrice, previousLifecycleStatus));
+        AddDomainEvent(new BuyoutDeviceDomainEvent(this, callerId, OffboardBuyoutPrice.Amount, previousLifecycleStatus));
         _assetLifecycleStatus = AssetLifecycleStatus.BoughtByUser;
     }
     /// <summary>
@@ -515,7 +511,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         var previousLifecycleStatus = _assetLifecycleStatus;
-        OffboardBuyoutPrice = BuyoutPriceByDate(lastWorkingDay);
+        OffboardBuyoutPrice = new Money(BuyoutPriceByDate(lastWorkingDay));
         AddDomainEvent(new PendingBuyoutDeviceDomainEvent(this, callerId, previousLifecycleStatus));
         _assetLifecycleStatus = AssetLifecycleStatus.PendingBuyout;
     }
@@ -528,7 +524,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
     {
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
-        OffboardBuyoutPrice = decimal.Zero;
+        OffboardBuyoutPrice = new Money();
         AddDomainEvent(new OffboardingCancelledDomainEvent(this, callerId));
         ReactivatePendingAsset(callerId);
     }
@@ -678,8 +674,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         {
             salaryDeductionList.Add(new SalaryDeductionTransaction
             {
-                Amount = monthlySalaryDeduction.Value,
-                CurrencyCode = CurrencyCode.NOK,
+                Deduction = new Money(monthlySalaryDeduction.Value),
                 Year = startDate.Value.AddMonths(monthIndex).Year,
                 Month = startDate.Value.AddMonths(monthIndex).Month
             });
@@ -713,7 +708,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         if (AssetLifecycleType != LifecycleType.Transactional)
             return 0;
         var differenceInMonth = ((buyoutDate.Year - PurchaseDate.Year) * 12) + buyoutDate.Month - PurchaseDate.Month;
-        var bookValue = PaidByCompany - (PaidByCompany / 36 * differenceInMonth);
+        var bookValue = PaidByCompany.Amount - (PaidByCompany.Amount / 36 * differenceInMonth);
         bookValue = bookValue < 0 ? 0 : decimal.Round(bookValue, 2, MidpointRounding.AwayFromZero);
         var vat = VATConfiguration.Amount;
         var buyOutPrice = bookValue * vat;

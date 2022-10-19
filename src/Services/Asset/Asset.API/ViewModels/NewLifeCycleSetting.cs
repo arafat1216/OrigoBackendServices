@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Model;
+using System;
 
 namespace Asset.API.ViewModels
 {
@@ -6,7 +7,7 @@ namespace Asset.API.ViewModels
     {
         public int AssetCategoryId { get; set; }
         public bool BuyoutAllowed { get; set; }
-        public decimal MinBuyoutPrice { get; set; }
+        public Money MinBuyoutPrice { get; set; } = new();
         public int Runtime { get; set; }
         public Guid CallerId { get; set; }
     }

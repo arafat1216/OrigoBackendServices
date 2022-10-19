@@ -32,12 +32,15 @@ internal class AssetLifecycleConfiguration : EntityBaseConfiguration<AssetLifecy
          * Configure properties
          */
 
-        builder.Property(a => a.PaidByCompany)
-               .HasColumnType("decimal(18,2)");
+        builder.OwnsOne(a => a.PaidByCompany, b =>
+        {
+            b.Property(p => p.CurrencyCode).HasConversion(CurrencyConverter);
+        });
 
-        builder.Property(a => a.OffboardBuyoutPrice)
-               .HasColumnType("decimal(18,2)")
-               .HasDefaultValue(0m);
+        builder.OwnsOne(a => a.OffboardBuyoutPrice, b =>
+        {
+            b.Property(p => p.CurrencyCode).HasConversion(CurrencyConverter);
+        });
 
     }
 }

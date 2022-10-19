@@ -1,4 +1,5 @@
 ﻿using Common.Enums;
+using Common.Model;
 using Common.Seedwork;
 
 namespace AssetServices.Models;
@@ -14,9 +15,7 @@ public class SalaryDeductionTransaction : Entity
 
     public int Month { get; set; }
 
-    public decimal Amount { get; set; }
-
-    public CurrencyCode CurrencyCode { get; set; }
+    public Money Deduction { get; set; } = new();
 
     /// <summary>
     /// If the employee no longer works for the company or the asset lifecycle ends prematurely
