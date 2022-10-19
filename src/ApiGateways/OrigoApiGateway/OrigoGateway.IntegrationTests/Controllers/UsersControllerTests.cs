@@ -2,13 +2,18 @@
 using Common.Interfaces;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Moq.Protected;
 using OrigoApiGateway.Controllers;
+using OrigoApiGateway.Mappings;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 using OrigoApiGateway.Services;
 using OrigoGateway.IntegrationTests.Helpers;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Security.Claims;
 
 namespace OrigoGateway.IntegrationTests.Controllers
@@ -451,6 +456,130 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
             var response = await client.PostAsJsonAsync($"/origoapi/v1.0/customers/{organizationId}/users", newUser);
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        }
+        [Fact]
+        public async Task PatchUserForCustomer_AsEndUser()
+        {
+            var organizationId = Guid.NewGuid();
+            var partnerId = Guid.NewGuid();
+            var callerId = Guid.NewGuid();
+
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, callerId.ToString()));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, PredefinedRole.EndUser.ToString()));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+            var updateUser = new OrigoUpdateUser
+            {
+                Email = "tesst@mail.com",
+                MobileNumber = "+4745545457",
+                UserPreference = new UserPreference()
+                {
+                    IsAssetTileClosed = true
+                }
+            };
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), "mail@mail.com", CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = "mail@mail.com"; });
+
+                    var customerServiceMock = new Mock<ICustomerServices>();
+                    var customer = new Organization
+                    {
+                        OrganizationId = organizationId,
+                        PartnerId = partnerId
+                    };
+
+                    customerServiceMock.Setup(_ => _.GetCustomerAsync(organizationId))
+                        .ReturnsAsync(customer);
+                    services.AddSingleton(customerServiceMock.Object);
+
+                    var order = new List<OrigoApiGateway.Models.ProductCatalog.ProductGet>
+                    {
+                        new OrigoApiGateway.Models.ProductCatalog.ProductGet
+                            {
+                                Id = 2,
+                                PartnerId = partnerId,
+                                ProductTypeId = 2,
+                                Translations = new List<OrigoApiGateway.Models.ProductCatalog.Translation>
+                                {
+                                    new OrigoApiGateway.Models.ProductCatalog.Translation
+                                    {
+                                         Language = "en",
+                                         Description = "Simple Asset Management for units purchased transactionally in Techstep's own WebShop.",
+                                         Name = "Implement"
+                                    }
+                                }
+                            }
+                    };
+
+
+                    var productOrderMock = new Mock<IProductCatalogServices>();
+                    productOrderMock.Setup(_ => _.GetOrderedProductsByPartnerAndOrganizationAsync(partnerId, organizationId, It.IsAny<bool>()))
+                      .ReturnsAsync(order);
+                    services.AddSingleton(productOrderMock.Object);
+
+                    var mockFactory = new Mock<IHttpClientFactory>();
+                    var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+                    mockHttpMessageHandler.Protected()
+                        .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                            ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                            {
+                                StatusCode = HttpStatusCode.OK,
+                                Content = new StringContent(
+                                    @"
+                                    {
+                                        ""id"": ""3fa85f64-5717-4562-b3fc-2c963f66afa6"",
+                                        ""firstName"": ""Ada"",
+                                        ""lastName"": ""Lovelace"",
+                                        ""email"": ""jane.doe@example.com"",
+                                        ""mobileNumber"": ""99999999"",
+                                        ""employeeId"": ""E1"",
+                                        ""organizationName"": ""ACME"",
+                                        ""userPreference"":
+                                        {
+                                            ""IsAssetTileClosed"":true
+                                        }
+                                    }
+                                ")
+                            });
+                    var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+                    mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+                    var options = new UserConfiguration { ApiPath = @"/users" };
+                    var optionsMock = new Mock<IOptions<UserConfiguration>>();
+                    optionsMock.Setup(o => o.Value).Returns(options);
+
+                    var mappingConfig = new MapperConfiguration(mc =>
+                    {
+                        mc.AddMaps(Assembly.GetAssembly(typeof(NewDisposeSettingProfile)));
+                    });
+                    var _mapper = mappingConfig.CreateMapper();
+                    var usersService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object,
+                        _mapper, Mock.Of<IProductCatalogServices>());
+
+                    services.AddSingleton<IUserServices>(x => usersService);
+                });
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+
+            var response = await client.PatchAsync($"/origoapi/v1.0/customers/{organizationId}/users/{callerId}", JsonContent.Create(updateUser));
+            var responseData = await response.Content.ReadFromJsonAsync<OrigoUser>();
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
     }
 }

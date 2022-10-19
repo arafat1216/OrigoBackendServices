@@ -405,10 +405,24 @@ namespace OrigoApiGateway.Controllers
             {
                 // Check if caller has access to this organization
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                _ = Guid.TryParse(actor, out Guid callerId);
+
                 if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
                 {
-                    return Forbid();
+                    if (callerId == userId)
+                    {
+                        updateUser = new OrigoUpdateUser()
+                        {
+                            UserPreference = updateUser.UserPreference
+                        };
+                    }
+                    else
+                    {
+                        return Forbid();
+                    }
                 }
+
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
@@ -417,9 +431,6 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
-                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                _ = Guid.TryParse(actor, out Guid callerId);
 
                 var updatedUser = await _userServices.PatchUserAsync(organizationId, userId, updateUser, callerId);
                 if (updatedUser == null)
