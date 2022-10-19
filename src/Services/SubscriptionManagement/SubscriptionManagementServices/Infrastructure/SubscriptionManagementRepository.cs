@@ -1,4 +1,5 @@
-﻿using Common.Extensions;
+﻿using Common.Enums;
+using Common.Extensions;
 using Common.Logging;
 using Common.Seedwork;
 using Common.Utilities;
@@ -94,42 +95,70 @@ namespace SubscriptionManagementServices.Infrastructure
             return subscriptionOrderList.OrderByDescending(o=> o.CreatedDate).Take(15).ToList();
         }
 
-        public async Task<int> GetTotalSubscriptionOrdersCountForCustomer(Guid organizationId)
+        public async Task<int> GetTotalSubscriptionOrdersCountForCustomer(Guid organizationId, IList<OrderTypes>? orderTypes = null, string? phoneNumber = null)
         {
-            var subscriptionsCount = await _subscriptionManagementContext.TransferSubscriptionOrders
-                .Where(o => o.OrganizationId == organizationId)
-                .CountAsync();
-
-            var transferToPrivateOrdersCount = await _subscriptionManagementContext.TransferToPrivateSubscriptionOrders
-                .Where(o => o.OrganizationId == organizationId)
-                .CountAsync();
-            subscriptionsCount += transferToPrivateOrdersCount;
-
-            var changeOrdersCount = await _subscriptionManagementContext.ChangeSubscriptionOrder
-                .Where(o => o.OrganizationId == organizationId)
-                .CountAsync();
-            subscriptionsCount += changeOrdersCount;
-
-            var cancelOrdersCount = await _subscriptionManagementContext.CancelSubscriptionOrders
-                .Where(o => o.OrganizationId == organizationId)
-                .CountAsync();
-            subscriptionsCount += cancelOrdersCount;
-
-            var orderSimSubscriptionOrdersCount = await _subscriptionManagementContext.OrderSimSubscriptionOrders
-                .Where(o => o.OrganizationId == organizationId)
-                .CountAsync();
-            subscriptionsCount += orderSimSubscriptionOrdersCount;
-
-            var activateSimOrdersCount = await _subscriptionManagementContext.ActivateSimOrders
-                .Where(o => o.OrganizationId == organizationId)
-                .CountAsync();
-            subscriptionsCount += activateSimOrdersCount;
-
-            var newSubscriptionCount = await _subscriptionManagementContext.NewSubscriptionOrders
-                .Where(o => o.OrganizationId == organizationId)
-                .CountAsync();
-            subscriptionsCount += newSubscriptionCount;
-
+            int subscriptionsCount = 0;
+            if (orderTypes == null || orderTypes.Count() == 0)
+            {
+                orderTypes = Enum.GetValues<OrderTypes>().ToList();
+            }
+            foreach (var orderType in orderTypes)
+            {
+                switch (orderType)
+                {
+                    case OrderTypes.TransferToPrivate:
+                        var transferToPrivateOrdersCount = await _subscriptionManagementContext.TransferToPrivateSubscriptionOrders
+                            .Where(o => o.OrganizationId == organizationId && (string.IsNullOrEmpty(phoneNumber) || o.MobileNumber == phoneNumber ))
+                            .CountAsync();
+                        subscriptionsCount += transferToPrivateOrdersCount;
+                        break;
+                    case OrderTypes.TransferToBusiness:
+                        var transferToBusinessOrdersCount = await _subscriptionManagementContext.TransferSubscriptionOrders
+                            .Where(o => o.OrganizationId == organizationId && (string.IsNullOrEmpty(phoneNumber) || o.MobileNumber == phoneNumber))
+                            .CountAsync();
+                        subscriptionsCount += transferToBusinessOrdersCount;
+                        break;
+                    case OrderTypes.OrderSim:
+                        if (string.IsNullOrEmpty(phoneNumber))
+                        {
+                            var orderSimSubscriptionOrdersCount = await _subscriptionManagementContext.OrderSimSubscriptionOrders
+                            .Where(o => o.OrganizationId == organizationId)
+                            .CountAsync();
+                            subscriptionsCount += orderSimSubscriptionOrdersCount;
+                        }
+                        break;
+                    case OrderTypes.ActivateSim:
+                        var activateSimOrdersCount = await _subscriptionManagementContext.ActivateSimOrders
+                            .Where(o => o.OrganizationId == organizationId && (string.IsNullOrEmpty(phoneNumber) || o.MobileNumber == phoneNumber))
+                            .CountAsync();
+                        subscriptionsCount += activateSimOrdersCount;
+                        break;
+                    case OrderTypes.NewSubscription:
+                        if (string.IsNullOrEmpty(phoneNumber))
+                        {
+                            var newSubscriptionCount = await _subscriptionManagementContext.NewSubscriptionOrders
+                                        .Where(o => o.OrganizationId == organizationId)
+                            .CountAsync();
+                            subscriptionsCount += newSubscriptionCount;
+                        }
+                        
+                        break;
+                    case OrderTypes.ChangeSubscription:
+                        var changeOrdersCount = await _subscriptionManagementContext.ChangeSubscriptionOrder
+                            .Where(o => o.OrganizationId == organizationId && (string.IsNullOrEmpty(phoneNumber) || o.MobileNumber == phoneNumber))
+                            .CountAsync();
+                        subscriptionsCount += changeOrdersCount;
+                        break;
+                    case OrderTypes.CancelSubscription:
+                        var cancelOrdersCount = await _subscriptionManagementContext.CancelSubscriptionOrders
+                            .Where(o => o.OrganizationId == organizationId && (string.IsNullOrEmpty(phoneNumber) || o.MobileNumber == phoneNumber))
+                            .CountAsync();
+                        subscriptionsCount += cancelOrdersCount;
+                        break;
+                    default:
+                        break;
+                }
+            }
             return subscriptionsCount;
         }
         public async Task<T> AddSubscriptionOrder(T subscriptionOrder)

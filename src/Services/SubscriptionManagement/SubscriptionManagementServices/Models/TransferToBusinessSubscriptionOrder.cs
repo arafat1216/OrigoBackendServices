@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Common.Enums;
 using Common.Seedwork;
-using SubscriptionManagementServices.Types;
 
 namespace SubscriptionManagementServices.Models
 {

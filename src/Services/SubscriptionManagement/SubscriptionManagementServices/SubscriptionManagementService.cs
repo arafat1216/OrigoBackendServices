@@ -338,10 +338,18 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         return _mapper.Map<IList<SubscriptionOrderListItemDTO>>(subscriptionOrders);
     }
 
-    public async Task<int> GetSubscriptionOrdersCount(Guid organizationId)
+    public async Task<int> GetSubscriptionOrdersCount(Guid organizationId, IList<OrderTypes>? orderTypes = null, string? phoneNumber = null)
     {
-        int subscriptionOrdersCount = await _subscriptionManagementRepository.GetTotalSubscriptionOrdersCountForCustomer(organizationId);
-        return subscriptionOrdersCount;
+        try
+        {
+            int subscriptionOrdersCount = await _subscriptionManagementRepository.GetTotalSubscriptionOrdersCountForCustomer(organizationId, orderTypes, phoneNumber);
+            return subscriptionOrdersCount;
+        }
+        catch(Exception ex)
+        {
+            throw ex;
+        }
+        
     }
 
     public async Task<ChangeSubscriptionOrderDTO> ChangeSubscriptionOrder(Guid organizationId, NewChangeSubscriptionOrder subscriptionOrder)

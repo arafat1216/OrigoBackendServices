@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
+using Common.Enums;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.SubscriptionManagement;
@@ -428,12 +431,21 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<int> GetSubscriptionOrdersCount(Guid organizationId)
+        public async Task<int> GetSubscriptionOrdersCount(Guid organizationId, IList<OrderTypes>? orderTypes = null, string? phoneNumber = null)
         {
             try
             {
                 var requestUri = $"{_options.ApiPath}/{organizationId}/subscription-orders/count";
 
+                if (orderTypes != null && orderTypes.Any())
+                {
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "orderTypes", $"{orderTypes}");
+                }
+
+                if (!string.IsNullOrEmpty(phoneNumber))
+                {
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "phoneNumber", $"{phoneNumber}");
+                }
                 var count = await HttpClient.GetFromJsonAsync<int>(requestUri);
 
                 return count;

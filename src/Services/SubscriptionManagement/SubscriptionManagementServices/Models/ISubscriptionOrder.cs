@@ -1,4 +1,4 @@
-﻿using SubscriptionManagementServices.Types;
+﻿using Common.Enums;
 
 namespace SubscriptionManagementServices.Models
 {

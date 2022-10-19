@@ -1,4 +1,4 @@
-﻿namespace SubscriptionManagementServices.Types
+﻿namespace Common.Enums
 {
     public enum OrderTypes
     {
