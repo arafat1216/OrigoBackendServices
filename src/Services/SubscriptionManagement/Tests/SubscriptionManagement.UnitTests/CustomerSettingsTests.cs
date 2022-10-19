@@ -198,6 +198,17 @@ public class CustomerSettingsTests : SubscriptionManagementServiceBaseTests
 
     [Fact]
     [Trait("Category", "UnitTest")]
+    public async Task GetAllCustomerSubscriptionProductsAsync()
+    {
+        var subscriptionProducts = await _customerSettingsService.GetAllCustomerSubscriptionProductsAsync(ORGANIZATION_ONE_ID);
+        Assert.Collection(subscriptionProducts, 
+            item => Assert.True(item.IsGlobal,"Customers subscription product should be global product."),
+            item => Assert.False(item.IsGlobal,"Customers subscription product should not be a global product."),
+            item => Assert.False(item.IsGlobal,"Customers subscription product should not be a global product."));
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
     public async Task AddCustomerOperatorAccount_Valid()
     {
         await _customerSettingsService.AddOperatorAccountForCustomerAsync(ORGANIZATION_ONE_ID, "AcNum4", "AC_Name_4",
