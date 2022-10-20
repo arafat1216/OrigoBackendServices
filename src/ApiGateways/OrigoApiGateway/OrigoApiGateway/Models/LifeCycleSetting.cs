@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Model;
+using System;
 
 namespace OrigoApiGateway.Models
 {
@@ -9,7 +10,7 @@ namespace OrigoApiGateway.Models
         public bool BuyoutAllowed { get; set; }
         public int AssetCategoryId { get; set; }
         public string AssetCategoryName { get; set; }
-        public decimal MinBuyoutPrice { get; set; }
+        public Money MinBuyoutPrice { get; set; }
         public string Currency { get; set; }
         public int Runtime { get; set; }
         public DateTime CreatedDate { get; set; }

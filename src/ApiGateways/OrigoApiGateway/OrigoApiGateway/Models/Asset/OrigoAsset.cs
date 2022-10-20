@@ -1,5 +1,6 @@
 #nullable enable
 using Common.Enums;
+using Common.Model;
 using System;
 using System.Collections.Generic;
 // ReSharper disable MemberCanBePrivate.Global
@@ -46,7 +47,7 @@ namespace OrigoApiGateway.Models
         /// The payment amount by company for the asset. For mobile phones and other devices
         /// This is the amount that company covered/paid for the asset's overall cost
         /// </summary>
-        public decimal PaidByCompany { get; init; }
+        public Money PaidByCompany { get; init; }
 
         /// <summary>
         /// Calculated Book Value for the asset's overall cost.
@@ -135,7 +136,7 @@ namespace OrigoApiGateway.Models
         public AssetLifecycleStatus AssetStatus { get; init; }
 
         public string AssetStatusName { get; init; }
-        public decimal OffboardBuyoutPrice { get; init; }
+        public Money OffboardBuyoutPrice { get; init; }
 
         public IList<Label> Labels { get; init; }
         /// <summary>

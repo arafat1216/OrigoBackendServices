@@ -206,8 +206,7 @@ public class AssetServicesTests
                             ""brand"":""Apple"",
                             ""productName"":""Apple iPhone 8"",
                             ""lifecycleType"":0,
-                            ""lifecycleName"":""NoLifecycle"",
-                            ""paidByCompany"":0,
+                            ""lifecycleName"":""NoLifecycle"",                            
                             ""bookValue"":0,
                             ""buyoutPrice"":0.00,
                             ""purchaseDate"":""0001-01-01T00:00:00"",
@@ -238,8 +237,7 @@ public class AssetServicesTests
                             ""brand"":""Apple"",
                             ""productName"":""iPhone 11 Pro"",
                             ""lifecycleType"":0,
-                            ""lifecycleName"":""NoLifecycle"",
-                            ""paidByCompany"":0,
+                            ""lifecycleName"":""NoLifecycle"",                            
                             ""bookValue"":0,
                             ""buyoutPrice"":0.00,
                             ""purchaseDate"":""0001-01-01T00:00:00"",
@@ -269,8 +267,8 @@ public class AssetServicesTests
                             ""assetCategoryId"":1,""assetCategoryName"":""Mobile phone"",
                             ""brand"":""Apple"",
                             ""productName"":""iPhone 11 Pro"",
-                            ""lifecycleType"":0,""lifecycleName"":""NoLifecycle"",
-                            ""paidByCompany"":0,""bookValue"":0,""buyoutPrice"":0.00,""purchaseDate"":""0001-01-01T00:00:00"",
+                            ""lifecycleType"":0,""lifecycleName"":""NoLifecycle"",                            
+                            ""bookValue"":0,""buyoutPrice"":0.00,""purchaseDate"":""0001-01-01T00:00:00"",  
                             ""createdDate"":""2022-04-28T14:18:11.9628964"",
                             ""managedByDepartmentId"":""6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72"",
                             ""assetHolderId"":""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",
@@ -565,9 +563,7 @@ public class AssetServicesTests
                             ""brand"": ""Samsung"",
                             ""productName"": ""Samsung Galaxy S21"",
                             ""lifecycleType"": 2,
-                            ""lifecycleName"": ""Transactional"",
-                            ""paidByCompany"": 0,
-                            ""currencyCode"": 0,
+                            ""lifecycleName"": ""Transactional"",                            
                             ""bookValue"": 0,
                             ""buyoutPrice"": 0.00,
                             ""purchaseDate"": ""0001-01-01T00:00:00"",
@@ -609,8 +605,7 @@ public class AssetServicesTests
                           ""brand"": ""Samsung"",
                           ""productName"": ""Samsung Galaxy S20"",
                           ""lifecycleType"": 2,
-                          ""lifecycleName"": ""Transactional"",
-                          ""paidByCompany"": 0,
+                          ""lifecycleName"": ""Transactional"",                          
                           ""bookValue"": 0,
                           ""buyoutPrice"": 0,
                           ""purchaseDate"": ""0001-01-01T00:00:00"",
@@ -750,8 +745,6 @@ public class AssetServicesTests
                             ""productName"": ""Samsung Galaxy S21"",
                             ""lifecycleType"": 2,
                             ""lifecycleName"": ""Transactional"",
-                            ""paidByCompany"": 0,
-                            ""currencyCode"": 0,
                             ""bookValue"": 0,
                             ""buyoutPrice"": 0.00,
                             ""purchaseDate"": ""0001-01-01T00:00:00"",
@@ -794,7 +787,6 @@ public class AssetServicesTests
                           ""productName"": ""Samsung Galaxy S20"",
                           ""lifecycleType"": 2,
                           ""lifecycleName"": ""Transactional"",
-                          ""paidByCompany"": 0,
                           ""bookValue"": 0,
                           ""buyoutPrice"": 0,
                           ""purchaseDate"": ""0001-01-01T00:00:00"",
@@ -933,9 +925,7 @@ public class AssetServicesTests
                             ""brand"": ""Samsung"",
                             ""productName"": ""Samsung Galaxy S21"",
                             ""lifecycleType"": 2,
-                            ""lifecycleName"": ""Transactional"",
-                            ""paidByCompany"": 0,
-                            ""currencyCode"": 0,
+                            ""lifecycleName"": ""Transactional"",                            
                             ""bookValue"": 0,
                             ""buyoutPrice"": 0.00,
                             ""purchaseDate"": ""0001-01-01T00:00:00"",
@@ -977,8 +967,7 @@ public class AssetServicesTests
                           ""brand"": ""Samsung"",
                           ""productName"": ""Samsung Galaxy S20"",
                           ""lifecycleType"": 2,
-                          ""lifecycleName"": ""Transactional"",
-                          ""paidByCompany"": 0,
+                          ""lifecycleName"": ""Transactional"",                          
                           ""bookValue"": 0,
                           ""buyoutPrice"": 0,
                           ""purchaseDate"": ""0001-01-01T00:00:00"",
@@ -1111,7 +1100,7 @@ public class AssetServicesTests
                             ""createdDate"": ""2022-04-29T14:46:42.421138"",
                             ""assetCategoryId"": 1,
                             ""assetCategoryName"": ""Mobile phone"",
-                            ""minBuyoutPrice"": 700,
+                            ""minBuyoutPrice"": {""amount"":""700"", ""currencyCode"": ""NOK""},
                             ""runtime"": 12
                         }]
                     ")
@@ -1169,7 +1158,7 @@ public class AssetServicesTests
                             ""createdDate"": ""2022-04-29T14:46:42.421138"",
                             ""assetCategoryId"": 1,
                             ""assetCategoryName"": ""Mobile phone"",
-                            ""minBuyoutPrice"": 700
+                            ""minBuyoutPrice"": {""amount"":""700"", ""currencyCode"":""NOK""}
                         }]
                     ")
         });
@@ -1188,7 +1177,7 @@ public class AssetServicesTests
                             ""createdDate"": ""2022-04-29T14:46:42.421138"",
                             ""assetCategoryId"": 1,
                             ""assetCategoryName"": ""Mobile phone"",
-                            ""minBuyoutPrice"": 700                        }
+                            ""minBuyoutPrice"": {""amount"":""700"", ""currencyCode"":""NOK""}                        }
                     ")
         });
 
@@ -1245,7 +1234,7 @@ public class AssetServicesTests
                             ""createdDate"": ""2022-04-29T14:46:42.421138"",
                             ""assetCategoryId"": 1,
                             ""assetCategoryName"": ""Mobile phone"",
-                            ""minBuyoutPrice"": 700
+                            ""minBuyoutPrice"": {""amount"":""700"", ""currencyCode"":""NOK""}
                         }
                     ")
         });
@@ -1264,7 +1253,7 @@ public class AssetServicesTests
                             ""createdDate"": ""2022-04-29T14:46:42.421138"",
                             ""assetCategoryId"": 1,
                             ""assetCategoryName"": ""Mobile phone"",
-                            ""minBuyoutPrice"": 700
+                            ""minBuyoutPrice"": {""amount"":""700"", ""currencyCode"":""NOK""}
                         }
                     ")
         });
