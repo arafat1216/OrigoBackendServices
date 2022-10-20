@@ -1,4 +1,5 @@
-﻿using HardwareServiceOrderServices;
+﻿using HardwareServiceOrder.API.Filters;
+using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +11,7 @@ namespace HardwareServiceOrder.API.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/hardware-repair-order-status")]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class HardwareRepairOrderStatusController : ControllerBase
     {
         private readonly IHardwareServiceOrderService _hardwareServiceOrderService;

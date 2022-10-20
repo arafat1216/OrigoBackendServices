@@ -1,4 +1,5 @@
-﻿using HardwareServiceOrder.API.ViewModels;
+﻿using HardwareServiceOrder.API.Filters;
+using HardwareServiceOrder.API.ViewModels;
 using HardwareServiceOrderServices.Email;
 using HardwareServiceOrderServices.Infrastructure;
 using HardwareServiceOrderServices.Models;
@@ -9,6 +10,7 @@ namespace HardwareServiceOrder.API.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/hardware-repair-notifications")]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class HardwareRepairNotificationController : ControllerBase
     {
         private readonly IEmailService _emailService;

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using HardwareServiceOrder.API.Filters;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Exceptions;
 using HardwareServiceOrderServices.Infrastructure;
@@ -15,6 +16,7 @@ namespace HardwareServiceOrder.API.Controllers
     [Route("api/v{version:apiVersion}/service-provider")]
     [Tags("Service-provider")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError)]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class ServiceProviderController : ControllerBase
     {
         private readonly IHardwareServiceOrderService _hardwareServiceOrderService;
@@ -97,15 +99,8 @@ namespace HardwareServiceOrder.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetServiceProvidersByIdAsync([FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromQuery] bool includeSupportedServiceTypes = false, [FromQuery] bool includeOfferedServiceOrderAddons = false)
         {
-            try
-            {
-                var serviceProvider = await _hardwareServiceOrderService.GetServiceProviderById(serviceProviderId, includeSupportedServiceTypes, includeOfferedServiceOrderAddons);
-                return Ok(serviceProvider);
-            }
-            catch (NotFoundException)
-            {
-                return NotFound();
-            }
+            var serviceProvider = await _hardwareServiceOrderService.GetServiceProviderById(serviceProviderId, includeSupportedServiceTypes, includeOfferedServiceOrderAddons);
+            return Ok(serviceProvider);
         }
 
 

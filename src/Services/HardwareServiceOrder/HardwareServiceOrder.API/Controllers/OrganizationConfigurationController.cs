@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using HardwareServiceOrder.API.Filters;
 using HardwareServiceOrder.API.ViewModels;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Exceptions;
@@ -16,6 +17,7 @@ namespace HardwareServiceOrder.API.Controllers
     [Route("api/v{version:apiVersion}/configuration/organization/{organizationId:Guid}")]
     [Tags("Organization Configuration")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Returned when the system encountered an unexpected problem.")]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class OrganizationConfigurationController : ControllerBase
     {
         private readonly IHardwareServiceOrderService _hardwareServiceOrderService;
@@ -85,17 +87,11 @@ namespace HardwareServiceOrder.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, null, typeof(ViewModels.CustomerServiceProvider))]
         public async Task<ActionResult> GetCustomerServiceProviderByIdAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromQuery] bool includeApiCredentialIndicators = false, [FromQuery] bool includeServiceOrderAddons = false)
         {
-            try
-            {
-                var dtoResults = await _hardwareServiceOrderService.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, includeApiCredentialIndicators, includeServiceOrderAddons);
-                var mappedResult = _mapper.Map<ViewModels.CustomerServiceProvider>(dtoResults);
 
-                return Ok(mappedResult);
-            }
-            catch (NotFoundException)
-            {
-                return NotFound();
-            }
+            var dtoResults = await _hardwareServiceOrderService.GetCustomerServiceProviderAsync(organizationId, serviceProviderId, includeApiCredentialIndicators, includeServiceOrderAddons);
+            var mappedResult = _mapper.Map<ViewModels.CustomerServiceProvider>(dtoResults);
+
+            return Ok(mappedResult);
         }
 
 
@@ -119,19 +115,8 @@ namespace HardwareServiceOrder.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> AddOrUpdateApiCredentialsAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromBody] NewApiCredential apiCredential)
         {
-            try
-            {
-                await _hardwareServiceOrderService.AddOrUpdateApiCredentialAsync(organizationId, serviceProviderId, apiCredential.ServiceTypeId, apiCredential.ApiUsername, apiCredential.ApiPassword);
-                return NoContent();
-            }
-            catch (NotFoundException)
-            {
-                return NotFound();
-            }
-            catch (NotImplementedException)
-            {
-                return BadRequest();
-            }
+            await _hardwareServiceOrderService.AddOrUpdateApiCredentialAsync(organizationId, serviceProviderId, apiCredential.ServiceTypeId, apiCredential.ApiUsername, apiCredential.ApiPassword);
+            return NoContent();
         }
 
         /// <summary>
@@ -172,19 +157,8 @@ namespace HardwareServiceOrder.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> AddServiceOrderAddonsToCustomerServiceProviderAsync([FromRoute] Guid organizationId, [FromRoute][EnumDataType(typeof(ServiceProviderEnum))] int serviceProviderId, [FromBody][Required] ISet<int> serviceOrderAddonIds)
         {
-            try
-            {
-                await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProviderAsync(organizationId, serviceProviderId, serviceOrderAddonIds);
-                return NoContent();
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _hardwareServiceOrderService.AddServiceOrderAddonsToCustomerServiceProviderAsync(organizationId, serviceProviderId, serviceOrderAddonIds);
+            return NoContent();
         }
 
 
