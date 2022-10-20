@@ -153,8 +153,9 @@ namespace OrigoApiGateway.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [Route("provision")]
         [Authorize]
-        public async Task<ActionResult> ProvisionUserIntoWebshop(Guid organizationId)
+        public async Task<ActionResult> ProvisionAuthenticatedUserIntoWebshop()
         {
             try
             {
