@@ -1,5 +1,6 @@
 ﻿using Common.Enums;
 using Common.Interfaces;
+using Common.Model;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -503,7 +504,7 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
                        AssetCategoryName = "Catagory",
                        BuyoutAllowed = true,
                        Currency = "no",
-                       MinBuyoutPrice = Decimal.Zero
+                       MinBuyoutPrice = new Money()
                    } };
 
                 customerService.Setup(_ => _.GetCurrencyByCustomer(Guid.Parse("6c514552-ea67-48c8-91ec-83c2b16248ee"))).ReturnsAsync("NO");
