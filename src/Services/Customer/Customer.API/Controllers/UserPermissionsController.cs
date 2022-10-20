@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using Customer.API.Filters;
 using Customer.API.ViewModels;
 using Customer.API.WriteModels;
 using CustomerServices;
@@ -21,6 +22,7 @@ namespace Customer.API.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/organizations/users/{userName:length(6,255)}/permissions")]
+[ServiceFilter(typeof(ErrorExceptionFilter))]
 public class UserPermissionsController : ControllerBase
 {
     private readonly IUserPermissionServices _userPermissionServices;
@@ -159,24 +161,13 @@ public class UserPermissionsController : ControllerBase
     public async Task<ActionResult<UsersPermissions>> AssignUsersPermissions(
         [FromBody] NewUsersPermission newUserPermissions)
     {
-        try
-        {
-            var userPermission =
-                await _userPermissionServices.AssignUsersPermissionsAsync(newUserPermissions,
-                    newUserPermissions.CallerId);
-            if (userPermission.UserPermissions.Count == 0) return NotFound();
 
-            return Ok(_mapper.Map<UsersPermissions>(userPermission));
-        }
-        catch (DuplicateException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("{0}", ex);
-            throw;
-        }
+        var userPermission =
+            await _userPermissionServices.AssignUsersPermissionsAsync(newUserPermissions,
+                newUserPermissions.CallerId);
+        if (userPermission.UserPermissions.Count == 0) return NotFound();
+
+        return Ok(_mapper.Map<UsersPermissions>(userPermission));
     }
 
     /// <summary>

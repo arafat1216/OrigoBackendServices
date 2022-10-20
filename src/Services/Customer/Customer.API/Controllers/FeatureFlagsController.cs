@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using Customer.API.Filters;
 using Customer.API.WriteModels;
 using CustomerServices;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ namespace Customer.API.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/organizations/feature-flags")]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class FeatureFlagsController : ControllerBase
     {
         private readonly IFeatureFlagServices _featureFlagServices;

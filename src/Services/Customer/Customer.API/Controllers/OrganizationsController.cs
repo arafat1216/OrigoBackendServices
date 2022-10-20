@@ -410,32 +410,26 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(OrganizationPreferencesDTO), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<OrganizationPreferencesDTO>> UpdateOrganizationPreferencesPatch([FromBody] UpdateOrganizationPreferences preferences)
         {
-            try
-            {
-                if (preferences.OrganizationId == Guid.Empty)
-                    return BadRequest("Organization Id cannot be empty");
+            if (preferences.OrganizationId == Guid.Empty)
+                return BadRequest("Organization Id cannot be empty");
 
-                var newPreference = new CustomerServices.Models.OrganizationPreferences(preferences.OrganizationId,
-                                                                                        preferences.CallerId,
-                                                                                        preferences.WebPage,
-                                                                                        preferences.LogoUrl,
-                                                                                        preferences.OrganizationNotes,
-                                                                                        preferences.EnforceTwoFactorAuth,
-                                                                                        preferences.PrimaryLanguage,
-                                                                                        preferences.DefaultDepartmentClassification);
+            var newPreference = new CustomerServices.Models.OrganizationPreferences(preferences.OrganizationId,
+                                                                                    preferences.CallerId,
+                                                                                    preferences.WebPage,
+                                                                                    preferences.LogoUrl,
+                                                                                    preferences.OrganizationNotes,
+                                                                                    preferences.EnforceTwoFactorAuth,
+                                                                                    preferences.PrimaryLanguage,
+                                                                                    preferences.DefaultDepartmentClassification);
 
-                var updatedPreferences = await _organizationServices.UpdateOrganizationPreferencesAsync(newPreference, true);
-                if (updatedPreferences == null)
-                    return NotFound();
+            var updatedPreferences = await _organizationServices.UpdateOrganizationPreferencesAsync(newPreference, true);
+            if (updatedPreferences == null)
+                return NotFound();
 
-                var updatedPreferencesView = new OrganizationPreferencesDTO(updatedPreferences);
+            var updatedPreferencesView = new OrganizationPreferencesDTO(updatedPreferences);
 
-                return Ok(updatedPreferencesView);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest("Unknown error: " + ex.Message);
-            }
+            return Ok(updatedPreferencesView);
+
         }
 
         [Route("{organizationId:Guid}/preferences")]
@@ -443,31 +437,24 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(OrganizationPreferencesDTO), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<OrganizationPreferencesDTO>> UpdateOrganizationPreferencesPut([FromBody] UpdateOrganizationPreferences preferences)
         {
-            try
-            {
-                if (preferences.OrganizationId == Guid.Empty)
-                    return BadRequest("Organization Id cannot be empty");
+            if (preferences.OrganizationId == Guid.Empty)
+                return BadRequest("Organization Id cannot be empty");
 
-                var newPreference = new CustomerServices.Models.OrganizationPreferences(preferences.OrganizationId,
-                                                                                        preferences.CallerId,
-                                                                                        preferences.WebPage,
-                                                                                        preferences.LogoUrl,
-                                                                                        preferences.OrganizationNotes,
-                                                                                        preferences.EnforceTwoFactorAuth,
-                                                                                        preferences.PrimaryLanguage,
-                                                                                        preferences.DefaultDepartmentClassification);
-                var updatedPreferences = await _organizationServices.UpdateOrganizationPreferencesAsync(newPreference);
-                if (updatedPreferences == null)
-                    return NotFound();
+            var newPreference = new CustomerServices.Models.OrganizationPreferences(preferences.OrganizationId,
+                                                                                    preferences.CallerId,
+                                                                                    preferences.WebPage,
+                                                                                    preferences.LogoUrl,
+                                                                                    preferences.OrganizationNotes,
+                                                                                    preferences.EnforceTwoFactorAuth,
+                                                                                    preferences.PrimaryLanguage,
+                                                                                    preferences.DefaultDepartmentClassification);
+            var updatedPreferences = await _organizationServices.UpdateOrganizationPreferencesAsync(newPreference);
+            if (updatedPreferences == null)
+                return NotFound();
 
-                var updatedPreferencesView = new OrganizationPreferencesDTO(updatedPreferences);
+            var updatedPreferencesView = new OrganizationPreferencesDTO(updatedPreferences);
 
-                return Ok(updatedPreferencesView);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest("Unknown error: " + ex.Message);
-            }
+            return Ok(updatedPreferencesView);
         }
 
         [Route("location")]
@@ -475,32 +462,26 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(LocationDTO), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<LocationDTO>> UpdateOrganizationLocation([FromBody] UpdateLocation location)
         {
-            try
-            {
-                if (location.LocationId == Guid.Empty)
-                    return BadRequest("Location id cannot be empty.");
 
-                var newLocation = new CustomerServices.Models.Location(location.Name,
-                                                                       location.Description,
-                                                                       location.Address1,
-                                                                       location.Address2,
-                                                                       location.PostalCode,
-                                                                       location.City,
-                                                                       location.Country);
+            if (location.LocationId == Guid.Empty)
+                return BadRequest("Location id cannot be empty.");
 
-                var updatedLocation = await _organizationServices.UpdateOrganizationLocationAsync(newLocation);
+            var newLocation = new CustomerServices.Models.Location(location.Name,
+                                                                   location.Description,
+                                                                   location.Address1,
+                                                                   location.Address2,
+                                                                   location.PostalCode,
+                                                                   location.City,
+                                                                   location.Country);
 
-                if (updatedLocation == null)
-                    return NotFound();
+            var updatedLocation = await _organizationServices.UpdateOrganizationLocationAsync(newLocation);
 
-                var updatedLocationView = new LocationDTO(updatedLocation);
+            if (updatedLocation == null)
+                return NotFound();
 
-                return Ok(updatedLocationView);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest("Unknown error: " + ex.Message);
-            }
+            var updatedLocationView = new LocationDTO(updatedLocation);
+
+            return Ok(updatedLocationView);
         }
 
         [Route("{organizationId:Guid}/location")]

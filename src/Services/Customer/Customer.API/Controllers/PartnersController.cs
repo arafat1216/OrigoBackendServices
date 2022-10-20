@@ -1,4 +1,5 @@
-﻿using Customer.API.ViewModels;
+﻿using Customer.API.Filters;
+using Customer.API.ViewModels;
 using Customer.API.WriteModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
@@ -19,6 +20,7 @@ namespace Customer.API.Controllers
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal Server Error: Returned when an unexpected error occurs.")]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class PartnersController : ControllerBase
     {
         private readonly IOrganizationServices _organizationServices;
@@ -47,25 +49,13 @@ namespace Customer.API.Controllers
         [SwaggerResponse(StatusCodes.Status409Conflict, "Conflict: Returned if the organization is already registered as a partner.")]
         public async Task<ActionResult<Partner>> CreatePartner([FromBody] NewPartner newPartner)
         {
-            try
-            {
-                var result = await _partnerServices.CreatePartnerAsync(newPartner.OrganizationId);
 
-                var organization = new PartnerOrganization(result.Organization);
-                var partner = new Partner(result.ExternalId, organization);
+            var result = await _partnerServices.CreatePartnerAsync(newPartner.OrganizationId);
 
-                return StatusCode(201, partner);
-            }
+            var organization = new PartnerOrganization(result.Organization);
+            var partner = new Partner(result.ExternalId, organization);
 
-            catch (Exception ex)
-            {
-                if (ex is ArgumentException || ex is CustomerNotFoundException)
-                    return BadRequest($"{ex.Message}");
-                if (ex is DuplicateException)
-                    return Conflict($"{ex.Message}");
-                else
-                    return StatusCode(500, $"Unknown error: {ex.Message}");
-            }
+            return StatusCode(201, partner);
         }
 
         /// <summary>
@@ -82,22 +72,16 @@ namespace Customer.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "The partner was not found")]
         public async Task<ActionResult<Partner?>> GetPartner([FromRoute] Guid partnerId)
         {
-            try
-            {
-                var partner = await _partnerServices.GetPartnerAsync(partnerId, true);
 
-                if (partner == null)
-                    return NotFound();
+            var partner = await _partnerServices.GetPartnerAsync(partnerId, true);
 
-                var partnerOrganization = new PartnerOrganization(partner.Organization);
-                var partnerView = new Partner(partner.ExternalId, partnerOrganization);
+            if (partner == null)
+                return NotFound();
 
-                return Ok(partnerView);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Unknown error: {ex.Message}");
-            }
+            var partnerOrganization = new PartnerOrganization(partner.Organization);
+            var partnerView = new Partner(partner.ExternalId, partnerOrganization);
+
+            return Ok(partnerView);
         }
 
         /// <summary>
@@ -111,25 +95,18 @@ namespace Customer.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, type: typeof(Partner))]
         public async Task<ActionResult<IEnumerable<Partner>>> GetPartners()
         {
-            try
+            var partners = await _partnerServices.GetPartnersAsync();
+            var list = new List<Partner>();
+
+            foreach (CustomerServices.Models.Partner partner in partners)
             {
-                var partners = await _partnerServices.GetPartnersAsync();
-                var list = new List<Partner>();
+                var partnerOrganization = new PartnerOrganization(partner.Organization);
+                var partnerView = new Partner(partner.ExternalId, partnerOrganization);
 
-                foreach (CustomerServices.Models.Partner partner in partners)
-                {
-                    var partnerOrganization = new PartnerOrganization(partner.Organization);
-                    var partnerView = new Partner(partner.ExternalId, partnerOrganization);
-
-                    list.Add(partnerView);
-                }
-
-                return Ok(list);
+                list.Add(partnerView);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Unknown error: {ex.Message}");
-            }
+
+            return Ok(list);
         }
     }
 }

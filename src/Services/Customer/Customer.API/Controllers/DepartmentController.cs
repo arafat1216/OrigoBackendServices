@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using CustomerServices.ServiceModels;
+using Customer.API.Filters;
 
 namespace Customer.API.Controllers
 {
@@ -16,6 +17,7 @@ namespace Customer.API.Controllers
     [Route("api/v{version:apiVersion}/organizations/{customerId:Guid}/[controller]")]
     [SuppressMessage("ReSharper", "RouteTemplates.RouteParameterConstraintNotResolved")]
     [SuppressMessage("ReSharper", "RouteTemplates.ControllerRouteParameterIsNotPassedToMethods")]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class DepartmentsController : ControllerBase
     {
         private readonly IDepartmentsServices _departmentServices;
@@ -71,7 +73,7 @@ namespace Customer.API.Controllers
         [ProducesResponseType(typeof(List<DepartmentNamesDTO>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<List<DepartmentNamesDTO>>> GetDepartmentNames([FromRoute] Guid customerId, CancellationToken cancellationToken)
         {
-                return Ok(await _departmentServices.GetAllDepartmentNamesAsync(customerId, cancellationToken));
+             return Ok(await _departmentServices.GetAllDepartmentNamesAsync(customerId, cancellationToken));
         }
 
         /// <summary>

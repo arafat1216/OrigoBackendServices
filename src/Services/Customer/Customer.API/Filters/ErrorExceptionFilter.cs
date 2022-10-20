@@ -1,6 +1,7 @@
 ﻿using CustomerServices.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -27,6 +28,14 @@ namespace Customer.API.Filters
                 context.Result = new BadRequestObjectResult(exception.Message);
                 return;
             }
+
+            if (exception is DuplicateException)
+            {
+                context.Result = new ConflictObjectResult(exception.Message);
+                return;
+            }
+            
+
             if (exception is CustomerNotFoundException || exception is UserNotFoundException)
             {
                 context.Result = new NotFoundObjectResult(exception.Message);
