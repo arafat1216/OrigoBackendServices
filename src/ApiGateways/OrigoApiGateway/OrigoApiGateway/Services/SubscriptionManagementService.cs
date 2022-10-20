@@ -431,7 +431,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<int> GetSubscriptionOrdersCount(Guid organizationId, IList<OrderTypes>? orderTypes = null, string? phoneNumber = null)
+        public async Task<int> GetSubscriptionOrdersCount(Guid organizationId, IList<SubscriptionOrderTypes>? orderTypes = null, string? phoneNumber = null, bool checkOrderExist = false)
         {
             try
             {
@@ -446,6 +446,9 @@ namespace OrigoApiGateway.Services
                 {
                     requestUri = QueryHelpers.AddQueryString(requestUri, "phoneNumber", $"{phoneNumber}");
                 }
+
+                requestUri = QueryHelpers.AddQueryString(requestUri, "checkOrderExist", $"{checkOrderExist}");
+
                 var count = await HttpClient.GetFromJsonAsync<int>(requestUri);
 
                 return count;

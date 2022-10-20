@@ -31,7 +31,7 @@ namespace SubscriptionManagementServices.Models
 
         #region ISubscriptionOrder Implementation
 
-        [NotMapped] public OrderTypes OrderType => OrderTypes.CancelSubscription;
+        [NotMapped] public SubscriptionOrderTypes OrderType => SubscriptionOrderTypes.CancelSubscription;
 
         [NotMapped] public string PhoneNumber => MobileNumber;
 

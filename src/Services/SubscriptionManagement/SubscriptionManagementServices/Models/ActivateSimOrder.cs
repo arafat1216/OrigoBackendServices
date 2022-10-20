@@ -33,7 +33,7 @@ namespace SubscriptionManagementServices.Models
 
         #region ISubscriptionOrder Implementation
 
-        [NotMapped] public OrderTypes OrderType => OrderTypes.ActivateSim;
+        [NotMapped] public SubscriptionOrderTypes OrderType => SubscriptionOrderTypes.ActivateSim;
 
         [NotMapped] public string PhoneNumber => MobileNumber;
 

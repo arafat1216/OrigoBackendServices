@@ -31,7 +31,7 @@ namespace OrigoApiGateway.Services
             TransferToPrivateSubscriptionOrder order, Guid callerId);
         Task<OrigoChangeSubscriptionOrder> ChangeSubscriptionOrderAsync(Guid organizationId, ChangeSubscriptionOrderPostRequest subscriptionOrderModel);
         Task<IList<OrigoSubscriptionOrderListItem>> GetSubscriptionOrders(Guid organizationId);
-        Task<int> GetSubscriptionOrdersCount(Guid organizationId, IList<OrderTypes>? orderTypes = null, string? phoneNumber = null);
+        Task<int> GetSubscriptionOrdersCount(Guid organizationId, IList<SubscriptionOrderTypes>? orderTypes = null, string? phoneNumber = null, bool checkOrderExist = false);
         Task<OrigoCancelSubscriptionOrder> CancelSubscriptionOrderForCustomerAsync(Guid organizationId, CancelSubscriptionOrderDTO order);
         Task<OrigoOrderSim> OrderSimCardForCustomerAsync(Guid organizationId, OrderSim order, Guid callerId);
 

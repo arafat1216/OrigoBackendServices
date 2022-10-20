@@ -107,7 +107,7 @@ namespace SubscriptionManagementServices.Models
         #region ISubscriptionOrder implementation
 
         public Guid SubscriptionOrderId { get; set; }
-        [NotMapped] public OrderTypes OrderType => OrderTypes.TransferToBusiness;
+        [NotMapped] public SubscriptionOrderTypes OrderType => SubscriptionOrderTypes.TransferToBusiness;
         [NotMapped] public string PhoneNumber => MobileNumber;
 
         [NotMapped]

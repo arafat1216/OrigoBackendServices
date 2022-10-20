@@ -174,7 +174,7 @@ namespace OrigoApiGateway.Controllers
 
             var updatePreference = new UserPreference();
 
-            // User did not close the Asset Tiles. Check if User has any asset
+            // User did not close the Asset Tiles. Check if User got assigned any new asset
             if (tileData.ShowAssetTile)
             {
                 var asset = await _assetServices.GetAssetLifecycleCountersAsync(organizationId, new FilterOptionsForAsset()
@@ -190,10 +190,10 @@ namespace OrigoApiGateway.Controllers
                 }
             }
 
-            // User did not close the Subscription Tiles. Check if User has any Subs Orders
+            // User did not close the Subscription Tiles. Check if User has got any Sub Orders
             if (tileData.ShowSubscriptionTile)
             {
-                var subOrders = await _subscriptionManagementService.GetSubscriptionOrdersCount(organizationId, null, user.MobileNumber);
+                var subOrders = await _subscriptionManagementService.GetSubscriptionOrdersCount(organizationId, null, user.MobileNumber, true);
 
                 // If Subs Order found close the tiles and hide it
                 if (subOrders > 0)

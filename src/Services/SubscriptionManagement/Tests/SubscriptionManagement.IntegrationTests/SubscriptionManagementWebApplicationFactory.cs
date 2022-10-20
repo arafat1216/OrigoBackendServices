@@ -55,6 +55,7 @@ public class SubscriptionManagementWebApplicationFactory<TProgram> : WebApplicat
 
             try
             {
+                // TODO: Add Separate DataSeeding Class
                 var firstOperator = subscriptionManagementContext.Operators.FirstOrDefault();
                 FIRST_OPERATOR_ID = firstOperator!.Id;
                 var subscriptionProduct = new SubscriptionProduct(SUBSCRIPTION_PRODUCT_ID, "TOTAL BEDRIFT", firstOperator!, new List<DataPackage>{new DataPackage("20GB", Guid.Empty), new DataPackage("30GB", Guid.Empty)}, Guid.Empty);

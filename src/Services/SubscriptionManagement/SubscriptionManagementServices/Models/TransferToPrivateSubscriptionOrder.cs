@@ -23,7 +23,7 @@ namespace SubscriptionManagementServices.Models
         #region ISubscriptionOrder implementation
 
         public Guid SubscriptionOrderId { get; set; } = Guid.NewGuid();
-        [NotMapped] public OrderTypes OrderType => OrderTypes.TransferToPrivate;
+        [NotMapped] public SubscriptionOrderTypes OrderType => SubscriptionOrderTypes.TransferToPrivate;
         [NotMapped] public string PhoneNumber => MobileNumber;
 
         [NotMapped]
