@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProductCatalog.API.Filters;
 using ProductCatalog.Common.ProductTypes;
 using ProductCatalog.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
@@ -11,6 +12,7 @@ namespace ProductCatalog.API.Controllers
     [Route("api/v{version:apiVersion}/[controller]")]
     [SwaggerTag("Actions for handling product-types and their translations.")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError)]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class ProductTypesController : ControllerBase
     {
         private readonly JsonSerializerOptions options = new JsonSerializerOptions()
@@ -41,16 +43,8 @@ namespace ProductCatalog.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<ProductTypeGet>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ProductTypeGet>>> GetAllAsync([FromQuery] IEnumerable<string>? languages)
         {
-            try
-            {
-                var result = await new ProductService().GetAllProductTypesAsync(languages);
-
-                return Ok(result);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await new ProductService().GetAllProductTypesAsync(languages);
+            return Ok(result);
         }
 
 
@@ -69,17 +63,9 @@ namespace ProductCatalog.API.Controllers
         [ProducesResponseType(typeof(ProductTypeGet), StatusCodes.Status201Created)]
         public async Task<ActionResult<ProductTypeGet>> AddAsync(ProductTypePost productType)
         {
-            try
-            {
-                var result = await new ProductService().AddProductTypeAsync(productType);
-
-                // TODO: Fix a proper Created() response that includes the 'Location' header.
-                return StatusCode(StatusCodes.Status201Created, result);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await new ProductService().AddProductTypeAsync(productType);
+            // TODO: Fix a proper Created() response that includes the 'Location' header.
+            return StatusCode(StatusCodes.Status201Created, result);
         }
 
 
@@ -97,19 +83,14 @@ namespace ProductCatalog.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ProductTypeGet>> GetByIdTypeAsync([FromRoute] int id)
         {
-            try
-            {
-                var result = await new ProductService().GetProductTypeAsync(id);
 
-                if (result is null)
-                    return NotFound();
-                else
-                    return Ok(result);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await new ProductService().GetProductTypeAsync(id);
+
+            if (result is null)
+                return NotFound();
+            else
+                return Ok(result);
+
         }
 
 
@@ -125,16 +106,8 @@ namespace ProductCatalog.API.Controllers
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         public async Task<ActionResult> AddTranslationAsync([FromRoute] int id, [FromBody] ProductTypePost productType)
         {
-            try
-            {
-                await new ProductService().AddOrUpdateProductTypeTranslationAsync(id, productType.Translations, productType.UpdatedBy);
-
-                return NoContent();
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            await new ProductService().AddOrUpdateProductTypeTranslationAsync(id, productType.Translations, productType.UpdatedBy);
+            return NoContent();
         }
 
 

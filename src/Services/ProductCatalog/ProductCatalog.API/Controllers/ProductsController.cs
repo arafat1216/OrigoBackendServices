@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProductCatalog.API.Filters;
 using ProductCatalog.Common.Products;
 using ProductCatalog.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
@@ -10,7 +11,7 @@ namespace ProductCatalog.API.Controllers
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
     [SwaggerTag("Actions for handling products and their translations.")]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class ProductsController : ControllerBase
     {
         private readonly JsonSerializerOptions options = new JsonSerializerOptions()
@@ -36,19 +37,13 @@ namespace ProductCatalog.API.Controllers
         [ProducesResponseType(typeof(ProductGet), StatusCodes.Status200OK)]
         public async Task<ActionResult<ProductGet?>> GetByIdAsync(int productId)
         {
-            try
-            {
-                var result = await new ProductService().GetByIdAsync(productId);
+            var result = await new ProductService().GetByIdAsync(productId);
 
-                if (result is null)
-                    return NotFound();
-                else
-                    return Ok(result);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            if (result is null)
+                return NotFound();
+            else
+                return Ok(result);
+
         }
 
 
@@ -63,16 +58,8 @@ namespace ProductCatalog.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ProductGet>>> GetAllAsync()
         {
-            try
-            {
-                var result = await new ProductService().GetAllAsync(null);
-
-                return Ok(result);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await new ProductService().GetAllAsync(null);
+            return Ok(result);
         }
 
 
@@ -88,18 +75,9 @@ namespace ProductCatalog.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ProductGet>>> GetAllByPartnerAsync([FromRoute] Guid partnerId)
         {
-            try
-            {
-                var result = await new ProductService().GetAllAsync(partnerId);
-
-                return Ok(result);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await new ProductService().GetAllAsync(partnerId);
+            return Ok(result);
         }
-
 
     }
 }

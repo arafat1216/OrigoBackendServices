@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProductCatalog.API.Filters;
 using ProductCatalog.Common.Exceptions;
 using ProductCatalog.Common.Orders;
 using ProductCatalog.Common.Products;
@@ -12,7 +13,7 @@ namespace ProductCatalog.API.Controllers
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
     [SwaggerTag("Actions for placing, changing and handling product-orders.")]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class OrdersController : ControllerBase
     {
         private readonly JsonSerializerOptions options = new JsonSerializerOptions()
@@ -37,16 +38,8 @@ namespace ProductCatalog.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<OrderGet>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<OrderGet>>> GetOrdersAsync()
         {
-            try
-            {
-                var result = await new OrderService().GetOrders(null, null);
-
-                return Ok(result);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await new OrderService().GetOrders(null, null);
+            return Ok(result);
         }
 
 
@@ -67,16 +60,8 @@ namespace ProductCatalog.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsAsync([FromQuery] bool includeTranslations = true)
         {
-            try
-            {
-                var result = await new OrderService().GetOrderedProductsAsync(includeTranslations, null, null);
-
-                return Ok(result);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await new OrderService().GetOrderedProductsAsync(includeTranslations, null, null);
+            return Ok(result);
         }
 
 
@@ -99,16 +84,8 @@ namespace ProductCatalog.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByPartnerAsync([FromRoute] Guid partnerId, [FromQuery] bool includeTranslations = true)
         {
-            try
-            {
-                var result = await new OrderService().GetOrderedProductsAsync(includeTranslations, null, partnerId);
-
-                return Ok(result);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await new OrderService().GetOrderedProductsAsync(includeTranslations, null, partnerId);
+            return Ok(result);
         }
 
 
@@ -131,16 +108,8 @@ namespace ProductCatalog.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByOrganizationAsync([FromRoute] Guid organizationId, [FromQuery] bool includeTranslations = true)
         {
-            try
-            {
-                var result = await new OrderService().GetOrderedProductsAsync(includeTranslations, organizationId, null);
-
-                return Ok(result);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await new OrderService().GetOrderedProductsAsync(includeTranslations, organizationId, null);
+            return Ok(result);
         }
 
 
@@ -164,16 +133,8 @@ namespace ProductCatalog.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<ProductGet>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByPartnerAndOrganizationAsync([FromRoute] Guid partnerId, [FromRoute] Guid organizationId, [FromQuery] bool includeTranslations = true)
         {
-            try
-            {
-                var result = await new OrderService().GetOrderedProductsAsync(includeTranslations, organizationId, partnerId);
-
-                return Ok(result);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await new OrderService().GetOrderedProductsAsync(includeTranslations, organizationId, partnerId);
+            return Ok(result);
         }
 
 
@@ -196,28 +157,10 @@ namespace ProductCatalog.API.Controllers
         /// <response code="409"> One or more of the product requirements is not fulfilled. </response>
         [HttpPut("partner/{partnerId}/organization/{organizationId}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult> ReplaceOrderedProductsAsync([FromRoute] Guid partnerId, [FromRoute] Guid organizationId, [FromBody] UpdateProductOrders productOrders)
         {
-            try
-            {
-                await new OrderService().UpdateOrderedProductsAsync(organizationId, partnerId, productOrders);
-
-                return StatusCode(StatusCodes.Status204NoContent);
-            }
-            catch (EntityNotFoundException)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, "One or more products was not found.");
-            }
-            catch (RequirementNotFulfilledException)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, "The product-requirements was not fulfilled.");
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            await new OrderService().UpdateOrderedProductsAsync(organizationId, partnerId, productOrders);
+            return StatusCode(StatusCodes.Status204NoContent);
         }
 
     }
