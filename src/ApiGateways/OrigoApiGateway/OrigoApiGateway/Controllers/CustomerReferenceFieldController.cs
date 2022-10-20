@@ -18,7 +18,6 @@ namespace OrigoApiGateway.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin,Admin")]
     [Route("origoapi/v{version:apiVersion}/Customers/{organizationId:Guid}/customer-reference-field")]
     public class CustomerReferenceFieldController : ControllerBase
     {
@@ -70,6 +69,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(OrigoCustomerReferenceField), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(Permission.SubscriptionManagement)]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin,Admin")]
         public async Task<ActionResult<OrigoSubscriptionProduct>> CreateCustomerReferenceField(Guid organizationId, [FromBody] NewCustomerReferenceField newCustomerReferenceField)
         {
             try
@@ -108,6 +108,7 @@ namespace OrigoApiGateway.Controllers
         [Route("{customerReferenceId:int}")]
         [ProducesResponseType(typeof(OrigoCustomerReferenceField), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin,Admin")]
         [PermissionAuthorize(Permission.SubscriptionManagement)]
         public async Task<ActionResult<OrigoSubscriptionProduct>> DeleteCustomerReferenceField(Guid organizationId, int customerReferenceId)
         {
