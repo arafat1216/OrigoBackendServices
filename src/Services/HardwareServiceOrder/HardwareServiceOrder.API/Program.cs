@@ -4,6 +4,7 @@ using Common.Utilities;
 using Dapr.Client;
 using HardwareServiceOrder.API;
 using HardwareServiceOrder.API.Extensions;
+using HardwareServiceOrder.API.Filters;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Configuration;
 using HardwareServiceOrderServices.Email;
@@ -154,6 +155,7 @@ builder.Services.AddScoped<IProviderFactory, ProviderFactory>();
 builder.Services.AddScoped<IStatusHandlerFactory, StatusHandlerFactory>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IFlatDictionaryProvider, FlatDictionary>();
+builder.Services.AddScoped<ErrorExceptionFilter>();
 
 builder.Services.AddSingleton(s => new ResourceManager("HardwareServiceOrderServices.Resources.HardwareServiceOrder", Assembly.GetAssembly(typeof(EmailService))));
 builder.Services.AddSingleton<IAssetService>(s => new AssetService(s.GetRequiredService<IOptions<AssetConfiguration>>(), DaprClient.CreateInvokeHttpClient("assetservices")));
