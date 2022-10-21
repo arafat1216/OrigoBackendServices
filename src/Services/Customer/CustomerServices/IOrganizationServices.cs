@@ -1,10 +1,6 @@
 ﻿using Common.Interfaces;
 using CustomerServices.Models;
 using CustomerServices.ServiceModels;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 #nullable enable
 
@@ -78,5 +74,7 @@ namespace CustomerServices
         Task<Organization?> InitiateOnboardingAsync(Guid organizationId);
         Task UpdateOrganizationTechstepCoreAsync(TechstepCoreCustomerUpdateDTO updateTechstepCore);
         Task<IList<Guid>> GetOrganizationIdsForPartnerAsync(Guid partnerId);
+        Task<string?> GetHashedApiKeyAsync(Guid organizationId, CancellationToken cancellationToken);
+        Task SaveHashedApiKeyAsync(Guid organizationId, string apiKey, CancellationToken cancellationToken);
     }
 }
