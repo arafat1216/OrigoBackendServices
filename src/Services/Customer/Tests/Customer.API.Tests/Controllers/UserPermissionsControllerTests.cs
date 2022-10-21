@@ -245,7 +245,7 @@ public class UserPermissionsControllerTests : IClassFixture<CustomerWebApplicati
         var requestUri = "/api/v1/organizations/users/permissions";
 
         var response = await _httpClient.PutAsJsonAsync(requestUri, requestBody);
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
     }
 
     [Fact]
