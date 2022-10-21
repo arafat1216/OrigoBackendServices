@@ -357,7 +357,7 @@ namespace CustomerServices
         public async Task<UserDTO> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,
             string email, string employeeId, string mobileNumber, UserPreference userPreference, Guid callerId)
         {
-            var user = await _organizationRepository.GetUserAsync(customerId, userId, includeDepartment: true, includeUserPreference: true);
+            var user = await _organizationRepository.GetUserAsync(customerId, userId, includeDepartment: true, includeUserPreference: true); //if userpreferences is null we dont need to include it or do we?
             //get role from current email
             var role = await GetRoleNameForUser(user.Email);
 
@@ -391,7 +391,9 @@ namespace CustomerServices
                     user.ChangeUserPreferences(userPreference, callerId);
                 if (userPreference.IsAssetTileClosed != null || userPreference.IsSubscriptionTileClosed != null)
                     user.UserPreference?.SetOnboardingTiles(user, userPreference.IsAssetTileClosed, userPreference.IsSubscriptionTileClosed, callerId);
-            }       
+                if (userPreference.SubscriptionIsHandledForOffboarding != null)
+                    user.HandleSubscriptionForOffboarding(userPreference.SubscriptionIsHandledForOffboarding, callerId);
+            }
 
             var userDTO = _mapper.Map<UserDTO>(user);
             if (userDTO == null)

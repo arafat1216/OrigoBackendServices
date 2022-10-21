@@ -379,6 +379,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "SystemAdmin"));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "OnAndOffboarding"));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
 
             var newUser = new NewUser { Email = "tesst@mail.com", MobileNumber = "+4745545457" };
@@ -397,43 +398,6 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                     }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
                         TestAuthenticationHandler.DefaultScheme, options => { options.Email = "mail@mail.com"; });
-
-                    var customerServiceMock = new Mock<ICustomerServices>();
-                    var customer = new Organization
-                    {
-                        OrganizationId = organizationId,
-                        PartnerId = partnerId
-                    };
-
-                    customerServiceMock.Setup(_ => _.GetCustomerAsync(organizationId))
-                        .ReturnsAsync(customer);
-                    services.AddSingleton(customerServiceMock.Object);
-
-                    var order = new List<OrigoApiGateway.Models.ProductCatalog.ProductGet>
-                    {
-                        new OrigoApiGateway.Models.ProductCatalog.ProductGet
-                            {
-                                Id = 2,
-                                PartnerId = partnerId,
-                                ProductTypeId = 2,
-                                Translations = new List<OrigoApiGateway.Models.ProductCatalog.Translation>
-                                {
-                                    new OrigoApiGateway.Models.ProductCatalog.Translation
-                                    {
-                                         Language = "en",
-                                         Description = "Simple Asset Management for units purchased transactionally in Techstep's own WebShop.",
-                                         Name = "Implement"
-                                    }
-                                }
-                            }
-                    };
-
-
-                    var productOrderMock = new Mock<IProductCatalogServices>();
-                    productOrderMock.Setup(_ => _.GetOrderedProductsByPartnerAndOrganizationAsync(partnerId,organizationId, It.IsAny<bool>()))
-                      .ReturnsAsync(order);
-                    services.AddSingleton(productOrderMock.Object);
-
 
                     var usersService = new Mock<IUserServices>();
 
@@ -458,27 +422,31 @@ namespace OrigoGateway.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
         [Fact]
-        public async Task PatchUserForCustomer_AsEndUser()
+        public async Task PatchUserForCustomer_AsEndUser_IsAssetTileClosed()
         {
             var organizationId = Guid.NewGuid();
-            var partnerId = Guid.NewGuid();
             var callerId = Guid.NewGuid();
+            var email = "test@test.no";
 
             var permissionsIdentity = new ClaimsIdentity();
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, callerId.ToString()));
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, PredefinedRole.EndUser.ToString()));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
 
+
+            var userpreferences = new UserPreference()
+            {
+                IsAssetTileClosed = true
+            };
+
             var updateUser = new OrigoUpdateUser
             {
-                Email = "tesst@mail.com",
+                Email = email,
                 MobileNumber = "+4745545457",
-                UserPreference = new UserPreference()
-                {
-                    IsAssetTileClosed = true
-                }
+                UserPreference = userpreferences
             };
 
             var client = _factory.WithWebHostBuilder(builder =>
@@ -486,7 +454,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                 builder.ConfigureTestServices(services =>
                 {
                     var userPermissionServiceMock = new Mock<IUserPermissionService>();
-                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), "mail@mail.com", CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
                     services.AddSingleton(userPermissionServiceMock.Object);
 
                     services.AddAuthentication(options =>
@@ -494,83 +462,14 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
                         options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                     }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
-                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = "mail@mail.com"; });
-
-                    var customerServiceMock = new Mock<ICustomerServices>();
-                    var customer = new Organization
-                    {
-                        OrganizationId = organizationId,
-                        PartnerId = partnerId
-                    };
-
-                    customerServiceMock.Setup(_ => _.GetCustomerAsync(organizationId))
-                        .ReturnsAsync(customer);
-                    services.AddSingleton(customerServiceMock.Object);
-
-                    var order = new List<OrigoApiGateway.Models.ProductCatalog.ProductGet>
-                    {
-                        new OrigoApiGateway.Models.ProductCatalog.ProductGet
-                            {
-                                Id = 2,
-                                PartnerId = partnerId,
-                                ProductTypeId = 2,
-                                Translations = new List<OrigoApiGateway.Models.ProductCatalog.Translation>
-                                {
-                                    new OrigoApiGateway.Models.ProductCatalog.Translation
-                                    {
-                                         Language = "en",
-                                         Description = "Simple Asset Management for units purchased transactionally in Techstep's own WebShop.",
-                                         Name = "Implement"
-                                    }
-                                }
-                            }
-                    };
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+                    var userService = new Mock<IUserServices>();
 
 
-                    var productOrderMock = new Mock<IProductCatalogServices>();
-                    productOrderMock.Setup(_ => _.GetOrderedProductsByPartnerAndOrganizationAsync(partnerId, organizationId, It.IsAny<bool>()))
-                      .ReturnsAsync(order);
-                    services.AddSingleton(productOrderMock.Object);
+                    userService.Setup(_ => _.PatchUserAsync(organizationId, callerId, It.IsAny<OrigoUpdateUser>(), callerId))
+                        .ReturnsAsync(new OrigoUser { Id = callerId, UserPreference = userpreferences });
 
-                    var mockFactory = new Mock<IHttpClientFactory>();
-                    var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-                    mockHttpMessageHandler.Protected()
-                        .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
-                            ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
-                            {
-                                StatusCode = HttpStatusCode.OK,
-                                Content = new StringContent(
-                                    @"
-                                    {
-                                        ""id"": ""3fa85f64-5717-4562-b3fc-2c963f66afa6"",
-                                        ""firstName"": ""Ada"",
-                                        ""lastName"": ""Lovelace"",
-                                        ""email"": ""jane.doe@example.com"",
-                                        ""mobileNumber"": ""99999999"",
-                                        ""employeeId"": ""E1"",
-                                        ""organizationName"": ""ACME"",
-                                        ""userPreference"":
-                                        {
-                                            ""IsAssetTileClosed"":true
-                                        }
-                                    }
-                                ")
-                            });
-                    var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
-                    mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-                    var options = new UserConfiguration { ApiPath = @"/users" };
-                    var optionsMock = new Mock<IOptions<UserConfiguration>>();
-                    optionsMock.Setup(o => o.Value).Returns(options);
-
-                    var mappingConfig = new MapperConfiguration(mc =>
-                    {
-                        mc.AddMaps(Assembly.GetAssembly(typeof(NewDisposeSettingProfile)));
-                    });
-                    var _mapper = mappingConfig.CreateMapper();
-                    var usersService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object,
-                        _mapper, Mock.Of<IProductCatalogServices>());
-
-                    services.AddSingleton<IUserServices>(x => usersService);
+                    services.AddSingleton(userService.Object);
                 });
             }).CreateClient();
 
@@ -580,6 +479,117 @@ namespace OrigoGateway.IntegrationTests.Controllers
             var response = await client.PatchAsync($"/origoapi/v1.0/customers/{organizationId}/users/{callerId}", JsonContent.Create(updateUser));
             var responseData = await response.Content.ReadFromJsonAsync<OrigoUser>();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+        [Fact]
+        public async Task PatchUserForCustomer_AsEndUser_SubscriptionIsHandledForOffboarding()
+        {
+            var organizationId = Guid.NewGuid();
+            var callerId = Guid.NewGuid();
+            var email = "test@test.no";
+
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, callerId.ToString()));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, PredefinedRole.EndUser.ToString()));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+
+            var userpreferences = new UserPreference()
+            {
+                SubscriptionIsHandledForOffboarding = true
+            };
+
+            var updateUser = new OrigoUpdateUser
+            {
+                Email = email,
+                MobileNumber = "+4745545457",
+                UserPreference = userpreferences
+            };
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+                    var userService = new Mock<IUserServices>();
+
+
+                    userService.Setup(_ => _.PatchUserAsync(organizationId, callerId, It.IsAny<OrigoUpdateUser>(), callerId))
+                        .ReturnsAsync(new OrigoUser { Id = callerId, UserPreference = userpreferences });
+
+                    services.AddSingleton(userService.Object);
+                });
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+
+            var response = await client.PatchAsync($"/origoapi/v1.0/customers/{organizationId}/users/{callerId}", JsonContent.Create(updateUser));
+            var responseData = await response.Content.ReadFromJsonAsync<OrigoUser>();
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+        [Fact]
+        public async Task PatchUserForCustomer_EndudUserIsNotTheSameAsUserToBeEdit_Forbid()
+        {
+            var organizationId = Guid.NewGuid();
+            var callerId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+            var email = "test@test.no";
+
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, callerId.ToString()));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, PredefinedRole.EndUser.ToString()));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+
+            var userpreferences = new UserPreference()
+            {
+                SubscriptionIsHandledForOffboarding = true
+            };
+
+            var updateUser = new OrigoUpdateUser
+            {
+                Email = email,
+                MobileNumber = "+4745545457",
+                UserPreference = userpreferences
+            };
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+                });
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+
+            var response = await client.PatchAsync($"/origoapi/v1.0/customers/{organizationId}/users/{userId}", JsonContent.Create(updateUser));
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
     }
 }
