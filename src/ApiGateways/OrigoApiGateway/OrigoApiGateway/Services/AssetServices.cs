@@ -38,7 +38,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/customers/count?page={page}&limit={limit}", customerIds);
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/customers/count/pagination?page={page}&limit={limit}", customerIds);
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorDescription = await response.Content.ReadAsStringAsync();
