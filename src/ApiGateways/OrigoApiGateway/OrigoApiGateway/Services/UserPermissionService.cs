@@ -33,7 +33,7 @@ public class UserPermissionService : IUserPermissionService
     private async Task<IEnumerable<T>> GetFromCache<T>(string key, Func<Task<IEnumerable<T>>> lambda)
     {
         var values = await _cacheService.Get<IEnumerable<T>>(key);
-        if (values is not null)
+        if (values is not null && values.Any())
             return values;
         values = await lambda();
         if (values.Any())
