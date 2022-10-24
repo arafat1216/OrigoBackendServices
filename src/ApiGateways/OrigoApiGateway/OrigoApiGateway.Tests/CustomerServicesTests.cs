@@ -109,7 +109,7 @@ namespace OrigoApiGateway.Tests
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
-                x.RequestUri != null && x.RequestUri.ToString().Contains("?searchString=") &&
+                x.RequestUri != null && x.RequestUri.ToString().Contains("?name=") &&
                 x.Method == HttpMethod.Get),
                     ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(new HttpResponseMessage
