@@ -597,7 +597,7 @@ namespace Customer.API.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [Route("{organizationId:Guid}/hashed-apikey")]
-        [HttpGet]
+        [HttpPost]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
