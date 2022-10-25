@@ -45,4 +45,14 @@ public static class SecretHasher
         var inputSecretKey = Rfc2898DeriveBytes.Pbkdf2(secret, salt, iterations, algorithm, key.Length);
         return key.SequenceEqual(inputSecretKey);
     }
+
+    /// <summary>
+    /// Generates a cryptographically random api key.
+    /// </summary>
+    /// <returns></returns>
+    public static string GenerateApiKey()
+    {
+        return "TSK-" + Convert.ToBase64String(RandomNumberGenerator.GetBytes(38))[..33];
+    }
+
 }

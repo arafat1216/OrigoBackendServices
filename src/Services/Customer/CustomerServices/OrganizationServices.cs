@@ -1005,7 +1005,7 @@ public class OrganizationServices : IOrganizationServices
             }
             catch (Exception ex)
             {
-                _logger.LogError($"SendIvitationMail failed. " + ex.Message);
+                _logger.LogError($"SendInvitationMail failed. " + ex.Message);
             }
         }
 
@@ -1022,7 +1022,7 @@ public class OrganizationServices : IOrganizationServices
         return await _organizationRepository.GetHashedApiKey(organizationId, cancellationToken);
     }
 
-    public async Task SaveHashedApiKeyAsync(Guid organizationId, string apiKey, CancellationToken cancellationToken)
+    public async Task<string> GenerateAndSaveHashedApiKeyAsync(Guid organizationId, CancellationToken cancellationToken)
     {
         var customerPreferences = await _organizationRepository.GetOrganizationPreferencesAsync(organizationId);
         if (customerPreferences == null)
@@ -1030,8 +1030,10 @@ public class OrganizationServices : IOrganizationServices
             throw new CustomerNotFoundException();
         }
 
-        var hashedApiKey = SecretHasher.Hash(apiKey);
+        var generateApiKey = SecretHasher.GenerateApiKey();
+        var hashedApiKey = SecretHasher.Hash(generateApiKey);
         customerPreferences.HashedApiKey = hashedApiKey;
         await _organizationRepository.SaveEntitiesAsync(cancellationToken);
+        return generateApiKey;
     }
 }

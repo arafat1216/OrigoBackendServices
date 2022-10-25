@@ -21,12 +21,12 @@ namespace Customer.API.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/[controller]/{customerId:Guid}")]
-[Tags("Customer Datasync API")]
+[Route("/")]
+[Tags("Customer Data Sync API")]
 [SwaggerResponse(StatusCodes.Status500InternalServerError, "Returned when the system encountered an unexpected problem.")]
-public class EmployeeDatasyncController : ControllerBase
+public class EmployeeDataSyncController : ControllerBase
 {
-    private readonly ILogger<EmployeeDatasyncController> _logger;
+    private readonly ILogger<EmployeeDataSyncController> _logger;
     private readonly IUserServices _userServices;
     private readonly IDepartmentsServices _departmentServices;
     private readonly IMapper _mapper;
@@ -38,7 +38,7 @@ public class EmployeeDatasyncController : ControllerBase
     /// <param name="userServices"> The injected <see cref="IUserServices"/> instance. </param>
     /// <param name="departmentServices"> The injected <see cref="IDepartmentsServices"/> instance. </param>
     /// <param name="mapper"> The injected <see cref="IMapper"/> (automapper) instance. </param>
-    public EmployeeDatasyncController(ILogger<EmployeeDatasyncController> logger, IUserServices userServices, IDepartmentsServices departmentServices, IMapper mapper)
+    public EmployeeDataSyncController(ILogger<EmployeeDataSyncController> logger, IUserServices userServices, IDepartmentsServices departmentServices, IMapper mapper)
     {
         _logger = logger;
         _userServices = userServices;
@@ -73,10 +73,10 @@ public class EmployeeDatasyncController : ControllerBase
     /// <param name="page"></param>
     /// <param name="limit"></param>
     /// <returns></returns>
-    [HttpGet("users")]
+    [HttpGet]
     [ProducesResponseType(typeof(PagedModel<User>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<PagedModel<User>>> GetAllUsers([FromRoute] Guid customerId,
+    public async Task<ActionResult<PagedModel<User>>> GetAllEmployees([FromRoute] Guid customerId,
         [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString,
         [FromQuery(Name = "q")] string? search,
         CancellationToken cancellationToken,
@@ -111,63 +111,61 @@ public class EmployeeDatasyncController : ControllerBase
 
 
     /// <summary>
-    /// Create a User under a particular customer
+    /// Handles the create employee event by creating a user for the customer given as id 
     /// </summary>
-    /// <param name="customerId"> Organization Id</param>
-    /// <param name="newUser"> The User Body requires to create the User</param>
+    /// <param name="createEmployeeEvent"></param>
     /// <returns></returns>
-    [HttpPost("users")]
+    [HttpPost]
+    [Route("create-employee")]
     [Topic("customer-datasync-pub-sub", "create-employee")]
     [SwaggerResponse(StatusCodes.Status201Created)]
     [SwaggerResponse(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<User>> CreateEmployeeEndUserForCustomer([FromRoute] Guid customerId, [FromBody] CreateEmployeeEvent createEmployeeEvent)
+    public async Task<ActionResult> CreateEmployeeEndUserForCustomer([FromBody] CreateEmployeeEvent createEmployeeEvent)
     {
         try
         {
             // TODO: Look into using automapper in a better way here?
 
-            var updatedUser = await _userServices.AddUserForCustomerAsync(
-                customerId,
+            var newUser = await _userServices.AddUserForCustomerAsync(
+                createEmployeeEvent.CustomerId,
                 createEmployeeEvent.FirstName,
                 createEmployeeEvent.LastName,
                 createEmployeeEvent.Email,
                 createEmployeeEvent.MobileNumber,
                 null,
                 null,
-                Guid.Empty.DatasyncUserId(),
+                Guid.Empty.PubsubUserId(),
                 null,
                 false,
                 false);
-
-            var updatedUserView = _mapper.Map<User>(updatedUser);
-
-            return CreatedAtAction(nameof(CreateEmployeeEndUserForCustomer), new { id = updatedUserView.Id }, updatedUserView);
+            return Created(String.Empty, newUser);
         }
-        catch (CustomerNotFoundException)
+        catch (CustomerNotFoundException ex)
         {
-            return BadRequest("Customer not found");
+            _logger.LogError(ex, "Customer not found");
         }
-        catch (OktaException)
+        catch (OktaException ex)
         {
-            return BadRequest("Okta failed to activate user.");
+            _logger.LogError(ex, "Okta failed to activate user.");
         }
         catch (UserNotFoundException ex)
         {
-            return BadRequest(ex.Message);
+            _logger.LogError(ex, "User not found.");
         }
         catch (InvalidPhoneNumberException ex)
         {
-            return Conflict(ex.Message);
+            _logger.LogError(ex, "Invalid phone number.");
         }
         catch (UserNameIsInUseException ex)
         {
-            return Conflict(ex.Message);
+            _logger.LogError(ex, "User name is already in use.");
         }
         catch (Exception ex)
         {
-            _logger.LogError("{0}", ex);
-            return BadRequest("Unable to save user");
+            _logger.LogError(ex, "Unable to save user.");
         }
+
+        return BadRequest();
     }
 
 

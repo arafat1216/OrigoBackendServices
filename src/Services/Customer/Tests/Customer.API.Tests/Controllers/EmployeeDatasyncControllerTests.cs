@@ -1,4 +1,5 @@
 ﻿using Common.Extensions;
+using Common.Interfaces;
 using Common.Model.EventModels;
 using Common.Model.EventModels.DatasyncModels;
 using Customer.API.IntegrationTests.Helpers;
@@ -13,6 +14,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
+using CustomerServices.ServiceModels;
 
 namespace Customer.API.IntegrationTests.Controllers
 {
@@ -29,7 +31,7 @@ namespace Customer.API.IntegrationTests.Controllers
             _httpClient = factory.CreateDefaultClient();
             _customerId = factory.ORGANIZATION_ID;
             _factory = factory;
-            _httpClient.DefaultRequestHeaders.Add("X-Authenticated-UserId", Guid.Empty.DatasyncUserId().ToString());
+            _httpClient.DefaultRequestHeaders.Add("X-Authenticated-UserId", Guid.Empty.PubsubUserId().ToString());
         }
 
         [Fact]
@@ -39,7 +41,7 @@ namespace Customer.API.IntegrationTests.Controllers
             // Arrange
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
-            var requestUri = $"api/v1/employeedatasync/{_customerId}/users";
+            var requestUri = $"/create-employee";
             CreateEmployeeEvent newEmployeeEvent = new();
 
             // Act
@@ -52,26 +54,33 @@ namespace Customer.API.IntegrationTests.Controllers
 
         [Fact]
         [Trait("Category", "IntegrationTest")]
-        public async Task CreateEmployee_WithValidUserData_ShouldReturnCreated()
+        public async Task CreateEmployee_WithValidUserData_FetchNewEmployee()
         {
             // Arrange
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
-            var requestUri = $"api/v1/employeedatasync/{_customerId}/users";
+            var newEmployeeEmail = "test.mctest@test.techstep.io";
             CreateEmployeeEvent newEmployeeEvent = new()
             {
                 FirstName = "Test",
                 LastName = "Mctest",
-                Email = "test.mctest@test.techstep.io",
-                MobileNumber = "91234567"
+                Email = newEmployeeEmail,
+                MobileNumber = "91234567",
+                CustomerId = _customerId
             };
 
             // Act
-            var response = await httpClient.PostAsJsonAsync(requestUri, newEmployeeEvent);
+            await httpClient.PostAsJsonAsync("/create-employee", newEmployeeEvent);
 
             // Assert
-            Assert.True(response.IsSuccessStatusCode);
-            Assert.True(response.StatusCode == HttpStatusCode.Created);
+
+            // Fetch newly created employee
+            var requestUri = $"/api/v1/organizations/{_customerId}/users?q={newEmployeeEmail}";
+            var response = await httpClient.GetAsync(requestUri);
+            var read = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(newEmployeeEmail, read!.Items[0].Email);
         }
     }
 }

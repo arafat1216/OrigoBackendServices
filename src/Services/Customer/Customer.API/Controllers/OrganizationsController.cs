@@ -598,19 +598,17 @@ namespace Customer.API.Controllers
         /// <returns></returns>
         [Route("{organizationId:Guid}/hashed-apikey")]
         [HttpPost]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> SaveApiKey([FromRoute] Guid organizationId, string apiKey, CancellationToken cancellationToken)
+        public async Task<ActionResult<string>> SaveApiKey([FromRoute] Guid organizationId, CancellationToken cancellationToken)
         {
             try
             {
-                await _organizationServices.SaveHashedApiKeyAsync(organizationId, apiKey, cancellationToken);
-                return Ok();
+                return Ok(await _organizationServices.GenerateAndSaveHashedApiKeyAsync(organizationId, cancellationToken));
             }
             catch (Exception ex)
             {
-                return BadRequest("Unknown error - Unable to save hashed api key: " + ex.Message);
+                return BadRequest("Unknown error - Unable to generate and save hashed api key: " + ex.Message);
             }
         }
     }

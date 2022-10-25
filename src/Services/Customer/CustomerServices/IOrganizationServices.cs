@@ -75,6 +75,6 @@ namespace CustomerServices
         Task UpdateOrganizationTechstepCoreAsync(TechstepCoreCustomerUpdateDTO updateTechstepCore);
         Task<IList<Guid>> GetOrganizationIdsForPartnerAsync(Guid partnerId);
         Task<string?> GetHashedApiKeyAsync(Guid organizationId, CancellationToken cancellationToken);
-        Task SaveHashedApiKeyAsync(Guid organizationId, string apiKey, CancellationToken cancellationToken);
+        Task<string> GenerateAndSaveHashedApiKeyAsync(Guid organizationId, CancellationToken cancellationToken);
     }
 }

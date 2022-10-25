@@ -7,6 +7,12 @@ namespace Common.Model.EventModels.DatasyncModels;
 /// </summary>
 public record CreateEmployeeEvent
 {
+
+    /// <summary>
+    /// The external id of the customer
+    /// </summary>
+    public Guid CustomerId { get; set; }
+
     /// <summary>
     /// Employee's given name
     /// </summary>

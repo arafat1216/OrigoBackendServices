@@ -503,12 +503,11 @@ public class OrganizationServicesTests
     [Trait("Category", "UnitTest")]
     public async Task SaveHashedApiKey_CheckGetHashedApiKey()
     {
-        //Arrange
-        const string API_KEY = "43oki43o345tofdpfd_rek!#¤#";
-
         // Act
-        await _organizationServices.SaveHashedApiKeyAsync(UnitTestDatabaseSeeder.CUSTOMER_THREE_ID, API_KEY, CancellationToken.None);
+        await _organizationServices.GenerateAndSaveHashedApiKeyAsync(UnitTestDatabaseSeeder.CUSTOMER_THREE_ID, CancellationToken.None);
         var hashedApiKey = await _organizationServices.GetHashedApiKeyAsync(UnitTestDatabaseSeeder.CUSTOMER_THREE_ID, CancellationToken.None);
+        
+        // Assert
         Assert.False(string.IsNullOrEmpty(hashedApiKey));
         Assert.Matches(@"^([^\:]*\:){3}[^\:]*$", hashedApiKey);
     }
