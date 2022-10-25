@@ -800,6 +800,30 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     }
 
     [Fact]
+    public async Task CreateLifeCycleSetting_DefaultRuntime()
+    {
+        var newSettings = new NewLifeCycleSetting
+        {
+            AssetCategoryId = 1,
+            BuyoutAllowed = true,
+            CallerId = _callerId
+        };
+        var customerId = Guid.NewGuid();
+        _testOutputHelper.WriteLine(JsonSerializer.Serialize(newSettings));
+        var requestUri = $"/api/v1/Assets/customers/{customerId}/lifecycle-setting";
+        _testOutputHelper.WriteLine(requestUri);
+        var createResponse = await _httpClient.PostAsJsonAsync(requestUri, newSettings);
+
+        var setting =
+            await _httpClient.GetFromJsonAsync<IList<LifeCycleSetting>>(
+                $"/api/v1/Assets/customers/{customerId}/lifecycle-setting");
+
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        Assert.True(setting!.FirstOrDefault(x => x.AssetCategoryId == newSettings.AssetCategoryId)!.BuyoutAllowed ==
+                    newSettings.BuyoutAllowed);
+        Assert.True(setting!.FirstOrDefault(x => x.AssetCategoryId == newSettings.AssetCategoryId)!.Runtime == 36);
+    }
+    [Fact]
     public async Task GetAvailableAssetsForCustomer()
     {
         var options = new FilterOptionsForAsset();

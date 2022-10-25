@@ -11,6 +11,6 @@ namespace AssetServices.ServiceModel
         public bool BuyoutAllowed { get; set; }
         public decimal MinBuyoutPrice { get; set; }
         public DateTime CreatedDate { get; set; }
-        public int Runtime { get; set; }
+        public int? Runtime { get; set; } = 36;
     }
 }

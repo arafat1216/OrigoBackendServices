@@ -6,13 +6,14 @@ namespace AssetServices.Models;
 
 public class LifeCycleSetting : Entity
 {
-    public LifeCycleSetting(int assetCategoryId, bool buyoutAllowed, decimal minBuyoutPrice, int runtime, Guid callerId)
+    public LifeCycleSetting(int assetCategoryId, bool buyoutAllowed, decimal minBuyoutPrice, int? runtime, Guid callerId)
     {
         BuyoutAllowed = buyoutAllowed;
         MinBuyoutPrice = minBuyoutPrice;
         AssetCategoryId = assetCategoryId;
         CreatedBy = callerId;
-        Runtime = runtime;
+        if(runtime.HasValue && runtime.Value != 0)
+            Runtime = runtime;
     }
 
     public LifeCycleSetting()
@@ -42,7 +43,7 @@ public class LifeCycleSetting : Entity
     /// <summary>
     /// the runtime month for this category and for this customer.
     /// </summary>
-    public int Runtime { get; protected set; }
+    public int? Runtime { get; protected set; } = 36;
 
     /// <summary>
     /// Return the name of the category based on the Category Id.

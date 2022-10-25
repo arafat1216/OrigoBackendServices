@@ -281,7 +281,7 @@ public class AssetServices : IAssetServices
         newAssetLifecycle.CustomerId = customerId;
         if (newAssetDTO.LifecycleType == LifecycleType.Transactional)
         {
-            newAssetLifecycle.Runtime = lifeCycleSetting != null ? lifeCycleSetting!.Runtime : 0;
+            newAssetLifecycle.Runtime = lifeCycleSetting != null && lifeCycleSetting.Runtime.HasValue ? lifeCycleSetting!.Runtime.Value : 36;
         }
         var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(newAssetLifecycle);
 
@@ -963,9 +963,9 @@ public class AssetServices : IAssetServices
             lifeCycleSetting.SetMinBuyoutPrice(lifeCycleSettingDTO.MinBuyoutPrice, CallerId);
         }
 
-        if (lifeCycleSetting.Runtime != lifeCycleSettingDTO.Runtime)
+        if (lifeCycleSettingDTO.Runtime.HasValue && lifeCycleSettingDTO.Runtime != 0 && lifeCycleSetting.Runtime != lifeCycleSettingDTO.Runtime)
         {
-            lifeCycleSetting.SetLifeCycleRuntime(lifeCycleSettingDTO.Runtime, CallerId);
+            lifeCycleSetting.SetLifeCycleRuntime(lifeCycleSettingDTO.Runtime.Value, CallerId);
         }
 
         await _assetLifecycleRepository.SaveEntitiesAsync();
