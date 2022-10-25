@@ -102,6 +102,11 @@ namespace OrigoApiGateway.Services
             {
                 var response = await HttpClient.PutAsJsonAsync(path, inputEntity);
 
+                if (response.StatusCode == HttpStatusCode.BadRequest || response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new ProductCatalogException(await response.Content.ReadAsStringAsync());
+                }
+
                 if (!response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.MultiStatus)
                 {
                     throw new MicroserviceErrorResponseException(response.ReasonPhrase, response.StatusCode);
@@ -144,6 +149,11 @@ namespace OrigoApiGateway.Services
             try
             {
                 var response = await HttpClient.GetAsync(path);
+
+                if (response.StatusCode == HttpStatusCode.BadRequest || response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new ProductCatalogException(await response.Content.ReadAsStringAsync());
+                }
 
                 if (!response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.MultiStatus)
                 {
