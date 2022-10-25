@@ -225,6 +225,45 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        /// <summary>
+        ///     Retrieves the organization's assets.
+        /// </summary>
+        /// <remarks>
+        ///     Retrieves a paginated list that contains the organization's assets.
+        /// </remarks>
+        /// <param name="organizationId">  The organization the assets are attached to. </param>
+        /// <param name="cancellationToken"> A dependency-injected <see cref="CancellationToken"/>. </param>
+        /// <param name="filterOptions"></param>
+        /// <param name="search">
+        /// When a value is provided, a lightweight search is applied, and the matching results is returned.
+        /// The following items can be searched for:
+        ///   - The device's <c>alias</c>
+        ///   - The device's identifiers:
+        ///     - IMEI number
+        ///     - Serial-number
+        ///     - MAC address: At least one of the six MAC address groups must be supplied (two hexadecimal digits, followed by either '-' or ':').
+        ///   - The name of the user: The name may not always be available Whenever possible, the <c>userId</c> filter should be used instead, 
+        ///   as this will be much more reliable.
+        ///     
+        /// The filter will be ignored if no value has been provided.
+        /// </param>
+        /// <param name="page"> The current page number. </param>
+        /// <param name="limit"> The number of items to retrieve for each <paramref name="page"/>. </param>
+        /// <param name="includeAsset"></param>
+        /// <param name="includeImeis">
+        /// When <c><see langword="true"/></c>, the <c>imei</c> property is loaded/included in the retrieved data.
+        /// 
+        /// This property will not be included unless it's explicitly requested.
+        /// 
+        /// IMEI-numbers can only be included if <c><paramref name="includeAsset"/></c> is <c><see langword="true"/></c>.
+        /// </param>
+        /// <param name="includeLabels">
+        /// When <c><see langword="true"/></c>, the <c>labels</c> property is loaded/included in the retrieved data.   
+        /// 
+        /// This property will not be included unless it's explicitly requested. 
+        /// </param>
+        /// <param name="includeContractHolderUser"></param>
+        /// <returns> An asynchronous task. The task results contain the appropriate <see cref="ActionResult"/>. </returns>
         [Route("customers/{organizationId:guid}")]
         [HttpGet]
         [ProducesResponseType(typeof(PagedModel<HardwareSuperType>), (int)HttpStatusCode.OK)]
