@@ -1032,7 +1032,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var existingAsset = await GetAssetForCustomerAsync(customerId, data.AssetId, null);
+                var existingAsset = await GetAssetForCustomerAsync(customerId, data.AssetId, null, includeContractHolderUser: true);
                 if (existingAsset == null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
                 if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && !accessList.Contains(existingAsset.ManagedByDepartmentId))
                     throw new UnauthorizedAccessException("Manager does not have access to this asset!!!");
