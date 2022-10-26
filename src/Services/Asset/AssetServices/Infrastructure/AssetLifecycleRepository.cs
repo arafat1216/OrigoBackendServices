@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Seedwork;
 using AssetServices.Exceptions;
+using System.Collections;
 
 namespace AssetServices.Infrastructure
 {
@@ -566,6 +567,29 @@ namespace AssetServices.Infrastructure
                 .FirstOrDefaultAsync();
 
             return assetLifecycle;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IList<string>> GetActiveImeisList(List<string> imeis)
+        {
+            IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
+            query = query.Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis).AsNoTracking();
+            query = query.Where(q =>
+            q.AssetLifecycleStatus == AssetLifecycleStatus.InputRequired ||
+            q.AssetLifecycleStatus == AssetLifecycleStatus.InUse ||
+            q.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
+            q.AssetLifecycleStatus == AssetLifecycleStatus.Repair ||
+            q.AssetLifecycleStatus == AssetLifecycleStatus.Available ||
+            q.AssetLifecycleStatus == AssetLifecycleStatus.Active ||
+            q.AssetLifecycleStatus == AssetLifecycleStatus.ExpiresSoon ||
+            q.AssetLifecycleStatus == AssetLifecycleStatus.PendingRecycle ||
+            q.AssetLifecycleStatus == AssetLifecycleStatus.Expired
+            && !q.IsDeleted);
+
+            var existingImeis = await query.Where(q => (q.Asset as MobilePhone).Imeis.Any(i => imeis.Contains(i.Imei.ToString())))
+                .SelectMany(x=> (x.Asset as MobilePhone).Imeis.Select(s=>s.Imei.ToString())).ToListAsync();
+
+            return existingImeis;
         }
 
         #region LifeCycleSetting

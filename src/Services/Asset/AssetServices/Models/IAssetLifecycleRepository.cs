@@ -42,5 +42,11 @@ namespace AssetServices.Models
         Task<ServiceModel.CustomerAssetsCounterDTO> GetAssetCountForDepartmentAsync(Guid customerId, Guid? userId, IList<AssetLifecycleStatus> status, IList<Guid?> department);
         Task<int> GetAssetLifecycleCountForUserAsync(Guid customerId, Guid? userId);
         Task<CustomerSettings> AddCustomerSettingAsync(CustomerSettings customerSettings, Guid customerId);
+        /// <summary>
+        ///     Get Imeis list that are Active and not deleted
+        /// </summary>
+        /// <param name="imeis"> List if imeis to search for </param>
+        /// <returns></returns>
+        Task<IList<string>> GetActiveImeisList(List<string> imeis);
     }
 }

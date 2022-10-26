@@ -516,7 +516,11 @@ public class AssetServices : IAssetServices
             }
         }
 
+        var existingImeis = await _assetLifecycleRepository.GetActiveImeisList(assetsFromFileRecords
+            .Where(x => !string.IsNullOrEmpty(x.Imei)).Select(x => x.Imei).ToList());
+
         var assetValidationResult = new AssetValidationResult();
+        
         foreach (var assetFromCsv in assetsFromFileRecords)
         {
             var asset = long.TryParse(assetFromCsv.Imei, out var imei)
@@ -534,6 +538,14 @@ public class AssetServices : IAssetServices
             if (!DateTime.TryParseExact(assetFromCsv.PurchaseDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var purchaseDate))
             {
                 errors.Add($"Invalid purchase date - expected format yyyy-MM-dd (2022-03-21): {assetFromCsv.PurchaseDate}");
+            }
+            if (assetsFromFileRecords.Where(x => !string.IsNullOrEmpty(assetFromCsv.Imei) && x.Imei == assetFromCsv.Imei).Count() > 1)
+            {
+                errors.Add($"Duplicate IMEI in the file - expected UNIQUE IMEI: {assetFromCsv.Imei}");
+            }
+            if (existingImeis.Any(x => !string.IsNullOrEmpty(assetFromCsv.Imei) && x == assetFromCsv.Imei))
+            {
+                errors.Add($"Duplicate Active IMEI in the System - expected UNIQUE IMEI: {assetFromCsv.Imei}");
             }
             if (asset.ValidateAsset() && !errors.Any())
             {
