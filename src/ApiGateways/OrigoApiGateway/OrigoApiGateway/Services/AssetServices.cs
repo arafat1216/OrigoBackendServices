@@ -48,15 +48,9 @@ namespace OrigoApiGateway.Services
                 var assetCountList = await response.Content.ReadFromJsonAsync<PagedModel<CustomerAssetCount>>();
                 return assetCountList;
             }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "GetAllCustomerAssetsCountAsync failed with HttpRequestException.");
-                throw;
-            }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "GetAllCustomerAssetsCountAsync failed with unknown error.");
-                throw;
+                throw new AssetException("GetAllCustomerAssetsCountAsync failed", exception);
             }
         }
         public async Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync(List<Guid> customerIds)
@@ -73,15 +67,9 @@ namespace OrigoApiGateway.Services
                 var assetCountList = await response.Content.ReadFromJsonAsync<IList<CustomerAssetCount>>();
                 return assetCountList;
             }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "GetAllCustomerAssetsCountAsync failed with HttpRequestException.");
-                throw;
-            }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "GetAllCustomerAssetsCountAsync failed with unknown error.");
-                throw;
+                throw new AssetException("GetAllCustomerAssetsCountAsync failed", exception);
             }
         }
         public async Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId,
@@ -105,15 +93,9 @@ namespace OrigoApiGateway.Services
 
                 return count;
             }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "GetAssetsCountAsync failed with HttpRequestException.");
-                throw;
-            }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "GetAssetsCountAsync failed with unknown error.");
-                throw;
+                throw new AssetException("GetAssetsCountAsync failed", exception);
             }
         }
 
@@ -125,15 +107,9 @@ namespace OrigoApiGateway.Services
 
                 return totalBookValue;
             }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "GetCustomerTotalBookValue failed with HttpRequestException.");
-                throw;
-            }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "GetCustomerTotalBookValue failed with unknown error.");
-                throw;
+                throw new AssetException("GetCustomerTotalBookValue failed", exception);
             }
         }
 
@@ -163,20 +139,9 @@ namespace OrigoApiGateway.Services
                 }
                 return origoAssets;
             }
-            catch (HttpRequestException exception)
+            catch (Exception exception)
             {
-                _logger.LogError(exception, "GetAssetsForUserAsync failed with HttpRequestException.");
-                throw;
-            }
-            catch (NotSupportedException exception)
-            {
-                _logger.LogError(exception, "GetAssetsForUserAsync failed with content type is not valid.");
-                throw;
-            }
-            catch (JsonException exception)
-            {
-                _logger.LogError(exception, "GetAssetsForUserAsync failed with invalid JSON.");
-                throw;
+                throw new AssetException("GetAssetsForUserAsync failed", exception);
             }
         }
         public async Task<PagedModel<HardwareSuperType>> GetAssetsForCustomerAsync(Guid customerId,
@@ -307,8 +272,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to set LifeCycleSetting.");
-                throw;
+                throw new AssetException("SetLifeCycleSettingForCustomerAsync failed", exception);
             }
         }
 
@@ -364,8 +328,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to set DisposeSetting.");
-                throw;
+                throw new AssetException("SetDisposeSettingForCustomerAsync failed", exception);
             }
         }
         public async Task<IList<ReturnLocation>> GetReturnLocationsByCustomer(Guid customerId)
@@ -421,8 +384,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to add ReturnLocation.");
-                throw;
+                throw new AssetException("AddReturnLocationsByCustomer failed", exception);
             }
         }
         public async Task<ReturnLocation> UpdateReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, NewReturnLocation data, Guid callerId)
@@ -447,8 +409,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to update ReturnLocation.");
-                throw;
+                throw new AssetException("UpdateReturnLocationsByCustomer failed", exception);
             }
         }
         public async Task<IList<ReturnLocation>> DeleteReturnLocationsByCustomer(Guid customerId, Guid returnLocationId)
@@ -470,8 +431,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to Delete ReturnLocation.");
-                throw;
+                throw new AssetException("DeleteReturnLocationsByCustomer failed", exception);
             }
         }
 
@@ -687,8 +647,12 @@ namespace OrigoApiGateway.Services
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorDescription = await response.Content.ReadAsStringAsync();
-                    var exception = new BadHttpRequestException(errorDescription, (int)response.StatusCode);
-                    throw exception;
+                    if ((int)response.StatusCode == 500)
+                        throw new Exception(errorDescription);
+                    else if ((int)response.StatusCode == 404)
+                        throw new ResourceNotFoundException(errorDescription, _logger);
+                    else
+                        throw new BadHttpRequestException(errorDescription, (int)response.StatusCode);
                 }
                 var asset = await response.Content.ReadFromJsonAsync<AssetDTO>();
 
@@ -729,8 +693,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to save Asset.");
-                throw;
+                throw new AssetException("AddAssetForCustomerAsync failed", exception);
             }
         }
 
@@ -777,8 +740,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to set status for assets.");
-                throw;
+                throw new AssetException("UpdateStatusOnAssets failed", exception);
             }
         }
         public async Task<OrigoAsset> MakeAssetAvailableAsync(Guid customerId, MakeAssetAvailable data, Guid callerId)
@@ -827,8 +789,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to make the asset available.");
-                throw;
+                throw new AssetException("MakeAssetAvailableAsync failed", exception);
             }
         }
         public async Task<OrigoAsset> ReturnDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, List<Guid?> accessList, Guid returnLocationId, Guid callerId)
@@ -849,7 +810,7 @@ namespace OrigoApiGateway.Services
                 };
                 if (role == PredefinedRole.EndUser.ToString() && existingAsset.IsPersonal && existingAsset.AssetStatus == AssetLifecycleStatus.PendingReturn)
                 {
-                    throw new Exception("Return Request Already Pending!!!");
+                    throw new AssetException("Return Request Already Pending!!!");
                 }
                 else if(role == PredefinedRole.EndUser.ToString() && existingAsset.IsPersonal && existingAsset.AssetStatus != AssetLifecycleStatus.PendingReturn)
                 {
@@ -888,7 +849,7 @@ namespace OrigoApiGateway.Services
                 }
                 else
                 {
-                    throw new Exception("Asset not allowed to Return!!!");
+                    throw new AssetException("Asset not allowed to Return!!!");
                 }
 
                 var requestUri = $"{_options.ApiPath}/customers/{customerId}/return-device";
@@ -916,10 +877,13 @@ namespace OrigoApiGateway.Services
                 }
                 return result;
             }
+            catch(ResourceNotFoundException exception)
+            {
+                throw exception;
+            }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to return the assets.");
-                throw;
+                throw new AssetException("ReturnDeviceAsync failed", exception);
             }
         }
         public async Task<OrigoAsset> BuyoutDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, List<Guid?> accessList, string payrollContactEmail, Guid callerId)
@@ -965,10 +929,13 @@ namespace OrigoApiGateway.Services
                 }
                 return result;
             }
+            catch(ResourceNotFoundException exception)
+            {
+                throw exception;
+            }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to buyout assets.");
-                throw;
+                throw new AssetException("BuyoutDeviceAsync failed", exception);
             }
         }
         public async Task<OrigoAsset> PendingBuyoutDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, List<Guid?> accessList, string currency, Guid callerId)
@@ -1048,8 +1015,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to buyout assets.");
-                throw;
+                throw new AssetException("PendingBuyoutDeviceAsync failed", exception);
             }
         }
 
@@ -1066,7 +1032,7 @@ namespace OrigoApiGateway.Services
                 {
                     if (existingAsset.AssetHolderId != callerId && role == PredefinedRole.EndUser.ToString())
                     {
-                        throw new Exception("Only ContractHolderUser can Report!!!");
+                        throw new AssetException("Only ContractHolderUser can Report!!!");
                     }
                 }
 
@@ -1165,10 +1131,13 @@ namespace OrigoApiGateway.Services
                 }
                 return result;
             }
+            catch(ResourceNotFoundException exception)
+            {
+                throw exception;
+            }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to Report the asset.");
-                throw;
+                throw new AssetException("ReportDeviceAsync failed", exception);
             }
         }
 
@@ -1217,8 +1186,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to re-assign the asset");
-                throw;
+                throw new AssetException("ReAssignAssetToDepartment failed", exception);
             }
         }
 
@@ -1277,8 +1245,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to re-assign the asset");
-                throw;
+                throw new AssetException("ReAssignAssetToUser failed", exception);
             }
         }
 
@@ -1307,8 +1274,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to update asset.");
-                throw;
+                throw new AssetException("UpdateAssetAsync failed", exception);
             }
         }
 
@@ -1333,10 +1299,9 @@ namespace OrigoApiGateway.Services
                 var labels = await response.Content.ReadFromJsonAsync<IList<LabelDTO>>();
                 return _mapper.Map<List<Label>>(labels);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                _logger.LogError(ex.Message);
-                throw;
+                throw new AssetException("CreateLabelsForCustomerAsync failed", exception);
             }
         }
 
@@ -1349,10 +1314,9 @@ namespace OrigoApiGateway.Services
                 if (labels == null) return null;
                 return _mapper.Map<List<Label>>(labels);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                _logger.LogError(ex.Message);
-                throw;
+                throw new AssetException("GetCustomerLabelsAsync failed", exception);
             }
         }
 
@@ -1381,10 +1345,9 @@ namespace OrigoApiGateway.Services
                 var labels = await response.Content.ReadFromJsonAsync<IList<LabelDTO>>();
                 return _mapper.Map<List<Label>>(labels);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                _logger.LogError(ex.Message);
-                throw;
+                throw new AssetException("DeleteCustomerLabelsAsync failed", exception);
             }
         }
 
@@ -1408,10 +1371,9 @@ namespace OrigoApiGateway.Services
                 var labelsResult = await response.Content.ReadFromJsonAsync<IList<LabelDTO>>();
                 return _mapper.Map<List<Label>>(labelsResult);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                _logger.LogError(ex.Message);
-                throw;
+                throw new AssetException("UpdateLabelsForCustomerAsync failed", exception);
             }
         }
 
@@ -1451,10 +1413,9 @@ namespace OrigoApiGateway.Services
 
                 return origoAssets;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                _logger.LogError(ex.Message);
-                return null;
+                throw new AssetException("AssignLabelsToAssets failed", exception);
             }
         }
 
@@ -1495,10 +1456,9 @@ namespace OrigoApiGateway.Services
 
                 return origoAssets;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                _logger.LogError(ex.Message);
-                return null;
+                throw new AssetException("UnAssignLabelsFromAssets failed", exception);
             }
         }
 
@@ -1608,8 +1568,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to change lifecycle type for asset.");
-                throw;
+                throw new AssetException("ChangeLifecycleType failed", exception);
             }
         }
 
@@ -1690,8 +1649,7 @@ namespace OrigoApiGateway.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Unable to assign asset.");
-                throw;
+                throw new AssetException("AssignAsset failed", exception);
             }
         }
 
@@ -1802,20 +1760,9 @@ namespace OrigoApiGateway.Services
 
                 return assetLog;
             }
-            catch (HttpRequestException exception)
+            catch (Exception exception)
             {
-                _logger.LogError(exception, "GetAssetAuditLogMock failed with HttpRequestException.");
-                throw;
-            }
-            catch (NotSupportedException exception)
-            {
-                _logger.LogError(exception, "GetAssetAuditLogMock failed with content type is not valid.");
-                throw;
-            }
-            catch (JsonException exception)
-            {
-                _logger.LogError(exception, "GetAssetAuditLogMock failed with invalid JSON.");
-                throw;
+                throw new AssetException("GetAssetAuditLog failed", exception);
             }
         }
         public async Task<string> CreateAssetSeedData()
@@ -1825,20 +1772,9 @@ namespace OrigoApiGateway.Services
                 var errorMessage = await HttpClient.GetStringAsync($"{_options.ApiPath}/seed");
                 return errorMessage;
             }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "CreateOrganizationSeedData failed with HttpRequestException.");
-                throw;
-            }
-            catch (NotSupportedException exception)
-            {
-                _logger.LogError(exception, "CreateOrganizationSeedData failed with content type is not valid.");
-                throw;
-            }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "CreateOrganizationSeedData unknown error.");
-                throw;
+                throw new AssetException("CreateAssetSeedData failed", exception);
             }
         }
 
@@ -1853,19 +1789,9 @@ namespace OrigoApiGateway.Services
 
 
             }
-            catch (InvalidUserValueException exception)
-            {
-                throw;
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "GetAssetsCount failed with HttpRequestException.");
-                throw;
-            }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "GetAssetsCount failed with Exception.");
-                throw;
+                throw new AssetException("GetAssetLifecycleCountersAsync failed", exception);
             }
 
         }
@@ -1899,15 +1825,9 @@ namespace OrigoApiGateway.Services
 
                     return assets;
             }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "ActivateAssetStatusOnAssetLifecycle failed with HttpRequestException.");
-                throw;
-            }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "ActivateAssetStatusOnAssetLifecycle failed with unknown exception");
-                throw;
+                throw new AssetException("ActivateAssetStatusOnAssetLifecycle failed", exception);
             }
         }
 
@@ -1927,15 +1847,9 @@ namespace OrigoApiGateway.Services
 
                 return _mapper.Map<IList<HardwareSuperType>>(assetLifecycles);
             }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "DeactivateAssetStatusOnAssetLifecycle failed with HttpRequestException.");
-                throw;
-            }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "DeactivateAssetStatusOnAssetLifecycle failed with unknown exception");
-                throw;
+                throw new AssetException("DeactivateAssetStatusOnAssetLifecycle failed", exception);
             }
         }
     }

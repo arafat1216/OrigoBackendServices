@@ -22,7 +22,26 @@ namespace OrigoApiGateway.Filters
             var exception = context.Exception;
             _logger.LogError(exception.Message, exception);
 
-            if (exception is ArgumentException or SubscriptionManagementException or ProductCatalogException)
+            if (exception is ArgumentException or SubscriptionManagementException or ProductCatalogException or AssetException)
+            {
+                context.Result = new BadRequestObjectResult(exception.Message);
+                
+                return;
+            }
+
+            if(exception is ResourceNotFoundException)
+            {
+                context.Result = new NotFoundObjectResult(exception.Message);
+                return;
+            }
+
+            if(exception is UnauthorizedAccessException)
+            {
+                context.Result = new UnauthorizedObjectResult(exception.Message);
+                return;
+            }
+
+            if(exception is Azure.RequestFailedException or BadHttpRequestException)
             {
                 context.Result = new BadRequestObjectResult(exception.Message);
                 return;
