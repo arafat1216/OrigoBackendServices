@@ -22,8 +22,11 @@ namespace AssetServices.Infrastructure.EntityConfiguration
              * DB table configuration (keys, constraints, indexing, etc.)
              */
 
-            builder.HasAlternateKey(entity => entity.ExternalId); 
+            builder.HasAlternateKey(entity => entity.ExternalId);
 
+            builder.Property(a => a.Runtime)
+                .HasDefaultValue(36);
+            
 
             /*
              * Configure properties

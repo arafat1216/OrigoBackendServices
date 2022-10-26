@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Exceptions;
+using OrigoApiGateway.Filters;
 using OrigoApiGateway.Models.ProductCatalog;
 using OrigoApiGateway.Services;
 using Swashbuckle.AspNetCore.Annotations;
@@ -23,6 +24,7 @@ namespace OrigoApiGateway.Controllers
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status504GatewayTimeout)]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class ProductCatalogController : ControllerBase
     {
         private readonly ILogger<ProductCatalogController> _logger;
@@ -55,25 +57,19 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IEnumerable<string>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<string>>> GetProductPermissionsByOrganization([FromRoute] Guid organizationId)
         {
-            try
-            {
-                // If role is not System admin, check access list
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role != PredefinedRole.SystemAdmin.ToString())
-                {
-                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
-                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
-                    {
-                        return Forbid();
-                    }
-                }
 
-                return Ok(await _productCatalogServices.GetProductPermissionsForOrganizationAsync(organizationId));
-            }
-            catch (MicroserviceErrorResponseException e)
+            // If role is not System admin, check access list
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role != PredefinedRole.SystemAdmin.ToString())
             {
-                return ExceptionResponseBuilder(e);
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+                if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
+                {
+                    return Forbid();
+                }
             }
+
+            return Ok(await _productCatalogServices.GetProductPermissionsForOrganizationAsync(organizationId));
         }
 
         #endregion
@@ -96,14 +92,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(IEnumerable<ProductTypeGet>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ProductTypeGet>>> GetProductTypes()
         {
-            try
-            {
-                return Ok(await _productCatalogServices.GetAllProductTypesAsync());
-            }
-            catch (MicroserviceErrorResponseException e)
-            {
-                return ExceptionResponseBuilder(e);
-            }
+            return Ok(await _productCatalogServices.GetAllProductTypesAsync());
         }
 
         #endregion
@@ -126,14 +115,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(ProductGet), StatusCodes.Status200OK)]
         public async Task<ActionResult<ProductGet>> GetProductById([FromRoute] int productId)
         {
-            try
-            {
-                return Ok(await _productCatalogServices.GetProductByIdAsync(productId));
-            }
-            catch (MicroserviceErrorResponseException e)
-            {
-                return ExceptionResponseBuilder(e);
-            }
+            return Ok(await _productCatalogServices.GetProductByIdAsync(productId));
         }
 
 
@@ -153,14 +135,7 @@ namespace OrigoApiGateway.Controllers
         [Authorize(Roles = "SystemAdmin,PartnerAdmin,CustomerAdmin,Admin")]
         public async Task<ActionResult<IEnumerable<ProductGet>>> GetProductsByPartner([FromRoute] Guid partnerId)
         {
-            try
-            {
-                return Ok(await _productCatalogServices.GetAllProductsByPartnerAsync(partnerId));
-            }
-            catch (MicroserviceErrorResponseException e)
-            {
-                return ExceptionResponseBuilder(e);
-            }
+            return Ok(await _productCatalogServices.GetAllProductsByPartnerAsync(partnerId));
         }
 
         #endregion
@@ -194,25 +169,18 @@ namespace OrigoApiGateway.Controllers
 
         public async Task<ActionResult<IEnumerable<ProductGet>>> GetOrderedProductsByPartnerAndOrganizationAsync([FromRoute] Guid partnerId, [FromRoute] Guid organizationId, [FromQuery] bool includeTranslations = true)
         {
-            try
+            // If role is not System admin, check access list
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role != PredefinedRole.SystemAdmin.ToString())
             {
-                // If role is not System admin, check access list
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role != PredefinedRole.SystemAdmin.ToString())
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+                if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
                 {
-                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
-                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
-                    {
-                        return Forbid();
-                    }
+                    return Forbid();
                 }
+            }
 
-                return Ok(await _productCatalogServices.GetOrderedProductsByPartnerAndOrganizationAsync(partnerId, organizationId, includeTranslations));
-            }
-            catch (MicroserviceErrorResponseException e)
-            {
-                return ExceptionResponseBuilder(e);
-            }
+            return Ok(await _productCatalogServices.GetOrderedProductsByPartnerAndOrganizationAsync(partnerId, organizationId, includeTranslations));
         }
 
 
@@ -243,46 +211,40 @@ namespace OrigoApiGateway.Controllers
         [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
         public async Task<ActionResult> ReplaceOrderedProductsAsync([FromRoute] Guid partnerId, [FromRoute] Guid organizationId, [FromBody] ProductOrdersPut productOrders)
         {
-            try
+
+            // If role is not System admin, check access list
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role != PredefinedRole.SystemAdmin.ToString())
             {
-                // If role is not System admin, check access list
-                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-                if (role != PredefinedRole.SystemAdmin.ToString())
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+                if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
                 {
-                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
-                    if (accessList != null && (!accessList.Any() || !accessList.Contains(organizationId.ToString())))
-                    {
-                        return Forbid();
-                    }
+                    return Forbid();
                 }
-                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                var parseSuccess = Guid.TryParse(actor, out Guid actorResult);
-
-                // In the event that we cannon retrieve or parse the user's UUID, throw an exception and log the problem.
-                if (!parseSuccess)
-                {
-                    _logger.LogError("{0} failed as the actor's claim could not be retrieved and/or parsed to a valid user UUID. Unique location ID: 'F7E971AF-3FF2-4259-AF0F-171A5A534B8F'",
-                        nameof(ReplaceOrderedProductsAsync));
-                    return Problem(statusCode: 500);
-                }
-
-                var customer = await _customerServices.GetCustomerAsync(organizationId);
-
-                if (customer != null && customer.PartnerId.HasValue && customer.PartnerId.Value != partnerId)
-                {
-                    _logger.LogError($"{nameof(ReplaceOrderedProductsAsync)} failed as the Customer ID: '{organizationId}' does not belong to the Parter ID: '{partnerId}'");
-                    return Problem(statusCode: 500);
-                }
-
-                var productOrdersDTO = new ProductOrdersDTO(productOrders, actorResult);
-
-                await _productCatalogServices.ReplaceOrderedProductsAsync(partnerId, organizationId, productOrdersDTO);
-                return NoContent();
             }
-            catch (MicroserviceErrorResponseException e)
+            var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            var parseSuccess = Guid.TryParse(actor, out Guid actorResult);
+
+            // In the event that we cannon retrieve or parse the user's UUID, throw an exception and log the problem.
+            if (!parseSuccess)
             {
-                return ExceptionResponseBuilder(e);
+                _logger.LogError("{0} failed as the actor's claim could not be retrieved and/or parsed to a valid user UUID. Unique location ID: 'F7E971AF-3FF2-4259-AF0F-171A5A534B8F'",
+                    nameof(ReplaceOrderedProductsAsync));
+                return Problem(statusCode: 500);
             }
+
+            var customer = await _customerServices.GetCustomerAsync(organizationId);
+
+            if (customer != null && customer.PartnerId.HasValue && customer.PartnerId.Value != partnerId)
+            {
+                _logger.LogError($"{nameof(ReplaceOrderedProductsAsync)} failed as the Customer ID: '{organizationId}' does not belong to the Parter ID: '{partnerId}'");
+                return Problem(statusCode: 500);
+            }
+
+            var productOrdersDTO = new ProductOrdersDTO(productOrders, actorResult);
+
+            await _productCatalogServices.ReplaceOrderedProductsAsync(partnerId, organizationId, productOrdersDTO);
+            return NoContent();
         }
 
 

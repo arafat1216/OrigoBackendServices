@@ -4,6 +4,7 @@ using AssetServices.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AssetServices.Migrations
 {
     [DbContext(typeof(AssetsContext))]
-    partial class AssetsContextModelSnapshot : ModelSnapshot
+    [Migration("20221025131313_default_runtime_value")]
+    partial class default_runtime_value
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,6 +157,9 @@ namespace AssetServices.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
 
+                    b.Property<int>("CurrencyCode")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
@@ -193,9 +198,17 @@ namespace AssetServices.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal>("OffboardBuyoutPrice")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
+
                     b.Property<string>("OrderNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("PaidByCompany")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ProductId")
                         .IsRequired()
@@ -378,6 +391,9 @@ namespace AssetServices.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int?>("AssetLifecycleId")
                         .HasColumnType("int");
 
@@ -391,6 +407,9 @@ namespace AssetServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<int>("CurrencyCode")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
@@ -540,53 +559,9 @@ namespace AssetServices.Migrations
                         .WithMany()
                         .HasForeignKey("ContractHolderUserId");
 
-                    b.OwnsOne("Common.Model.Money", "OffboardBuyoutPrice", b1 =>
-                        {
-                            b1.Property<int>("AssetLifecycleId")
-                                .HasColumnType("int");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)");
-
-                            b1.Property<string>("CurrencyCode")
-                                .HasColumnType("char(3)");
-
-                            b1.HasKey("AssetLifecycleId");
-
-                            b1.ToTable("AssetLifeCycles");
-
-                            b1.WithOwner()
-                                .HasForeignKey("AssetLifecycleId");
-                        });
-
-                    b.OwnsOne("Common.Model.Money", "PaidByCompany", b1 =>
-                        {
-                            b1.Property<int>("AssetLifecycleId")
-                                .HasColumnType("int");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)");
-
-                            b1.Property<string>("CurrencyCode")
-                                .HasColumnType("char(3)");
-
-                            b1.HasKey("AssetLifecycleId");
-
-                            b1.ToTable("AssetLifeCycles");
-
-                            b1.WithOwner()
-                                .HasForeignKey("AssetLifecycleId");
-                        });
-
                     b.Navigation("Asset");
 
                     b.Navigation("ContractHolderUser");
-
-                    b.Navigation("OffboardBuyoutPrice")
-                        .IsRequired();
-
-                    b.Navigation("PaidByCompany")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("AssetServices.Models.CustomerLabel", b =>
@@ -694,28 +669,6 @@ namespace AssetServices.Migrations
                     b.HasOne("AssetServices.Models.CustomerSettings", null)
                         .WithMany("LifeCycleSettings")
                         .HasForeignKey("CustomerSettingsId");
-
-                    b.OwnsOne("Common.Model.Money", "MinBuyoutPrice", b1 =>
-                        {
-                            b1.Property<int>("LifeCycleSettingId")
-                                .HasColumnType("int");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)");
-
-                            b1.Property<string>("CurrencyCode")
-                                .HasColumnType("char(3)");
-
-                            b1.HasKey("LifeCycleSettingId");
-
-                            b1.ToTable("LifeCycleSetting");
-
-                            b1.WithOwner()
-                                .HasForeignKey("LifeCycleSettingId");
-                        });
-
-                    b.Navigation("MinBuyoutPrice")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("AssetServices.Models.SalaryDeductionTransaction", b =>
@@ -723,28 +676,6 @@ namespace AssetServices.Migrations
                     b.HasOne("AssetServices.Models.AssetLifecycle", null)
                         .WithMany("SalaryDeductionTransactionList")
                         .HasForeignKey("AssetLifecycleId");
-
-                    b.OwnsOne("Common.Model.Money", "Deduction", b1 =>
-                        {
-                            b1.Property<int>("SalaryDeductionTransactionId")
-                                .HasColumnType("int");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)");
-
-                            b1.Property<string>("CurrencyCode")
-                                .HasColumnType("char(3)");
-
-                            b1.HasKey("SalaryDeductionTransactionId");
-
-                            b1.ToTable("SalaryDeductionTransaction");
-
-                            b1.WithOwner()
-                                .HasForeignKey("SalaryDeductionTransactionId");
-                        });
-
-                    b.Navigation("Deduction")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("AssetServices.Models.AssetLifecycle", b =>

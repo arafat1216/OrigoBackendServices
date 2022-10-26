@@ -6,7 +6,7 @@ namespace AssetServices.DomainEvents
 {
     public class SetRuntimeDomainEvent: BaseEvent
     {
-        public SetRuntimeDomainEvent(LifeCycleSetting lifeCycleSetting, Guid callerId, int previousRuntime) : base(lifeCycleSetting.ExternalId)
+        public SetRuntimeDomainEvent(LifeCycleSetting lifeCycleSetting, Guid callerId, int? previousRuntime) : base(lifeCycleSetting.ExternalId)
         {
             LifeCycleSetting = lifeCycleSetting;
             CallerId = callerId;
@@ -15,7 +15,7 @@ namespace AssetServices.DomainEvents
 
         public LifeCycleSetting LifeCycleSetting { get; protected set; }
         public Guid CallerId { get; protected set; }
-        public int PreviousRuntime { get; protected set; }
+        public int? PreviousRuntime { get; protected set; }
 
         public override string EventMessage()
         {

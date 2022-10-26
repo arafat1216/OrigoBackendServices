@@ -13,7 +13,8 @@ public class LifeCycleSetting : Entity
         MinBuyoutPrice = minBuyoutPrice;
         AssetCategoryId = assetCategoryId;
         CreatedBy = callerId;
-        Runtime = runtime;
+        if(runtime.HasValue && runtime.Value != 0)
+            Runtime = runtime;
     }
 
     public LifeCycleSetting()
@@ -43,7 +44,7 @@ public class LifeCycleSetting : Entity
     /// <summary>
     /// the runtime month for this category and for this customer.
     /// </summary>
-    public int Runtime { get; protected set; }
+    public int? Runtime { get; protected set; } = 36;
 
     /// <summary>
     /// Return the name of the category based on the Category Id.
