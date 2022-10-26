@@ -74,7 +74,7 @@ internal static class AssetTestDataSeedingForDatabase
             AssetLifecycleType = LifecycleType.Transactional,
             PurchaseDate = DateTime.UtcNow.AddMonths(-13),
             StartPeriod = DateTime.UtcNow.AddMonths(-12),
-            PaidByCompany = new Money(1500),
+            PaidByCompany = new Money(1500, CurrencyCode.NOK),
             EndPeriod = DateTime.UtcNow
         };
         assetLifecycleOne.AssignAsset(assetOne, CALLER_ID);
@@ -245,10 +245,10 @@ internal static class AssetTestDataSeedingForDatabase
         var disposeSetting = new DisposeSetting(Guid.Empty);
         var returnLocation = new ReturnLocation("Return Location","Return to Mr. on 3rd Floor",Guid.NewGuid());
         disposeSetting.AddReturnLocation(returnLocation, COMPANY_ID, Guid.Empty);
-        var lifeCycleSettingOne = new LifeCycleSetting(1, true, new Money(700M), 24, Guid.Empty);
+        var lifeCycleSettingOne = new LifeCycleSetting(1, true, new Money(700M, CurrencyCode.NOK), 24, Guid.Empty);
         var customerSettingOne = new CustomerSettings(COMPANY_ID, new List<LifeCycleSetting>() { lifeCycleSettingOne }, disposeSetting);
 
-        var lifeCycleSettingTwo = new LifeCycleSetting(1, true, new Money(700M), 24, Guid.Empty);
+        var lifeCycleSettingTwo = new LifeCycleSetting(1, true, new Money(700M, CurrencyCode.NOK), 24, Guid.Empty);
         var customerSettingTwo = new CustomerSettings(ORGANIZATION_ID, new List<LifeCycleSetting>() { lifeCycleSettingTwo });
 
 

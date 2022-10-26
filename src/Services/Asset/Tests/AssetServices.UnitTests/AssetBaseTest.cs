@@ -155,7 +155,7 @@ namespace AssetServices.UnitTests
             assetLifecycleThirteen.MakeReturnRequest(CALLER_ID);
 
 
-            var lifeCycleSetting = new LifeCycleSetting(1, true, new Money(500M), 24, Guid.Empty);
+            var lifeCycleSetting = new LifeCycleSetting(1, true, new Money(500M, CurrencyCode.NOK), 24, Guid.Empty);
             var customerSetting = new CustomerSettings(COMPANY_ID, new List<LifeCycleSetting>() { lifeCycleSetting });
 
 

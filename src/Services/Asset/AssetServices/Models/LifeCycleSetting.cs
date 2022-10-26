@@ -1,5 +1,6 @@
 ﻿using System;
 using AssetServices.DomainEvents;
+using Common.Enums;
 using Common.Model;
 using Common.Seedwork;
 
@@ -7,7 +8,7 @@ namespace AssetServices.Models;
 
 public class LifeCycleSetting : Entity
 {
-    public LifeCycleSetting(int assetCategoryId, bool buyoutAllowed, Money minBuyoutPrice, int runtime, Guid callerId)
+    public LifeCycleSetting(int assetCategoryId, bool buyoutAllowed, Money minBuyoutPrice, int? runtime, Guid callerId)
     {
         BuyoutAllowed = buyoutAllowed;
         MinBuyoutPrice = minBuyoutPrice;
@@ -86,7 +87,7 @@ public class LifeCycleSetting : Entity
     {
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
-        MinBuyoutPrice = new Money(buyoutPrice);
+        MinBuyoutPrice = new Money(buyoutPrice, CurrencyCode.NOK);
         AddDomainEvent(new SetBuyoutPriceDomainEvent(this, callerId));
     }
 
@@ -101,6 +102,6 @@ public class LifeCycleSetting : Entity
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         Runtime = runtime;
-        AddDomainEvent(new SetRuntimeDomainEvent(this, callerId, previousRuntime));
+        AddDomainEvent(new SetRuntimeDomainEvent(this, callerId, previousRuntime.Value));
     }
 }

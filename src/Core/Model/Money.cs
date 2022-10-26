@@ -14,9 +14,9 @@ namespace Common.Model
     /// </summary>
     public class Money : ValueObject
     {
-        public Money():this(decimal.Zero) 
+        public Money():this(decimal.Zero, Enums.CurrencyCode.NOK) 
         { }
-        public Money(decimal amount, CurrencyCode currencyCode = Enums.CurrencyCode.NOK)
+        public Money(decimal amount, CurrencyCode currencyCode)
         {
             Amount = amount;
             CurrencyCode = currencyCode.ToString();

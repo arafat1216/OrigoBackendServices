@@ -511,7 +511,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;
         var previousLifecycleStatus = _assetLifecycleStatus;
-        OffboardBuyoutPrice = new Money(BuyoutPriceByDate(lastWorkingDay));
+        OffboardBuyoutPrice = new Money(BuyoutPriceByDate(lastWorkingDay), CurrencyCode.NOK);
         AddDomainEvent(new PendingBuyoutDeviceDomainEvent(this, callerId, previousLifecycleStatus));
         _assetLifecycleStatus = AssetLifecycleStatus.PendingBuyout;
     }
@@ -677,7 +677,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         {
             salaryDeductionList.Add(new SalaryDeductionTransaction
             {
-                Deduction = new Money(monthlySalaryDeduction.Value),
+                Deduction = new Money(monthlySalaryDeduction.Value, CurrencyCode.NOK),
                 Year = startDate.Value.AddMonths(monthIndex).Year,
                 Month = startDate.Value.AddMonths(monthIndex).Month
             });

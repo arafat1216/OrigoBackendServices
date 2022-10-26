@@ -365,7 +365,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
             Description = DESCRIPTION,
             Imei = new List<long> { FIRST_IMEI },
             CallerId = _callerId,
-            PaidByCompany = new Money(PAID_BY_COMPANY),
+            PaidByCompany = new Money(PAID_BY_COMPANY, CurrencyCode.NOK),
             OrderNumber = ORDER_NUMBER,
             ProductId = PRODUCT_ID,
             MonthlySalaryDeduction = MONTHLY_SALARY_DEDUCTION,
