@@ -150,12 +150,16 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{8C6EE1D2-3BC6-4CCF-AD12-4D07D585F5D0}"
 	ProjectSection(SolutionItems) = preProject
 		charts\customer-api\templates\collector-config.yaml = charts\customer-api\templates\collector-config.yaml
+		charts\customer-api\templates\customerdatasyncpubsub.yaml = charts\customer-api\templates\customerdatasyncpubsub.yaml
 		charts\customer-api\templates\deployment.yaml = charts\customer-api\templates\deployment.yaml
 		charts\customer-api\templates\ingress.yaml = charts\customer-api\templates\ingress.yaml
 		charts\customer-api\templates\NOTES.txt = charts\customer-api\templates\NOTES.txt
 		charts\customer-api\templates\pubsub.yaml = charts\customer-api\templates\pubsub.yaml
 		charts\customer-api\templates\secrets.yaml = charts\customer-api\templates\secrets.yaml
 		charts\customer-api\templates\service.yaml = charts\customer-api\templates\service.yaml
+		charts\customer-api\templates\subscription-employee-create.yaml = charts\customer-api\templates\subscription-employee-create.yaml
+		charts\customer-api\templates\subscription-user-assign-department.yaml = charts\customer-api\templates\subscription-user-assign-department.yaml
+		charts\customer-api\templates\subscription-user-deleted.yaml = charts\customer-api\templates\subscription-user-deleted.yaml
 		charts\customer-api\templates\_helpers.tpl = charts\customer-api\templates\_helpers.tpl
 	EndProjectSection
 EndProject

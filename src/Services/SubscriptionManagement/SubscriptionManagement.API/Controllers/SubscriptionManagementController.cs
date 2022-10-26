@@ -6,6 +6,7 @@ using SubscriptionManagementServices;
 using SubscriptionManagementServices.ServiceModels;
 using System.Net;
 using Swashbuckle.AspNetCore.Annotations;
+using Common.Enums;
 
 namespace SubscriptionManagement.API.Controllers
 {
@@ -243,17 +244,20 @@ namespace SubscriptionManagement.API.Controllers
         }
 
         /// <summary>
-        /// Gets a list of all subscription orders for a customer
+        /// Gets count of subscription orders for a customer
         /// </summary>
         /// <param name="organizationId"></param>
+        /// <param name="orderTypes">Selected Order Types to filter</param>
+        /// <param name="phoneNumber">user's Phone number specific orders</param>
+        /// <param name="checkOrderExist">If true, return the count if any orderType defined in parameter exist. If false, return toe total count</param>
         /// <returns></returns>
         [Route("{organizationId:Guid}/subscription-orders/count")]
         [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Subscription Orders Count" })]
         [HttpGet]
-        public async Task<ActionResult> GetSubscriptionOrdersCountAsync(Guid organizationId)
+        public async Task<ActionResult> GetSubscriptionOrdersCountAsync([FromRoute]Guid organizationId, [FromQuery] IList<SubscriptionOrderTypes>? orderTypes = null, [FromQuery] string? phoneNumber = null, [FromQuery] bool? checkOrderExist = false)
         {
-            return Ok(await _subscriptionServices.GetSubscriptionOrdersCount(organizationId));
+            return Ok(await _subscriptionServices.GetSubscriptionOrdersCount(organizationId, orderTypes, phoneNumber, checkOrderExist!.Value));
         }
 
         /// <summary>

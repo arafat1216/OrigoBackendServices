@@ -26,6 +26,7 @@ public class
     private readonly HttpClient _httpClient;
     private readonly Guid _callerId = Guid.Parse("1d64e718-97cb-11ec-ad86-00155d64bd3d");
     private readonly Guid _organizationId;
+    private readonly string _phoneNumber;
     private readonly int _operatorId;
     private readonly int _operatorAccountId;
     private readonly int _subscriptionProductId;
@@ -40,6 +41,7 @@ public class
         _httpClient = factory.CreateDefaultClient();
         _subscriptionProductId = factory.CUSTOMER_SUBSCRIPTION_PRODUCT_ID;
         _organizationId = factory.ORGANIZATION_ID;
+        _phoneNumber = factory.PHONE_NUMBER;
         _operatorAccountId = factory.OPERATOR_ACCOUNT_ID;
         _operatorId = factory.FIRST_OPERATOR_ID;
     }
@@ -124,7 +126,26 @@ public class
         Assert.Equal(newCustomerSubscriptionProduct.Name, customerSubscriptionProductDTO!.Name);
         Assert.Equal(new List<string> { "20GB" , "25GB" }, customerSubscriptionProductDTO!.DataPackages);
     }
-
+    [Fact]
+    public async Task GetSubscriptionOrdersCountAsync_ForCustomer()
+    {
+        var response = await _httpClient.GetAsync(
+            $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-orders/count");
+        var resp = await response.Content.ReadAsStringAsync();
+        int.TryParse(resp, out var count);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(10, count);
+    }
+    [Fact]
+    public async Task GetSubscriptionOrdersCountAsync_ByPhonerNumber()
+    {
+        var response = await _httpClient.GetAsync(
+            $"/api/v1/SubscriptionManagement/{_organizationId}/subscription-orders/count?phoneNumber={_phoneNumber}");
+        var resp = await response.Content.ReadAsStringAsync();
+        int.TryParse(resp, out var count);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(1, count);
+    }
     [Fact]
     public async Task CreateAndCheckOperatorAccountName40Chars()
     {

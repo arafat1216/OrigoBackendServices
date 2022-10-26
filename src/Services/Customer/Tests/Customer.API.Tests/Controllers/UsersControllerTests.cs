@@ -149,6 +149,30 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal("Test", user?.Result?.FirstName);
         }
+        [Fact]
+        public async Task UpdateUserPatch_UpdateOnlyUserpreferences_SubscriptionHandledForOffboarding()
+        {
+            //need to have a user with offboarding state
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userTwoId}";
+
+            var updateUser = new UpdateUser
+            {
+                UserPreference = new UserPreference
+                {
+                    SubscriptionIsHandledForOffboarding = true
+                },
+                CallerId = _callerId
+            };
+            var response = await httpClient.PostAsJsonAsync(requestUri, updateUser);
+
+            var user = response.Content.ReadFromJsonAsync<User>().Result;
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.True(user?.UserPreference.SubscriptionIsHandledForOffboarding);
+        }
 
 
         [Fact]

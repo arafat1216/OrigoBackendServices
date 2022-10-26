@@ -1,6 +1,6 @@
-﻿using Common.Seedwork;
+﻿using Common.Enums;
+using Common.Seedwork;
 using SubscriptionManagementServices.DomainEvents;
-using SubscriptionManagementServices.Types;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -111,7 +111,7 @@ namespace SubscriptionManagementServices.Models
 
         #region ISubscriptionOrder Implementation
         public Guid SubscriptionOrderId { get; set; }
-        [NotMapped] public OrderTypes OrderType => OrderTypes.NewSubscription;
+        [NotMapped] public SubscriptionOrderTypes OrderType => SubscriptionOrderTypes.NewSubscription;
         [NotMapped] public string PhoneNumber => null;
 
         [NotMapped]

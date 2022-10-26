@@ -407,7 +407,7 @@ namespace OrigoApiGateway.Controllers
                 if (!Guid.TryParse(userId, out Guid userIdGuid))
                     return Unauthorized();
 
-                var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(organizationId, model.AssetId, null);
+                var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(organizationId, model.AssetId, null, true, true);
 
                 if (asset is null)
                     throw new ArgumentException($"Asset does not exist with ID {model.AssetId}", nameof(model.AssetId));
@@ -456,7 +456,7 @@ namespace OrigoApiGateway.Controllers
                 if (!Guid.TryParse(userId, out Guid userIdGuid))
                     return Unauthorized();
 
-                var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(organizationId, model.AssetId, null);
+                var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(organizationId, model.AssetId, null, true, true);
 
                 if (asset is null)
                     throw new ArgumentException($"Asset does not exist with ID {model.AssetId}", nameof(model.AssetId));

@@ -1,6 +1,6 @@
-﻿namespace SubscriptionManagementServices.Types
+﻿namespace Common.Enums
 {
-    public enum OrderTypes
+    public enum SubscriptionOrderTypes
     {
         TransferToPrivate = 1,
         TransferToBusiness = 2,

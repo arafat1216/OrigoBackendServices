@@ -241,7 +241,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             };
 
 
-            await _emailService.SendAsync(OrderTypes.TransferToBusiness.ToString(), subscriptionOrder.SubscriptionOrderId, order, variables);
+            await _emailService.SendAsync(SubscriptionOrderTypes.TransferToBusiness.ToString(), subscriptionOrder.SubscriptionOrderId, order, variables);
         }
 
         var operatorSettings = customerSettings.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == newOperatorName);
@@ -318,7 +318,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         }
         else
         {
-            await _emailService.SendAsync(OrderTypes.TransferToPrivate.ToString(), added.SubscriptionOrderId, order, new Dictionary<string, string> { { "OperatorName", subscriptionOrder.OperatorName } });
+            await _emailService.SendAsync(SubscriptionOrderTypes.TransferToPrivate.ToString(), added.SubscriptionOrderId, order, new Dictionary<string, string> { { "OperatorName", subscriptionOrder.OperatorName } });
 
         }
 
@@ -338,10 +338,18 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         return _mapper.Map<IList<SubscriptionOrderListItemDTO>>(subscriptionOrders);
     }
 
-    public async Task<int> GetSubscriptionOrdersCount(Guid organizationId)
+    public async Task<int> GetSubscriptionOrdersCount(Guid organizationId, IList<SubscriptionOrderTypes>? orderTypes = null, string? phoneNumber = null, bool checkOrderExist = false)
     {
-        int subscriptionOrdersCount = await _subscriptionManagementRepository.GetTotalSubscriptionOrdersCountForCustomer(organizationId);
-        return subscriptionOrdersCount;
+        try
+        {
+            int subscriptionOrdersCount = await _subscriptionManagementRepository.GetTotalSubscriptionOrdersCountForCustomer(organizationId, orderTypes, phoneNumber, checkOrderExist = false);
+            return subscriptionOrdersCount;
+        }
+        catch(Exception ex)
+        {
+            throw ex;
+        }
+        
     }
 
     public async Task<ChangeSubscriptionOrderDTO> ChangeSubscriptionOrder(Guid organizationId, NewChangeSubscriptionOrder subscriptionOrder)
@@ -413,7 +421,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         }
         else
         {
-            await _emailService.SendAsync(OrderTypes.ChangeSubscription.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", subscriptionOrder.OperatorName } });
+            await _emailService.SendAsync(SubscriptionOrderTypes.ChangeSubscription.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", subscriptionOrder.OperatorName } });
 
         }
         var mapped = _mapper.Map<ChangeSubscriptionOrderDTO>(added);
@@ -456,7 +464,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         }
         else
         {
-           await _emailService.SendAsync(OrderTypes.CancelSubscription.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
+           await _emailService.SendAsync(SubscriptionOrderTypes.CancelSubscription.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
 
         }
         var cancelMapped = _mapper.Map<CancelSubscriptionOrderDTO>(added);
@@ -494,7 +502,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         }
         else
         {
-           await _emailService.SendAsync(OrderTypes.OrderSim.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
+           await _emailService.SendAsync(SubscriptionOrderTypes.OrderSim.ToString(), added.SubscriptionOrderId, subscriptionOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
         }
         var mapped = _mapper.Map<OrderSimSubscriptionOrderDTO>(added);
         mapped.OperatorId = @operator.Id;
@@ -538,7 +546,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         }
         else
         {
-           await _emailService.SendAsync(OrderTypes.ActivateSim.ToString(), added.SubscriptionOrderId, simOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
+           await _emailService.SendAsync(SubscriptionOrderTypes.ActivateSim.ToString(), added.SubscriptionOrderId, simOrder, new Dictionary<string, string> { { "OperatorName", @operator.OperatorName } });
         }
         var mapped = _mapper.Map<ActivateSimOrderDTO>(newActivateSimOrder);
         mapped.OperatorId = @operator.Id;
@@ -718,7 +726,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
                 { "CustomerReferenceFields", newSubscription.CustomerReferenceFields }
             };
-            await _emailService.SendAsync(OrderTypes.NewSubscription.ToString(), subscriptionOrder.SubscriptionOrderId, emailVariables);
+            await _emailService.SendAsync(SubscriptionOrderTypes.NewSubscription.ToString(), subscriptionOrder.SubscriptionOrderId, emailVariables);
         }
         var mapped = _mapper.Map<NewSubscriptionOrderDTO>(subscriptionOrder);
 
@@ -749,9 +757,9 @@ public class SubscriptionManagementService : ISubscriptionManagementService
             throw new CustomerSettingsException($"Customer {organizationId} is not configured.", Guid.Parse("b0cdc324-f97a-4749-87dd-6a0e18a9aad6"));
 
 
-        switch ((OrderTypes)orderType)
+        switch ((SubscriptionOrderTypes)orderType)
         {
-            case OrderTypes.OrderSim:
+            case SubscriptionOrderTypes.OrderSim:
                 var orderSim = await _subscriptionManagementRepository.GetOrderSimOrder(orderId);
                 var mappedOrderSim = _mapper.Map<OrderSimSubscriptionOrderDTO>(orderSim);
                 @operator = customerSetting.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == orderSim.OperatorName);
@@ -761,7 +769,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 detailViewSubscriptionOrder.CreatedDate = orderSim.CreatedDate;
                 break;
 
-            case OrderTypes.ActivateSim:
+            case SubscriptionOrderTypes.ActivateSim:
                 var activateSim = await _subscriptionManagementRepository.GetActivateSimOrder(orderId);
                 var mappedactivateSim = _mapper.Map<ActivateSimOrderDTO>(activateSim);
 
@@ -773,7 +781,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 detailViewSubscriptionOrder.CreatedDate = activateSim.CreatedDate;
                 break;
 
-            case OrderTypes.TransferToBusiness:
+            case SubscriptionOrderTypes.TransferToBusiness:
                 var transferToBusiness = await _subscriptionManagementRepository.GetTransferToBusinessOrder(orderId);
                 var mappedT2B = _mapper.Map<TransferToBusinessSubscriptionOrderDTOResponse>(transferToBusiness);
                 @operator = customerSetting.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == transferToBusiness.OperatorName);
@@ -799,7 +807,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 detailViewSubscriptionOrder.CreatedDate = transferToBusiness.CreatedDate;
                 break;
 
-            case OrderTypes.TransferToPrivate:
+            case SubscriptionOrderTypes.TransferToPrivate:
                 var transferToPrivate = await _subscriptionManagementRepository.GetTransferToPrivateOrder(orderId);
                 var mappedT2P = _mapper.Map<TransferToPrivateSubscriptionOrderDTOResponse>(transferToPrivate);
                 @operator = customerSetting.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == transferToPrivate.OperatorName);
@@ -814,7 +822,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 detailViewSubscriptionOrder.CreatedDate = transferToPrivate.CreatedDate;
                 break;
 
-            case OrderTypes.NewSubscription:
+            case SubscriptionOrderTypes.NewSubscription:
                 var newSubscription = await _subscriptionManagementRepository.GetNewSubscriptionOrder(orderId);
                 var mappedNewSubscription = _mapper.Map<NewSubscriptionOrderDTO>(newSubscription);
 
@@ -842,7 +850,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 detailViewSubscriptionOrder.CreatedDate = newSubscription.CreatedDate;
                 break;
 
-            case OrderTypes.ChangeSubscription:
+            case SubscriptionOrderTypes.ChangeSubscription:
                 var changeSubscription = await _subscriptionManagementRepository.GetChangeSubscriptionOrder(orderId);
                 var mappedChangeSubscription = _mapper.Map<ChangeSubscriptionOrderDTO>(changeSubscription);
                 @operator = customerSetting.CustomerOperatorSettings.FirstOrDefault(o => o.Operator.OperatorName == changeSubscription.OperatorName);
@@ -852,7 +860,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
                 detailViewSubscriptionOrder.CreatedDate = changeSubscription.CreatedDate;
                 break;
 
-            case OrderTypes.CancelSubscription:
+            case SubscriptionOrderTypes.CancelSubscription:
                 var cancelSubscription = await _subscriptionManagementRepository.GetCancelSubscriptionOrder(orderId);
 
                 var mappedCancelSubscription = _mapper.Map<CancelSubscriptionOrderDTO>(cancelSubscription);
@@ -866,8 +874,8 @@ public class SubscriptionManagementService : ISubscriptionManagementService
 
             default:
                 var sb = new StringBuilder();
-                var enumValues = Enum.GetValues((typeof(OrderTypes)));
-                foreach (OrderTypes enumValue in (OrderTypes[])enumValues)
+                var enumValues = Enum.GetValues((typeof(SubscriptionOrderTypes)));
+                foreach (SubscriptionOrderTypes enumValue in (SubscriptionOrderTypes[])enumValues)
                 {
                     sb.AppendLine($"{enumValue.ToString()} - {enumValue.GetHashCode().ToString()}");
                 }

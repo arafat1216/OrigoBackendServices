@@ -69,7 +69,7 @@ namespace CustomerServices
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-                client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+                client.DefaultRequestHeaders.Add("Authorization", "SSWS " + _oktaOptions.OktaAuth);
                 var content = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
                 var resMsg = await client.PostAsync(_oktaOptions.OktaUrl + "users?activate=" + activate.ToString(), content);
                 if (resMsg.IsSuccessStatusCode)
@@ -90,7 +90,7 @@ namespace CustomerServices
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-                client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+                client.DefaultRequestHeaders.Add("Authorization", "SSWS " + _oktaOptions.OktaAuth);
                 string url = _oktaOptions.OktaUrl + "groups/" + _oktaOptions.OktaGroupId + "/users/" + userOktaId;
                 var resMsg = await client.DeleteAsync(url);
                 string msg = await resMsg.Content.ReadAsStringAsync();
@@ -117,7 +117,7 @@ namespace CustomerServices
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-                client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+                client.DefaultRequestHeaders.Add("Authorization", "SSWS " + _oktaOptions.OktaAuth);
                 string url = _oktaOptions.OktaUrl + "users/" + userOktaId + "/lifecycle/deactivate";
                 var resMsg = await client.PostAsync(url, null);
                 string msg = await resMsg.Content.ReadAsStringAsync();
@@ -137,7 +137,7 @@ namespace CustomerServices
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-                client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+                client.DefaultRequestHeaders.Add("Authorization", "SSWS " + _oktaOptions.OktaAuth);
                 string url = _oktaOptions.OktaUrl + "users/" + userOktaId;
                 var resMsg = await client.DeleteAsync(url);
                 string msg = await resMsg.Content.ReadAsStringAsync();
@@ -157,7 +157,7 @@ namespace CustomerServices
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-                client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+                client.DefaultRequestHeaders.Add("Authorization", "SSWS " + _oktaOptions.OktaAuth);
                 string url = _oktaOptions.OktaUrl + "groups/" + _oktaOptions.OktaGroupId + "/users/" + userOktaId;
                 var resMsg = await client.PutAsync(url, null);
                 string msg = await resMsg.Content.ReadAsStringAsync();
@@ -181,7 +181,7 @@ namespace CustomerServices
         {
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Add("Accept", "application/json");
-            client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+            client.DefaultRequestHeaders.Add("Authorization", "SSWS " + _oktaOptions.OktaAuth);
             var encodedUserOktaId = WebUtility.UrlEncode(userOktaId);
             var url = _oktaOptions.OktaUrl + "users/" + encodedUserOktaId;
             var resMsg = await client.GetAsync(url);
@@ -195,7 +195,7 @@ namespace CustomerServices
             {
                 using var client = new HttpClient();
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-                client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+                client.DefaultRequestHeaders.Add("Authorization", "SSWS " + _oktaOptions.OktaAuth);
 
                 var url = _oktaOptions.OktaUrl + "users/" + WebUtility.UrlEncode(userLoginEmail);
                 var response = await client.GetAsync(url);
@@ -223,7 +223,7 @@ namespace CustomerServices
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-                client.DefaultRequestHeaders.Add("Authorization", ("SSWS " + _oktaOptions.OktaAuth));
+                client.DefaultRequestHeaders.Add("Authorization", "SSWS " + _oktaOptions.OktaAuth);
                 string url = _oktaOptions.OktaUrl + "users/" + userOktaId + "/appLinks";
                 var resMsg = await client.GetAsync(url);
 

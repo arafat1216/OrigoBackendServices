@@ -68,9 +68,11 @@ namespace SubscriptionManagement.UnitTests
             var subscriptionProductTwo = new SubscriptionProduct("Sub2", operatorTwo, null, CALLER_ONE_ID);
             context.AddRange(subscriptionProductTwo);
             var customerSubscriptionProductTwo = new CustomerSubscriptionProduct("Sub2", operatorTwo, CALLER_ONE_ID, null);
-            context.AddRange(customerSubscriptionProductTwo);
 
-            var customerOperatorSettingTwo = new CustomerOperatorSettings(operatorTwo, new List<CustomerSubscriptionProduct> { customerSubscriptionProductTwo  }, customerOperatorAccountsForOperatorTwo, null);
+            var globalSubscriptionProduct = new CustomerSubscriptionProduct(new SubscriptionProduct("Bedrift +", operatorTwo, null, CALLER_ONE_ID), CALLER_ONE_ID, new List<DataPackage> { new DataPackage("2 GB", CALLER_ONE_ID) });
+            context.AddRange(customerSubscriptionProductTwo, globalSubscriptionProduct);
+
+            var customerOperatorSettingTwo = new CustomerOperatorSettings(operatorTwo, new List<CustomerSubscriptionProduct> { customerSubscriptionProductTwo, globalSubscriptionProduct  }, customerOperatorAccountsForOperatorTwo, null);
             
             customerOperatorSettings.Add(customerOperatorSettingOne);
             customerOperatorSettings.Add(customerOperatorSettingTwo);

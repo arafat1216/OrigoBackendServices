@@ -26,6 +26,7 @@ namespace OrigoApiGateway.Controllers
         private readonly IUserServices _userServices;
         private readonly IAssetServices _assetServices;
         private readonly ICustomerServices _customerServices;
+        private readonly ISubscriptionManagementService _subscriptionManagementService;
         private readonly IProductCatalogServices _productCatalogServices;
         private readonly IMapper _mapper;
 
@@ -34,6 +35,7 @@ namespace OrigoApiGateway.Controllers
             IAssetServices assetServices,
             ICustomerServices customerServices,
             IProductCatalogServices productCatalogServices,
+            ISubscriptionManagementService subscriptionManagementService,
             IMapper mapper)
         {
             _logger = logger;
@@ -41,6 +43,7 @@ namespace OrigoApiGateway.Controllers
             _assetServices = assetServices;
             _customerServices = customerServices;
             _productCatalogServices = productCatalogServices;
+            _subscriptionManagementService = subscriptionManagementService;
             _mapper = mapper;
         }
 
@@ -156,19 +159,57 @@ namespace OrigoApiGateway.Controllers
         {
 
             var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+
             if (!Guid.TryParse(actor, out var userId))
             {
                 return NotFound();
             }
             var user = await _userServices.GetUserAsync(organizationId, userId);
 
-            var mockData = new OnboardingTilesPreference()
+            var tileData = new OnboardingTilesPreference()
             {
-                ShowAssetTile = true,
-                ShowSubscriptionTile = true
+                ShowAssetTile = !user.UserPreference.IsAssetTileClosed.HasValue || !user.UserPreference.IsAssetTileClosed.Value,
+                ShowSubscriptionTile = !user.UserPreference.IsSubscriptionTileClosed.HasValue || !user.UserPreference.IsSubscriptionTileClosed.Value
             };
 
-            return Ok(mockData);
+            var updatePreference = new UserPreference();
+
+            // User did not close the Asset Tiles. Check if User got assigned any new asset
+            if (tileData.ShowAssetTile)
+            {
+                var asset = await _assetServices.GetAssetLifecycleCountersAsync(organizationId, new FilterOptionsForAsset()
+                {
+                    UserId = userId.ToString()
+                });
+
+                // If Assets found close the tiles and hide it
+                if (asset.UsersPersonalAssets > 0)
+                {
+                    tileData.ShowAssetTile = false;
+                    updatePreference.IsAssetTileClosed = true;
+                }
+            }
+
+            // User did not close the Subscription Tiles. Check if User has got any Sub Orders
+            if (tileData.ShowSubscriptionTile)
+            {
+                var subOrders = await _subscriptionManagementService.GetSubscriptionOrdersCount(organizationId, null, user.MobileNumber, true);
+
+                // If Subs Order found close the tiles and hide it
+                if (subOrders > 0)
+                {
+                    tileData.ShowSubscriptionTile = false;
+                    updatePreference.IsSubscriptionTileClosed = true;
+                }
+            }
+
+            // Update userPreferences if the condition checked and changed the Tiles preferences
+            if(user.UserPreference.IsAssetTileClosed != updatePreference.IsAssetTileClosed || user.UserPreference.IsSubscriptionTileClosed != updatePreference.IsSubscriptionTileClosed)
+            {
+                await _userServices.PatchUserAsync(organizationId, userId, new OrigoUpdateUser() { UserPreference = updatePreference }, userId);
+            }
+
+            return Ok(tileData);
         }
 
         [Route("{userId:Guid}")]
@@ -405,10 +446,24 @@ namespace OrigoApiGateway.Controllers
             {
                 // Check if caller has access to this organization
                 var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+                _ = Guid.TryParse(actor, out Guid callerId);
+
                 if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
                 {
-                    return Forbid();
+                    if (callerId == userId)
+                    {
+                        updateUser = new OrigoUpdateUser()
+                        {
+                            UserPreference = updateUser.UserPreference
+                        };
+                    }
+                    else
+                    {
+                        return Forbid();
+                    }
                 }
+
                 if (role != PredefinedRole.SystemAdmin.ToString())
                 {
                     var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
@@ -417,9 +472,6 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-
-                var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
-                _ = Guid.TryParse(actor, out Guid callerId);
 
                 var updatedUser = await _userServices.PatchUserAsync(organizationId, userId, updateUser, callerId);
                 if (updatedUser == null)

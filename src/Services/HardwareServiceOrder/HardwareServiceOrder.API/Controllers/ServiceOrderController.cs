@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Common.Infrastructure;
 using Common.Interfaces;
+using HardwareServiceOrder.API.Filters;
 using HardwareServiceOrderServices;
 using HardwareServiceOrderServices.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ namespace HardwareServiceOrder.API.Controllers
     [Route("api/v{version:apiVersion}/")]
     [Tags("Service-orders")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Returned when the system encountered an unexpected problem.")]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class ServiceOrderController : ControllerBase
     {
         // Dependency injections

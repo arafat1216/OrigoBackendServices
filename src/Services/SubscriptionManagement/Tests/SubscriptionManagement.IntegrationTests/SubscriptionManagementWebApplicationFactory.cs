@@ -32,6 +32,7 @@ public class SubscriptionManagementWebApplicationFactory<TProgram> : WebApplicat
     public readonly int SUBSCRIPTION_PRODUCT_ID = 300;
     public readonly int OPERATOR_ACCOUNT_ID = 100;
     public readonly Guid ORGANIZATION_ID = Guid.Parse("7adbd9fa-97d1-11ec-8500-00155d64bd3d");
+    public readonly string PHONE_NUMBER = "99999998";
     public int FIRST_OPERATOR_ID;
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -54,6 +55,7 @@ public class SubscriptionManagementWebApplicationFactory<TProgram> : WebApplicat
 
             try
             {
+                // TODO: Add Separate DataSeeding Class
                 var firstOperator = subscriptionManagementContext.Operators.FirstOrDefault();
                 FIRST_OPERATOR_ID = firstOperator!.Id;
                 var subscriptionProduct = new SubscriptionProduct(SUBSCRIPTION_PRODUCT_ID, "TOTAL BEDRIFT", firstOperator!, new List<DataPackage>{new DataPackage("20GB", Guid.Empty), new DataPackage("30GB", Guid.Empty)}, Guid.Empty);
@@ -85,6 +87,20 @@ public class SubscriptionManagementWebApplicationFactory<TProgram> : WebApplicat
                 };
                 subscriptionManagementContext.CustomerSettings.Add(new CustomerSettings(ORGANIZATION_ID,
                     customerOperatorSettings, customerReferenceFields));
+
+                subscriptionManagementContext.TransferToPrivateSubscriptionOrders.Add(new TransferToPrivateSubscriptionOrder()
+                {
+                    UserInfo = new PrivateSubscription(
+                        "EndUser","Test","office address","1219","Oslo","NO","test@techstep.no", DateTime.UtcNow, 
+                        "Telia", null
+                        ),
+                    MobileNumber = PHONE_NUMBER,
+                    OperatorName = "Telia",
+                    NewSubscription = "New",
+                    OrderExecutionDate = DateTime.UtcNow,
+                    OrganizationId = ORGANIZATION_ID
+                });
+
                 subscriptionManagementContext.SaveChanges();
             }
             catch (Exception e)

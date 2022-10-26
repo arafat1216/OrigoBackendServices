@@ -590,6 +590,38 @@ public class AssetServicesTests : AssetBaseTest
         // Assert
         Assert.Equal(AssetLifecycleStatus.InUse, newAsset.AssetLifecycleStatus);
     }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AddAssetForCustomerAsync_FileImportNoUser_ShouldGetInputRequired()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+        var newAssetDTO = new NewAssetDTO
+        {
+            Alias = "",
+            SerialNumber = "4543534535344",
+            AssetCategoryId = 1,
+            Brand = "iPhone",
+            Description = "",
+            Note = "",
+            ProductName = "iPhone X",
+            LifecycleType = LifecycleType.NoLifecycle, //this is the lifecycletype the assetlifecycle gets assigned with
+            PurchaseDate = new DateTime(2020, 1, 1),
+            AssetHolderId = null, //Has no user attached
+            Imei = new List<long> { 865822011610467 },
+            CallerId = Guid.Empty,
+            Source = "FileImport"
+        };
+
+        // Act
+        var newAsset = await assetService.AddAssetLifecycleForCustomerAsync(COMPANY_ID, newAssetDTO);
+
+        // Assert
+        Assert.Equal(AssetLifecycleStatus.InputRequired, newAsset.AssetLifecycleStatus);
+    }
 
     [Fact]
     [Trait("Category", "UnitTest")]

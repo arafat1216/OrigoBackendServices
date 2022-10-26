@@ -1,4 +1,5 @@
 ﻿using Common.Exceptions;
+using Common.Extensions;
 using Microsoft.AspNetCore.Http;
 
 namespace Common.Infrastructure;
@@ -40,14 +41,17 @@ public class ApiRequesterService : IApiRequesterService
         {
             // If the header-value was not set, and it's for a write operation (PUT/PATCH/POST methods), we should throw an exception as it's required
             // when automatically assigning 'CreatedBy', 'UpdatedBy', etc.
-            if (string.Equals(httpRequest.Method, HttpMethod.Post.Method,
-                    StringComparison.InvariantCultureIgnoreCase) ||
-                string.Equals(httpRequest.Method, HttpMethod.Put.Method, StringComparison.InvariantCultureIgnoreCase) ||
-                string.Equals(httpRequest.Method, HttpMethod.Patch.Method, StringComparison.InvariantCultureIgnoreCase))
+            if (string.Equals(httpRequest.Method, HttpMethod.Get.Method))
             {
-                throw new HttpHeaderException("X-Authenticated-UserId",
-                    "The HTTP header 'X-Authenticated-UserId' is missing.");
+                return;
             }
+
+            if (!httpRequest.Headers.ContainsKey("Pubsubname"))
+            {
+                throw new HttpHeaderException("X-Authenticated-UserId", "The HTTP header 'X-Authenticated-UserId' is missing.");
+            }
+
+            SetAuthenticatedUser(Guid.Empty.PubsubUserId().ToString());
         }
     }
 

@@ -1,6 +1,6 @@
-﻿using Common.Seedwork;
+﻿using Common.Enums;
+using Common.Seedwork;
 using SubscriptionManagementServices.DomainEvents;
-using SubscriptionManagementServices.Types;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -36,7 +36,7 @@ namespace SubscriptionManagementServices.Models
 
         #region ISubscriptionOrder Implementation
 
-        [NotMapped] public OrderTypes OrderType => OrderTypes.ChangeSubscription;
+        [NotMapped] public SubscriptionOrderTypes OrderType => SubscriptionOrderTypes.ChangeSubscription;
 
         [NotMapped] public string PhoneNumber => MobileNumber;
 

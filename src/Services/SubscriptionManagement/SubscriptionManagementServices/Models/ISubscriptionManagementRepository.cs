@@ -1,9 +1,11 @@
-﻿namespace SubscriptionManagementServices.Models
+﻿using Common.Enums;
+
+namespace SubscriptionManagementServices.Models
 {
     public interface ISubscriptionManagementRepository<T> where T : ISubscriptionOrder
     {
         Task<List<ISubscriptionOrder>> GetAllSubscriptionOrdersForCustomer(Guid organizationId);
-        Task<int> GetTotalSubscriptionOrdersCountForCustomer(Guid organizationId);
+        Task<int> GetTotalSubscriptionOrdersCountForCustomer(Guid organizationId, IList<SubscriptionOrderTypes>? orderTypes = null, string? phoneNumber = null, bool checkOrderExist = false);
         Task<T> AddSubscriptionOrder(T subscriptionOrder);
         Task<OrderSimSubscriptionOrder> GetOrderSimOrder(Guid subscriptionOrder);
         Task<ActivateSimOrder> GetActivateSimOrder(Guid subscriptionOrder);

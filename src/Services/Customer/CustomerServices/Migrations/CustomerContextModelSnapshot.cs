@@ -294,6 +294,9 @@ namespace CustomerServices.Migrations
                     b.Property<bool>("EnforceTwoFactorAuth")
                         .HasColumnType("bit");
 
+                    b.Property<string>("HashedApiKey")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -787,6 +790,9 @@ namespace CustomerServices.Migrations
 
                     b.Property<DateTime>("LastUpdatedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool?>("SubscriptionIsHandledForOffboarding")
+                        .HasColumnType("bit");
 
                     b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");

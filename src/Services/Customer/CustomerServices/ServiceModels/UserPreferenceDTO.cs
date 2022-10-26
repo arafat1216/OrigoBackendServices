@@ -27,5 +27,10 @@ namespace CustomerServices.ServiceModels
         /// Is onboarding Asset Tile Closed by the User.
         /// </summary>
         public bool IsSubscriptionTileClosed { get; set; }
+        /// <summary>
+        /// Is the subscription handled related to the offboarding task.
+        /// If true the user should not see the subscription offboarding tile.
+        /// </summary>
+        public bool SubscriptionIsHandledForOffboarding { get; set; }
     }
 }

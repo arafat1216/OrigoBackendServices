@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Security;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -563,5 +564,52 @@ namespace Customer.API.Controllers
             return Ok(_mapper.Map<OrganizationDTO>(organization));
         }
 
+        /// <summary>
+        /// Retrieves the hashed apikey saved on the customer.
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [Route("{organizationId:Guid}/hashed-apikey")]
+        [HttpGet]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<string>> GetHashedApiKey([FromRoute] Guid organizationId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var hashedApiKey = await _organizationServices.GetHashedApiKeyAsync(organizationId, cancellationToken);
+
+                return string.IsNullOrEmpty(hashedApiKey) ? NotFound() : Ok(hashedApiKey);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Unknown error - Get hashed api key: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Hashes an api key and saves it on the organization.
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="apiKey">The api key used by this organization</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [Route("{organizationId:Guid}/hashed-apikey")]
+        [HttpPost]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<string>> SaveApiKey([FromRoute] Guid organizationId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                return Ok(await _organizationServices.GenerateAndSaveHashedApiKeyAsync(organizationId, cancellationToken));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Unknown error - Unable to generate and save hashed api key: " + ex.Message);
+            }
+        }
     }
 }

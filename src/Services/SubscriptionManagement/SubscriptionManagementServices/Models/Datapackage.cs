@@ -14,6 +14,7 @@ namespace SubscriptionManagementServices.Models
             DataPackageName = dataPackageName;
             CreatedBy = callerId;
             UpdatedBy = callerId;
+            CreatedDate = DateTime.UtcNow;
         }
         [MaxLength(50)]
         public string DataPackageName { get; set; }

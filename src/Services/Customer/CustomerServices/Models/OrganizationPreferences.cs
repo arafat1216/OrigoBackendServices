@@ -19,6 +19,7 @@ namespace CustomerServices.Models
         [MaxLength(2, ErrorMessage = "Country code max length is 2")]
         public string PrimaryLanguage { get; protected set; }
         public short DefaultDepartmentClassification { get; protected set; }
+        public string? HashedApiKey { get; set; } = string.Empty;
 
 
         /// <summary>

@@ -38,7 +38,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/customers/count?page={page}&limit={limit}", customerIds);
+                var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/customers/count/pagination?page={page}&limit={limit}", customerIds);
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorDescription = await response.Content.ReadAsStringAsync();
@@ -493,34 +493,61 @@ namespace OrigoApiGateway.Services
             var callerId = Guid.Parse("00000000-0000-0000-0000-000000000001");
             foreach (var validAsset in assetValidationResults.ValidAssets)
             {
-                if (validAsset.MatchedUserId == Guid.Empty)
+                if (String.IsNullOrWhiteSpace(validAsset.ImportedUser.Email)) //need to handle assets that do not have an owner at all - asset should be input required
                 {
-                    var newUser = await _userServices.AddUserForCustomerAsync(organizationId,
-                        new NewUser
-                        {
-                            Email = validAsset.ImportedUser.Email,
-                            FirstName = validAsset.ImportedUser.FirstName,
-                            LastName = validAsset.ImportedUser.LastName,
-                            MobileNumber = validAsset.ImportedUser.PhoneNumber
-                        }, callerId, true);
-                    validAsset.MatchedUserId = newUser.Id;
-                }
+                    //Set matched user id to null instead of to show that no one owns this asset
+                    validAsset.MatchedUserId = null;
 
-                await AddAssetForCustomerAsync(organizationId,
-                    new NewAssetDTO
+                    await AddAssetForCustomerAsync(organizationId,
+                        new NewAssetDTO
+                        {
+                            Alias = validAsset.Alias,
+                            AssetHolderId = validAsset.MatchedUserId, 
+                            Brand = validAsset.Brand,
+                            AssetCategoryId = 1,
+                            Imei =
+                                validAsset.Imeis.Split(",", StringSplitOptions.TrimEntries).Select(long.Parse).ToList(),
+                            ProductName = validAsset.ProductName,
+                            Source = "FileImport",
+                            SerialNumber = validAsset.SerialNumber,
+                            PurchaseDate = validAsset.PurchaseDate
+                        });
+
+                    
+
+                }
+                else //the asset do have a user or need to import a new user 
+                {
+
+                    if (validAsset.MatchedUserId == Guid.Empty)
                     {
-                        Alias = validAsset.Alias,
-                        AssetHolderId = validAsset.MatchedUserId,
-                        Brand = validAsset.Brand,
-                        AssetCategoryId = 1,
-                        Imei =
-                            validAsset.Imeis.Split(",", StringSplitOptions.TrimEntries).Select(long.Parse).ToList(),
-                        ProductName = validAsset.ProductName,
-                        Source = "FileImport",
-                        SerialNumber = validAsset.SerialNumber,
-                        PurchaseDate = validAsset.PurchaseDate,
-                        PurchasedBy = validAsset.ImportedUser.FirstName + ' ' + validAsset.ImportedUser.LastName
-                    });
+                        var newUser = await _userServices.AddUserForCustomerAsync(organizationId,
+                            new NewUser
+                            {
+                                Email = validAsset.ImportedUser.Email,
+                                FirstName = validAsset.ImportedUser.FirstName,
+                                LastName = validAsset.ImportedUser.LastName,
+                                MobileNumber = validAsset.ImportedUser.PhoneNumber
+                            }, callerId, true);
+                        validAsset.MatchedUserId = newUser.Id;
+                    }
+
+                    await AddAssetForCustomerAsync(organizationId,
+                        new NewAssetDTO
+                        {
+                            Alias = validAsset.Alias,
+                            AssetHolderId = validAsset.MatchedUserId,
+                            Brand = validAsset.Brand,
+                            AssetCategoryId = 1,
+                            Imei =
+                                validAsset.Imeis.Split(",", StringSplitOptions.TrimEntries).Select(long.Parse).ToList(),
+                            ProductName = validAsset.ProductName,
+                            Source = "FileImport",
+                            SerialNumber = validAsset.SerialNumber,
+                            PurchaseDate = validAsset.PurchaseDate,
+                            PurchasedBy = validAsset.ImportedUser.FirstName + ' ' + validAsset.ImportedUser.LastName
+                        });
+                }
             }
 
             return assetValidationResults;
@@ -537,19 +564,25 @@ namespace OrigoApiGateway.Services
         {
             foreach (var validAsset in assetValidationResults.ValidAssets)
             {
-                var user = await _userServices.UserEmailLinkedToGivenOrganization(organizationId,
-                    validAsset.ImportedUser.Email); 
-                if (user.correctOrganization)
+                if (!String.IsNullOrWhiteSpace(validAsset.ImportedUser.Email))
                 {
-                    validAsset.MatchedUserId = user.userId;
+                    var user = await _userServices.UserEmailLinkedToGivenOrganization(organizationId,
+                        validAsset.ImportedUser.Email);
+                    if (user.correctOrganization)
+                    {
+                        validAsset.MatchedUserId = user.userId;
+                    }
+                    else
+                    {
+                        var invalidAsset = _mapper.Map<InvalidImportedAsset>(validAsset);
+                        invalidAsset.Errors = new List<string> { "Email is not unique and is used outside of the organization." };
+                        assetValidationResults.InvalidAssets.Add(invalidAsset);
+                    }
+
                 }
-                else
-                {
-                    var invalidAsset = _mapper.Map<InvalidImportedAsset>(validAsset);
-                    invalidAsset.Errors = new List<string> { "Email is not unique and is used outside of the organization." };
-                    assetValidationResults.InvalidAssets.Add(invalidAsset);
-                }
+                else validAsset.MatchedUserId = Guid.Empty;
             }
+            
             assetValidationResults.ValidAssets.RemoveAll(a => a.MatchedUserId == null);
         }
 
@@ -999,7 +1032,7 @@ namespace OrigoApiGateway.Services
         {
             try
             {
-                var existingAsset = await GetAssetForCustomerAsync(customerId, data.AssetId, null);
+                var existingAsset = await GetAssetForCustomerAsync(customerId, data.AssetId, null, includeContractHolderUser: true);
                 if (existingAsset == null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
                 if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && !accessList.Contains(existingAsset.ManagedByDepartmentId))
                     throw new UnauthorizedAccessException("Manager does not have access to this asset!!!");

@@ -305,5 +305,19 @@ namespace CustomerServices.Models
             LastUpdatedDate = DateTime.UtcNow;
             AddDomainEvent(new UserUpdateEmployeeIdDomainEvent(this, oldEmployeeId));
         }
+        /// <summary>
+        /// Handles if the subscription tile for offboarding should be shown or not. 
+        /// If the bool is true then user has handled the subscription connected to the customer.
+        /// </summary>
+        /// <param name="subscriptionIsHandledForOffboarding">If the subscription is handled or not</param>
+        /// <param name="callerId">The identity of the person making the call.</param>
+        internal void HandleSubscriptionForOffboarding(bool? subscriptionIsHandledForOffboarding, Guid callerId)
+        {
+            if (UserStatus == UserStatus.OffboardInitiated)
+            {   
+                UserPreference.HandleSubscriptionForOffboarding(subscriptionIsHandledForOffboarding, callerId);
+                AddDomainEvent(new UserPreferenceChangedDomainEvent(UserPreference, callerId));
+            }
+        }
     }
 }
