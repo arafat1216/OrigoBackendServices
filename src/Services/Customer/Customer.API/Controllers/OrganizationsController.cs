@@ -106,6 +106,11 @@ namespace Customer.API.Controllers
         /// <param name="hierarchical"> When <see langword="true"/>, only top-level organizations are returned, with their children instead attached as
         ///     a sub-item inside their parent-organizations. When <see langword="false"/>, a flat list is generated that included all organizations. </param>
         /// <param name="customersOnly"></param>
+        /// <param name="search">
+        ///     If a value is provided, a lightweight "contains" search is applied to the following key-properties:
+        ///     <br/><br/>
+        ///     - Name
+        /// </param>
         /// <param name="partnerId"> If provided, the results will be filtered to only include organizations belonging to this partner. </param>
         /// <param name="includePreferences"> When <c><see langword="true"/></c>, the <c>Preferences</c> property is
         ///     loaded/included in the retrieved data. 
@@ -115,11 +120,11 @@ namespace Customer.API.Controllers
         /// <returns> The asynchronous task. The task results contains the corresponding <see cref="ActionResult{TValue}"/>. </returns>
         [HttpGet]
         [ProducesResponseType(typeof(PagedModel<OrganizationDTO>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<OrganizationDTO>>> GetPaginatedOrganizationListAsync(CancellationToken cancellationToken, bool hierarchical = false, [FromQuery] bool customersOnly = false, [FromQuery] Guid? partnerId = null, [FromQuery] bool includePreferences = false, [FromQuery] int page = 1, [FromQuery] int limit = 25)
+        public async Task<ActionResult<IEnumerable<OrganizationDTO>>> GetPaginatedOrganizationListAsync(CancellationToken cancellationToken, bool hierarchical = false, [FromQuery] bool customersOnly = false, [FromQuery(Name = "q")] string? search = null, [FromQuery] Guid? partnerId = null, [FromQuery] bool includePreferences = false, [FromQuery] int page = 1, [FromQuery] int limit = 25)
         {
             try
             {
-                var pagedOrganizations = await _organizationServices.GetPaginatedOrganizationsAsync(cancellationToken, page, limit, includePreferences, hierarchical: hierarchical, customersOnly: customersOnly, partnerId: partnerId);
+                var pagedOrganizations = await _organizationServices.GetPaginatedOrganizationsAsync(cancellationToken, page, limit, includePreferences, hierarchical: hierarchical, customersOnly: customersOnly, search: search, partnerId: partnerId);
 
                 var returnModel = new PagedModel<OrganizationDTO>()
                 {

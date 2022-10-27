@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text;
 using System.Text.Json;
 using AutoMapper;
 using Common.Enums;
@@ -55,14 +56,25 @@ public class CustomerServices : ICustomerServices
         }
     }
 
-    public async Task<PagedModel<Organization>> GetPaginatedCustomersAsync(CancellationToken cancellationToken, int page, int limit, Guid? partnerId = null, bool includePreferences = true)
+    public async Task<PagedModel<Organization>> GetPaginatedCustomersAsync(CancellationToken cancellationToken, int page, int limit, Guid? partnerId = null, string? search = null, bool includePreferences = false)
     {
         try
         {
             bool customersOnly = true;
             bool hierarchical = false;
 
-            var organizations = await HttpClient.GetFromJsonAsync<PagedModel<Organization>>($"{_options.ApiPath}?hierarchical={hierarchical}&partnerId={partnerId}&includePreferences={includePreferences}&page={page}&limit={limit}", cancellationToken);
+            // Build the conditional URL string w/query parameters
+            StringBuilder requestUrl = new($"{_options.ApiPath}?page={page}&limit={limit}&customersOnly={customersOnly}");
+            if (hierarchical)
+                requestUrl.Append($"&hierarchical={hierarchical}");
+            if (includePreferences)
+                requestUrl.Append($"&includePreferences={includePreferences}");
+            if (partnerId is not null)
+                requestUrl.Append($"&partnerId={partnerId}");
+            if (search is not null)
+                requestUrl.Append($"?q={search}");
+
+            var organizations = await HttpClient.GetFromJsonAsync<PagedModel<Organization>>(requestUrl.ToString(), cancellationToken);
 
             return organizations ?? null;
         }

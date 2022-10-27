@@ -711,7 +711,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         TotalItems = 1
                     };
 
-                    customerService.Setup(_ => _.GetPaginatedCustomersAsync(It.IsAny<CancellationToken>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<Guid?>(), It.IsAny<bool>())).ReturnsAsync(pagedModel);
+                    customerService.Setup(_ => _.GetPaginatedCustomersAsync(It.IsAny<CancellationToken>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<bool>())).ReturnsAsync(pagedModel);
                     services.AddSingleton(customerService.Object);
                 });
 

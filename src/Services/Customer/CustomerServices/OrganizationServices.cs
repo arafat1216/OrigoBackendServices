@@ -85,7 +85,7 @@ public class OrganizationServices : IOrganizationServices
         return organizations;
     }
 
-    public async Task<PagedModel<Organization>> GetPaginatedOrganizationsAsync(CancellationToken cancellationToken, int page, int limit, bool includePreferences, bool hierarchical = false, bool customersOnly = false, Guid? partnerId = null)
+    public async Task<PagedModel<Organization>> GetPaginatedOrganizationsAsync(CancellationToken cancellationToken, int page, int limit, bool includePreferences, bool hierarchical = false, bool customersOnly = false, string? search = null, Guid? partnerId = null)
     {
         PagedModel<Organization> pagedOrganizations;
         Partner? partner = null;
@@ -113,9 +113,9 @@ public class OrganizationServices : IOrganizationServices
         if (!hierarchical)
         {
             if (partner is null)
-                pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, customersOnly: customersOnly, includePartner: true, page: page, limit: limit);
+                pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, customersOnly: customersOnly, search: search, includePartner: true, page: page, limit: limit);
             else
-                pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, whereFilter: entity => entity.Partner == partner, customersOnly: customersOnly, includePartner: true, page: page, limit: limit);
+                pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, whereFilter: entity => entity.Partner == partner, customersOnly: customersOnly, search: search, includePartner: true, page: page, limit: limit);
 
             if (includePreferences)
             {
@@ -128,9 +128,9 @@ public class OrganizationServices : IOrganizationServices
         else
         {
             if (partner is null)
-                pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, whereFilter: entity => entity.ParentId == null, customersOnly: customersOnly, includePartner: true, page: page, limit: limit);
+                pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, whereFilter: entity => entity.ParentId == null, customersOnly: customersOnly, search: search, includePartner: true, page: page, limit: limit);
             else
-                pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, whereFilter: (entity => entity.ParentId == null && entity.Partner == partner), customersOnly: customersOnly, includePartner: true, page: page, limit: limit);
+                pagedOrganizations = await _organizationRepository.GetPaginatedOrganizationsAsync(true, cancellationToken, whereFilter: (entity => entity.ParentId == null && entity.Partner == partner), customersOnly: customersOnly, search: search, includePartner: true, page: page, limit: limit);
 
             foreach (var organization in pagedOrganizations.Items)
             {

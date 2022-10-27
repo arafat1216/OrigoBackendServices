@@ -7,6 +7,7 @@ using CustomerServices.Models;
 using CustomerServices.ServiceModels;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Linq.Expressions;
 
 #nullable enable
@@ -200,10 +201,12 @@ public class OrganizationRepository : IOrganizationRepository
         return await query.ToListAsync();
     }
 
+    /// <inheritdoc/>
     public async Task<PagedModel<Organization>> GetPaginatedOrganizationsAsync(bool asNoTracking,
         CancellationToken cancellationToken,
         Expression<Func<Organization, bool>>? whereFilter = null,
         bool customersOnly = true,
+        string? search = null,
         bool excludeDeleted = true,
         bool includeDepartments = false,
         bool includeAddress = false,
@@ -222,6 +225,13 @@ public class OrganizationRepository : IOrganizationRepository
 
         if (excludeDeleted)
             query = query.Where(e => !e.IsDeleted);
+
+        if (search is not null)
+        {
+            query = query.Where(e =>
+                e.Name.ToLower().Contains(search.ToLower())
+            );
+        }
 
         // Parameterized Includes
         if (includeAddress)

@@ -81,6 +81,10 @@ public interface IOrganizationRepository
     ///     retrieved dataset. This filter is not applied when the value is <see langword="null"/>. </param>
     /// <param name="customersOnly"> When <see langword="true"/>, a parameterized "<c>.Where()</c>" filter condition is added to the
     ///     query, causing only organizations where "<c><see cref="Organization.IsCustomer"/> == <see langword="true"/></c>" to be retrieved. </param>
+    /// <param name="search"> If a value is provided, a lightweight "contains" search is applied to the following key-properties:
+    ///     
+    /// <para>
+    /// - Name </para></param>
     /// <param name="excludeDeleted"> When <see langword="true"/>, a parameterized "<c>.Where()</c>" filter condition is added to the query, 
     ///     causing soft-deleted organizations (<c><see cref="Organization.IsDeleted"/> == <see langword="true"/></c>) to be excluded from the results. </param>
     /// <param name="includeDepartments"> When <see langword="true"/>, it eagerly includes <see cref="Organization.Departments"/>. </param>
@@ -100,6 +104,7 @@ public interface IOrganizationRepository
         CancellationToken cancellationToken,
         Expression<Func<Organization, bool>>? whereFilter = null,
         bool customersOnly = true,
+        string? search = null,
         bool excludeDeleted = true,
         bool includeDepartments = false,
         bool includeAddress = false,

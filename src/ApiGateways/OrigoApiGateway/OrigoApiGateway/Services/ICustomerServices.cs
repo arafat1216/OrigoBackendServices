@@ -8,7 +8,19 @@ namespace OrigoApiGateway.Services
     public interface ICustomerServices
     {
         Task<IList<Organization>> GetCustomersAsync(Guid? partnerId = null, bool includePreferences = true);
-        Task<PagedModel<Organization>> GetPaginatedCustomersAsync(CancellationToken cancellationToken, int page, int limit, Guid? partnerId = null, bool includePreferences = true);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="page"></param>
+        /// <param name="limit"></param>
+        /// <param name="partnerId"></param>
+        /// <param name="search"></param>
+        /// <param name="includePreferences"></param>
+        /// <returns></returns>
+        Task<PagedModel<Organization>> GetPaginatedCustomersAsync(CancellationToken cancellationToken, int page, int limit, Guid? partnerId = null, string? search = null, bool includePreferences = false);
+        
         Task<Organization> GetCustomerAsync(Guid customerId);
         Task<IList<CustomerUserCount>> GetCustomerUsersAsync(FilterOptionsForUser filterOptions);
         Task<Organization> CreateCustomerAsync(NewOrganization newCustomer, Guid callerId);

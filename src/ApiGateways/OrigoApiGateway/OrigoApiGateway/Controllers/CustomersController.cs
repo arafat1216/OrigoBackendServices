@@ -82,13 +82,30 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Get all organizations.
+        /// </summary>
+        /// <remarks>
+        /// Retrieves a paginated set containing all matching organizations.
+        /// </remarks>
+        /// <param name="cancellationToken"> A dependency-injected <see cref="CancellationToken"/>. </param>
+        /// <param name="partnerId"> If provided, the results will be filtered to only include organizations belonging to this partner. </param>
+        /// <param name="search">
+        ///     If a value is provided, a lightweight "contains" search is applied to the following key-properties:
+        ///     <br/><br/>
+        ///     - Name
+        /// </param>        
+        /// <param name="includePreferences"> When <c><see langword="true"/></c>, the <c>Preferences</c> property is
+        ///     loaded/included in the retrieved data. 
+        ///     <para>This property will not be included unless it's explicitly requested. </para></param>        /// <param name="page"> The current page number. </param>
+        /// <param name="limit"> The highest number of items that can be added in a single page. </param>
+        /// <returns> The asynchronous task. The task results contains the corresponding <see cref="ActionResult{TValue}"/>. </returns>
         [HttpGet("pagination")]
         [ProducesResponseType(typeof(PagedModel<Organization>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [PermissionAuthorize(Permission.CanReadCustomer)]
-        public async Task<ActionResult<PagedModel<Organization>>> GetPaginatedOrganizationsAsync(CancellationToken cancellationToken, [FromQuery] Guid? partnerId = null, [FromQuery] bool includePreferences = false, [FromQuery] int page = 1, [FromQuery][Range(1, 100)] int limit = 25)
+        public async Task<ActionResult<PagedModel<Organization>>> GetPaginatedOrganizationsAsync(CancellationToken cancellationToken, [FromQuery][SwaggerSchema(Nullable = true)] Guid? partnerId = null, [FromQuery(Name = "q")][SwaggerSchema(Nullable = true)] string? search = null, [FromQuery] bool includePreferences = false, [FromQuery] int page = 1, [FromQuery][Range(1, 100)] int limit = 25)
         {
             try
             {
@@ -106,10 +123,9 @@ namespace OrigoApiGateway.Controllers
                     {
                         return Forbid();
                     }
-
                 }
 
-                var customers = await CustomerServices.GetPaginatedCustomersAsync(cancellationToken, page, limit, partnerId, includePreferences);
+                var customers = await CustomerServices.GetPaginatedCustomersAsync(cancellationToken, page, limit, partnerId, search: search, includePreferences: includePreferences);
 
                 return customers != null ? Ok(customers) : NotFound();
             }

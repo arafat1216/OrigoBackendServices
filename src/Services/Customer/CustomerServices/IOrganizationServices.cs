@@ -46,10 +46,11 @@ namespace CustomerServices
         /// <param name="hierarchical"> When <see langword="true"/>, only top-level organizations are returned, with their children instead attached as
         ///     a sub-item inside their parent-organizations. When <see langword="false"/>, a flat list is generated that included all organizations. </param>
         /// <param name="customersOnly">  </param>
+        /// <param name="search"> </param>
         /// <param name="partnerId"> When provided, the results will only include organizations belonging to this partner. 
         ///     The partner-filter is disabled if the value is <see langword="null"/>. </param>
         /// <returns> A paginated list containing all matching organizations. </returns>
-        Task<PagedModel<Organization>> GetPaginatedOrganizationsAsync(CancellationToken cancellationToken, int page, int limit, bool includePreferences, bool hierarchical = false, bool customersOnly = false, Guid? partnerId = null);
+        Task<PagedModel<Organization>> GetPaginatedOrganizationsAsync(CancellationToken cancellationToken, int page, int limit, bool includePreferences, bool hierarchical = false, bool customersOnly = false, string? search = null, Guid? partnerId = null);
 
         Task<IList<OrganizationUserCount>?> GetOrganizationUserCountAsync(Guid? partnerId, Guid[]? assignedToDepartment);
         Task<Organization?> GetOrganizationAsync(Guid customerId, bool includeDepartments, bool includePreferences, bool includeLocation, bool includePartner, bool customersOnly = false);
