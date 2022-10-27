@@ -7,18 +7,11 @@ using Customer.API.WriteModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
 using CustomerServices.ServiceModels;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using System.Security;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Customer.API.Controllers
 {
@@ -120,7 +113,7 @@ namespace Customer.API.Controllers
         /// <returns> The asynchronous task. The task results contains the corresponding <see cref="ActionResult{TValue}"/>. </returns>
         [HttpGet]
         [ProducesResponseType(typeof(PagedModel<OrganizationDTO>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<OrganizationDTO>>> GetPaginatedOrganizationListAsync(CancellationToken cancellationToken, bool hierarchical = false, [FromQuery] bool customersOnly = false, [FromQuery(Name = "q")] string? search = null, [FromQuery] Guid? partnerId = null, [FromQuery] bool includePreferences = false, [FromQuery] int page = 1, [FromQuery] int limit = 25)
+        public async Task<ActionResult<IEnumerable<OrganizationDTO>>> GetPaginatedOrganizationListAsync(CancellationToken cancellationToken, bool hierarchical = false, [FromQuery] bool customersOnly = false, [FromQuery(Name = "q")][SwaggerSchema(Nullable = true)] string? search = null, [FromQuery][SwaggerSchema(Nullable = true)] Guid? partnerId = null, [FromQuery] bool includePreferences = false, [FromQuery] int page = 1, [FromQuery] int limit = 25)
         {
             try
             {

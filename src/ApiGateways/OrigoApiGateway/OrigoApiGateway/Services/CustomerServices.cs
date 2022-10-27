@@ -1,7 +1,4 @@
-﻿using System.Net;
-using System.Text;
-using System.Text.Json;
-using AutoMapper;
+﻿using AutoMapper;
 using Common.Enums;
 using Common.Exceptions;
 using Common.Interfaces;
@@ -9,6 +6,10 @@ using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Models.TechstepCore;
+using System.Net;
+using System.Text;
+using System.Text.Json;
+using System.Web;
 
 namespace OrigoApiGateway.Services;
 
@@ -72,7 +73,7 @@ public class CustomerServices : ICustomerServices
             if (partnerId is not null)
                 requestUrl.Append($"&partnerId={partnerId}");
             if (search is not null)
-                requestUrl.Append($"?q={search}");
+                requestUrl.Append($"&q={HttpUtility.UrlEncode(search)}");
 
             var organizations = await HttpClient.GetFromJsonAsync<PagedModel<Organization>>(requestUrl.ToString(), cancellationToken);
 
@@ -102,7 +103,7 @@ public class CustomerServices : ICustomerServices
             bool customerOnly = true;
             var organization = await HttpClient.GetFromJsonAsync<Organization>($"{_options.ApiPath}/{customerId}/{customerOnly}");
 
-            return organization ?? null; 
+            return organization ?? null;
         }
         catch (HttpRequestException exception)
         {
@@ -268,7 +269,7 @@ public class CustomerServices : ICustomerServices
 
             if ((int)response.StatusCode == 404)
                 return null;
-            if ((int)response.StatusCode == 400) 
+            if ((int)response.StatusCode == 400)
             {
                 var errorMessage = await response.Content.ReadAsStringAsync();
                 throw new BadHttpRequestException(errorMessage);
@@ -283,7 +284,7 @@ public class CustomerServices : ICustomerServices
             _logger.LogError(ex, "InitiateOnbardingAsync unknown error.");
             throw;
         }
-        
+
     }
 
     public async Task<Organization> CreateCustomerAsync(NewOrganization newCustomer, Guid callerId)
@@ -447,10 +448,10 @@ public class CustomerServices : ICustomerServices
         {
             if (!string.IsNullOrEmpty(organizationToChange.PayrollContactEmail))
             {
-                if(!new EmailAddressAttribute().IsValid(organizationToChange.PayrollContactEmail))
+                if (!new EmailAddressAttribute().IsValid(organizationToChange.PayrollContactEmail))
                     throw new BadHttpRequestException("Invalid Email for 'PayrollContactEmail'", (int)HttpStatusCode.BadRequest);
             }
-            if(organizationToChange.LastDayForReportingSalaryDeduction != null && (organizationToChange.LastDayForReportingSalaryDeduction < 1 || organizationToChange.LastDayForReportingSalaryDeduction > 28))
+            if (organizationToChange.LastDayForReportingSalaryDeduction != null && (organizationToChange.LastDayForReportingSalaryDeduction < 1 || organizationToChange.LastDayForReportingSalaryDeduction > 28))
                 throw new BadHttpRequestException("Invalid Input!! Valu must be within (1-28) for 'LastDayForReportingSalaryDeduction'", (int)HttpStatusCode.BadRequest);
 
             var response = await HttpClient.PostAsync($"{_options.ApiPath}/{organizationToChange.OrganizationId}/organization", JsonContent.Create(organizationToChange));
@@ -514,10 +515,10 @@ public class CustomerServices : ICustomerServices
     public async Task<string> GetCurrencyByCustomer(Guid customerId)
     {
         var customer = await GetCustomerAsync(customerId);
-        var country = customer.Location == null?
+        var country = customer.Location == null ?
             customer.Address == null ? null : customer.Address.Country
             : customer.Location.Country;
-            
+
         if (string.IsNullOrEmpty(country)) return CurrencyCode.NOK.ToString();
 
         return country.ToUpper().Trim() switch
@@ -555,7 +556,7 @@ public class CustomerServices : ICustomerServices
         {
             return new TechstepCustomers();
         }
-        
+
         var techstepProducts = await TechtepCoreHttpClient.GetFromJsonAsync<TechstepCoreCustomersData>($"?searchString={searchString}&pageSize=15");
         var techstepCustomers = await HttpClient.GetFromJsonAsync<IList<Organization>>($"{_options.ApiPath}/{true}/?partnerId={_options.TechstepPartnerId}");
 
@@ -563,9 +564,9 @@ public class CustomerServices : ICustomerServices
         {
             return new TechstepCustomers();
         }
-        
-        var notImportedTechstepCustomers = techstepCustomers != null 
-            ? techstepProducts.Data.Where(core => !techstepCustomers.Any(org => org.OrganizationNumber == core.OrgNumber)).ToList() 
+
+        var notImportedTechstepCustomers = techstepCustomers != null
+            ? techstepProducts.Data.Where(core => !techstepCustomers.Any(org => org.OrganizationNumber == core.OrgNumber)).ToList()
             : techstepProducts.Data;
 
         return _mapper.Map<TechstepCustomers>(notImportedTechstepCustomers);
