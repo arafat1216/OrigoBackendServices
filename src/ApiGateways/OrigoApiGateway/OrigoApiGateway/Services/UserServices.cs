@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System.Net;
 using AutoMapper;
 using Common.Enums;
 using Common.Interfaces;
@@ -602,6 +603,8 @@ namespace OrigoApiGateway.Services
             }
             catch (HttpRequestException exception)
             {
+                if (exception.StatusCode == HttpStatusCode.NotFound)
+                    return new UserInfoDTO();
                 _logger.LogError(exception, "GetUserInfo failed with HttpRequestException.");
                 throw;
             }

@@ -401,5 +401,82 @@ namespace OrigoApiGateway.Tests
             Assert.Contains("H", user!.PermissionNames);
             Assert.Equal(5, user!.PermissionNames.Count);
         }
+        
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task GetUserInfo_Test()
+        {
+            // Arrange
+            const string USER_NAME = "test@example.com";
+            Guid USER_ID = Guid.Empty;
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        {
+                            ""userId"": ""3fa85f64-5717-4562-b3fc-2c963f66afa6"",
+                            ""organizationId"": ""3fa85f64-5717-4562-b3fc-2c963f66afa6"",
+                            ""departmentId"": ""3fa85f64-5717-4562-b3fc-2c963f66afa6"",
+                            ""userName"": ""jane.doe@example.com""
+                        }
+                    ")
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new UserConfiguration() { ApiPath = @"/users" };
+            var optionsMock = new Mock<IOptions<UserConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper, Mock.Of<IProductCatalogServices>());
+
+            // Act
+            var user = await userService.GetUserInfo(USER_NAME, USER_ID);
+
+            // Assert
+            Assert.NotNull(user.UserName);
+            Assert.NotEmpty(user.UserName);
+        }
+        
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async Task GetUserInfo_Handle_404_User_Not_Found()
+        {
+            // Arrange
+            const string USER_NAME = "test@example.com";
+            Guid USER_ID = Guid.Empty;
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new UserConfiguration() { ApiPath = @"/users" };
+            var optionsMock = new Mock<IOptions<UserConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var userService = new UserServices(Mock.Of<ILogger<UserServices>>(), mockFactory.Object, optionsMock.Object, _mapper, Mock.Of<IProductCatalogServices>());
+
+            // Act
+            var user = await userService.GetUserInfo(USER_NAME, USER_ID);
+
+            // Assert
+            Assert.Null(user.UserName);
+            Assert.Equal(Guid.Empty, user.UserId);
+            Assert.Equal(Guid.Empty, user.OrganizationId);
+            Assert.Equal(Guid.Empty, user.DepartmentId);
+        }
     }
 }
