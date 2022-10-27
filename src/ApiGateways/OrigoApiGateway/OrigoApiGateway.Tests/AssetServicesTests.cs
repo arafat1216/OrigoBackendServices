@@ -1847,8 +1847,7 @@ public class AssetServicesTests
         formFileMock.Setup(ff => ff.FileName).Returns("assets.csv");
 
         // Act
-        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false, new Organization { Preferences = new NewOrganizationPreferences { PrimaryLanguage = "no" } });
-
+        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false, ProductSeedDataValues.TransactionalDeviceLifecycleManagement, new Organization { Preferences = new NewOrganizationPreferences { PrimaryLanguage = "no" } });
 
         // Assert
         Assert.Equal(0, assetValidationResult?.ValidAssets.Count);
