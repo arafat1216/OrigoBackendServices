@@ -33,15 +33,17 @@ namespace OrigoApiGateway.Controllers
         private readonly IAssetServices _assetServices;
         private readonly ICustomerServices _customerServices;
         private readonly IStorageService _storageService;
+        private readonly IProductCatalogServices _productCatalogServices;
         private readonly IMapper _mapper;
 
-        public AssetsController(ILogger<AssetsController> logger, IAssetServices assetServices, IStorageService storageService, IMapper mapper, ICustomerServices customerServices)
+        public AssetsController(ILogger<AssetsController> logger, IAssetServices assetServices, IStorageService storageService, IMapper mapper, ICustomerServices customerServices, IProductCatalogServices productCatalogServices)
         {
             _logger = logger;
             _assetServices = assetServices;
             _storageService = storageService;
             _mapper = mapper;
             _customerServices = customerServices;
+            _productCatalogServices = productCatalogServices;
         }
 
         [Route("customers/count/pagination")]
@@ -1532,22 +1534,44 @@ namespace OrigoApiGateway.Controllers
         [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanCreateAsset)]
         public async Task<ActionResult> ImportAssetFile([FromRoute] Guid organizationId, [FromForm] IFormFile assetImportFile, [FromQuery] bool validateOnly = true)
         {
-            // Only admin or manager roles are allowed to import assets
-            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-            if (role == PredefinedRole.EndUser.ToString())
+            try
             {
-                return Forbid();
-            }
-            if (role != PredefinedRole.SystemAdmin.ToString())
-            {
-                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
-                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                // Only admin or manager roles are allowed to import assets
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                if (role == PredefinedRole.EndUser.ToString())
                 {
                     return Forbid();
                 }
+                if (role != PredefinedRole.SystemAdmin.ToString())
+                {
+                    var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+                    if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                    {
+                        return Forbid();
+                    }
+                }
+                var customer = await _customerServices.GetCustomerAsync(organizationId, false, false, false, true);
+                if (!customer.PartnerId.HasValue)
+                {
+                    return BadRequest("RequestFailedException: Could not import file: Customer not associated to a partner");
+                }
+                var products = await _productCatalogServices.GetOrderedProductsByPartnerAndOrganizationAsync(customer.PartnerId.Value, organizationId, false);
+                var productId = (ProductSeedDataValues) products.FirstOrDefault(x => x.ProductTypeId == (int)ProductTypeSeedDataValue.Module)!.Id;
+
+                return Ok(await _assetServices.ImportAssetsFileAsync(organizationId, assetImportFile, validateOnly, productId, customer));
             }
-            var organization = await _customerServices.GetCustomerAsync(organizationId);
-            return Ok(await _assetServices.ImportAssetsFileAsync(organizationId, assetImportFile, validateOnly, organization));
+            catch (ResourceNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Azure.RequestFailedException ex)
+            {
+                return BadRequest("RequestFailedException: Could not import file: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Exception: Could not import file due to unknown error: " + ex.Message);
+            }
         }
 
         [Route("customers/{organizationId:guid}/download")]

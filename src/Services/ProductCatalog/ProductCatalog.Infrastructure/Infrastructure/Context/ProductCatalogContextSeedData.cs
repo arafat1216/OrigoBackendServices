@@ -1,4 +1,5 @@
-﻿using FeatureCatalog.Infrastructure.Models.Database.Joins;
+﻿using Common.Enums;
+using FeatureCatalog.Infrastructure.Models.Database.Joins;
 using Microsoft.EntityFrameworkCore;
 using ProductCatalog.Infrastructure.Models.Database;
 using ProductCatalog.Infrastructure.Models.Database.Joins;

@@ -64,7 +64,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                     {
                         PartnerId = Guid.Empty
                     };
-                    customerServices.Setup(_ => _.GetCustomerAsync(It.IsAny<Guid>()))
+                    customerServices.Setup(_ => _.GetCustomerAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()))
                         .Returns(Task.FromResult(customer));
                     services.AddSingleton(customerServices.Object);
                 });
@@ -120,7 +120,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                     {
                         PartnerId = Guid.Parse(partnerId)
                     };
-                    customerServices.Setup(_ => _.GetCustomerAsync(It.IsAny<Guid>()))
+                    customerServices.Setup(_ => _.GetCustomerAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()))
                         .Returns(Task.FromResult(customer));
                     services.AddSingleton(customerServices.Object);
                 });

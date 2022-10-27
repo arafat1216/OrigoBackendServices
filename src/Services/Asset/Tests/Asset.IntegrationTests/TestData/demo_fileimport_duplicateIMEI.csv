@@ -1,7 +1,7 @@
-Brand;ProductName;Category;PurchaseDate;PurchasePrice;SerialNumber;Imei;Label;Alias;PhoneNumber;PurchaseNumber;UserFirstName;UserLastName;UserEmail
-Samsung;Samsung Galaxy S21 5G 8/128GB (phantom gray);Mobile phone;2021-12-01;10000;;865822011610467;Cashier phone;Meny Roa cashier1;;;Mister;Wrongmail;mail@
-Apple;iPhone 11 Pro smarttelefon 256 GB (sølv);Mobile phone;2021-12-01;12220;;350039622905473;Backoffice phone;Meny Roa Backoffice;+4799999999;;John;Doe;john@doe.com
-Samsung;Samsung Galaxy A51 smarttelefon (blå);Mobile phone;2021-12-01;12220;;359914027674919;Cashier phone;Meny Roa cashier2;;;;;
-iPhone;iPhone 13 Pro 5G smarttelefon 256GB Grafitt;Mobile phone;2021-10-05;12220;;500119468586675;Cashier phone;Meny CC vest cashier 1;;;;;
-Sony;Sony Xperia 10 III - 5G smarttelefon 6/128GB (sort);Mobile phone;05.10.2021;12220;;13311006051722;Cashier phone;Meny CC vest cashier 2;;;;;
-iPhone;iPhone 11 smarttelefon 128 GB (sort);Mobile phone;2021-10-05;12220;;13311006051722;Backoffice phone;Meny CC vest backoffice;;;;;
+Brand;ProductName;Category;PurchaseDate;PurchasePrice;PurchaseType;SerialNumber;Imei;Label;Alias;PhoneNumber;PurchaseNumber;UserFirstName;UserLastName;UserEmail
+Samsung;Samsung Galaxy S21 5G 8/128GB (phantom gray);Mobile phone;2021-12-01;10000;A4020;;865822011610467;Cashier phone;Meny Roa cashier1;;;Mister;Wrongmail;mail@
+Apple;iPhone 11 Pro smarttelefon 256 GB (sølv);Mobile phone;2021-12-01;12220;A4020;;350039622905473;Backoffice phone;Meny Roa Backoffice;+4799999999;;John;Doe;john@doe.com
+Samsung;Samsung Galaxy A51 smarttelefon (blå);Mobile phone;2021-12-01;12220;A4020;;359914027674919;Cashier phone;Meny Roa cashier2;;;;;;
+iPhone;iPhone 13 Pro 5G smarttelefon 256GB Grafitt;Mobile phone;05.10.2021;12220;A4020;;500119468586675;Cashier phone;Meny CC vest cashier 1;;;;;;
+Sony;Sony Xperia 10 III - 5G smarttelefon 6/128GB (sort);Mobile phone;2021-10-05;12220;A4020;;13311006051722;Cashier phone;Meny CC vest cashier 2;;;;;;
+iPhone;iPhone 11 smarttelefon 128 GB (sort);Mobile phone;2021-10-05;12220;A4020;;13311006051722;Backoffice phone;Meny CC vest backoffice;;;;;;

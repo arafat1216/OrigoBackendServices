@@ -2,6 +2,7 @@
 using Common.Enums;
 using Common.Exceptions;
 using Common.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
@@ -96,12 +97,12 @@ public class CustomerServices : ICustomerServices
         }
     }
 
-    public async Task<Organization> GetCustomerAsync(Guid customerId)
+    public async Task<Organization> GetCustomerAsync(Guid customerId, bool includeDepartments = true, bool includeOrganizationPreferences = true, bool includeLocation = true, bool includePartner = true)
     {
         try
         {
             bool customerOnly = true;
-            var organization = await HttpClient.GetFromJsonAsync<Organization>($"{_options.ApiPath}/{customerId}/{customerOnly}");
+            var organization = await HttpClient.GetFromJsonAsync<Organization>($"{_options.ApiPath}/{customerId}/{customerOnly}?includeDepartments={includeDepartments}&includeOrganizationPreferences={includeOrganizationPreferences}&includeLocation={includeLocation}&includePartner={includePartner}");
 
             return organization ?? null;
         }

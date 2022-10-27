@@ -11,6 +11,7 @@ public record ImportedAsset
     public string Imeis { get; set; } = string.Empty;
     public ImportedUser ImportedUser { get; set; } = new();
     public DateTime PurchaseDate { get; set; }
+    public string PurchaseType { get; set; } = string.Empty;
     public string Label { get; set; } = string.Empty;
     public string Alias { get; set; } = string.Empty;
     public string PurchasePrice { get; set; } = string.Empty;

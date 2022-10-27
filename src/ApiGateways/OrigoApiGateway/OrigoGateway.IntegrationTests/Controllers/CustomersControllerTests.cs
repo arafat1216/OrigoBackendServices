@@ -558,7 +558,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
 
                     var customerService = new Mock<ICustomerServices>();
                     var organizations = new Organization { OrganizationId = organizationId, PartnerId = partnerId };
-                    customerService.Setup(_ => _.GetCustomerAsync(organizationId)).ReturnsAsync(organizations);
+                    customerService.Setup(_ => _.GetCustomerAsync(organizationId, It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(organizations);
                     services.AddSingleton(customerService.Object);
                 });
 

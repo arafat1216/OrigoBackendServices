@@ -527,7 +527,7 @@ public class AssetServices : IAssetServices
         return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
     }
 
-    public async Task<AssetValidationResult> ImportAssetsFromFile(Guid customerId, IFormFile file, bool validateOnly)
+    public async Task<AssetValidationResult> ImportAssetsFromFile(Guid customerId, IFormFile file, bool validateOnly, ProductSeedDataValues productId)
     {
         IList<AssetFromCsvFile> assetsFromFileRecords;
         var csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -558,11 +558,14 @@ public class AssetServices : IAssetServices
                     assetFromCsv.ProductName, new List<AssetImei>(), assetFromCsv.MacAddress);
             var emailValidator = new EmailAddressAttribute();
             var errors = new List<string>();
+            if (string.IsNullOrEmpty(assetFromCsv.PurchaseType))
+            {
+                errors.Add($"Missng Purchase Type Value");
+            }
             if (!string.IsNullOrEmpty(assetFromCsv.UserEmail) && !emailValidator.IsValid(assetFromCsv.UserEmail))
             {
                 errors.Add($"Invalid e-mail: {assetFromCsv.UserEmail}");
             }
-
             if (!DateTime.TryParseExact(assetFromCsv.PurchaseDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var purchaseDate))
             {
                 errors.Add($"Invalid purchase date - expected format yyyy-MM-dd (2022-03-21): {assetFromCsv.PurchaseDate}");
@@ -602,6 +605,15 @@ public class AssetServices : IAssetServices
         foreach (var validAsset in assetValidationResult.ValidAssets)
         {
             var newAssetDto = _mapper.Map<NewAssetDTO>(validAsset);
+            if(newAssetDto.AssetTag!.ToUpper() == "A4020" || newAssetDto.AssetTag!.ToUpper() == "A3094")
+            {
+                newAssetDto.LifecycleType = productId switch
+                {
+                    ProductSeedDataValues.Implement => LifecycleType.NoLifecycle,
+                    ProductSeedDataValues.TransactionalDeviceLifecycleManagement => LifecycleType.Transactional,
+                    _ => LifecycleType.NoLifecycle,
+                };
+            }
             await AddAssetLifecycleForCustomerAsync(customerId, newAssetDto);
         }
         return assetValidationResult;
@@ -626,6 +638,7 @@ public class AssetServices : IAssetServices
         importedAsset.Label = assetFromCsv.Label;
         importedAsset.Alias = assetFromCsv.Alias;
         importedAsset.PurchasePrice = assetFromCsv.PurchasePrice;
+        importedAsset.PurchaseType = assetFromCsv.PurchaseType;
         return importedAsset;
     }
 

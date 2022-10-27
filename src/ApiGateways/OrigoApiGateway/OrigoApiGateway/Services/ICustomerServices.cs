@@ -19,9 +19,8 @@ namespace OrigoApiGateway.Services
         /// <param name="search"></param>
         /// <param name="includePreferences"></param>
         /// <returns></returns>
-        Task<PagedModel<Organization>> GetPaginatedCustomersAsync(CancellationToken cancellationToken, int page, int limit, Guid? partnerId = null, string? search = null, bool includePreferences = false);
-        
-        Task<Organization> GetCustomerAsync(Guid customerId);
+        Task<PagedModel<Organization>> GetPaginatedCustomersAsync(CancellationToken cancellationToken, int page, int limit, Guid? partnerId = null, string? search = null, bool includePreferences = false);      
+        Task<Organization> GetCustomerAsync(Guid customerId, bool includeDepartments = true, bool includeOrganizationPreferences = true, bool includeLocation = true, bool includePartner = true);
         Task<IList<CustomerUserCount>> GetCustomerUsersAsync(FilterOptionsForUser filterOptions);
         Task<Organization> CreateCustomerAsync(NewOrganization newCustomer, Guid callerId);
         Task<Organization> UpdateOrganizationAsync(UpdateOrganizationDTO organizationToChange);

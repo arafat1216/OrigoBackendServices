@@ -42,6 +42,7 @@ public class AssetLifecycleProfile : Profile
             .ForMember(dest => dest.Description, opts => opts.MapFrom(src => string.Empty))
             .ForMember(dest => dest.Note, opts => opts.MapFrom(src => string.Empty))
             .ForMember(dest => dest.Source, opts => opts.MapFrom(src => "FileImport"))
+            .ForMember(dest => dest.AssetTag, opts => opts.MapFrom(src => src.PurchaseType))
             .ForMember(dest => dest.Imei,
                 opts => opts.MapFrom(src =>
                     src.Imeis.Split(",", StringSplitOptions.TrimEntries).Select(long.Parse).ToList()));

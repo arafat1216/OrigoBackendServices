@@ -1631,7 +1631,7 @@ public class AssetServicesTests
         formFileMock.Setup(ff => ff.FileName).Returns("assets.csv");
 
         // Act
-        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false, new Organization { Preferences = new NewOrganizationPreferences { PrimaryLanguage = "no" } });
+        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false, ProductSeedDataValues.TransactionalDeviceLifecycleManagement,  new Organization { Preferences = new NewOrganizationPreferences { PrimaryLanguage = "no" } });
 
         // Assert
         Assert.Equal(1, assetValidationResult.InvalidAssets.Count);
@@ -1735,7 +1735,7 @@ public class AssetServicesTests
         formFileMock.Setup(ff => ff.FileName).Returns("assets.csv");
 
         // Act
-        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false, new Organization { Preferences = new NewOrganizationPreferences { PrimaryLanguage = "no" } } );
+        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false, ProductSeedDataValues.Implement, new Organization { Preferences = new NewOrganizationPreferences { PrimaryLanguage = "no" } });
 
         // Assert
         Assert.Equal(1, assetValidationResult?.ValidAssets.Count);

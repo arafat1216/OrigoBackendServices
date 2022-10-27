@@ -249,8 +249,95 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     }
 
     [Fact]
+    public async Task ReadAssetFile_ValidateImport_TDLM()
+    {
+        // Arrange
+        var fullFilename = Path.Combine(@"TestData", "demo_fileimport.csv");
+        var assetImportFileBytes = await File.ReadAllBytesAsync(fullFilename);
+        var assetFileByteContent = new ByteArrayContent(assetImportFileBytes);
+        using var content = new MultipartFormDataContent();
+        content.Add(assetFileByteContent, "assetImportFile", "demo_fileimport.csv");
+
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}";
+        var assetsBeforeImport = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
+        var transactionAssets = assetsBeforeImport!.Items.Count(x => x.LifecycleType == LifecycleType.Transactional);
+
+        // Act
+        requestUri = $"/api/v1/Assets/customers/{_customerId}/import?validateOnly=false&productId={ProductSeedDataValues.TransactionalDeviceLifecycleManagement}";
+        var importResponse = await _httpClient.PostAsync(requestUri, content);
+        var assetValidationResult = await importResponse.Content.ReadFromJsonAsync<AssetValidationResult>();
+
+        requestUri = $"/api/v1/Assets/customers/{_customerId}";
+        var importedAssets = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
+        var totaltransactionAssets = importedAssets!.Items.Count(x => x.LifecycleType == LifecycleType.Transactional);
+
+
+        // Assert
+        Assert.True(importResponse.IsSuccessStatusCode);
+        Assert.True(totaltransactionAssets - 3  == transactionAssets);
+        Assert.Equal(3, assetValidationResult!.ValidAssets.Count);
+        Assert.Equal(3, assetValidationResult.InvalidAssets.Count);
+        Assert.Equal("John", assetValidationResult.ValidAssets[0].ImportedUser.FirstName);
+        Assert.Equal("Doe", assetValidationResult.ValidAssets[0].ImportedUser.LastName);
+        Assert.Equal("john@doe.com", assetValidationResult.ValidAssets[0].ImportedUser.Email);
+        Assert.Equal("+4799999999", assetValidationResult.ValidAssets[0].ImportedUser.PhoneNumber);
+        Assert.Equal("2021-12-01", assetValidationResult.ValidAssets[0].PurchaseDate.ToString("yyyy-MM-dd"));
+        Assert.Equal("Backoffice phone", assetValidationResult.ValidAssets[0].Label);
+        Assert.Equal("Meny Roa Backoffice", assetValidationResult.ValidAssets[0].Alias);
+
+        Assert.Equal("Missng Purchase Type Value", assetValidationResult.InvalidAssets[0].Errors[0]);
+        Assert.Equal("Invalid e-mail: mail@", assetValidationResult.InvalidAssets[0].Errors[1]);
+        Assert.Equal("Invalid Imei(s) 13311006051722 for mobile phone", assetValidationResult.InvalidAssets[2].Errors[0]);
+        Assert.Equal("Invalid purchase date - expected format yyyy-MM-dd (2022-03-21): 05.10.2021", assetValidationResult.InvalidAssets[1].Errors[0]);
+    }
+    [Fact]
+    public async Task ReadAssetFile_ValidateImport_Implement()
+    {
+        // Arrange
+        var fullFilename = Path.Combine(@"TestData", "demo_fileimport.csv");
+        var assetImportFileBytes = await File.ReadAllBytesAsync(fullFilename);
+        var assetFileByteContent = new ByteArrayContent(assetImportFileBytes);
+        using var content = new MultipartFormDataContent();
+        content.Add(assetFileByteContent, "assetImportFile", "demo_fileimport.csv");
+
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}";
+        var assetsBeforeImport = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
+        var nolifecycleAssets = assetsBeforeImport!.Items.Count(x => x.LifecycleType == LifecycleType.NoLifecycle);
+
+        // Act
+        requestUri = $"/api/v1/Assets/customers/{_customerId}/import?validateOnly=false&productId={ProductSeedDataValues.Implement}";
+        var importResponse = await _httpClient.PostAsync(requestUri, content);
+        var assetValidationResult = await importResponse.Content.ReadFromJsonAsync<AssetValidationResult>();
+
+        requestUri = $"/api/v1/Assets/customers/{_customerId}";
+        var importedAssets = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
+        var totalNolifeCycleAssets = importedAssets!.Items.Count(x => x.LifecycleType == LifecycleType.NoLifecycle);
+
+
+        // Assert
+        Assert.True(importResponse.IsSuccessStatusCode);
+        Assert.True(totalNolifeCycleAssets - 3 == nolifecycleAssets);
+        Assert.Equal(3, assetValidationResult!.ValidAssets.Count);
+        Assert.Equal(3, assetValidationResult.InvalidAssets.Count);
+        Assert.Equal("John", assetValidationResult.ValidAssets[0].ImportedUser.FirstName);
+        Assert.Equal("Doe", assetValidationResult.ValidAssets[0].ImportedUser.LastName);
+        Assert.Equal("john@doe.com", assetValidationResult.ValidAssets[0].ImportedUser.Email);
+        Assert.Equal("+4799999999", assetValidationResult.ValidAssets[0].ImportedUser.PhoneNumber);
+        Assert.Equal("2021-12-01", assetValidationResult.ValidAssets[0].PurchaseDate.ToString("yyyy-MM-dd"));
+        Assert.Equal("Backoffice phone", assetValidationResult.ValidAssets[0].Label);
+        Assert.Equal("Meny Roa Backoffice", assetValidationResult.ValidAssets[0].Alias);
+
+        Assert.Equal("Missng Purchase Type Value", assetValidationResult.InvalidAssets[0].Errors[0]);
+        Assert.Equal("Invalid e-mail: mail@", assetValidationResult.InvalidAssets[0].Errors[1]);
+        Assert.Equal("Invalid Imei(s) 13311006051722 for mobile phone", assetValidationResult.InvalidAssets[2].Errors[0]);
+        Assert.Equal("Invalid purchase date - expected format yyyy-MM-dd (2022-03-21): 05.10.2021", assetValidationResult.InvalidAssets[1].Errors[0]);
+    }
+
+    [Fact]
     public async Task ReadAssetFile_ValidateResponse()
     {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
         // Arrange
         var fullFilename = Path.Combine(@"TestData", "demo_fileimport.csv");
         var assetImportFileBytes = await File.ReadAllBytesAsync(fullFilename);
@@ -260,7 +347,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var requestUri = $"/api/v1/Assets/customers/{_customerId}/import";
 
         // Act
-        var importResponse = await _httpClient.PostAsync(requestUri, content);
+        var importResponse = await httpClient.PostAsync(requestUri, content);
         var assetValidationResult = await importResponse.Content.ReadFromJsonAsync<AssetValidationResult>();
 
         // Assert
@@ -275,14 +362,18 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         Assert.Equal("Backoffice phone", assetValidationResult.ValidAssets[0].Label);
         Assert.Equal("Meny Roa Backoffice", assetValidationResult.ValidAssets[0].Alias);
 
-        Assert.Equal("Invalid e-mail: mail@", assetValidationResult.InvalidAssets[0].Errors[0]);
+        Assert.Equal("Missng Purchase Type Value", assetValidationResult.InvalidAssets[0].Errors[0]);
+        Assert.Equal("Invalid e-mail: mail@", assetValidationResult.InvalidAssets[0].Errors[1]);
         Assert.Equal("Invalid Imei(s) 13311006051722 for mobile phone", assetValidationResult.InvalidAssets[2].Errors[0]);
         Assert.Equal("Invalid purchase date - expected format yyyy-MM-dd (2022-03-21): 05.10.2021", assetValidationResult.InvalidAssets[1].Errors[0]);
     }
 
+
     [Fact]
     public async Task ReadAssetFile_DuplicateIMEI()
     {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
+
         // Arrange
         var fullFilename = Path.Combine(@"TestData", "demo_fileimport_duplicateIMEI.csv");
         var assetImportFileBytes = await File.ReadAllBytesAsync(fullFilename);
@@ -893,11 +984,12 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     [Fact]
     public async Task GetAvailableAssetsForCustomer()
     {
+        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
         var options = new FilterOptionsForAsset();
         var json = JsonSerializer.Serialize(options);
         var requestUri = $"/api/v1/Assets/customers/{_customerId}?page=1&limit=1000&status=9&filterOptions={json}";
         _testOutputHelper.WriteLine(requestUri);
-        var pagedAsset = await _httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
+        var pagedAsset = await httpClient.GetFromJsonAsync<PagedAssetList>(requestUri);
 
         Assert.True(pagedAsset!.TotalItems == 14);
         Assert.True(pagedAsset.Items.Count == 14);

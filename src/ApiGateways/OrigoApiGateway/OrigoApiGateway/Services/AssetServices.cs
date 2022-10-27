@@ -435,9 +435,9 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<AssetValidationResult> ImportAssetsFileAsync(Guid organizationId, IFormFile file, bool validateOnly, Organization organization)
+        public async Task<AssetValidationResult> ImportAssetsFileAsync(Guid organizationId, IFormFile file, bool validateOnly, ProductSeedDataValues productId, Organization organization)
         {
-            var url = $"{_options.ApiPath}/customers/{organizationId}/import";
+            var url = $"{_options.ApiPath}/customers/{organizationId}/import?productId={productId}";
             var multiContent = new MultipartFormDataContent();
             multiContent.Add(new StreamContent(file.OpenReadStream()), "assetImportFile", file.FileName);
             var result = await HttpClient.PostAsync(url, multiContent);

@@ -774,14 +774,14 @@ public class AssetsController : ControllerBase
     [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<ActionResult> ImportAssets([FromRoute] Guid customerId,
-        [FromForm] IFormFile assetImportFile , [FromQuery] bool validateOnly = true)
+        [FromForm] IFormFile assetImportFile , [FromQuery] ProductSeedDataValues productId, [FromQuery] bool validateOnly = true)
     {
         if (assetImportFile.Length <= 0)
         {
             return BadRequest("Empty file");
         }
 
-        return Ok(await _assetServices.ImportAssetsFromFile(customerId, assetImportFile, validateOnly));
+        return Ok(await _assetServices.ImportAssetsFromFile(customerId, assetImportFile, validateOnly, productId));
     }
 
     [Topic("customer-pub-sub", "offboard-cancelled")]
