@@ -596,10 +596,30 @@ namespace OrigoApiGateway.Services
                 if (string.IsNullOrEmpty(userName) && userId == Guid.Empty) return new UserInfoDTO();
 
                 var response = !string.IsNullOrEmpty(userName) ?
-                    await HttpClient.GetFromJsonAsync<UserInfoDTO>($"{_options.ApiPath}/{userName}/users-info") :
-                    await HttpClient.GetFromJsonAsync<UserInfoDTO>($"{_options.ApiPath}/{userId}/users-info");
+                    await HttpClient.GetAsync($"{_options.ApiPath}/{userName}/users-info") :
+                    await HttpClient.GetAsync($"{_options.ApiPath}/{userId}/users-info");
 
-                return response;
+                if(!response.IsSuccessStatusCode) return new UserInfoDTO();
+                var userInfo = await response.Content.ReadFromJsonAsync<UserInfoDTO>();
+                return userInfo ?? new UserInfoDTO();
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogError(exception, "GetUserInfo failed with HttpRequestException.");
+                throw;
+            }
+        }
+        public async Task<UserInfoDTO?> GetUserWithPhoneNumber(Guid organizationId, string mobileNumber)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(mobileNumber)) return null;
+                
+
+                var response = await HttpClient.GetAsync($"{_options.ApiPath}/{organizationId}/{mobileNumber}/users-info");
+                if (!response.IsSuccessStatusCode) return null;
+
+                return await response.Content.ReadFromJsonAsync<UserInfoDTO>();
             }
             catch (HttpRequestException exception)
             {

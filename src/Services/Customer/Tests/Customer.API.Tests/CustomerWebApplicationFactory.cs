@@ -34,6 +34,7 @@ public class CustomerWebApplicationFactory<TProgram> : WebApplicationFactory<TPr
     public Guid USER_FIVE_ID => CustomerTestDataSeedingForDatabase.USER_FIVE_ID;
     public Guid USER_SEVEN_ID => CustomerTestDataSeedingForDatabase.USER_SEVEN_ID;
     public string USER_ONE_EMAIL => CustomerTestDataSeedingForDatabase.USER_ONE_EMAIL;
+    public string USER_ONE_PHONENUMBER => CustomerTestDataSeedingForDatabase.USER_ONE_PHONENUMBER;
     public string USER_FOUR_EMAIL => CustomerTestDataSeedingForDatabase.USER_FOUR_EMAIL;
     public Guid TECHSTEP_PARTNER_ID => CustomerTestDataSeedingForDatabase.TECHSTEP_PARTNER_ID;
     public Guid PARTNER_ID => CustomerTestDataSeedingForDatabase.PARTNER_ID;

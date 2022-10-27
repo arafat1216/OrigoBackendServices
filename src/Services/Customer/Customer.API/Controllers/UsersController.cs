@@ -540,6 +540,23 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
+    /// Only used by userpermission gateway to get info about user to be made a claim for
+    /// </summary>
+    /// <param name="organizationId">Empty Guid or a value</param>
+    /// <param name="mobileNumber">Empty Guid or a value</param>
+    /// <returns></returns>
+    [Route("/api/v{version:apiVersion}/organizations/{organizationId:Guid}/{mobileNumber}/users-info")]
+    [HttpGet]
+    [ProducesResponseType(typeof(UserInfo), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult<UserInfo>> GetUserInfoFromPhoneNumber([FromRoute] Guid organizationId, string mobileNumber)
+    {
+        var user = await _userServices.GetUserInfoFromPhoneNumber(organizationId, mobileNumber);
+        if (user == null) return NotFound();
+        return Ok(_mapper.Map<UserInfo>(user));
+    }
+
+    /// <summary>
     /// Resends the Origo invitation mail to a user. 
     /// </summary>
     /// <param name="customerId">Customer id that has the user.</param>

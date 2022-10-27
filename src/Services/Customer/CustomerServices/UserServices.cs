@@ -814,5 +814,10 @@ namespace CustomerServices
         {
             return await _organizationRepository.GetAllUsersWithNameOnly(customerId, cancellationToken);
         }
+
+        public async Task<UserInfoDTO> GetUserInfoFromPhoneNumber(Guid organizationId, string mobileNumber)
+        {
+            return _mapper.Map<UserInfoDTO>( await _organizationRepository.GetUserByMobileNumber(mobileNumber, organizationId) );
+        }
     }
 }

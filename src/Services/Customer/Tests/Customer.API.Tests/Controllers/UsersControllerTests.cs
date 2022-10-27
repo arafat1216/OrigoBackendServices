@@ -23,6 +23,7 @@ namespace Customer.API.IntegrationTests.Controllers
         private readonly Guid _independentDepartmentId;
         private readonly Guid _userOneId;
         private readonly string _userOneEmail;
+        private readonly string _userOnePhoneNumber;
         private readonly Guid _userTwoId;
         private readonly Guid _userThreeId;
         private readonly Guid _callerId;
@@ -48,6 +49,7 @@ namespace Customer.API.IntegrationTests.Controllers
             _userTwoId = factory.USER_TWO_ID;
             _userThreeId = factory.USER_THREE_ID;
             _userOneEmail = factory.USER_ONE_EMAIL;
+            _userOnePhoneNumber = factory.USER_ONE_PHONENUMBER;
             _userFourId = factory.USER_FOUR_ID;
             _userSevenId = factory.USER_SEVEN_ID;
             _userFiveId = factory.USER_FIVE_ID;
@@ -1827,6 +1829,40 @@ namespace Customer.API.IntegrationTests.Controllers
             //Assert  
             Assert.Equal(HttpStatusCode.OK, responseCountManager.StatusCode);
             Assert.Equal(0, userCountManager?.NotOnboarded);
+        }
+
+        [Fact]
+        public async Task GetUserInfoFromPhoneNumber_ReturnsUserInfo()
+        {
+            //Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations/{_customerId}/{_userOnePhoneNumber}/users-info";
+
+            //Act
+            var response = await httpClient.GetAsync(requestUri);
+            var user = await response.Content.ReadFromJsonAsync<UserInfo>();
+
+            //Assert  
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(_userOneId, user?.UserId);
+            Assert.Equal(_userOneEmail, user?.UserName);
+        }
+
+        [Fact]
+        public async Task GetUserInfoFromPhoneNumber_NotTheSameCustomer_ShouldBeEmpty()
+        {
+            //Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations/{_customerIdThree}/{_userOnePhoneNumber}/users-info";
+
+            //Act
+            var response = await httpClient.GetAsync(requestUri);
+            var user = await response.Content.ReadFromJsonAsync<UserInfo>();
+
+            //Assert  
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.NotNull(user);
+            Assert.Null(user.UserName);
         }
     }
 }

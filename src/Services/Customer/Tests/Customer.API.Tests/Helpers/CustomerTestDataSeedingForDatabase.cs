@@ -28,11 +28,12 @@ namespace Customer.API.IntegrationTests.Helpers
         public static readonly Guid USER_SEVEN_ID = Guid.Parse("71376607-5531-4140-9085-3b8e2b713bec");
         public static readonly Guid USER_EIGHT_ID = Guid.Parse("8d0435a3-8a71-4fa2-9f40-f011e9076b89");
         public static readonly string USER_ONE_EMAIL = "kari@normann.no";
+        public static readonly string USER_ONE_PHONENUMBER = "+4790603360";
 
         public static readonly Guid USER_FOUR_ID = Guid.Parse("208ad639-9fe8-476d-bd89-d9b8ddcb76bf");
         public static readonly Guid USER_FIVE_ID = Guid.Parse("15936b85-22c8-466f-848b-59191094a576");
         public static readonly string USER_FOUR_EMAIL = "petter@pan.no";
-
+       
 
 
 
@@ -201,7 +202,7 @@ namespace Customer.API.IntegrationTests.Helpers
                                 "Kari",
                                 "Normann",
                                 USER_ONE_EMAIL,
-                                "+4790603360",
+                                USER_ONE_PHONENUMBER,
                                 "EID:909091",
                                 new UserPreference("no", CALLER_ID),
                                 CALLER_ID);
@@ -212,7 +213,7 @@ namespace Customer.API.IntegrationTests.Helpers
                                 "Atish",
                                 "Kumar",
                                 "atish@normann.no",
-                                "+4790603360",
+                                "+4790603369",
                                 "EID:909092",
                                 new UserPreference("no", CALLER_ID),
                                 CALLER_ID);
