@@ -1852,4 +1852,106 @@ public class AssetServicesTests
         Assert.All(assetValidationResult.InvalidAssets, item => Assert.Equal("Phone number is not unique and is used in the organization.", item.Errors.FirstOrDefault()));
 
     }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AssignAsset_ToUserWIthDepartment()
+    {
+        // Arrange
+        var CUSTOMER_ID = new Guid("20ef7dbd-a0d1-44c3-b855-19799cceb347");
+        var ASSET_ID = new Guid("e2cc3b33-073c-4247-b31d-0b8575cb9303");
+        var mockFactory = new Mock<IHttpClientFactory>();
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+
+        mockHttpMessageHandler.Protected()
+           .Setup<
+               Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+               ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+               {
+                   StatusCode = HttpStatusCode.OK,
+                   Content = new StringContent(@"
+                        {
+                            ""id"": ""80665d26-90b4-4a3a-a20d-686b64466f32"",
+                            ""organizationId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                            ""alias"": ""alias_2"",
+                            ""note"": """",
+                            ""description"": """",
+                            ""assetTag"": """",
+                            ""assetCategoryId"": 1,
+                            ""assetCategoryName"": ""Mobile phone"",
+                            ""brand"": ""Samsung"",
+                            ""productName"": ""Samsung Galaxy S21"",
+                            ""lifecycleType"": 2,
+                            ""lifecycleName"": ""Transactional"",
+                            ""paidByCompany"": 0,
+                            ""currencyCode"": 0,
+                            ""bookValue"": 0,
+                            ""buyoutPrice"": 0.00,
+                            ""purchaseDate"": ""0001-01-01T00:00:00"",
+                            ""createdDate"": ""2022-05-10T08:11:17.9941683Z"",
+                            ""managedByDepartmentId"": ""6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72"",
+                            ""assetHolderId"": ""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",
+                            ""assetStatus"": 3,
+                            ""assetStatusName"": ""Available"",
+                            ""labels"": [],
+                            ""serialNumber"": ""123456789012399"",
+                            ""imei"": [
+                                512217111821626
+                            ],
+                            ""macAddress"": ""840F1D0C06AD"",
+                            ""orderNumber"": """",
+                            ""productId"": """",
+                            ""invoiceNumber"": """",
+                            ""transactionId"": """",
+                            ""isPersonal"": false
+                        }
+                    ")
+               });
+
+        var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+        mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+        var options = new AssetConfiguration { ApiPath = @"/assets" };
+        var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+        optionsMock.Setup(o => o.Value).Returns(options);
+
+        var mockUser = new Mock<OrigoUser>();
+        var mockUserService = new Mock<IUserServices>();
+        var origoUser = new OrigoUser()
+        {
+            Id = Guid.Parse("6d16a4cb-4733-44de-b23b-0eb9e8ae6590"),
+            FirstName = "Kari",
+            LastName = "Normal",
+            DisplayName = "Kari Normal"
+        };
+        mockUserService.Setup(p => p.GetUserAsync(CUSTOMER_ID, It.IsAny<Guid>()).Result).Returns(origoUser);
+        var mockDepartmentService = new Mock<IDepartmentsServices>();
+
+        var origoDepartment = new OrigoDepartment()
+        {
+            DepartmentId = Guid.Parse("6d16a4cb-4733-44de-b23b-0eb9e8ae6590"),
+            Name = "Department Name"
+        };
+        mockDepartmentService.Setup(p => p.GetDepartmentAsync(CUSTOMER_ID, It.IsAny<Guid>()).Result).Returns(origoDepartment);
+
+        var mockUserPermissionService = new Mock<IUserPermissionService>();
+
+        var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), mockFactory.Object,
+            optionsMock.Object, mockUserService.Object, mockUserPermissionService.Object, _mapper,
+            mockDepartmentService.Object);
+
+
+        // Act
+        var updatedAsset =
+            await assetService.AssignAsset(CUSTOMER_ID, ASSET_ID, new AssignAssetToUser() 
+            {
+                UserId = origoUser.Id,
+                DepartmentId = origoDepartment.DepartmentId
+            });
+
+        // Assert
+        Assert.False(string.IsNullOrEmpty(updatedAsset.AssetHolderName));
+        Assert.False(string.IsNullOrEmpty(updatedAsset.DepartmentName));
+        Assert.Equal(origoUser.DisplayName, updatedAsset.AssetHolderName);
+        Assert.Equal(origoDepartment.Name, updatedAsset.DepartmentName);
+    }
 }

@@ -1616,11 +1616,13 @@ namespace OrigoApiGateway.Services
             try
             {
                 var mappedAsset = _mapper.Map<AssignAssetToUserDTO>(assignedAsset);
+                OrigoUser user = null;
+                OrigoDepartment department = null;
                 if (mappedAsset.UserId != Guid.Empty)
                 {
                     try
                     {
-                        var user = await _userServices.GetUserAsync(customerId, mappedAsset.UserId);
+                        user = await _userServices.GetUserAsync(customerId, mappedAsset.UserId);
                         if (user == null)
                             throw new BadHttpRequestException("Unable to assign asset. User not found");
                         mappedAsset.UserAssigneToDepartment = user.AssignedToDepartment;
@@ -1637,7 +1639,7 @@ namespace OrigoApiGateway.Services
                 {
                     try
                     {
-                        var department = await _departmentsServices.GetDepartmentAsync(customerId, mappedAsset.DepartmentId);
+                        department = await _departmentsServices.GetDepartmentAsync(customerId, mappedAsset.DepartmentId);
                         if (department == null)
                             throw new BadHttpRequestException("Unable to assign asset. Department not found");
                     }
@@ -1666,6 +1668,12 @@ namespace OrigoApiGateway.Services
                         result = _mapper.Map<OrigoMobilePhone>(asset);
                     else
                         result = _mapper.Map<OrigoTablet>(asset);
+
+                    if (asset.ManagedByDepartmentId != null && department != null)
+                        result.DepartmentName = department.Name;
+
+                    if (asset.AssetHolderId != null && user != null)
+                        result.AssetHolderName = user.DisplayName;
                 }
 
                 return result;
