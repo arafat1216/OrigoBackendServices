@@ -1671,11 +1671,19 @@ namespace OrigoApiGateway.Services
                     else
                         result = _mapper.Map<OrigoTablet>(asset);
 
-                    if (asset.ManagedByDepartmentId != null && department != null)
+                    if (asset.ManagedByDepartmentId != null)
+                    {
+                        if(department == null)
+                            department = await _departmentsServices.GetDepartmentAsync(asset.OrganizationId, asset.ManagedByDepartmentId ?? throw new ArgumentNullException("DepartmentId"));
                         result.DepartmentName = department.Name;
+                    }
 
-                    if (asset.AssetHolderId != null && user != null)
+                    if (asset.AssetHolderId != null)
+                    {
+                        if (user == null)
+                            user = await _userServices.GetUserAsync(customerId, asset.AssetHolderId ?? throw new ArgumentNullException("UserId"));
                         result.AssetHolderName = user.DisplayName;
+                    }
                 }
 
                 return result;
