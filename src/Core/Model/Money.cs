@@ -14,6 +14,9 @@ namespace Common.Model
     /// </summary>
     public class Money : ValueObject
     {
+        /// <summary>
+        /// TODO: MONEY, the default constructor should be removed once the frontend and tests got fixed
+        /// </summary>
         public Money():this(decimal.Zero, Enums.CurrencyCode.NOK) 
         { }
         public Money(decimal amount, CurrencyCode currencyCode)
