@@ -123,8 +123,8 @@ namespace OrigoApiGateway.Controllers
             // For the DepartmentManager/Manager, the accessList will contain list of Departments.
             // So if the Asset belongs to the same Department of the DepartmentManager/Manager.
             // then he/she is allowed to access the Asset.
-            if ((userRole == PredefinedRole.DepartmentManager.ToString() || userRole == PredefinedRole.Manager.ToString()) && 
-                asset.ManagedByDepartmentId is not null && 
+            if ((userRole == PredefinedRole.DepartmentManager.ToString() || userRole == PredefinedRole.Manager.ToString()) &&
+                asset.ManagedByDepartmentId is not null &&
                 accessList.Contains(asset.ManagedByDepartmentId.ToString()))
             {
                 return true;
@@ -301,19 +301,32 @@ namespace OrigoApiGateway.Controllers
         ///     Retrieves a paginated list that contains a organization's service-orders.
         /// </summary>
         /// <param name="organizationId"> The organization ID to retrieve service-orders for. </param>
+        /// <param name="filterOptions"> A class containing the various query-parameter filters. </param>
         /// <param name="userId"> When provided, filters the results to only contain this user. </param>
         /// <param name="serviceTypeId"> When provided, filters the results to only contain this service-type. </param>
         /// <param name="activeOnly"> 
         ///     When <c><see langword="true"/></c>, only active/ongoing service-orders are retrieved. This takes precedence over <paramref name="userId"/>. 
         ///     When <c><see langword="false"/></c>, the filter is ignored. </param>
         /// <param name="myOrders"> When <see langword="true"/>, only the requester's own orders are retrieved.  When <c><see langword="false"/></c>, the filter is ignored. </param>
+        /// <param name="search"> 
+        ///     If a value is provided, a lightweight "contains" search is applied to a few select key-properties.
+        ///     <br/><br/>
+        ///     The following properties is searched for: <br/>
+        ///     - Order-number
+        ///     - First Name
+        ///     - Last Name
+        ///     - E-mail
+        ///     <br/><br/>
+        ///     When the value is <c><see langword="null"/>, the filter is ignored.</c>
+        /// </param>
         /// <param name="page"> The paginated page that should be retrieved. </param>
         /// <param name="limit"> The number of items to retrieve per <paramref name="page"/>. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet("organization/{organizationId:Guid}/orders")]
         [Authorize(Roles = "SystemAdmin,PartnerAdmin,PartnerReadOnlyAdmin,GroupAdmin,CustomerAdmin,Admin,DepartmentManager,Manager,EndUser")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(PagedModel<HardwareServiceOrder>))]
-        public async Task<ActionResult> GetAllServiceOrdersForOrganizationAsync([FromRoute] Guid organizationId, [FromQuery] Guid? userId, [FromQuery] int? serviceTypeId, [FromQuery] bool activeOnly = false, [FromQuery] bool myOrders = false, [FromQuery] int page = 1, [FromQuery][Range(1, 100)] int limit = 25)
+        public async Task<ActionResult> GetAllServiceOrdersForOrganizationAsync([FromRoute] Guid organizationId, [FromQuery] FilterOptionsForHardwareServiceOrder filterOptions, [FromQuery] Guid? userId, [FromQuery] int? serviceTypeId,
+            [FromQuery] bool activeOnly = false, [FromQuery] bool myOrders = false, [FromQuery(Name = "q")] string? search = null, [FromQuery] int page = 1, [FromQuery][Range(1, 100)] int limit = 25)
         {
             try
             {
@@ -326,7 +339,7 @@ namespace OrigoApiGateway.Controllers
                 else if (GetUserRole() == PredefinedRole.EndUser.ToString()) //Todo: Need to check whether this logic should be exported to a separate method
                     userId = GetCallerId();
 
-                PagedModel<HardwareServiceOrder> results = await _hardwareServiceOrderService.GetAllServiceOrdersForOrganizationAsync(organizationId, userId, serviceTypeId, activeOnly, page, limit);
+                PagedModel<HardwareServiceOrder> results = await _hardwareServiceOrderService.GetAllServiceOrdersForOrganizationAsync(organizationId, filterOptions, userId, serviceTypeId, activeOnly, search, page, limit);
                 return Ok(results);
             }
             catch (HttpRequestException ex)
@@ -362,7 +375,7 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
 
                 var result = await _hardwareServiceOrderService.GetServiceOrderByIdAndOrganizationAsync(organizationId, serviceOrderId);
-                
+
                 //Todo: Need to check whether this logic should be exported to a separate method
                 if (GetUserRole() == PredefinedRole.EndUser.ToString() && result?.Owner.UserId != GetCallerId())
                     return Forbid();
@@ -565,7 +578,7 @@ namespace OrigoApiGateway.Controllers
 
             try
             {
-               var result = await _hardwareServiceOrderService.GetCustomerLoanDeviceSettingsAsync(organizationId);
+                var result = await _hardwareServiceOrderService.GetCustomerLoanDeviceSettingsAsync(organizationId);
 
                 if (result is null)
                     return NotFound("The requested loan-device settings don't exist, or has not yet been configured.");

@@ -130,13 +130,15 @@ namespace OrigoApiGateway.Services
         ///     Retrieves all service-orders that matches the parameters.
         /// </summary>
         /// <param name="organizationId"> Filter the results to only contain this customer. </param>
+        /// <param name="filterOptions"> A class containing the various query-parameter filters. </param>
         /// <param name="userId"> Filter the results to only contain this user. When the value is <see langword="null"/>, the filter is ignored. </param>
         /// <param name="serviceTypeId"> Filter the results to only contain this service-type. When the value is <see langword="null"/>, the filter is ignored. </param>
         /// <param name="activeOnly"> When <see langword="true"/>, only active/ongoing service-orders are retrieved. When <see langword="false"/>, the filter is ignored. </param>
+        /// <param name="search"> If a value is provided, a lightweight "contains" search is applied to a few select key-properties. When <see langword="null"/>, the filter is ignored. </param>
         /// <param name="page"> The paginated page that should be retrieved. </param>
         /// <param name="limit"> The number of items to retrieve per <paramref name="page"/>. </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the retrieved, paginated results. </returns>
-        Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, int page = 1, int limit = 25);
+        Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, FilterOptionsForHardwareServiceOrder filterOptions, Guid? userId, int? serviceTypeId, bool activeOnly, string? search = null, int page = 1, int limit = 25);
 
         /// <summary>
         ///     Retrieves a service-order using it's ID.

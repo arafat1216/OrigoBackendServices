@@ -10,6 +10,9 @@ using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Frontend.Response;
 using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using System.Web;
 using ServiceProvider = OrigoApiGateway.Models.HardwareServiceOrder.Backend.ServiceProvider;
 
 #nullable enable
@@ -494,18 +497,26 @@ namespace OrigoApiGateway.Services
 
 
         /// <inheritdoc/>
-        public async Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, int page = 1, int limit = 25)
+        public async Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, FilterOptionsForHardwareServiceOrder filterOptions, Guid? userId, int? serviceTypeId, bool activeOnly, string? search = null, int page = 1, int limit = 25)
         {
-            var queryParameters = new Dictionary<string, string>
-            {
-                { "userId", userId.ToString() ?? string.Empty },
-                { "serviceTypeId", serviceTypeId.ToString() ?? string.Empty },
-                { "activeOnly", activeOnly.ToString() },
-                { "page", page.ToString() },
-                { "limit", limit.ToString() },
-            };
+            StringBuilder url = new($"{_options.ServiceOrderApiPath}/organization/{organizationId}/orders?activeOnly={activeOnly}&page={page}&limit={limit}");
 
-            var result = await GetAsync<PagedModel<HardwareServiceOrder>>($"{_options.ServiceOrderApiPath}/organization/{organizationId}/orders", queryParameters);
+            // To reduce the chance of encountering URL length-issues, we only include query parameters that has a value.
+            if (userId is not null)
+                url.Append($"&userId={userId.Value}");
+            if (serviceTypeId is not null)
+                url.Append($"&serviceTypeId={serviceTypeId.Value}");
+            if (!string.IsNullOrWhiteSpace(search))
+                url.Append($"&q={HttpUtility.UrlEncode(search.Trim())}");
+            if (filterOptions.StatusIds is not null)
+            {
+                foreach (var statusId in filterOptions.StatusIds)
+                {
+                    url.Append($"&statusIds={statusId}");
+                }
+            }
+
+            var result = await GetAsync<PagedModel<HardwareServiceOrder>>(url.ToString(), null);
 
             // The results should never be nullable in this case, but let's check to be sure!
             if (result is null)
