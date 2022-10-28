@@ -101,4 +101,8 @@ public record NewAssetDTO
     ///     Which source was this fetched from.
     /// </summary>
     public string? Source { get; set; }
+    /// <summary>
+    /// A list of labels to be set for the asset lifecycle. They will be created if the customer does not have the labels already. 
+    /// </summary>
+    public List<string>? Labels { get; set; }
 }

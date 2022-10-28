@@ -510,7 +510,8 @@ namespace OrigoApiGateway.Services
                             ProductName = validAsset.ProductName,
                             Source = "FileImport",
                             SerialNumber = validAsset.SerialNumber,
-                            PurchaseDate = validAsset.PurchaseDate
+                            PurchaseDate = validAsset.PurchaseDate,
+                            Labels = validAsset.Label != string.Empty ? new List<string> { validAsset.Label } : null
                         });
 
                     
@@ -545,7 +546,8 @@ namespace OrigoApiGateway.Services
                             Source = "FileImport",
                             SerialNumber = validAsset.SerialNumber,
                             PurchaseDate = validAsset.PurchaseDate,
-                            PurchasedBy = validAsset.ImportedUser.FirstName + ' ' + validAsset.ImportedUser.LastName
+                            PurchasedBy = validAsset.ImportedUser.FirstName + ' ' + validAsset.ImportedUser.LastName,
+                            Labels = validAsset.Label != string.Empty ? new List<string> { validAsset.Label } : null
                         });
                 }
             }

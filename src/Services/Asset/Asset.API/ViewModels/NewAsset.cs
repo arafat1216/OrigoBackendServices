@@ -154,4 +154,8 @@ public record NewAsset
     /// Possible values: ManuelRegistration, FileImport, Webshop, Unknown
     /// </summary>
     public string? Source { get; set; }
+    /// <summary>
+    /// A list of labels to be set for the asset lifecycle. They will be created if the customer does not have the labels already. 
+    /// </summary>
+    public List<string>? Labels { get; set; }
 }

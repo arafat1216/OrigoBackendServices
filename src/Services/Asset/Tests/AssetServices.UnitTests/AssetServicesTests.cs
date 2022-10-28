@@ -688,6 +688,49 @@ public class AssetServicesTests : AssetBaseTest
         // Assert
         Assert.Equal(AssetLifecycleStatus.InputRequired, newAsset.AssetLifecycleStatus);
     }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AddAssetLifecycleForCustomerAsync_CreateAndAssigneLabels()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+        var newAssetDTO = new NewAssetDTO
+        {
+            CallerId = Guid.Empty,
+            Alias = "alias",
+            SerialNumber = "4543534535344",
+            AssetCategoryId = ASSET_CATEGORY_ID,
+            Brand = "iPhone",
+            ProductName = "iPhone X",
+            LifecycleType = LifecycleType.BYOD,
+            PurchaseDate = new DateTime(2020, 1, 1),
+            AssetHolderId = ASSETHOLDER_ONE_ID,
+            Imei = new List<long> { 458718920164666 },
+            MacAddress = "5e:c4:33:df:61:70",
+            ManagedByDepartmentId = Guid.NewGuid(),
+            Note = "Test note",
+            Description = "description",
+            Labels = new List<string> { "Label_1", "Label_2", "A new one", "Another new one" }
+        };
+
+        // Act
+        var newAsset = await assetService.AddAssetLifecycleForCustomerAsync(COMPANY_ID, newAssetDTO);
+        var newAssetRead = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, newAsset.ExternalId, null, null, includeLabels: true);
+
+        // Assert
+        Assert.NotNull(newAssetRead);
+        Assert.Equal(4,newAssetRead.Labels.Count());
+        Assert.Collection(
+            newAssetRead.Labels, 
+            item => Assert.Equal("Label_1", item.Text),
+            item => Assert.Equal("Label_2", item.Text),
+            item => Assert.Equal("A new one", item.Text),
+            item => Assert.Equal("Another new one", item.Text)
+        );
+    }
 
 
     [Fact]

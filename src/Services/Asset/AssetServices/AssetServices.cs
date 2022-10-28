@@ -305,6 +305,34 @@ public class AssetServices : IAssetServices
             assetLifecycle.AssignAssetLifecycleHolder(null, newAssetDTO.ManagedByDepartmentId.Value, newAssetDTO.CallerId);
         }
 
+        if (newAssetDTO.Labels != null && newAssetDTO.Labels.Any())
+        {
+            var exitingLabels = await _assetLifecycleRepository.GetCustomerLabelsForCustomerAsync(customerId, false);
+            //already created labels - only needs to assign them
+            var existInBoth = exitingLabels.Where(x => newAssetDTO.Labels.Contains(x.Label.Text)).ToList();
+            //New labels - need to create them and then assign them
+            var newLabels = newAssetDTO.Labels.Except(exitingLabels.Select(a => a.Label.Text)).ToList();
+            //All the labels to add to asset lifecycle
+            List<CustomerLabel> labelsToAssign = new List<CustomerLabel>();
+
+            //add the labels that does not need to be made
+            if (existInBoth != null && existInBoth.Any()) labelsToAssign.AddRange(existInBoth);
+
+            //create labels
+            if (newLabels != null && newLabels.Any())
+            {
+                var labels = newLabels.Select(a => new Label(a, LabelColor.Gray)).ToList();
+                var customerLabels = labels.Select(label => new CustomerLabel(customerId, newAssetDTO.CallerId, label)).ToList();
+                var createLabels = await _assetLifecycleRepository.AddCustomerLabelsForCustomerAsync(customerId, customerLabels);
+                labelsToAssign.AddRange(customerLabels);
+            }
+            //Assign the labels to the asset lifecycle
+            foreach (var label in labelsToAssign)
+            {
+                assetLifecycle.AssignCustomerLabel(label, newAssetDTO.CallerId);
+            }
+        }
+
         var assetLifeCycle = await _assetLifecycleRepository.AddAsync(assetLifecycle);
 
         return _mapper.Map<AssetLifecycleDTO>(assetLifeCycle);

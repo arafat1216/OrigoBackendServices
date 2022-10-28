@@ -149,5 +149,6 @@ namespace AssetServices.ServiceModel
         public bool? IsPersonal { get; set; }
 
         public string? Source { get; set; }
+        public List<string>? Labels { get; set; } 
     }
 }
