@@ -146,7 +146,6 @@ namespace Customer.API.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-
         public async Task<ActionResult<Department>> DeleteDepartment([FromRoute] Guid customerId, [FromRoute] Guid departmentId, [FromBody] Guid callerId)
         {
             try

@@ -10,6 +10,7 @@ using CustomerServices;
 using CustomerServices.Exceptions;
 using Dapr;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 #nullable enable
@@ -21,12 +22,12 @@ namespace Customer.API.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
-[Route("/")]
-[Tags("Customer Data Sync API")]
+[Route("api/v{version:apiVersion}/employee-datasync/organizations/{customerId:Guid}/users")]
+[Tags("Customer Data Sync API: Users")]
 [SwaggerResponse(StatusCodes.Status500InternalServerError, "Returned when the system encountered an unexpected problem.")]
-public class EmployeeDataSyncController : ControllerBase
+public class EmployeeDataSyncUsersController : ControllerBase
 {
-    private readonly ILogger<EmployeeDataSyncController> _logger;
+    private readonly ILogger<EmployeeDataSyncUsersController> _logger;
     private readonly IUserServices _userServices;
     private readonly IDepartmentsServices _departmentServices;
     private readonly IMapper _mapper;
@@ -38,7 +39,7 @@ public class EmployeeDataSyncController : ControllerBase
     /// <param name="userServices"> The injected <see cref="IUserServices"/> instance. </param>
     /// <param name="departmentServices"> The injected <see cref="IDepartmentsServices"/> instance. </param>
     /// <param name="mapper"> The injected <see cref="IMapper"/> (automapper) instance. </param>
-    public EmployeeDataSyncController(ILogger<EmployeeDataSyncController> logger, IUserServices userServices, IDepartmentsServices departmentServices, IMapper mapper)
+    public EmployeeDataSyncUsersController(ILogger<EmployeeDataSyncUsersController> logger, IUserServices userServices, IDepartmentsServices departmentServices, IMapper mapper)
     {
         _logger = logger;
         _userServices = userServices;
@@ -52,13 +53,30 @@ public class EmployeeDataSyncController : ControllerBase
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    [HttpGet("users/{userId:Guid}")]
+    [HttpGet("{userId:Guid}")]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<ActionResult<User>> GetUser([FromRoute] Guid userId)
     {
         var user = await _userServices.GetUserWithRoleAsync(userId);
         if (user == null) return NotFound();
+        return Ok(_mapper.Map<User>(user));
+    }
+
+
+    /// <summary>
+    /// Get a user by using a phone number.
+    /// </summary>
+    /// <param name="customerId"></param>
+    /// <param name="phoneNumber">User phone number</param>
+    /// <returns></returns>
+    [HttpGet("{phoneNumber}")]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<ActionResult<User>> GetUserByPhoneNumber([FromRoute] Guid customerId, [FromRoute] string phoneNumber)
+    {
+        var user = await _userServices.GetUserByPhoneNumberAsync(customerId, phoneNumber);
+        if (user is null) return NotFound();
         return Ok(_mapper.Map<User>(user));
     }
 
@@ -176,7 +194,7 @@ public class EmployeeDataSyncController : ControllerBase
     /// <param name="userId"></param>
     /// <param name="updateUser"></param>
     /// <returns></returns>
-    [HttpPut("users/{userId:Guid}")]
+    [HttpPut("{userId:Guid}")]
     [Topic("customer-datasync-pub-sub", "update-employee")]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -227,7 +245,7 @@ public class EmployeeDataSyncController : ControllerBase
     /// <returns cref="HttpStatusCode.NoContent"></returns>
     /// <returns cref="HttpStatusCode.BadRequest"></returns>
     /// <returns cref="HttpStatusCode.NotFound"></returns>
-    [HttpDelete("users/{userId:Guid}")]
+    [HttpDelete("{userId:Guid}")]
     [Topic("customer-datasync-pub-sub", "delete-employee")]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -238,7 +256,7 @@ public class EmployeeDataSyncController : ControllerBase
             var deletedUser = await _userServices.DeleteUserAsync(customerId, userId, callerId, softDelete);
             if (deletedUser == null)
                 return NotFound("The requested resource don't exist.");
-            // TODO: Ask about this status code 302. Does this make sense??
+
             // The resource was deleted successfully.
             return Ok(_mapper.Map<User>(deletedUser));
         }
@@ -259,115 +277,46 @@ public class EmployeeDataSyncController : ControllerBase
 
 
     /// <summary>
-    /// Assign Department to a User
+    /// Delete a User
     /// </summary>
+    /// <remarks>
+    /// If this is true then the entity will only be soft-deleted (isDeleted or any equivalent value). This is the default handling that is used by all user-initiated calls.
+    /// When it is false, the entry is permanently deleted from the system.This should only be run under very specific circumstances by the automated cleanup tools, and only on assets that is already soft-deleted.
+    /// Default value : true
+    /// </remarks>
     /// <param name="customerId"></param>
-    /// <param name="userId"></param>
-    /// <param name="departmentId"></param>
+    /// <param name="phoneNumber"></param>
     /// <param name="callerId"></param>
-    /// <returns></returns>
-    [HttpPost("users/{userId:Guid}/department/{departmentId:Guid}")]
-    [Topic("customer-datasync-pub-sub", "employee-assign-department")]
-    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<User>> AssignDepartment([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromRoute] Guid departmentId, [FromBody] Guid callerId)
-    {
-        var user = await _userServices.AssignDepartment(customerId, userId, departmentId, callerId);
-        if (user == null) return NotFound();
-        return Ok(_mapper.Map<User>(user));
-    }
-
-
-    /// <summary>
-    /// Assign Manager to a Department
-    /// </summary>
-    /// <param name="customerId"></param>
-    /// <param name="userId"></param>
-    /// <param name="departmentId"></param>
-    /// <param name="callerId"></param>
-    /// <returns></returns>
-    [HttpPost("users/{userId:Guid}/department/{departmentId:Guid}/manager")]
-    [Topic("customer-datasync-pub-sub", "assign-department-manager")]
-    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult> AssignManagerToDepartment([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromRoute] Guid departmentId, [FromBody] Guid callerId)
+    /// <param name="softDelete"></param>
+    /// <returns cref="HttpStatusCode.NoContent"></returns>
+    /// <returns cref="HttpStatusCode.BadRequest"></returns>
+    /// <returns cref="HttpStatusCode.NotFound"></returns>
+    [HttpDelete("{phoneNumber}")]
+    [Topic("customer-datasync-pub-sub", "delete-employee")]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    public async Task<ActionResult> DeleteUserByPhoneNumber([FromRoute] Guid customerId, [FromRoute] string phoneNumber, [FromBody] Guid callerId, bool softDelete = true)
     {
         try
         {
-            await _userServices.AssignManagerToDepartment(customerId, userId, departmentId, callerId);
-            return Ok();
+            var deletedUser = await _userServices.DeleteUserByPhoneNumberAsync(customerId, phoneNumber, callerId, softDelete);
+            if (deletedUser == null)
+                return NotFound("The requested resource don't exist.");
+            // TODO: Ask about this status code 302. Does this make sense??
+            // The resource was deleted successfully.
+            return Ok(_mapper.Map<User>(deletedUser));
         }
-        catch (DepartmentNotFoundException exception)
+        catch (CustomerNotFoundException)
         {
-
-            return BadRequest(exception.Message);
+            return BadRequest("Customer not found");
         }
-        catch (UserNotFoundException exception)
+        catch (UserDeletedException)
         {
-
-            return BadRequest(exception.Message);
+            return NotFound("The requested resource have already been deleted (soft-delete).");
         }
-        catch (Exception)
+        catch
         {
-            return BadRequest();
+            return BadRequest("Unable to delete user");
         }
     }
-
-
-    /// <summary>
-    /// Remove a User from a Department
-    /// </summary>
-    /// <param name="customerId"></param>
-    /// <param name="userId"></param>
-    /// <param name="departmentId"></param>
-    /// <param name="callerId"></param>
-    /// <returns></returns>
-    [HttpDelete("users/{userId:Guid}/department/{departmentId:Guid}")]
-    [Topic("customer-datasync-pub-sub", "unassign-department")]
-    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<User>> UnnassignDepartment([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromRoute] Guid departmentId, [FromBody] Guid callerId)
-    {
-        var user = await _userServices.UnassignDepartment(customerId, userId, departmentId, callerId);
-        if (user == null) return NotFound();
-        return Ok(_mapper.Map<User>(user));
-    }
-
-
-    /// <summary>
-    /// Remove a Manager from a Department
-    /// </summary>
-    /// <param name="customerId"></param>
-    /// <param name="userId"></param>
-    /// <param name="departmentId"></param>
-    /// <param name="callerId"></param>
-    /// <returns></returns>
-    [HttpDelete("users/{userId:Guid}/department/{departmentId:Guid}/manager")]
-    [Topic("customer-datasync-pub-sub", "unnassign-department-manager")]
-    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult> UnassignManagerFromDepartment([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromRoute] Guid departmentId, [FromBody] Guid callerId)
-    {
-        try
-        {
-            await _userServices.UnassignManagerFromDepartment(customerId, userId, departmentId, callerId);
-            return Ok();
-        }
-        catch (DepartmentNotFoundException exception)
-        {
-
-            return BadRequest(exception.Message);
-        }
-        catch (UserNotFoundException exception)
-        {
-
-            return BadRequest(exception.Message);
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
-    }
-
-
 }

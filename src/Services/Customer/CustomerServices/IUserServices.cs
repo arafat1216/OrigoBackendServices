@@ -22,6 +22,7 @@ namespace CustomerServices
         Task<List<UserNamesDTO>> GetAllUsersWithNameOnly(Guid customerId, CancellationToken cancellationToken);
         Task<UserDTO> GetUserWithRoleAsync(Guid customerId, Guid userId);
         Task<UserDTO> GetUserWithRoleAsync(Guid userId);
+        Task<UserDTO> GetUserByPhoneNumberAsync(Guid customerId, string phoneNumber);
         Task<UserDTO> AddUserForCustomerAsync(Guid customerId, string firstName, string lastName, string email,
             string mobileNumber, string employeeId, UserPreference userPreference, Guid callerId, string role,
             bool newUserNeedsOnboarding, bool newUserNotToBeAddedToOkta);
@@ -30,6 +31,7 @@ namespace CustomerServices
         Task<UserDTO> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,
             string email, string employeeId, string mobileNumber, UserPreference userPreference, Guid callerId);
         Task<UserDTO> DeleteUserAsync(Guid customerId, Guid userId, Guid callerId, bool softDelete = true);
+        Task<UserDTO> DeleteUserByPhoneNumberAsync(Guid customerId, string phoneNumber, Guid callerId, bool softDelete = true);
         Task<UserDTO> SetUserActiveStatusAsync(Guid customerId, Guid userId, bool isActive, Guid callerId);
         Task<UserDTO> AssignDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId);
         Task<UserDTO> UnassignDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId);

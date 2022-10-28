@@ -62,6 +62,23 @@ namespace CustomerServices
             return await _organizationRepository.GetUserAsync(customerId, userId);
         }
 
+        public async Task<UserDTO?> GetUserByPhoneNumberAsync(Guid customerId, string phoneNumber)
+        {
+            var user = await _organizationRepository.GetUserAsync(customerId, phoneNumber);
+            var userDTO = _mapper.Map<UserDTO>(user);
+            if (userDTO == null)
+                return null;
+            userDTO.Role = await GetRoleNameForUser(userDTO.Email);
+
+            if (user.Department != null)
+            {
+                var department = await _organizationRepository.GetDepartmentAsync(user.Customer.OrganizationId, user.Department.ExternalDepartmentId);
+                userDTO.DepartmentName = department.Name;
+            }
+
+            return userDTO;
+        }
+
         public async Task<UserDTO> GetUserWithRoleAsync(Guid customerId, Guid userId)
         {
             var user = await _organizationRepository.GetUserAsync(userId);
@@ -485,6 +502,41 @@ namespace CustomerServices
             {
                 CustomerId = customerId,
                 UserId = userId,
+                DepartmentId = user.Department?.ExternalDepartmentId,
+                CreatedDate = DateTime.UtcNow
+            };
+            await PublishEvent("customer-pub-sub", "user-deleted", userDeletedEvent);
+
+            //Get the users role and assign it to the users DTO
+            var userDTO = _mapper.Map<UserDTO>(user);
+            userDTO.Role = await GetRoleNameForUser(user.Email);
+            return userDTO;
+        }
+        
+        public async Task<UserDTO> DeleteUserByPhoneNumberAsync(Guid customerId, string phoneNumber, Guid callerId, bool softDelete = true)
+        {
+            var user = await _organizationRepository.GetUserAsync(customerId, phoneNumber);
+
+            if (!softDelete)
+                throw new UserDeletedException();
+
+            if (user == null || user.IsDeleted) return null;
+
+            user.UnAssignAllDepartments(customerId);
+
+            user.SetDeleteStatus(true, callerId);
+
+            await _organizationRepository.SaveEntitiesAsync();
+
+            if (!string.IsNullOrEmpty(user.OktaUserId))
+            {
+                await _oktaServices.RemoveUserFromGroupAsync(user.OktaUserId);
+            }
+
+            var userDeletedEvent = new UserEvent
+            {
+                CustomerId = customerId,
+                UserId = user.UserId,
                 DepartmentId = user.Department?.ExternalDepartmentId,
                 CreatedDate = DateTime.UtcNow
             };

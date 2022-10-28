@@ -515,6 +515,17 @@ public class OrganizationRepository : IOrganizationRepository
             .FirstOrDefaultAsync();
     }
 
+    public async Task<User?> GetUserAsync(Guid organizationId, string phoneNumber)
+    {
+        return await _customerContext.Users
+            .Where(u => u.Customer.OrganizationId == organizationId && u.MobileNumber == phoneNumber && !u.IsDeleted)
+            .Include(u => u.Customer)
+            .Include(u => u.UserPreference)
+            .Include(u => u.Department)
+            .Include(u => u.ManagesDepartments)
+            .FirstOrDefaultAsync();
+    }
+
     public async Task<User> AddUserAsync(User newUser)
     {
         _customerContext.Users.Add(newUser);

@@ -221,6 +221,8 @@ public interface IOrganizationRepository
 
     Task<User?> GetUserAsync(Guid userId);
 
+    Task<User?> GetUserAsync(Guid organizationId, string phoneNumber);
+
     /// <summary>
     /// Retrieves all users within the given organization. Optional parameters may be provided to apply additional filtering, and for enabling eager loading. <br/>
     ///     The use of named parameters is recommended.
