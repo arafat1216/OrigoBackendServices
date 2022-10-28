@@ -92,9 +92,12 @@ namespace HardwareServiceOrderServices
         /// <param name="activeOnly"> When <see langword="true"/>, only active/ongoing service-orders are retrieved. When <see langword="false"/>, the filter is ignored. </param>
         /// <param name="page"> The paginated page that should be retrieved. </param>
         /// <param name="limit"> The number of items to retrieve per <paramref name="page"/>. </param>
+        /// <param name="assetLifecycleId"> Filter the results to only contain this asset-lifecycle. When the value is <see langword="null"/>, the filter is ignored. </param>
+        /// <param name="statusIds"> Filter the results to include items with the selected statuses. When the value is <see langword="null"/>, the filter is ignored. </param>
+        /// <param name="search"> If a value is provided, a lightweight "contains" search is applied to a selected key-properties. </param>
         /// <param name="cancellationToken"></param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the retrieved, paginated results. </returns>
-        Task<PagedModel<HardwareServiceOrderDTO>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25);
+        Task<PagedModel<HardwareServiceOrderDTO>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25, Guid? assetLifecycleId = null, ISet<int>? statusIds = null, string? search = null);
 
         /// <summary>
         /// Update all order status since last updated datetime

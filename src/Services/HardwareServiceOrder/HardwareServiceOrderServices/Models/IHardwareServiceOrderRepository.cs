@@ -120,8 +120,17 @@ namespace HardwareServiceOrderServices.Models
         ///     However, if any write operations will occur, then this should always be set to <see langword="false"/>. </para>
         /// </param>
         /// <param name="cancellationToken"></param>
+        /// <param name="assetLifecycleId"> Filter the results to only contain this asset-lifecycle. When the value is <see langword="null"/>, the filter is ignored. </param>
+        /// <param name="statusIds"> Filter the results to include items with the selected statuses. When the value is <see langword="null"/>, the filter is ignored. </param>
+        /// <param name="search">
+        ///     If a value is provided, a lightweight "contains" search is applied to the following key-properties:
+        /// 
+        ///     <para>
+        ///     - Order ID
+        ///     </para>
+        /// </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the retrieved, paginated results. </returns>
-        Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, int page, int limit, bool asNoTracking, CancellationToken cancellationToken);
+        Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, int page, int limit, bool asNoTracking, CancellationToken cancellationToken, Guid? assetLifecycleId = null, ISet<int>? statusIds = null, string? search = null);
 
 
         /*

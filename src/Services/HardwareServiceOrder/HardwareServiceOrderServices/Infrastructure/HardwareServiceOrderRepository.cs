@@ -5,6 +5,7 @@ using HardwareServiceOrderServices.Models;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 
 namespace HardwareServiceOrderServices.Infrastructure
 {
@@ -180,7 +181,7 @@ namespace HardwareServiceOrderServices.Infrastructure
 
 
         /// <inheritdoc/>
-        public async Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, int page, int limit, bool asNoTracking, CancellationToken cancellationToken)
+        public async Task<PagedModel<HardwareServiceOrder>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, int page, int limit, bool asNoTracking, CancellationToken cancellationToken, Guid? assetLifecycleId = null, ISet<int>? statusIds = null, string? search = null)
         {
             var query = _hardwareServiceOrderContext.HardwareServiceOrders
                                                     .Where(m => m.CustomerId == organizationId);
@@ -191,15 +192,48 @@ namespace HardwareServiceOrderServices.Infrastructure
             if (serviceTypeId is not null)
                 query = query.Where(e => e.ServiceTypeId == serviceTypeId);
 
+            if (assetLifecycleId is not null)
+                query = query.Where(e => e.AssetLifecycleId == assetLifecycleId);
+
+            if (statusIds is not null && statusIds.Any())
+            {
+                query = query.Where(e => statusIds.Contains(e.StatusId));
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim().ToLower();
+                bool email = false;
+                bool likelyName = false;
+                bool onlyDigits = false;
+
+                if (search.Contains('@'))
+                    email = true;
+                // It can't be a number (e.g. IMEI) if any of the above conditions were met..
+                else if (Regex.IsMatch(search, "^[0-9]*$"))
+                    onlyDigits = true;
+                // It can't be a name (or something) if any of the above conditions were met..
+                else if (Regex.IsMatch(search, "^[^0-9@:#]*$"))
+                    likelyName = true;
+
+                query = query.Where(e => (!email && e.ServiceProviderOrderId1.ToLower().Contains(search))
+                                               || (!email && e.ServiceProviderOrderId2!.ToLower().Contains(search))
+                                               || (likelyName && !email && (e.Owner.FirstName.ToLower().Contains(search) || e.Owner.LastName.ToLower().Contains(search)))
+                                               || (email && e.Owner.Email.ToLower().Contains(search))
+                );
+            }
+
             if (activeOnly)
-                query = query.Where(m => m.StatusId == (int)ServiceStatusEnum.Registered 
-                                               || m.StatusId == (int)ServiceStatusEnum.RegisteredInTransit 
-                                               || m.StatusId == (int)ServiceStatusEnum.RegisteredUserActionNeeded 
-                                               || m.StatusId == (int)ServiceStatusEnum.Ongoing 
-                                               || m.StatusId == (int)ServiceStatusEnum.OngoingInTransit 
-                                               || m.StatusId == (int)ServiceStatusEnum.OngoingReadyForPickup 
-                                               || m.StatusId == (int)ServiceStatusEnum.OngoingUserActionNeeded 
+            {
+                query = query.Where(m => m.StatusId == (int)ServiceStatusEnum.Registered
+                                               || m.StatusId == (int)ServiceStatusEnum.RegisteredInTransit
+                                               || m.StatusId == (int)ServiceStatusEnum.RegisteredUserActionNeeded
+                                               || m.StatusId == (int)ServiceStatusEnum.Ongoing
+                                               || m.StatusId == (int)ServiceStatusEnum.OngoingInTransit
+                                               || m.StatusId == (int)ServiceStatusEnum.OngoingReadyForPickup
+                                               || m.StatusId == (int)ServiceStatusEnum.OngoingUserActionNeeded
                                                || m.StatusId == (int)ServiceStatusEnum.Unknown);
+            }
 
             return await query.OrderByDescending(m => m.DateCreated)
                               .PaginateAsync(page, limit, cancellationToken);

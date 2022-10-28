@@ -211,9 +211,9 @@ namespace HardwareServiceOrderServices
 
 
         /// <inheritdoc/>
-        public async Task<PagedModel<HardwareServiceOrderDTO>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25)
+        public async Task<PagedModel<HardwareServiceOrderDTO>> GetAllServiceOrdersForOrganizationAsync(Guid organizationId, Guid? userId, int? serviceTypeId, bool activeOnly, CancellationToken cancellationToken, int page = 1, int limit = 25, Guid? assetLifecycleId = null, ISet<int>? statusIds = null, string? search = null)
         {
-            var orderEntities = await _hardwareServiceOrderRepository.GetAllServiceOrdersForOrganizationAsync(organizationId, userId, serviceTypeId, activeOnly, page, limit, true, cancellationToken);
+            var orderEntities = await _hardwareServiceOrderRepository.GetAllServiceOrdersForOrganizationAsync(organizationId, userId, serviceTypeId, activeOnly, page, limit, true, cancellationToken, assetLifecycleId: assetLifecycleId, statusIds: statusIds, search: search);
 
             return new PagedModel<HardwareServiceOrderDTO>
             {

@@ -77,12 +77,15 @@ namespace HardwareServiceOrder.API.Controllers
         /// <param name="cancellationToken"> A injected <see cref="CancellationToken"/>. </param>
         /// <param name="page"> The paginated page that should be retrieved. </param>
         /// <param name="limit"> The number of items to retrieve per <paramref name="page"/>. </param>
+        /// <param name="assetLifecycleId"> Filter the results to only contain this asset-lifecycle. When the value is <see langword="null"/>, the filter is ignored. </param>
+        /// <param name="statusIds"> Filter the results to include items with the selected statuses. When the value is <see langword="null"/>, the filter is ignored. </param>
+        /// <param name="search"> If a value is provided, a lightweight "contains" search is applied to a few select key-properties. </param>
         /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet("organization/{organizationId:Guid}/orders")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(PagedModel<HardwareServiceOrderDTO>))]
-        public async Task<ActionResult> GetAllServiceOrdersForOrganizationAsync([FromRoute] Guid organizationId, [FromQuery] Guid? userId, [FromQuery][EnumDataType(typeof(ServiceTypeEnum))] int? serviceTypeId, CancellationToken cancellationToken, [FromQuery] bool activeOnly = false, [FromQuery] int page = 1, [FromQuery] int limit = 25)
+        public async Task<ActionResult> GetAllServiceOrdersForOrganizationAsync([FromRoute] Guid organizationId, [FromQuery] Guid? userId, [FromQuery][EnumDataType(typeof(ServiceTypeEnum))] int? serviceTypeId, CancellationToken cancellationToken, [FromQuery] bool activeOnly = false, [FromQuery] int page = 1, [FromQuery] int limit = 25, [FromQuery] Guid? assetLifecycleId = null, [FromQuery] HashSet<int>? statusIds = null, [FromQuery(Name = "q")] string? search = null)
         {
-            PagedModel<HardwareServiceOrderDTO> results = await _hardwareServiceOrderService.GetAllServiceOrdersForOrganizationAsync(organizationId, userId, serviceTypeId, activeOnly, cancellationToken, page, limit);
+            PagedModel<HardwareServiceOrderDTO> results = await _hardwareServiceOrderService.GetAllServiceOrdersForOrganizationAsync(organizationId, userId, serviceTypeId, activeOnly, cancellationToken, page, limit, assetLifecycleId: assetLifecycleId, statusIds: statusIds, search: search);
 
             return Ok(results);
         }
