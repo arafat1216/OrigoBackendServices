@@ -564,6 +564,8 @@ namespace OrigoApiGateway.Services
         {
             foreach (var validAsset in assetValidationResults.ValidAssets)
             {
+                var invalidAssetErrors = new List<string>();
+                //Validate email - if no username no user
                 if (!String.IsNullOrWhiteSpace(validAsset.ImportedUser.Email))
                 {
                     var user = await _userServices.UserEmailLinkedToGivenOrganization(organizationId,
@@ -574,13 +576,34 @@ namespace OrigoApiGateway.Services
                     }
                     else
                     {
+                        invalidAssetErrors.Add("Email is not unique and is used outside of the organization.");
+                    }
+
+                    //Validate phonenumber
+                    if (!String.IsNullOrWhiteSpace(validAsset.ImportedUser.PhoneNumber))
+                    {
+                        var mobileNumberAssignedToUser = await _userServices.GetUserWithPhoneNumber(organizationId, validAsset.ImportedUser.PhoneNumber);
+                        if (mobileNumberAssignedToUser != null)
+                        {
+                            //If the user is not the same user 
+                            if (mobileNumberAssignedToUser.UserName != validAsset.ImportedUser.Email)
+                            {
+                                invalidAssetErrors.Add("Phone number is not unique and is used in the organization.");
+                                validAsset.MatchedUserId = null;
+                            }
+                        }
+                    }
+
+                    if (invalidAssetErrors.Any())
+                    {
                         var invalidAsset = _mapper.Map<InvalidImportedAsset>(validAsset);
-                        invalidAsset.Errors = new List<string> { "Email is not unique and is used outside of the organization." };
+                        invalidAsset.Errors = invalidAssetErrors;
                         assetValidationResults.InvalidAssets.Add(invalidAsset);
                     }
 
                 }
-                else validAsset.MatchedUserId = Guid.Empty;
+                else validAsset.MatchedUserId = Guid.Empty; // need to import user
+
             }
             
             assetValidationResults.ValidAssets.RemoveAll(a => a.MatchedUserId == null);

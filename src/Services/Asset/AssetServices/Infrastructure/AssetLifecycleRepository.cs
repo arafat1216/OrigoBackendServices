@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Common.Seedwork;
 using AssetServices.Exceptions;
 using System.Collections;
+using System.Text.RegularExpressions;
 
 namespace AssetServices.Infrastructure
 {
@@ -132,13 +133,23 @@ namespace AssetServices.Infrastructure
            Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string? search, int page, int limit, CancellationToken cancellationToken,
            bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false)
         {
-            IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
+            IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>()
+                                                            .Where(al => al.CustomerId == customerId);
+
             if (includeAsset)
             {
                 if (includeImeis)
-                    query = query.Include(al => al.Asset).ThenInclude(mp => (mp as MobilePhone).Imeis);
+                {
+                    query = query.Include(al => al.Asset)
+                                 .ThenInclude(mp => (mp as MobilePhone).Imeis);
+
+                    query = query.Include(al => al.Asset)
+                                 .ThenInclude(mp => (mp as Tablet).Imeis);
+                }
                 else
+                {
                     query = query.Include(al => al.Asset);
+                }
             }
                 
             if (includeLabels)   
@@ -147,31 +158,55 @@ namespace AssetServices.Infrastructure
             if (includeContractHolderUser)   
                 query = query.Include(al => al.ContractHolderUser);
 
-            query = query.Where(al => al.CustomerId == customerId);
             if (!string.IsNullOrEmpty(search))
             {
-                var imeiFound = false;
+                // See if the query-string contains a potential IMEI number. If not, we can skip the related search.
+                bool potentialImeiFound = false;
                 long imei = 0;
                 if (search.Length >= 15 && long.TryParse(search, out imei))
                 {
-                    imeiFound = true;
+                    potentialImeiFound = true;
                 }
-                query = query.Where(al => al.Asset != null &&
-                                          (
-                                              al.Asset.Brand.ToLower().Contains(search.ToLower()) ||
-                                              al.Asset.ProductName.ToLower().Contains(search.ToLower())) ||
-                                              (imeiFound && al.Asset is MobilePhone && (al.Asset as MobilePhone).Imeis.Any(im => im.Imei == imei)) ||
-                                              (al.Asset is MobilePhone && (al.Asset as MobilePhone).SerialNumber.ToLower().Contains(search.ToLower())) ||
-                                              al.ContractHolderUser.Name.ToLower().Contains(search.ToLower())
+
+                // See if the query-string contains any numbers. If so we can likely skips searching for some of the parameters, such as names.
+                bool numbersFound = false;
+                if (Regex.IsMatch(search, "\\d"))
+                {
+                    numbersFound = true;
+                }
+
+                // See if the query-string contains a potential MAC address. If not, we can skip the related search. This is valid if the query-string
+                // starts with one of the six MAC address groups (two hexadecimal digits, followed by either '-' or ':').
+                bool potentialMacAddressFound = false;
+                if (Regex.IsMatch(search, "^([0-9A-Fa-f]{2}[:-])")) 
+                {
+                    potentialMacAddressFound = true;
+                }
+
+                query = query.Where(al => 
+                                        al.Alias.ToLower().Contains(search.ToLower()) ||
+                                        (al.Asset != null && (
+                                            //al.Asset.Brand.ToLower().Contains(search.ToLower()) ||
+                                            //al.Asset.ProductName.ToLower().Contains(search.ToLower()) ||
+                                            (al.Asset is MobilePhone && (al.Asset as MobilePhone)!.SerialNumber.ToLower().Contains(search.ToLower())) ||
+                                            (potentialMacAddressFound && al.Asset is MobilePhone && (al.Asset as MobilePhone)!.MacAddress.ToLower().Contains(search.ToLower())) ||
+                                            (potentialImeiFound && al.Asset is MobilePhone && (al.Asset as MobilePhone)!.Imeis.Any(im => im.Imei == imei)) ||
+                                            (al.Asset is Tablet && (al.Asset as Tablet)!.SerialNumber.ToLower().Contains(search.ToLower())) ||
+                                            (potentialMacAddressFound && al.Asset is Tablet && (al.Asset as Tablet)!.MacAddress.ToLower().Contains(search.ToLower())) ||
+                                            (potentialImeiFound && al.Asset is Tablet && (al.Asset as Tablet)!.Imeis.Any(im => im.Imei == imei))
+                                        )) ||
+                                        (al.ContractHolderUser != null && (
+                                            !numbersFound && al.ContractHolderUser.Name.ToLower().Contains(search.ToLower())
+                                        ))
                 );
             }
-
 
 
             if (status != null)
             {
                 query = query.Where(al => status.Contains(al.AssetLifecycleStatus));
             }
+
             if (department != null)
             {
                 query = query.Where(al => department.Contains(al.ManagedByDepartmentId));
@@ -198,31 +233,40 @@ namespace AssetServices.Infrastructure
             {
                 query = query.Where(al => al.ContractHolderUser.ExternalId == new Guid(userId));
             }
+
             if (isPersonal.HasValue)
             {
                 query = query.Where(al => al.IsPersonal == isPersonal.Value);
             }
+
             if (isActiveState.HasValue)
             {
-                if (isActiveState.Value) query = query.Where(al => al.AssetLifecycleStatus == AssetLifecycleStatus.InputRequired ||
-                                      al.AssetLifecycleStatus == AssetLifecycleStatus.InUse ||
-                                      al.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
-                                      al.AssetLifecycleStatus == AssetLifecycleStatus.Repair ||
-                                      al.AssetLifecycleStatus == AssetLifecycleStatus.Available ||
-                                      al.AssetLifecycleStatus == AssetLifecycleStatus.Active ||
-                                      al.AssetLifecycleStatus == AssetLifecycleStatus.ExpiresSoon ||
-                                      al.AssetLifecycleStatus == AssetLifecycleStatus.PendingRecycle ||
-                                      al.AssetLifecycleStatus == AssetLifecycleStatus.Expired);
-
-                else query = query.Where(al => al.AssetLifecycleStatus == AssetLifecycleStatus.Lost ||
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Stolen ||
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.BoughtByUser ||
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Recycled ||
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Discarded ||
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Returned || 
-                                    al.AssetLifecycleStatus == AssetLifecycleStatus.Inactive);
-
+                if (isActiveState.Value)
+                {
+                    query = query.Where(al => 
+                                            al.AssetLifecycleStatus == AssetLifecycleStatus.InputRequired ||
+                                            al.AssetLifecycleStatus == AssetLifecycleStatus.InUse ||
+                                            al.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
+                                            al.AssetLifecycleStatus == AssetLifecycleStatus.Repair ||
+                                            al.AssetLifecycleStatus == AssetLifecycleStatus.Available ||
+                                            al.AssetLifecycleStatus == AssetLifecycleStatus.Active ||
+                                            al.AssetLifecycleStatus == AssetLifecycleStatus.ExpiresSoon ||
+                                            al.AssetLifecycleStatus == AssetLifecycleStatus.PendingRecycle ||
+                                            al.AssetLifecycleStatus == AssetLifecycleStatus.Expired);
+                }
+                else
+                {
+                    query = query.Where(al => 
+                                            al.AssetLifecycleStatus == AssetLifecycleStatus.Lost ||
+                                            al.AssetLifecycleStatus == AssetLifecycleStatus.Stolen ||
+                                            al.AssetLifecycleStatus == AssetLifecycleStatus.BoughtByUser ||
+                                            al.AssetLifecycleStatus == AssetLifecycleStatus.Recycled ||
+                                            al.AssetLifecycleStatus == AssetLifecycleStatus.Discarded ||
+                                            al.AssetLifecycleStatus == AssetLifecycleStatus.Returned ||
+                                            al.AssetLifecycleStatus == AssetLifecycleStatus.Inactive);
+                }
             }
+
             if (endPeriodMonth.HasValue)
             {
                 query = query.Where(al => al.EndPeriod.HasValue && al.EndPeriod.Value.Month == endPeriodMonth.Value.Month && al.EndPeriod.Value.Year == endPeriodMonth.Value.Year);
@@ -233,9 +277,12 @@ namespace AssetServices.Infrastructure
                 query = query.Where(al => al.PurchaseDate.Month == purchaseMonth.Value.Month && al.PurchaseDate.Year == purchaseMonth.Value.Year);
             }
 
-            query = query.AsSplitQuery().AsNoTracking();
-            return await query.PaginateAsync(page, limit, cancellationToken);
+            return await query.AsSplitQuery()
+                              .AsNoTracking()
+                              .PaginateAsync(page, limit, cancellationToken);
         }
+
+
         public async Task<ServiceModel.CustomerAssetsCounterDTO> GetAssetLifecycleCountForCustomerAsync(Guid customerId, Guid? userId, IList<AssetLifecycleStatus> statuses)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
@@ -281,6 +328,8 @@ namespace AssetServices.Infrastructure
 
             return queryCounter ?? new ServiceModel.CustomerAssetsCounterDTO();
         }
+
+
         public async Task<ServiceModel.CustomerAssetsCounterDTO> GetAssetCountForDepartmentAsync(Guid customerId, Guid? userId, IList<AssetLifecycleStatus> statuses, IList<Guid?> departments)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();

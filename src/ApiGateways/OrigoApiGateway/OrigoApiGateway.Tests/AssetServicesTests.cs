@@ -1740,4 +1740,116 @@ public class AssetServicesTests
         Assert.All(assetValidationResult.ValidAssets, item => Assert.Null(item.MatchedUserId));
 
     }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task ImportAssetsFile_ValidatePhoneNumber_ShouldBeInvalid()
+    {
+        // Arrange
+        var mockFactory = new Mock<IHttpClientFactory>();
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        mockHttpMessageHandler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync",
+             ItExpr.Is<HttpRequestMessage>(x =>
+                 x.RequestUri != null && x.RequestUri.ToString().Contains("/import") &&
+                 x.Method == HttpMethod.Post), ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                 {
+                     StatusCode = HttpStatusCode.OK,
+                     Content = new StringContent(@"{
+                        ""validAssets"":
+                            [{
+                                ""SerialNumber"": """",
+                                ""Brand"": ""Samsung"",
+                                ""ProductName"": ""Galaxy S21"",
+                                ""PurchaseDate"": ""2012-04-21T18:25:43-05:00"",
+                                ""Imeis"": ""865822011610467"",
+                                ""MatchedUserId"": ""00000000-0000-0000-0000-000000000000"",
+                                ""Label"": ""Cashier phone"",
+                                ""ImportedUser"": {
+                                    ""FirstName"":  ""test"",
+                                    ""LastName"":  ""test"",
+                                    ""Email"": ""test@test.com"",
+                                    ""PhoneNumber"": ""+4745454545""
+                                }
+                             }]
+                    }
+                    ")
+                 });
+
+        mockHttpMessageHandler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync",
+             ItExpr.Is<HttpRequestMessage>(x =>
+                 x.RequestUri != null && !x.RequestUri.ToString().Contains("/import") &&
+                 x.Method == HttpMethod.Post), ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                 {
+                     StatusCode = HttpStatusCode.OK,
+                     Content = new StringContent(@"
+                        {
+                            ""id"": ""80665d26-90b4-4a3a-a20d-686b64466f32"",
+                            ""organizationId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                            ""alias"": ""alias_2"",
+                            ""note"": """",
+                            ""description"": """",
+                            ""assetTag"": """",
+                            ""assetCategoryId"": 1,
+                            ""assetCategoryName"": ""Mobile phone"",
+                            ""brand"": ""Samsung"",
+                            ""productName"": ""Samsung Galaxy S21"",
+                            ""lifecycleType"": 2,
+                            ""lifecycleName"": ""Transactional"",
+                            ""paidByCompany"": 0,
+                            ""currencyCode"": 0,
+                            ""bookValue"": 0,
+                            ""buyoutPrice"": 0.00,
+                            ""purchaseDate"": ""0001-01-01T00:00:00"",
+                            ""createdDate"": ""2022-05-10T08:11:17.9941683Z"",
+                            ""managedByDepartmentId"": ""6244c47b-fcb3-4ea1-ad82-e37ebf5d5e72"",
+                            ""assetHolderId"": null,
+                            ""assetStatus"": 3,
+                            ""assetStatusName"": ""Available"",
+                            ""labels"": [],
+                            ""serialNumber"": ""123456789012399"",
+                            ""imei"": [
+                                512217111821626
+                            ],
+                            ""macAddress"": ""840F1D0C06AD"",
+                            ""orderNumber"": """",
+                            ""productId"": """",
+                            ""invoiceNumber"": """",
+                            ""transactionId"": """",
+                            ""isPersonal"": false
+                        }
+                    ")
+                 });
+
+
+        var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+        mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+        var options = new AssetConfiguration { ApiPath = @"/assets" };
+        var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+        optionsMock.Setup(o => o.Value).Returns(options);
+
+        var userServiceMock = new Mock<IUserServices>();
+        var customerId = Guid.NewGuid();
+        userServiceMock.Setup(us =>
+            us.UserEmailLinkedToGivenOrganization(customerId, "test@test.com"))
+                .ReturnsAsync((true, Guid.Empty));
+
+        
+        userServiceMock.Setup(us =>
+         us.GetUserWithPhoneNumber(customerId, It.IsAny<string>()))
+             .ReturnsAsync(new UserInfoDTO { DepartmentId = Guid.Empty, OrganizationId = customerId,UserId = Guid.NewGuid(), UserName = "not@the.one"});
+
+        var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), mockFactory.Object,
+            optionsMock.Object, userServiceMock.Object, new Mock<IUserPermissionService>().Object, _mapper, Mock.Of<IDepartmentsServices>());
+        var formFileMock = new Mock<IFormFile>();
+        formFileMock.Setup(ff => ff.OpenReadStream()).Returns(Stream.Null);
+        formFileMock.Setup(ff => ff.FileName).Returns("assets.csv");
+
+        // Act
+        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false);
+
+        // Assert
+        Assert.Equal(0, assetValidationResult?.ValidAssets.Count);
+        Assert.NotNull(assetValidationResult?.InvalidAssets);
+        Assert.All(assetValidationResult.InvalidAssets, item => Assert.Equal("Phone number is not unique and is used in the organization.", item.Errors.FirstOrDefault()));
+
+    }
 }
