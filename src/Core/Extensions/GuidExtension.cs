@@ -16,4 +16,14 @@ public static class GuidExtension
     {
         return Guid.Parse("00000000-0000-0000-0000-000000000002");
     }
+
+    /// <summary>
+    /// System user for the Okta SCIM integration.
+    /// </summary>
+    /// <param name="guid"></param>
+    /// <returns></returns>
+    public static Guid ScimUserId(this Guid guid)
+    {
+        return Guid.Parse("00000000-0000-0000-0000-000000000003");
+    }
 }
