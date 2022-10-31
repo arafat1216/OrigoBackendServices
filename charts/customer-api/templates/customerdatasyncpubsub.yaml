@@ -22,4 +22,3 @@ spec:
     value: parallel
 scopes:
   - customerservices
-  - customerdatasyncapi
