@@ -458,7 +458,7 @@ namespace OrigoApiGateway.Controllers
         [HttpPatch]
         [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<OrigoUser>> PatchUserForCustomer(Guid organizationId, Guid userId, [FromBody] OrigoUpdateUser updateUser)
         {
             try

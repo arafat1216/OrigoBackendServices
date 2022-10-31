@@ -433,7 +433,6 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, PredefinedRole.EndUser.ToString()));
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
-            permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
 
 
@@ -492,7 +491,6 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, PredefinedRole.EndUser.ToString()));
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
-            permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
 
 
@@ -552,7 +550,6 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, PredefinedRole.EndUser.ToString()));
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
-            permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
 
 
