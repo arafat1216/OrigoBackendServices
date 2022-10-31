@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using Common.Enums;
+using Common.Model;
 
 namespace OrigoApiGateway.Models.BackendDTO;
 
@@ -105,4 +106,8 @@ public record NewAssetDTO
     /// A list of labels to be set for the asset lifecycle. They will be created if the customer does not have the labels already. 
     /// </summary>
     public List<string>? Labels { get; set; }
+    /// <summary>
+    /// Purshed price for the asset
+    /// </summary>
+    public Money? PaidByCompany { get; set; } = null;
 }

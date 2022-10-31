@@ -13,4 +13,5 @@ public record ImportedAsset
     public DateTime PurchaseDate { get; set; }
     public string Label { get; set; } = string.Empty;
     public string Alias { get; set; } = string.Empty;
+    public string PurchasePrice { get; set; } = string.Empty;
 }

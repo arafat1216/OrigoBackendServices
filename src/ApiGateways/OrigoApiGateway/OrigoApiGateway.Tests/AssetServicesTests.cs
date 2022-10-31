@@ -1592,6 +1592,7 @@ public class AssetServicesTests
                         ""validAssets"":
                             [{
                                 ""Brand"": ""The brand"",
+                                ""PurchasePrice"": ""10000"",   
                                 ""ImportedUser"": {
                                     ""FirstName"":  ""John"",
                                     ""LastName"":  ""Doe"",
@@ -1630,7 +1631,7 @@ public class AssetServicesTests
         formFileMock.Setup(ff => ff.FileName).Returns("assets.csv");
 
         // Act
-        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false);
+        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false, new Organization { Preferences = new NewOrganizationPreferences { PrimaryLanguage = "no" } });
 
         // Assert
         Assert.Equal(1, assetValidationResult.InvalidAssets.Count);
@@ -1660,6 +1661,7 @@ public class AssetServicesTests
                                 ""Imeis"": ""865822011610467"",
                                 ""MatchedUserId"": ""00000000-0000-0000-0000-000000000000"",
                                 ""Label"": ""Cashier phone"",
+                                ""PurchasePrice"": ""10000"",
                                 ""ImportedUser"": {
                                     ""FirstName"":  """",
                                     ""LastName"":  """",
@@ -1733,7 +1735,7 @@ public class AssetServicesTests
         formFileMock.Setup(ff => ff.FileName).Returns("assets.csv");
 
         // Act
-        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false);
+        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false, new Organization { Preferences = new NewOrganizationPreferences { PrimaryLanguage = "no" } } );
 
         // Assert
         Assert.Equal(1, assetValidationResult?.ValidAssets.Count);
@@ -1763,6 +1765,7 @@ public class AssetServicesTests
                                 ""Imeis"": ""865822011610467"",
                                 ""MatchedUserId"": ""00000000-0000-0000-0000-000000000000"",
                                 ""Label"": ""Cashier phone"",
+                                ""PurchasePrice"": ""10000"",
                                 ""ImportedUser"": {
                                     ""FirstName"":  ""test"",
                                     ""LastName"":  ""test"",
@@ -1844,7 +1847,8 @@ public class AssetServicesTests
         formFileMock.Setup(ff => ff.FileName).Returns("assets.csv");
 
         // Act
-        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false);
+        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false, new Organization { Preferences = new NewOrganizationPreferences { PrimaryLanguage = "no" } });
+
 
         // Assert
         Assert.Equal(0, assetValidationResult?.ValidAssets.Count);

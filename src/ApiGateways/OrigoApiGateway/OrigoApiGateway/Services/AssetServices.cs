@@ -435,7 +435,7 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<AssetValidationResult> ImportAssetsFileAsync(Guid organizationId, IFormFile file, bool validateOnly)
+        public async Task<AssetValidationResult> ImportAssetsFileAsync(Guid organizationId, IFormFile file, bool validateOnly, Organization organization)
         {
             var url = $"{_options.ApiPath}/customers/{organizationId}/import";
             var multiContent = new MultipartFormDataContent();
@@ -449,6 +449,43 @@ namespace OrigoApiGateway.Services
             {
                 return assetValidationResults;
             }
+            var currency = CurrencyCode.NOK;
+            switch (organization.Preferences.PrimaryLanguage)
+            {
+                case "no":
+                    currency = CurrencyCode.NOK;
+                    break;
+                case "NO":
+                    currency = CurrencyCode.NOK;
+                    break;
+                case "sv":
+                    currency = CurrencyCode.SEK;
+                    break;
+                case "SV":
+                    currency = CurrencyCode.SEK;
+                    break;
+                case "nb":
+                    currency = CurrencyCode.NOK;
+                    break;
+                case "NB":
+                    currency = CurrencyCode.NOK;
+                    break;
+                case "se":
+                    currency = CurrencyCode.SEK;
+                    break;
+                case "SE":
+                    currency = CurrencyCode.SEK;
+                    break;
+                case "dk":
+                    currency= CurrencyCode.DKK;
+                    break;
+                case "DK":
+                    currency = CurrencyCode.DKK;
+                    break;
+                default:
+                    break;
+            }
+
 
             var callerId = Guid.Parse("00000000-0000-0000-0000-000000000001");
             foreach (var validAsset in assetValidationResults.ValidAssets)
@@ -471,7 +508,8 @@ namespace OrigoApiGateway.Services
                             Source = "FileImport",
                             SerialNumber = validAsset.SerialNumber,
                             PurchaseDate = validAsset.PurchaseDate,
-                            Labels = validAsset.Label != string.Empty ? new List<string> { validAsset.Label } : null
+                            Labels = validAsset.Label != string.Empty ? new List<string> { validAsset.Label } : null,
+                            PaidByCompany = new Common.Model.Money(decimal.Parse(validAsset.PurchasePrice), currency)
                         });
 
                     
@@ -507,7 +545,8 @@ namespace OrigoApiGateway.Services
                             SerialNumber = validAsset.SerialNumber,
                             PurchaseDate = validAsset.PurchaseDate,
                             PurchasedBy = validAsset.ImportedUser.FirstName + ' ' + validAsset.ImportedUser.LastName,
-                            Labels = validAsset.Label != string.Empty ? new List<string> { validAsset.Label } : null
+                            Labels = validAsset.Label != string.Empty ? new List<string> { validAsset.Label } : null,
+                            PaidByCompany = new Common.Model.Money(decimal.Parse(validAsset.PurchasePrice), currency)
                         });
                 }
             }

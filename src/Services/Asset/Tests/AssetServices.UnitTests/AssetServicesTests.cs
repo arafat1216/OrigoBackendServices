@@ -732,6 +732,43 @@ public class AssetServicesTests : AssetBaseTest
         );
     }
 
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AddAssetLifecycleForCustomerAsync_PurchasedBy()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+        var newAssetDTO = new NewAssetDTO
+        {
+            CallerId = Guid.Empty,
+            Alias = "alias",
+            SerialNumber = "4543534535344",
+            AssetCategoryId = ASSET_CATEGORY_ID,
+            Brand = "iPhone",
+            ProductName = "iPhone X",
+            LifecycleType = LifecycleType.BYOD,
+            PurchaseDate = new DateTime(2020, 1, 1),
+            AssetHolderId = ASSETHOLDER_ONE_ID,
+            Imei = new List<long> { 458718920164666 },
+            MacAddress = "5e:c4:33:df:61:70",
+            ManagedByDepartmentId = Guid.NewGuid(),
+            Note = "Test note",
+            Description = "description",
+            PaidByCompany = new Money(10000,CurrencyCode.NOK)
+        };
+
+        // Act
+        var newAsset = await assetService.AddAssetLifecycleForCustomerAsync(COMPANY_ID, newAssetDTO);
+        var newAssetRead = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, newAsset.ExternalId, null, null, includeLabels: true);
+
+        // Assert
+        Assert.NotNull(newAssetRead);
+        Assert.Equal(10000,newAssetRead.PaidByCompany.Amount);
+        Assert.Equal("NOK",newAssetRead.PaidByCompany.CurrencyCode);
+    }
 
     [Fact]
     [Trait("Category", "UnitTest")]

@@ -11,4 +11,5 @@ public record ImportedAsset
     public string Label { get; set; } = string.Empty;
     public string Alias { get; set; } = string.Empty;
     public Guid? MatchedUserId { get; set; }
+    public string PurchasePrice { get; set; } = string.Empty;
 }

@@ -575,6 +575,11 @@ public class AssetServices : IAssetServices
             {
                 errors.Add($"Duplicate Active IMEI in the System - expected UNIQUE IMEI: {assetFromCsv.Imei}");
             }
+            if (string.IsNullOrEmpty(assetFromCsv.PurchasePrice) || !decimal.TryParse(assetFromCsv.PurchasePrice, out decimal decimalPrice))
+            {
+                var message = string.IsNullOrEmpty(assetFromCsv.PurchasePrice) ? $"PurchasePrice is a required field and needs to be a number." : $"Invalid amount for Purchase price: {assetFromCsv.PurchasePrice} -  expected number.";
+                errors.Add(message);
+            }
             if (asset.ValidateAsset() && !errors.Any())
             {
                 var importedAsset = CreateImportedAsset(asset, assetFromCsv, purchaseDate, true); 
@@ -620,6 +625,7 @@ public class AssetServices : IAssetServices
         importedAsset.PurchaseDate = purchaseDate;
         importedAsset.Label = assetFromCsv.Label;
         importedAsset.Alias = assetFromCsv.Alias;
+        importedAsset.PurchasePrice = assetFromCsv.PurchasePrice;
         return importedAsset;
     }
 

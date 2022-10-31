@@ -1546,8 +1546,8 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
                 }
             }
-
-            return Ok(await _assetServices.ImportAssetsFileAsync(organizationId, assetImportFile, validateOnly));
+            var organization = await _customerServices.GetCustomerAsync(organizationId);
+            return Ok(await _assetServices.ImportAssetsFileAsync(organizationId, assetImportFile, validateOnly, organization));
         }
 
         [Route("customers/{organizationId:guid}/download")]

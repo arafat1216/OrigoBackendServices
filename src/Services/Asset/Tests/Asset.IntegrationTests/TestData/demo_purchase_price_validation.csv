@@ -1,0 +1,5 @@
+Brand;ProductName;Category;PurchaseDate;PurchasePrice;SerialNumber;Imei;Label;Alias;PhoneNumber;PurchaseNumber;UserFirstName;UserLastName;UserEmail;
+Samsung;Samsung Galaxy S21;Mobile phone;2021-12-01;10000;;352105204120258;Cashier phone;;4745454545;;Nora;Kollen;n@k.com;
+Apple;iPhone 14;Mobile phone;2021-12-02;12220;;549178494885306;Backoffice phone;;4745454545;;Nora;Kollen;n@k.com;
+Samsung;Samsung Galaxy A53;Mobile phone;2021-12-03;;;520339293697002;;;4745454545;;Nora;Kollen;n@k.com;
+Samsung;Samsung Galaxy A53;Mobile phone;2021-12-03;ddd;;991694662657452;;;4745454545;;Nora;Kollen;n@k.com;

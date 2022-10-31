@@ -158,4 +158,8 @@ public record NewAsset
     /// A list of labels to be set for the asset lifecycle. They will be created if the customer does not have the labels already. 
     /// </summary>
     public List<string>? Labels { get; set; }
+    /// <summary>
+    /// The amount that the asset was purchased for
+    /// </summary>
+    public string? PurchasePrice { get; set; }
 }
