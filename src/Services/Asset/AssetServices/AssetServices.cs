@@ -527,7 +527,7 @@ public class AssetServices : IAssetServices
         return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
     }
 
-    public async Task<AssetValidationResult> ImportAssetsFromFile(Guid customerId, IFormFile file, bool validateOnly, ProductSeedDataValues productId)
+    public async Task<AssetValidationResult> ImportAssetsFromFile(Guid customerId, IFormFile file, bool validateOnly, LifecycleType lifeCycleType)
     {
         IList<AssetFromCsvFile> assetsFromFileRecords;
         var csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -607,12 +607,7 @@ public class AssetServices : IAssetServices
             var newAssetDto = _mapper.Map<NewAssetDTO>(validAsset);
             if(newAssetDto.AssetTag!.ToUpper() == "A4020" || newAssetDto.AssetTag!.ToUpper() == "A3094")
             {
-                newAssetDto.LifecycleType = productId switch
-                {
-                    ProductSeedDataValues.Implement => LifecycleType.NoLifecycle,
-                    ProductSeedDataValues.TransactionalDeviceLifecycleManagement => LifecycleType.Transactional,
-                    _ => LifecycleType.NoLifecycle,
-                };
+                newAssetDto.LifecycleType = lifeCycleType;
             }
             await AddAssetLifecycleForCustomerAsync(customerId, newAssetDto);
         }

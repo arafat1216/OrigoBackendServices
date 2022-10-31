@@ -19,6 +19,7 @@ using OrigoApiGateway.Mappings;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
 using OrigoApiGateway.Models.BackendDTO;
+using OrigoApiGateway.Models.ProductCatalog;
 using OrigoApiGateway.Services;
 
 namespace OrigoApiGateway.Tests;
@@ -1581,6 +1582,13 @@ public class AssetServicesTests
     public async Task ImportAssetsFile_WithDuplicateEmail_ReturnInvalidAsset()
     {
         // Arrange
+        var org = new Organization()
+        {
+
+            OrganizationId = Guid.NewGuid(),
+            PartnerId = Guid.NewGuid(),
+            Preferences = new NewOrganizationPreferences { PrimaryLanguage = "no" }
+        };
         var mockFactory = new Mock<IHttpClientFactory>();
         var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
         mockHttpMessageHandler.Protected()
@@ -1624,14 +1632,27 @@ public class AssetServicesTests
                             }
                         }
                     });
+
+        var userPermissionMock = new Mock<IUserPermissionService>();
+        userPermissionMock.Setup(us =>
+            us.GetOrderedModuleProductsByPartnerAndOrganizationAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<bool>()))
+                .ReturnsAsync(new List<ProductGet>()
+                {
+                    new ProductGet()
+                    {
+                        ProductTypeId = 2,
+                        Id = 3
+                    }
+                });
+
         var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), mockFactory.Object,
-            optionsMock.Object, userServiceMock.Object, new Mock<IUserPermissionService>().Object, _mapper, Mock.Of<IDepartmentsServices>());
+            optionsMock.Object, userServiceMock.Object, userPermissionMock.Object, _mapper, Mock.Of<IDepartmentsServices>());
         var formFileMock = new Mock<IFormFile>();
         formFileMock.Setup(ff => ff.OpenReadStream()).Returns(Stream.Null);
         formFileMock.Setup(ff => ff.FileName).Returns("assets.csv");
 
         // Act
-        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false, ProductSeedDataValues.TransactionalDeviceLifecycleManagement,  new Organization { Preferences = new NewOrganizationPreferences { PrimaryLanguage = "no" } });
+        var assetValidationResult = await assetService.ImportAssetsFileAsync(org, formFileMock.Object, false);
 
         // Assert
         Assert.Equal(1, assetValidationResult.InvalidAssets.Count);
@@ -1642,6 +1663,13 @@ public class AssetServicesTests
     [Trait("Category", "UnitTest")]
     public async Task ImportAssetsFile_ReturnAsset_UserHasNoW()
     {
+        var org = new Organization()
+        {
+
+            OrganizationId = Guid.NewGuid(),
+            PartnerId = Guid.NewGuid(),
+            Preferences = new NewOrganizationPreferences { PrimaryLanguage = "no" }
+        };
         // Arrange
         var mockFactory = new Mock<IHttpClientFactory>();
         var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -1724,18 +1752,30 @@ public class AssetServicesTests
         optionsMock.Setup(o => o.Value).Returns(options);
 
         var userServiceMock = new Mock<IUserServices>();
-        var customerId = Guid.NewGuid();
         userServiceMock.Setup(us =>
-            us.UserEmailLinkedToGivenOrganization(customerId, ""))
+            us.UserEmailLinkedToGivenOrganization(org.OrganizationId, ""))
                 .ReturnsAsync( (true, Guid.Empty));
+
+        var userPermissionMock = new Mock<IUserPermissionService>();
+        userPermissionMock.Setup(us =>
+            us.GetOrderedModuleProductsByPartnerAndOrganizationAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<bool>()))
+                .ReturnsAsync(new List<ProductGet>()
+                {
+                    new ProductGet()
+                    {
+                        ProductTypeId = 2,
+                        Id = 2
+                    }
+                });
+
         var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), mockFactory.Object,
-            optionsMock.Object, userServiceMock.Object, new Mock<IUserPermissionService>().Object, _mapper, Mock.Of<IDepartmentsServices>());
+            optionsMock.Object, userServiceMock.Object, userPermissionMock.Object, _mapper, Mock.Of<IDepartmentsServices>());
         var formFileMock = new Mock<IFormFile>();
         formFileMock.Setup(ff => ff.OpenReadStream()).Returns(Stream.Null);
         formFileMock.Setup(ff => ff.FileName).Returns("assets.csv");
 
         // Act
-        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false, ProductSeedDataValues.Implement, new Organization { Preferences = new NewOrganizationPreferences { PrimaryLanguage = "no" } });
+        var assetValidationResult = await assetService.ImportAssetsFileAsync(org, formFileMock.Object, false);
 
         // Assert
         Assert.Equal(1, assetValidationResult?.ValidAssets.Count);
@@ -1746,6 +1786,13 @@ public class AssetServicesTests
     [Trait("Category", "UnitTest")]
     public async Task ImportAssetsFile_ValidatePhoneNumber_ShouldBeInvalid()
     {
+        var org = new Organization()
+        {
+
+            OrganizationId = Guid.NewGuid(),
+            PartnerId = Guid.NewGuid(),
+            Preferences = new NewOrganizationPreferences { PrimaryLanguage = "no" }
+        };
         // Arrange
         var mockFactory = new Mock<IHttpClientFactory>();
         var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -1830,24 +1877,33 @@ public class AssetServicesTests
         optionsMock.Setup(o => o.Value).Returns(options);
 
         var userServiceMock = new Mock<IUserServices>();
-        var customerId = Guid.NewGuid();
         userServiceMock.Setup(us =>
-            us.UserEmailLinkedToGivenOrganization(customerId, "test@test.com"))
+            us.UserEmailLinkedToGivenOrganization(org.OrganizationId, "test@test.com"))
                 .ReturnsAsync((true, Guid.Empty));
 
         
         userServiceMock.Setup(us =>
-         us.GetUserWithPhoneNumber(customerId, It.IsAny<string>()))
-             .ReturnsAsync(new UserInfoDTO { DepartmentId = Guid.Empty, OrganizationId = customerId,UserId = Guid.NewGuid(), UserName = "not@the.one"});
-
+         us.GetUserWithPhoneNumber(org.OrganizationId, It.IsAny<string>()))
+             .ReturnsAsync(new UserInfoDTO { DepartmentId = Guid.Empty, OrganizationId = org.OrganizationId, UserId = Guid.NewGuid(), UserName = "not@the.one"});
+        var userPermissionMock = new Mock<IUserPermissionService>();
+        userPermissionMock.Setup(us =>
+            us.GetOrderedModuleProductsByPartnerAndOrganizationAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<bool>()))
+                .ReturnsAsync(new List<ProductGet>()
+                {
+                    new ProductGet()
+                    {
+                        ProductTypeId = 2,
+                        Id = 3
+                    }
+                });
         var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), mockFactory.Object,
-            optionsMock.Object, userServiceMock.Object, new Mock<IUserPermissionService>().Object, _mapper, Mock.Of<IDepartmentsServices>());
+            optionsMock.Object, userServiceMock.Object, userPermissionMock.Object, _mapper, Mock.Of<IDepartmentsServices>());
         var formFileMock = new Mock<IFormFile>();
         formFileMock.Setup(ff => ff.OpenReadStream()).Returns(Stream.Null);
         formFileMock.Setup(ff => ff.FileName).Returns("assets.csv");
 
         // Act
-        var assetValidationResult = await assetService.ImportAssetsFileAsync(customerId, formFileMock.Object, false, ProductSeedDataValues.TransactionalDeviceLifecycleManagement, new Organization { Preferences = new NewOrganizationPreferences { PrimaryLanguage = "no" } });
+        var assetValidationResult = await assetService.ImportAssetsFileAsync(org, formFileMock.Object, false);
 
         // Assert
         Assert.Equal(0, assetValidationResult?.ValidAssets.Count);

@@ -263,7 +263,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var transactionAssets = assetsBeforeImport!.Items.Count(x => x.LifecycleType == LifecycleType.Transactional);
 
         // Act
-        requestUri = $"/api/v1/Assets/customers/{_customerId}/import?validateOnly=false&productId={ProductSeedDataValues.TransactionalDeviceLifecycleManagement}";
+        requestUri = $"/api/v1/Assets/customers/{_customerId}/import?validateOnly=false&lifeCycleType={LifecycleType.Transactional}";
         var importResponse = await _httpClient.PostAsync(requestUri, content);
         var assetValidationResult = await importResponse.Content.ReadFromJsonAsync<AssetValidationResult>();
 
@@ -305,7 +305,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         var nolifecycleAssets = assetsBeforeImport!.Items.Count(x => x.LifecycleType == LifecycleType.NoLifecycle);
 
         // Act
-        requestUri = $"/api/v1/Assets/customers/{_customerId}/import?validateOnly=false&productId={ProductSeedDataValues.Implement}";
+        requestUri = $"/api/v1/Assets/customers/{_customerId}/import?validateOnly=false&lifeCycleType={LifecycleType.NoLifecycle}";
         var importResponse = await _httpClient.PostAsync(requestUri, content);
         var assetValidationResult = await importResponse.Content.ReadFromJsonAsync<AssetValidationResult>();
 

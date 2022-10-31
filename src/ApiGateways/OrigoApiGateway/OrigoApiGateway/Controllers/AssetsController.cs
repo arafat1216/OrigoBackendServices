@@ -1555,10 +1555,8 @@ namespace OrigoApiGateway.Controllers
                 {
                     return BadRequest("RequestFailedException: Could not import file: Customer not associated to a partner");
                 }
-                var products = await _productCatalogServices.GetOrderedProductsByPartnerAndOrganizationAsync(customer.PartnerId.Value, organizationId, false);
-                var productId = (ProductSeedDataValues) products.FirstOrDefault(x => x.ProductTypeId == (int)ProductTypeSeedDataValue.Module)!.Id;
 
-                return Ok(await _assetServices.ImportAssetsFileAsync(organizationId, assetImportFile, validateOnly, productId, customer));
+                return Ok(await _assetServices.ImportAssetsFileAsync(customer, assetImportFile, validateOnly));
             }
             catch (ResourceNotFoundException ex)
             {

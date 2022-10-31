@@ -4,6 +4,7 @@ using AutoMapper;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
+using OrigoApiGateway.Models.ProductCatalog;
 
 namespace OrigoApiGateway.Services;
 
@@ -243,4 +244,10 @@ public class UserPermissionService : IUserPermissionService
         var userPermissions = await response.Content.ReadFromJsonAsync<OrigoUsersPermissions>();
         return userPermissions;
     }
+    public async Task<IEnumerable<ProductGet>> GetOrderedModuleProductsByPartnerAndOrganizationAsync(Guid partnerId, Guid organizationId, bool includeTranslations)
+    {
+        var products = await _productCatalogServices.GetOrderedProductsByPartnerAndOrganizationAsync(partnerId, organizationId, includeTranslations);
+        return products.Where(x => x.ProductTypeId == 2);
+    }
+
 }

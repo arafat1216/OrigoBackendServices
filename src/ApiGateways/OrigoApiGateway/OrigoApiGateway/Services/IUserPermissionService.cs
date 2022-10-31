@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
+using OrigoApiGateway.Models.ProductCatalog;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -25,5 +26,6 @@ namespace OrigoApiGateway.Services
         Task<IList<string>> GetAllRolesAsync();
         Task<IList<UserAdminDTO>> GetAllUserAdminsAsync(Guid? partnerId = null);
         Task<IList<UserAdminDTO>> GetAllCustomerAdminsAsync(Guid customerId);
+        Task<IEnumerable<ProductGet>> GetOrderedModuleProductsByPartnerAndOrganizationAsync(Guid partnerId, Guid organizationId, bool includeTranslations);
     }
 }

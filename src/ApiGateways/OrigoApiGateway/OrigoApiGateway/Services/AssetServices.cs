@@ -435,15 +435,27 @@ namespace OrigoApiGateway.Services
             }
         }
 
-        public async Task<AssetValidationResult> ImportAssetsFileAsync(Guid organizationId, IFormFile file, bool validateOnly, ProductSeedDataValues productId, Organization organization)
+        public async Task<AssetValidationResult> ImportAssetsFileAsync(Organization customer, IFormFile file, bool validateOnly)
         {
-            var url = $"{_options.ApiPath}/customers/{organizationId}/import?productId={productId}";
+            var products = await _userPermissionService.GetOrderedModuleProductsByPartnerAndOrganizationAsync(customer.PartnerId!.Value, customer.OrganizationId, false);
+            var lifeCycleType = LifecycleType.NoLifecycle;
+
+            if(products.Any(x=>x.Id == 2))
+            {
+                lifeCycleType = LifecycleType.NoLifecycle;
+            }
+            else if(products.Any(x=>x.Id == 3))
+            {
+                lifeCycleType = LifecycleType.Transactional;
+            }
+
+            var url = $"{_options.ApiPath}/customers/{customer.OrganizationId}/import?lifeCycleType={lifeCycleType}";
             var multiContent = new MultipartFormDataContent();
             multiContent.Add(new StreamContent(file.OpenReadStream()), "assetImportFile", file.FileName);
             var result = await HttpClient.PostAsync(url, multiContent);
             var assetValidationResults = await result.Content.ReadFromJsonAsync<AssetValidationResult>();
             if (assetValidationResults == null) return null;
-            await CheckAndUpdateUserGivenEmail(organizationId, assetValidationResults);
+            await CheckAndUpdateUserGivenEmail(customer.OrganizationId, assetValidationResults);
 
             if (validateOnly)
             {
@@ -460,7 +472,7 @@ namespace OrigoApiGateway.Services
                     //Set matched user id to null instead of to show that no one owns this asset
                     validAsset.MatchedUserId = null;
 
-                    await AddAssetForCustomerAsync(organizationId,
+                    await AddAssetForCustomerAsync(customer.OrganizationId,
                         new NewAssetDTO
                         {
                             Alias = validAsset.Alias,
@@ -485,7 +497,7 @@ namespace OrigoApiGateway.Services
 
                     if (validAsset.MatchedUserId == Guid.Empty)
                     {
-                        var newUser = await _userServices.AddUserForCustomerAsync(organizationId,
+                        var newUser = await _userServices.AddUserForCustomerAsync(customer.OrganizationId,
                             new NewUser
                             {
                                 Email = validAsset.ImportedUser.Email,
@@ -496,7 +508,7 @@ namespace OrigoApiGateway.Services
                         validAsset.MatchedUserId = newUser.Id;
                     }
 
-                    await AddAssetForCustomerAsync(organizationId,
+                    await AddAssetForCustomerAsync(customer.OrganizationId,
                         new NewAssetDTO
                         {
                             Alias = validAsset.Alias,
