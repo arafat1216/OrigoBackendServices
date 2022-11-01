@@ -449,43 +449,8 @@ namespace OrigoApiGateway.Services
             {
                 return assetValidationResults;
             }
-            var currency = CurrencyCode.NOK;
-            switch (organization.Preferences.PrimaryLanguage)
-            {
-                case "no":
-                    currency = CurrencyCode.NOK;
-                    break;
-                case "NO":
-                    currency = CurrencyCode.NOK;
-                    break;
-                case "sv":
-                    currency = CurrencyCode.SEK;
-                    break;
-                case "SV":
-                    currency = CurrencyCode.SEK;
-                    break;
-                case "nb":
-                    currency = CurrencyCode.NOK;
-                    break;
-                case "NB":
-                    currency = CurrencyCode.NOK;
-                    break;
-                case "se":
-                    currency = CurrencyCode.SEK;
-                    break;
-                case "SE":
-                    currency = CurrencyCode.SEK;
-                    break;
-                case "dk":
-                    currency= CurrencyCode.DKK;
-                    break;
-                case "DK":
-                    currency = CurrencyCode.DKK;
-                    break;
-                default:
-                    break;
-            }
 
+            var currency = GetCurrencyByCountry(organization.Preferences.PrimaryLanguage);
 
             var callerId = Guid.Parse("00000000-0000-0000-0000-000000000001");
             foreach (var validAsset in assetValidationResults.ValidAssets)
