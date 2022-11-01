@@ -22,12 +22,12 @@ namespace Customer.API.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/datasync/departments")]
+[Route("api/v{version:apiVersion}/customer-datasync/departments")]
 [Tags("Customer Data Sync API: Departments")]
 [SwaggerResponse(StatusCodes.Status500InternalServerError, "Returned when the system encountered an unexpected problem.")]
-public class EmployeeDatasyncDepartmentsController : ControllerBase
+public class CustomerDatasyncDepartmentsController : ControllerBase
 {
-    private readonly ILogger<EmployeeDatasyncDepartmentsController> _logger;
+    private readonly ILogger<CustomerDatasyncDepartmentsController> _logger;
     private readonly IUserServices _userServices;
     private readonly IDepartmentsServices _departmentServices;
     private readonly IMapper _mapper;
@@ -39,7 +39,7 @@ public class EmployeeDatasyncDepartmentsController : ControllerBase
     /// <param name="userServices"> The injected <see cref="IUserServices"/> instance. </param>
     /// <param name="departmentServices"> The injected <see cref="IDepartmentsServices"/> instance. </param>
     /// <param name="mapper"> The injected <see cref="IMapper"/> (automapper) instance. </param>
-    public EmployeeDatasyncDepartmentsController(ILogger<EmployeeDatasyncDepartmentsController> logger, IUserServices userServices, IDepartmentsServices departmentServices, IMapper mapper)
+    public CustomerDatasyncDepartmentsController(ILogger<CustomerDatasyncDepartmentsController> logger, IUserServices userServices, IDepartmentsServices departmentServices, IMapper mapper)
     {
         _logger = logger;
         _userServices = userServices;
@@ -168,7 +168,7 @@ public class EmployeeDatasyncDepartmentsController : ControllerBase
     /// </summary>
     /// <param name="department"><see cref="UpdateDepartmentEvent"/></param>
     /// <returns></returns>
-    [HttpPut("update-department")]
+    [HttpPost("update-department")]
     [Topic("customer-datasync-pub-sub", "update-department")]
     [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
     public async Task<ActionResult<Department>> UpdateDepartmentPut([FromBody] UpdateDepartmentEvent department)
@@ -192,7 +192,7 @@ public class EmployeeDatasyncDepartmentsController : ControllerBase
     /// </summary>
     /// <param name="department"><see cref="DeleteDepartmentEvent"/></param>
     /// <returns></returns>
-    [HttpDelete("delete-department")]
+    [HttpPost("delete-department")]
     [Topic("customer-datasync-pub-sub", "delete-department")]
     [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
@@ -235,7 +235,7 @@ public class EmployeeDatasyncDepartmentsController : ControllerBase
     /// </summary>
     /// <param name="departmentEvent"><see cref="UnassignDepartmentEvent"/></param>
     /// <returns></returns>
-    [HttpDelete("unassign-department")]
+    [HttpPost("unassign-department")]
     [Topic("customer-datasync-pub-sub", "unassign-department")]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -285,7 +285,7 @@ public class EmployeeDatasyncDepartmentsController : ControllerBase
     /// </summary>
     /// <param name="departmentEvent"><see cref="UnassignDepartmentEvent"/></param>
     /// <returns></returns>
-    [HttpDelete("unnassign-department-manager")]
+    [HttpPost("unnassign-department-manager")]
     [Topic("customer-datasync-pub-sub", "unnassign-department-manager")]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]

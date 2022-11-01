@@ -22,12 +22,12 @@ namespace Customer.API.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/datasync/users")]
+[Route("api/v{version:apiVersion}/customer-datasync/users")]
 [Tags("Customer Data Sync API: Users")]
 [SwaggerResponse(StatusCodes.Status500InternalServerError, "Returned when the system encountered an unexpected problem.")]
-public class EmployeeDataSyncUsersController : ControllerBase
+public class CustomerDatasyncUsersController : ControllerBase
 {
-    private readonly ILogger<EmployeeDataSyncUsersController> _logger;
+    private readonly ILogger<CustomerDatasyncUsersController> _logger;
     private readonly IUserServices _userServices;
     private readonly IDepartmentsServices _departmentServices;
     private readonly IMapper _mapper;
@@ -39,7 +39,7 @@ public class EmployeeDataSyncUsersController : ControllerBase
     /// <param name="userServices"> The injected <see cref="IUserServices"/> instance. </param>
     /// <param name="departmentServices"> The injected <see cref="IDepartmentsServices"/> instance. </param>
     /// <param name="mapper"> The injected <see cref="IMapper"/> (automapper) instance. </param>
-    public EmployeeDataSyncUsersController(ILogger<EmployeeDataSyncUsersController> logger, IUserServices userServices, IDepartmentsServices departmentServices, IMapper mapper)
+    public CustomerDatasyncUsersController(ILogger<CustomerDatasyncUsersController> logger, IUserServices userServices, IDepartmentsServices departmentServices, IMapper mapper)
     {
         _logger = logger;
         _userServices = userServices;
@@ -133,8 +133,7 @@ public class EmployeeDataSyncUsersController : ControllerBase
     /// </summary>
     /// <param name="createEmployeeEvent"></param>
     /// <returns></returns>
-    [HttpPost]
-    [Route("create-employee")]
+    [HttpPost("create-employee")]
     [Topic("customer-datasync-pub-sub", "create-employee")]
     [SwaggerResponse(StatusCodes.Status201Created)]
     [SwaggerResponse(StatusCodes.Status400BadRequest)]
@@ -190,13 +189,11 @@ public class EmployeeDataSyncUsersController : ControllerBase
     /// <summary>
     /// Update User information
     /// </summary>
-    /// <param name="customerId"></param>
-    /// <param name="userId"></param>
     /// <param name="updateUser"></param>
     /// <returns></returns>
-    [HttpPut("update-employee")]
+    [HttpPost("update-employee")]
     [Topic("customer-datasync-pub-sub", "update-employee")]
-    [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public async Task<ActionResult<User>> UpdateUserPut([FromBody] UpdateUserEvent updateUser)
     {
@@ -241,9 +238,9 @@ public class EmployeeDataSyncUsersController : ControllerBase
     /// <returns cref="HttpStatusCode.NoContent"></returns>
     /// <returns cref="HttpStatusCode.BadRequest"></returns>
     /// <returns cref="HttpStatusCode.NotFound"></returns>
-    [HttpDelete("delete-employee")]
+    [HttpPost("delete-employee")]
     [Topic("customer-datasync-pub-sub", "delete-employee")]
-    [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public async Task<ActionResult> DeleteUser([FromBody] DeleteUserEvent userEvent)
     {
@@ -283,9 +280,9 @@ public class EmployeeDataSyncUsersController : ControllerBase
     /// <returns cref="HttpStatusCode.NoContent"></returns>
     /// <returns cref="HttpStatusCode.BadRequest"></returns>
     /// <returns cref="HttpStatusCode.NotFound"></returns>
-    [HttpDelete("delete-employee-by-phone-number")]
+    [HttpPost("delete-employee-by-phone-number")]
     [Topic("customer-datasync-pub-sub", "delete-employee-by-phone-number")]
-    [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public async Task<ActionResult> DeleteUserByPhoneNumber([FromBody] DeleteUserByPhoneNumberEvent deleteUserEvent)
     {
