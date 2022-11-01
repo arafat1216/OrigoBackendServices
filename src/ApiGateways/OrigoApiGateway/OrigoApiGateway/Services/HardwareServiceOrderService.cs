@@ -508,9 +508,9 @@ namespace OrigoApiGateway.Services
                 url.Append($"&serviceTypeId={serviceTypeId.Value}");
             if (!string.IsNullOrWhiteSpace(search))
                 url.Append($"&q={HttpUtility.UrlEncode(search.Trim())}");
-            if (filterOptions.StatusIds is not null)
+            if (filterOptions.StatusId is not null)
             {
-                foreach (var statusId in filterOptions.StatusIds)
+                foreach (var statusId in filterOptions.StatusId)
                 {
                     url.Append($"&statusIds={statusId}");
                 }

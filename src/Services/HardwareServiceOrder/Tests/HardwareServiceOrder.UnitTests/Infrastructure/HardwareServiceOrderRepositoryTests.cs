@@ -360,5 +360,38 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
             Assert.Equal(0, searchResultsWithOnlyUnusedIds.Items.Count);
             Assert.Equal(1, searchResultsWithOnlyUsedIds.Items.Count);
         }
+
+        // Test specifically for the search string when searching on the assets attributes
+        [Fact()]
+        public async Task GetAllServiceOrdersForOrganizationAsync_FilterSearchOnAssetAttributes_ShouldReturnOnlyBasedOnAssetAttributes()
+        {
+            // Arrange
+            Guid customerId = Guid.Parse("d45a6943-75ce-402e-a612-04900aa50059");
+
+            DeliveryAddress deliveryAddress1 = new(RecipientTypeEnum.Personal, "Recipient", "Address1", "Address2", "PostalCode", "City", "Country");
+
+            AssetInfo assetInfo1 = new("Samsung", "Galaxy S22 Ultra", new HashSet<string>() { "914364591085175" }, "SN/88879", DateOnly.Parse("2021-12-29"), null);
+            AssetInfo assetInfo2 = new("Apple", "iPhone 10", new HashSet<string>() { "457046821986701" }, "SN/66647", DateOnly.Parse("2022-05-28"), null);
+
+            var order1 = new Models.HardwareServiceOrder(customerId, Guid.NewGuid(), 1, assetInfo1, "My screen broke!", new ContactDetails(Guid.NewGuid(), "John", "Doe", "john@test.com", "+4799988777"), deliveryAddress1, (int)ServiceTypeEnum.SUR, (int)ServiceStatusEnum.Ongoing, (int)ServiceProviderEnum.ConmodoNo, null, "10000000-0000-0000-0000-000000000000", "NOLF51234", "externalLink", new List<ServiceEvent>());
+            var order2 = new Models.HardwareServiceOrder(customerId, Guid.NewGuid(), 2, assetInfo2, "The battery won't charge", new ContactDetails(Guid.NewGuid(), "Ola", "Normann", "ola@test.com", "+4766688999"), deliveryAddress1, (int)ServiceTypeEnum.SUR, (int)ServiceStatusEnum.CompletedRepaired, (int)ServiceProviderEnum.ConmodoNo, null, "20000000-0000-0000-0000-000000000000", "NOLF8852", "externalLink", new List<ServiceEvent>());
+
+            _dbContext.Add(order1);
+            _dbContext.Add(order2);
+            _dbContext.SaveChanges();
+
+            // Act
+
+            var searchResultsWithSearchString = await _repository.GetAllServiceOrdersForOrganizationAsync(customerId, null, null, false, 1, 10, true, new(), null, search: "s");
+            var searchResultWithDigits = await _repository.GetAllServiceOrdersForOrganizationAsync(customerId, null, null, false, 1, 10, true, new(),null,search: "10");
+            var searchResultBasedOnModel = await _repository.GetAllServiceOrdersForOrganizationAsync(customerId, null, null, false, 1, 10, true, new(), null, search: "Galaxy S22 Ultra");
+            var searchResultBasedOnBrand = await _repository.GetAllServiceOrdersForOrganizationAsync(customerId, null, null, false, 1, 10, true, new(), null, search: "Apple");
+
+            // Assert
+            Assert.Equal(1, searchResultsWithSearchString.Items.Count);
+            Assert.Equal(2, searchResultWithDigits.Items.Count);
+            Assert.Equal(1, searchResultBasedOnModel.Items.Count);
+            Assert.Equal(1, searchResultBasedOnBrand.Items.Count);
+        }
     }
 }

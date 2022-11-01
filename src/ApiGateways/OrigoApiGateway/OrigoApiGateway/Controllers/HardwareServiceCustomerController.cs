@@ -316,6 +316,8 @@ namespace OrigoApiGateway.Controllers
         ///     - First Name
         ///     - Last Name
         ///     - E-mail
+        ///     - Asset Product name
+        ///     - Asset Brand
         ///     <br/><br/>
         ///     When the value is <c><see langword="null"/>, the filter is ignored.</c>
         /// </param>

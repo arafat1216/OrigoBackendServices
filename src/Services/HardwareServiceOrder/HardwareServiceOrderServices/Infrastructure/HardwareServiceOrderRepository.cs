@@ -220,6 +220,7 @@ namespace HardwareServiceOrderServices.Infrastructure
                                                || (!email && e.ServiceProviderOrderId2!.ToLower().Contains(search))
                                                || (likelyName && !email && (e.Owner.FirstName.ToLower().Contains(search) || e.Owner.LastName.ToLower().Contains(search)))
                                                || (email && e.Owner.Email.ToLower().Contains(search))
+                                               || (!email && e.AssetInfo.Model.ToLower().Contains(search) || (!email && e.AssetInfo.Brand.ToLower().Contains(search)))
                 );
             }
 
