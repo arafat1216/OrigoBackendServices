@@ -558,9 +558,10 @@ public class AssetServices : IAssetServices
                     assetFromCsv.ProductName, new List<AssetImei>(), assetFromCsv.MacAddress);
             var emailValidator = new EmailAddressAttribute();
             var errors = new List<string>();
-            if (string.IsNullOrEmpty(assetFromCsv.PurchaseType))
+            if (string.IsNullOrEmpty(assetFromCsv.PurchaseType) || (assetFromCsv.PurchaseType.ToLower() != "transactional personal" && assetFromCsv.PurchaseType.ToLower() != "transactional non personal"
+                && assetFromCsv.PurchaseType.ToLower() != "as a service personal" && assetFromCsv.PurchaseType.ToLower() != "as a service non personal"))
             {
-                errors.Add($"Missng Purchase Type Value");
+                errors.Add($"Missng/Incorrect Purchase Type Value. Correct Purchase Types: 'transactional personal', 'transactional non personal', 'as a service personal', 'as a service non personal'.");
             }
             if (!string.IsNullOrEmpty(assetFromCsv.UserEmail) && !emailValidator.IsValid(assetFromCsv.UserEmail))
             {
@@ -605,9 +606,27 @@ public class AssetServices : IAssetServices
         foreach (var validAsset in assetValidationResult.ValidAssets)
         {
             var newAssetDto = _mapper.Map<NewAssetDTO>(validAsset);
-            if(newAssetDto.AssetTag!.ToUpper() == "A4020" || newAssetDto.AssetTag!.ToUpper() == "A3094")
+            switch (lifeCycleType)
             {
-                newAssetDto.LifecycleType = lifeCycleType;
+                case LifecycleType.Transactional:
+                    if (newAssetDto.AssetTag!.ToLower() == "transactional personal" || newAssetDto.AssetTag!.ToLower() == "transactional non personal")
+                    {
+                        newAssetDto.LifecycleType = LifecycleType.Transactional;
+                    }
+                    else
+                    {
+                        newAssetDto.LifecycleType = LifecycleType.NoLifecycle;
+                    }
+                    break;
+                case LifecycleType.NoLifecycle:
+                    if (newAssetDto.AssetTag!.ToLower() == "as a service personal" || newAssetDto.AssetTag!.ToLower() == "as a service non personal")
+                    {
+                        newAssetDto.LifecycleType = LifecycleType.NoLifecycle;
+                    }
+                    break;
+                default:
+                    newAssetDto.LifecycleType = LifecycleType.NoLifecycle;
+                    break;
             }
             await AddAssetLifecycleForCustomerAsync(customerId, newAssetDto);
         }
