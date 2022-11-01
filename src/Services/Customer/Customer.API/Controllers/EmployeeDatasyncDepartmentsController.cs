@@ -22,7 +22,7 @@ namespace Customer.API.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/employee-datasync/organizations/{customerId:Guid}/departments")]
+[Route("api/v{version:apiVersion}/employee-datasync/departments")]
 [Tags("Customer Data Sync API: Departments")]
 [SwaggerResponse(StatusCodes.Status500InternalServerError, "Returned when the system encountered an unexpected problem.")]
 public class EmployeeDatasyncDepartmentsController : ControllerBase
@@ -53,7 +53,7 @@ public class EmployeeDatasyncDepartmentsController : ControllerBase
     /// <param name="customerId"></param>
     /// <param name="departmentId"></param>
     /// <returns></returns>
-    [HttpGet("{departmentId:Guid}")]
+    [HttpGet("{departmentId:Guid}/organizations/{customerId:Guid}")]
     [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
     public async Task<ActionResult<Department>> GetDepartment([FromRoute] Guid customerId, [FromRoute] Guid departmentId)
     {
@@ -82,7 +82,7 @@ public class EmployeeDatasyncDepartmentsController : ControllerBase
     /// <param name="page"> The current page number. </param>
     /// <param name="limit"> The highest number of items that can be added in a single page. </param>
     /// <returns> An asynchronous task. The task results contain the appropriate <see cref="ActionResult"/>. </returns>
-    [HttpGet("paginated")]
+    [HttpGet("organizations/{customerId:Guid}/paginated")]
     [ProducesResponseType(typeof(PagedModel<Department>), (int)HttpStatusCode.OK)]
     public async Task<ActionResult<PagedModel<Department>>> GetPaginatedDepartmentsAsync([FromRoute] Guid customerId, CancellationToken cancellationToken, [FromQuery] bool includeManagers = false, int page = 1, int limit = 25)
     {
@@ -110,7 +110,7 @@ public class EmployeeDatasyncDepartmentsController : ControllerBase
     /// <param name="page"></param>
     /// <param name="limit"></param>
     /// <returns></returns>
-    [HttpGet("{departmentId:Guid}/users")]
+    [HttpGet("{departmentId:Guid}/organizations/{customerId:Guid}/users")]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     public async Task<ActionResult<User>> GetUsersByDepartment([FromRoute] Guid customerId, [FromRoute] Guid departmentId, 
         CancellationToken cancellationToken, 
@@ -141,15 +141,22 @@ public class EmployeeDatasyncDepartmentsController : ControllerBase
     /// <summary>
     /// Create a new Department under an Organization
     /// </summary>
-    /// <param name="customerId"></param>
-    /// <param name="department"></param>
+    /// <param name="department"><see cref="CreateDepartmentEvent"/></param>
     /// <returns></returns>
-    [HttpPost]
+    [HttpPost("create-department")]
+    [Topic("customer-datasync-pub-sub", "create-department")]
     [ProducesResponseType(typeof(Department), (int)HttpStatusCode.Created)]
-    public async Task<ActionResult<Department>> CreateDepartment([FromRoute] Guid customerId, [FromBody] NewDepartment department)
+    public async Task<ActionResult<Department>> CreateDepartment([FromBody] CreateDepartmentEvent department)
     {
         Guid newDepartmentId = Guid.NewGuid();
-        var createdDepartment = await _departmentServices.AddDepartmentAsync(customerId, newDepartmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description, department.ManagedBy, department.CallerId);
+        var createdDepartment = await _departmentServices.AddDepartmentAsync(department.CustomerId, 
+            newDepartmentId, 
+            department.ParentDepartmentId, 
+            department.Name, 
+            department.CostCenterId, 
+            department.Description, 
+            department.ManagedBy, 
+            department.CallerId);
         var departmentView = _mapper.Map<Department>(createdDepartment);
 
         return CreatedAtAction(nameof(CreateDepartment), new { id = departmentView.DepartmentId }, departmentView);
@@ -159,15 +166,21 @@ public class EmployeeDatasyncDepartmentsController : ControllerBase
     /// <summary>
     /// Update Department information.
     /// </summary>
-    /// <param name="customerId"></param>
-    /// <param name="departmentId"></param>
-    /// <param name="department"></param>
+    /// <param name="department"><see cref="UpdateDepartmentEvent"/></param>
     /// <returns></returns>
-    [HttpPut("{departmentId:Guid}")]
+    [HttpPut("update-department")]
+    [Topic("customer-datasync-pub-sub", "update-department")]
     [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
-    public async Task<ActionResult<Department>> UpdateDepartmentPut([FromRoute] Guid customerId, [FromRoute] Guid departmentId, [FromBody] UpdateDepartment department)
+    public async Task<ActionResult<Department>> UpdateDepartmentPut([FromBody] UpdateDepartmentEvent department)
     {
-        var updatedDepartment = await _departmentServices.UpdateDepartmentAsync(customerId, departmentId, department.ParentDepartmentId, department.Name, department.CostCenterId, department.Description, department.ManagedBy, department.CallerId);
+        var updatedDepartment = await _departmentServices.UpdateDepartmentAsync(department.CustomerId, 
+            department.DepartmentId, 
+            department.ParentDepartmentId, 
+            department.Name, 
+            department.CostCenterId, 
+            department.Description, 
+            department.ManagedBy, 
+            department.CallerId);
         var departmentView = _mapper.Map<Department>(updatedDepartment);
 
         return Ok(departmentView);
@@ -177,18 +190,17 @@ public class EmployeeDatasyncDepartmentsController : ControllerBase
     /// <summary>
     /// Delete a Department
     /// </summary>
-    /// <param name="customerId"></param>
-    /// <param name="departmentId"></param>
-    /// <param name="callerId"></param>
+    /// <param name="department"><see cref="DeleteDepartmentEvent"/></param>
     /// <returns></returns>
-    [HttpDelete("{departmentId:Guid}")]
+    [HttpDelete("delete-department")]
+    [Topic("customer-datasync-pub-sub", "delete-department")]
     [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult<Department>> DeleteDepartment([FromRoute] Guid customerId, [FromRoute] Guid departmentId, [FromBody] Guid callerId)
+    public async Task<ActionResult<Department>> DeleteDepartment([FromBody] DeleteDepartmentEvent department)
     {
         try
         {
-            var updatedDepartment = await _departmentServices.DeleteDepartmentAsync(customerId, departmentId, callerId);
+            var updatedDepartment = await _departmentServices.DeleteDepartmentAsync(department.CustomerId, department.DepartmentId, department.CallerId);
             var departmentView = _mapper.Map<Department>(updatedDepartment);
 
             return Ok(departmentView);
@@ -204,18 +216,15 @@ public class EmployeeDatasyncDepartmentsController : ControllerBase
     /// <summary>
     /// Assign User to a Department
     /// </summary>
-    /// <param name="customerId"></param>
-    /// <param name="userId"></param>
-    /// <param name="departmentId"></param>
-    /// <param name="callerId"></param>
+    /// <param name="departmentEvent"><see cref="AssignDepartmentEvent"/></param>
     /// <returns></returns>
-    [HttpPost("{departmentId:Guid}/users/{userId:Guid}")]
+    [HttpPost("employee-assign-department")]
     [Topic("customer-datasync-pub-sub", "employee-assign-department")]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<User>> AssignDepartment([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromRoute] Guid departmentId, [FromBody] Guid callerId)
+    public async Task<ActionResult<User>> AssignDepartment([FromBody] AssignDepartmentEvent departmentEvent)
     {
-        var user = await _userServices.AssignDepartment(customerId, userId, departmentId, callerId);
+        var user = await _userServices.AssignDepartment(departmentEvent.CustomerId, departmentEvent.UserId, departmentEvent.DepartmentId, departmentEvent.CallerId);
         if (user == null) return NotFound();
         return Ok(_mapper.Map<User>(user));
     }
@@ -224,18 +233,15 @@ public class EmployeeDatasyncDepartmentsController : ControllerBase
     /// <summary>
     /// Remove a User from a Department
     /// </summary>
-    /// <param name="customerId"></param>
-    /// <param name="userId"></param>
-    /// <param name="departmentId"></param>
-    /// <param name="callerId"></param>
+    /// <param name="departmentEvent"><see cref="UnassignDepartmentEvent"/></param>
     /// <returns></returns>
-    [HttpDelete("{departmentId:Guid}/users/{userId:Guid}")]
+    [HttpDelete("unassign-department")]
     [Topic("customer-datasync-pub-sub", "unassign-department")]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult<User>> UnnassignDepartment([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromRoute] Guid departmentId, [FromBody] Guid callerId)
+    public async Task<ActionResult<User>> UnnassignDepartment([FromBody] UnassignDepartmentEvent departmentEvent)
     {
-        var user = await _userServices.UnassignDepartment(customerId, userId, departmentId, callerId);
+        var user = await _userServices.UnassignDepartment(departmentEvent.CustomerId, departmentEvent.UserId, departmentEvent.DepartmentId, departmentEvent.CallerId);
         if (user == null) return NotFound();
         return Ok(_mapper.Map<User>(user));
     }
@@ -244,20 +250,17 @@ public class EmployeeDatasyncDepartmentsController : ControllerBase
     /// <summary>
     /// Assign Manager to a Department
     /// </summary>
-    /// <param name="customerId"></param>
-    /// <param name="userId"></param>
-    /// <param name="departmentId"></param>
-    /// <param name="callerId"></param>
+    /// <param name="departmentEvent"><see cref="AssignDepartmentEvent"/></param>
     /// <returns></returns>
-    [HttpPost("{departmentId:Guid}/users/{userId:Guid}/manager")]
+    [HttpPost("assign-department-manager")]
     [Topic("customer-datasync-pub-sub", "assign-department-manager")]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult> AssignManagerToDepartment([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromRoute] Guid departmentId, [FromBody] Guid callerId)
+    public async Task<ActionResult> AssignManagerToDepartment([FromBody] AssignDepartmentEvent departmentEvent)
     {
         try
         {
-            await _userServices.AssignManagerToDepartment(customerId, userId, departmentId, callerId);
+            await _userServices.AssignManagerToDepartment(departmentEvent.CustomerId, departmentEvent.UserId, departmentEvent.DepartmentId, departmentEvent.CallerId);
             return Ok();
         }
         catch (DepartmentNotFoundException exception)
@@ -280,20 +283,17 @@ public class EmployeeDatasyncDepartmentsController : ControllerBase
     /// <summary>
     /// Remove a Manager from a Department
     /// </summary>
-    /// <param name="customerId"></param>
-    /// <param name="userId"></param>
-    /// <param name="departmentId"></param>
-    /// <param name="callerId"></param>
+    /// <param name="departmentEvent"><see cref="UnassignDepartmentEvent"/></param>
     /// <returns></returns>
-    [HttpDelete("{departmentId:Guid}/users/{userId:Guid}/manager")]
+    [HttpDelete("unnassign-department-manager")]
     [Topic("customer-datasync-pub-sub", "unnassign-department-manager")]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<ActionResult> UnassignManagerFromDepartment([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromRoute] Guid departmentId, [FromBody] Guid callerId)
+    public async Task<ActionResult> UnassignManagerFromDepartment([FromBody] UnassignDepartmentEvent departmentEvent)
     {
         try
         {
-            await _userServices.UnassignManagerFromDepartment(customerId, userId, departmentId, callerId);
+            await _userServices.UnassignManagerFromDepartment(departmentEvent.CustomerId, departmentEvent.UserId, departmentEvent.DepartmentId, departmentEvent.CallerId);
             return Ok();
         }
         catch (DepartmentNotFoundException exception)

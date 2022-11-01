@@ -22,7 +22,7 @@ namespace Customer.API.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/employee-datasync/organizations/{customerId:Guid}/users")]
+[Route("api/v{version:apiVersion}/employee-datasync/users")]
 [Tags("Customer Data Sync API: Users")]
 [SwaggerResponse(StatusCodes.Status500InternalServerError, "Returned when the system encountered an unexpected problem.")]
 public class EmployeeDataSyncUsersController : ControllerBase
@@ -53,7 +53,7 @@ public class EmployeeDataSyncUsersController : ControllerBase
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    [HttpGet("{userId:Guid}")]
+    [HttpGet("{userId:Guid}/organizations/{customerId:Guid}")]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<ActionResult<User>> GetUser([FromRoute] Guid userId)
@@ -70,7 +70,7 @@ public class EmployeeDataSyncUsersController : ControllerBase
     /// <param name="customerId"></param>
     /// <param name="phoneNumber">User phone number</param>
     /// <returns></returns>
-    [HttpGet("{phoneNumber}")]
+    [HttpGet("{phoneNumber}/organizations/{customerId:Guid}")]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<ActionResult<User>> GetUserByPhoneNumber([FromRoute] Guid customerId, [FromRoute] string phoneNumber)
@@ -91,7 +91,7 @@ public class EmployeeDataSyncUsersController : ControllerBase
     /// <param name="page"></param>
     /// <param name="limit"></param>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet("organizations/{customerId:Guid}")]
     [ProducesResponseType(typeof(PagedModel<User>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<ActionResult<PagedModel<User>>> GetAllEmployees([FromRoute] Guid customerId,
@@ -194,16 +194,16 @@ public class EmployeeDataSyncUsersController : ControllerBase
     /// <param name="userId"></param>
     /// <param name="updateUser"></param>
     /// <returns></returns>
-    [HttpPut("{userId:Guid}")]
+    [HttpPut("update-employee")]
     [Topic("customer-datasync-pub-sub", "update-employee")]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult<User>> UpdateUserPut([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromBody] UpdateUser updateUser)
+    public async Task<ActionResult<User>> UpdateUserPut([FromBody] UpdateUserEvent updateUser)
     {
         try
         {
             var userPreference = updateUser.UserPreference == null ? null : new CustomerServices.Models.UserPreference(updateUser.UserPreference?.Language, updateUser.CallerId);
-            var updatedUser = await _userServices.UpdateUserPutAsync(customerId, userId, updateUser.FirstName,
+            var updatedUser = await _userServices.UpdateUserPutAsync(updateUser.CustomerId, updateUser.UserId, updateUser.FirstName,
                 updateUser.LastName, updateUser.Email, updateUser.EmployeeId, updateUser.MobileNumber, userPreference, updateUser.CallerId);
             if (updatedUser == null)
                 return NotFound();
@@ -238,22 +238,18 @@ public class EmployeeDataSyncUsersController : ControllerBase
     /// When it is false, the entry is permanently deleted from the system.This should only be run under very specific circumstances by the automated cleanup tools, and only on assets that is already soft-deleted.
     /// Default value : true
     /// </remarks>
-    /// <param name="customerId"></param>
-    /// <param name="userId"></param>
-    /// <param name="callerId"></param>
-    /// <param name="softDelete"></param>
     /// <returns cref="HttpStatusCode.NoContent"></returns>
     /// <returns cref="HttpStatusCode.BadRequest"></returns>
     /// <returns cref="HttpStatusCode.NotFound"></returns>
-    [HttpDelete("{userId:Guid}")]
+    [HttpDelete("delete-employee")]
     [Topic("customer-datasync-pub-sub", "delete-employee")]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> DeleteUser([FromRoute] Guid customerId, [FromRoute] Guid userId, [FromBody] Guid callerId, bool softDelete = true)
+    public async Task<ActionResult> DeleteUser([FromBody] DeleteUserEvent userEvent)
     {
         try
         {
-            var deletedUser = await _userServices.DeleteUserAsync(customerId, userId, callerId, softDelete);
+            var deletedUser = await _userServices.DeleteUserAsync(userEvent.CustomerId, userEvent.UserId, userEvent.CallerId, true);
             if (deletedUser == null)
                 return NotFound("The requested resource don't exist.");
 
@@ -284,22 +280,18 @@ public class EmployeeDataSyncUsersController : ControllerBase
     /// When it is false, the entry is permanently deleted from the system.This should only be run under very specific circumstances by the automated cleanup tools, and only on assets that is already soft-deleted.
     /// Default value : true
     /// </remarks>
-    /// <param name="customerId"></param>
-    /// <param name="phoneNumber"></param>
-    /// <param name="callerId"></param>
-    /// <param name="softDelete"></param>
     /// <returns cref="HttpStatusCode.NoContent"></returns>
     /// <returns cref="HttpStatusCode.BadRequest"></returns>
     /// <returns cref="HttpStatusCode.NotFound"></returns>
-    [HttpDelete("{phoneNumber}")]
-    [Topic("customer-datasync-pub-sub", "delete-employee")]
+    [HttpDelete("delete-employee-by-phone-number")]
+    [Topic("customer-datasync-pub-sub", "delete-employee-by-phone-number")]
     [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<ActionResult> DeleteUserByPhoneNumber([FromRoute] Guid customerId, [FromRoute] string phoneNumber, [FromBody] Guid callerId, bool softDelete = true)
+    public async Task<ActionResult> DeleteUserByPhoneNumber([FromBody] DeleteUserByPhoneNumberEvent deleteUserEvent)
     {
         try
         {
-            var deletedUser = await _userServices.DeleteUserByPhoneNumberAsync(customerId, phoneNumber, callerId, softDelete);
+            var deletedUser = await _userServices.DeleteUserByPhoneNumberAsync(deleteUserEvent.CustomerId, deleteUserEvent.PhoneNumber, deleteUserEvent.CallerId, true);
             if (deletedUser == null)
                 return NotFound("The requested resource don't exist.");
             // TODO: Ask about this status code 302. Does this make sense??

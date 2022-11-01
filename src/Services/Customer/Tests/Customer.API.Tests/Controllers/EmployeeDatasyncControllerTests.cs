@@ -41,8 +41,7 @@ namespace Customer.API.IntegrationTests.Controllers
             // Arrange
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
-            var customerId = _factory.ORGANIZATION_ID;
-            var requestUri = $"api/v1/employee-datasync/organizations/{customerId}/users/create-employee";
+            var requestUri = $"api/v1/employee-datasync/users/create-employee";
             CreateEmployeeEvent newEmployeeEvent = new();
 
             // Act
@@ -71,7 +70,7 @@ namespace Customer.API.IntegrationTests.Controllers
             };
             
             var customerId = _factory.ORGANIZATION_ID;
-            var requestUri = $"api/v1/employee-datasync/organizations/{customerId}/users";
+            var requestUri = $"api/v1/employee-datasync/users";
 
             // Act
             await httpClient.PostAsJsonAsync($"{requestUri}/create-employee", newEmployeeEvent);
@@ -79,7 +78,7 @@ namespace Customer.API.IntegrationTests.Controllers
             // Assert
 
             // Fetch newly created employee
-            var response = await httpClient.GetAsync($"{requestUri}?q={newEmployeeEmail}");
+            var response = await httpClient.GetAsync($"{requestUri}/organizations/{customerId}?q={newEmployeeEmail}");
             var read = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
