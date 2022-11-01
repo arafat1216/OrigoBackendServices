@@ -292,6 +292,8 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, FeatureId = (int)FeatureSeedDataValues.AssetManagement, UpdatedBy = systemUserId });
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, FeatureId = (int)FeatureSeedDataValues.BuyoutAsset, UpdatedBy = systemUserId });
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, FeatureId = (int)FeatureSeedDataValues.BasicHardwareRepair, UpdatedBy = systemUserId });
+                entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, FeatureId = (int)FeatureSeedDataValues.InternalAssetReturn, UpdatedBy = systemUserId });
+
                 //TODO: Remove when frontend check for the right feature
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, FeatureId = (int)FeatureSeedDataValues.BasicUserManagement, UpdatedBy = systemUserId });
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.TransactionalDeviceLifecycleManagement, FeatureId = (int)FeatureSeedDataValues.BasicAssetManagement, UpdatedBy = systemUserId });
