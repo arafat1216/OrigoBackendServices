@@ -330,7 +330,7 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         Assert.Equal("Missng/Incorrect Purchase Type Value. Correct Purchase Types: 'transactional personal', 'transactional non personal', 'as a service personal', 'as a service non personal'.", assetValidationResult.InvalidAssets[0].Errors[0]);
         Assert.Equal("Invalid e-mail: mail@", assetValidationResult.InvalidAssets[0].Errors[1]);
         Assert.Equal("Invalid Imei(s) 13311006051722 for mobile phone", assetValidationResult.InvalidAssets[2].Errors[0]);
-        Assert.Equal("Invalid purchase date - expected format yyyy-MM-dd (2022-03-21): 05.10.2021", assetValidationResult.InvalidAssets[1].Errors[0]);
+        Assert.Equal("Invalid purchase date - expected format yyyy-MM-dd (2022-03-21): 05.10.2021", assetValidationResult.InvalidAssets[0].Errors[2]);
     }
 
     [Fact]
@@ -372,8 +372,6 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     [Fact]
     public async Task ReadAssetFile_DuplicateIMEI()
     {
-        var httpClient = _factory.CreateClientWithDbSetup(AssetTestDataSeedingForDatabase.ResetDbForTests);
-
         // Arrange
         var fullFilename = Path.Combine(@"TestData", "demo_fileimport_duplicateIMEI.csv");
         var assetImportFileBytes = await File.ReadAllBytesAsync(fullFilename);
@@ -401,8 +399,8 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
 
         Assert.Equal("Invalid e-mail: mail@", assetValidationResult.InvalidAssets[0].Errors[0]);
         Assert.Equal("Invalid Imei(s) 13311006051722 for mobile phone", assetValidationResult.InvalidAssets[3].Errors[1]);
-        Assert.Equal("Invalid purchase date - expected format yyyy-MM-dd (2022-03-21): 05.10.2021", assetValidationResult.InvalidAssets[2].Errors[0]);  
-        Assert.Equal("Duplicate Active IMEI in the System - expected UNIQUE IMEI: 500119468586675", assetValidationResult.InvalidAssets[1].Errors[0]);  
+        Assert.Equal("Invalid purchase date - expected format yyyy-MM-dd (2022-03-21): 05.10.2021", assetValidationResult.InvalidAssets[1].Errors[0]);  
+        Assert.Equal("Duplicate Active IMEI in the System - expected UNIQUE IMEI: 500119468586675", assetValidationResult.InvalidAssets[1].Errors[1]);  
         Assert.Equal("Duplicate IMEI in the file - expected UNIQUE IMEI: 13311006051722", assetValidationResult.InvalidAssets[3].Errors[0]);
     }
 

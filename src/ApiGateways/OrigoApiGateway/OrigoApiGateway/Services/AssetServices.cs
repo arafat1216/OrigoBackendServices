@@ -462,7 +462,7 @@ namespace OrigoApiGateway.Services
                 return assetValidationResults;
             }
 
-            var currency = GetCurrencyByCountry(organization.Preferences.PrimaryLanguage);
+            var currency = GetCurrencyByCountry(customer.Preferences.PrimaryLanguage);
 
             var callerId = Guid.Parse("00000000-0000-0000-0000-000000000001");
             foreach (var validAsset in assetValidationResults.ValidAssets)
