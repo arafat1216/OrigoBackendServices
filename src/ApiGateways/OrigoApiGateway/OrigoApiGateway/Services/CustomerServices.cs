@@ -557,7 +557,7 @@ public class CustomerServices : ICustomerServices
             return new TechstepCustomers();
         }
 
-        var techstepProducts = await TechtepCoreHttpClient.GetFromJsonAsync<TechstepCoreCustomersData>($"?searchString={searchString}&pageSize=15");
+        var techstepProducts = await TechtepCoreHttpClient.GetFromJsonAsync<TechstepCoreCustomersData>($"?searchString={searchString}&pageSize=50");
         var techstepCustomers = await HttpClient.GetFromJsonAsync<IList<Organization>>($"{_options.ApiPath}/{true}/?partnerId={_options.TechstepPartnerId}");
 
         if (techstepProducts == null)
