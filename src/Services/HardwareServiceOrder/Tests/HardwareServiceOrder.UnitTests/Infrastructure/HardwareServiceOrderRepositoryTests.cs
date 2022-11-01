@@ -7,6 +7,7 @@ using Moq;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
+using Google.Api;
 
 namespace HardwareServiceOrderServices.Infrastructure.Tests
 {
@@ -295,6 +296,69 @@ namespace HardwareServiceOrderServices.Infrastructure.Tests
             // Assert
             Assert.NotNull(createResult);
             Assert.NotNull(dbResult);
+        }
+
+        // Test specifically for the "search" parameter
+        [Fact()]
+        public async Task GetAllServiceOrdersForOrganizationAsync_Search_Parameter_Test()
+        {
+            // Arrange
+            Guid customerId = Guid.Parse("d45a6943-75ce-402e-a612-04900aa50059");
+
+            DeliveryAddress deliveryAddress1 = new(RecipientTypeEnum.Personal, "Recipient", "Address1", "Address2", "PostalCode", "City", "Country");
+
+            AssetInfo assetInfo1 = new("Apple", "iPhone 10", new HashSet<string>() { "914364591085175" }, "SN/88879", DateOnly.Parse("2021-12-29"), null);
+            AssetInfo assetInfo2 = new("Samsung", "Galaxy S22 Ultra", new HashSet<string>() { "457046821986701" }, "SN/66647", DateOnly.Parse("2022-05-28"), null);
+
+            var order1 = new Models.HardwareServiceOrder(customerId, Guid.NewGuid(), 1, assetInfo1, "My screen broke!", new ContactDetails(Guid.NewGuid(), "John", "Doe", "john@test.com", "+4799988777"), deliveryAddress1, (int)ServiceTypeEnum.SUR, (int)ServiceStatusEnum.Ongoing, (int)ServiceProviderEnum.ConmodoNo, null, "10000000-0000-0000-0000-000000000000", "NOLF51234", "externalLink", new List<ServiceEvent>());
+            var order2 = new Models.HardwareServiceOrder(customerId, Guid.NewGuid(), 2, assetInfo2, "The battery won't charge", new ContactDetails(Guid.NewGuid(), "Ola", "Normann", "ola@test.com", "+4766688999"), deliveryAddress1, (int)ServiceTypeEnum.SUR, (int)ServiceStatusEnum.CompletedRepaired, (int)ServiceProviderEnum.ConmodoNo, null, "20000000-0000-0000-0000-000000000000", "NOLF8852", "externalLink", new List<ServiceEvent>());
+
+            _dbContext.Add(order1);
+            _dbContext.Add(order2);
+            _dbContext.SaveChanges();
+
+            // Act
+            var noFilter = await _repository.GetAllServiceOrdersForOrganizationAsync(customerId, null, null, false, 1, 10, true, new());
+            var searchResultOrderId1 = await _repository.GetAllServiceOrdersForOrganizationAsync(customerId, null, null, false, 1, 10, true, new(), search: "10000000-");
+            var searchResultOrderId2 = await _repository.GetAllServiceOrdersForOrganizationAsync(customerId, null, null, false, 1, 10, true, new(), search: "NOLF8852");
+            var searchResultNoResults = await _repository.GetAllServiceOrdersForOrganizationAsync(customerId, null, null, false, 1, 10, true, new(), search: "NOLF0999487");
+
+            // Assert
+            Assert.Equal(2, noFilter.Items.Count);
+            Assert.Equal(1, searchResultOrderId1.Items.Count);
+            Assert.Equal(1, searchResultOrderId2.Items.Count);
+            Assert.Equal(0, searchResultNoResults.Items.Count);
+        }
+
+        // Test specifically for the "status ID" parameter
+        [Fact()]
+        public async Task GetAllServiceOrdersForOrganizationAsync_StatusIdFilter_Tests()
+        {
+            // Arrange
+            Guid customerId = Guid.Parse("d45a6943-75ce-402e-a612-04900aa50059");
+
+            DeliveryAddress deliveryAddress1 = new(RecipientTypeEnum.Personal, "Recipient", "Address1", "Address2", "PostalCode", "City", "Country");
+
+            AssetInfo assetInfo1 = new("Apple", "iPhone 10", new HashSet<string>() { "914364591085175" }, "SN/88879", DateOnly.Parse("2021-12-29"), null);
+            AssetInfo assetInfo2 = new("Samsung", "Galaxy S22 Ultra", new HashSet<string>() { "457046821986701" }, "SN/66647", DateOnly.Parse("2022-05-28"), null);
+
+            var order1 = new Models.HardwareServiceOrder(customerId, Guid.NewGuid(), 1, assetInfo1, "My screen broke!", new ContactDetails(Guid.NewGuid(), "John", "Doe", "john@test.com", "+4799988777"), deliveryAddress1, (int)ServiceTypeEnum.SUR, (int)ServiceStatusEnum.Ongoing, (int)ServiceProviderEnum.ConmodoNo, null, "10000000-0000-0000-0000-000000000000", "NOLF51234", "externalLink", new List<ServiceEvent>());
+            var order2 = new Models.HardwareServiceOrder(customerId, Guid.NewGuid(), 2, assetInfo2, "The battery won't charge", new ContactDetails(Guid.NewGuid(), "Ola", "Normann", "ola@test.com", "+4766688999"), deliveryAddress1, (int)ServiceTypeEnum.SUR, (int)ServiceStatusEnum.CompletedRepaired, (int)ServiceProviderEnum.ConmodoNo, null, "20000000-0000-0000-0000-000000000000", "NOLF8852", "externalLink", new List<ServiceEvent>());
+
+            _dbContext.Add(order1);
+            _dbContext.Add(order2);
+            _dbContext.SaveChanges();
+
+            // Act
+
+            var searchResultsWithUsedAndUnusedIds = await _repository.GetAllServiceOrdersForOrganizationAsync(customerId, null, null, false, 1, 10, true, new(), statusIds: new HashSet<int>() { 3, 6, 11 });
+            var searchResultsWithOnlyUnusedIds = await _repository.GetAllServiceOrdersForOrganizationAsync(customerId, null, null, false, 1, 10, true, new(), statusIds: new HashSet<int>() { 3 });
+            var searchResultsWithOnlyUsedIds = await _repository.GetAllServiceOrdersForOrganizationAsync(customerId, null, null, false, 1, 10, true, new(), statusIds: new HashSet<int>() { 6 });
+
+            // Assert
+            Assert.Equal(2, searchResultsWithUsedAndUnusedIds.Items.Count);
+            Assert.Equal(0, searchResultsWithOnlyUnusedIds.Items.Count);
+            Assert.Equal(1, searchResultsWithOnlyUsedIds.Items.Count);
         }
     }
 }
