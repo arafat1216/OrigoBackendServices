@@ -6,7 +6,7 @@ namespace OrigoApiGateway.Models
 {
     public class FilterOptionsForHardwareServiceOrder
     {
-        [FromQuery]
+        [FromQuery(Name = "statusId")]
         public HashSet<int>? StatusId { get; set; } = null;
     }
 }
