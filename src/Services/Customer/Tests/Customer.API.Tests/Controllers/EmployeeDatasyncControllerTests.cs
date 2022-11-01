@@ -41,7 +41,7 @@ namespace Customer.API.IntegrationTests.Controllers
             // Arrange
             var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
 
-            var requestUri = $"api/v1/employee-datasync/users/create-employee";
+            var requestUri = $"api/v1/datasync/users/create-employee";
             CreateEmployeeEvent newEmployeeEvent = new();
 
             // Act
@@ -70,7 +70,7 @@ namespace Customer.API.IntegrationTests.Controllers
             };
             
             var customerId = _factory.ORGANIZATION_ID;
-            var requestUri = $"api/v1/employee-datasync/users";
+            var requestUri = $"api/v1/datasync/users";
 
             // Act
             await httpClient.PostAsJsonAsync($"{requestUri}/create-employee", newEmployeeEvent);

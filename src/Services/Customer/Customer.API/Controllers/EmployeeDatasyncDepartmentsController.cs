@@ -22,7 +22,7 @@ namespace Customer.API.Controllers;
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/employee-datasync/departments")]
+[Route("api/v{version:apiVersion}/datasync/departments")]
 [Tags("Customer Data Sync API: Departments")]
 [SwaggerResponse(StatusCodes.Status500InternalServerError, "Returned when the system encountered an unexpected problem.")]
 public class EmployeeDatasyncDepartmentsController : ControllerBase
