@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Options;
+using ProductCatalog.API.Filters;
 using ProductCatalog.API.Infrastructure;
 using ProductCatalog.Common.Generic;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -84,6 +85,7 @@ builder.Services.AddRouting(options =>
     // Enforce lowercase URLs / routes
     options.LowercaseUrls = true;
 });
+builder.Services.AddScoped<ErrorExceptionFilter>();
 
 #endregion
 
