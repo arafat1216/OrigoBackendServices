@@ -153,7 +153,7 @@ public class UnitTestDatabaseSeeder
         var userPreferences5 = new UserPreference("EN", EMPTY_CALLER_ID);
         var userFour = new User(customerOne, USER_FOUR_ID, "Al", "Pacino", "al@Pacino.com", "+4755555555", "DH-104",
             userPreferences4, EMPTY_CALLER_ID);
-        var userFive = new User(customerOne, USER_FIVE_ID, "Robert", "De Niro", "robert@deniro.com", "+4755555555",
+        var userFive = new User(customerOne, USER_FIVE_ID, "Robert", "De Niro", "r@d.dk", "+4755555555",
             "DH-105", userPreferences5, EMPTY_CALLER_ID);
         userFive.AssignDepartment(departmentTwoForCustomerOne, EMPTY_CALLER_ID);
 

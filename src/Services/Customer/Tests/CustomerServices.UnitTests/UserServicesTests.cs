@@ -788,4 +788,53 @@ public class UserServicesTests
         // Assert
         Assert.Equal(0, user.UserStatus);
     }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetAllUsersAsync_SearchByPhoneNumber()
+    {
+        // Arrange
+        await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
+        var organizationRepository =
+            new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var userPermissionServices = Mock.Of<IUserPermissionServices>();
+        var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository,
+            Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
+
+        // Act
+        var user = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null,null,null,CancellationToken.None, "+4799999999");
+        var multipleUsers = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null,null,null,CancellationToken.None, "+47");
+        var usersWith5InPhoneNumber = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null,null,null,CancellationToken.None, "5");
+        var noUsersMatch = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null,null,null,CancellationToken.None, "5s");
+
+        // Assert
+        Assert.Equal(1, user.Items.Count);
+        Assert.Equal(4, multipleUsers.Items.Count);
+        Assert.Equal(3, usersWith5InPhoneNumber.Items.Count);
+        Assert.Equal(0, noUsersMatch.Items.Count);
+    }
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetAllUsersAsync_SearchByNameAndEmail()
+    {
+        // Arrange
+        await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
+        var organizationRepository =
+            new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var userPermissionServices = Mock.Of<IUserPermissionServices>();
+        var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository,
+            Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
+
+        // Act
+        var usersSearchOnlyEmails = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null, null, CancellationToken.None, "@d");
+        var usersWithEmailAndNameContainingO = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null, null, CancellationToken.None, "o");
+        var usersWithEmails = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_TWO_ID, null, null, null, CancellationToken.None, "e@");
+        var handleUpperCaseLetter = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_TWO_ID, null, null, null, CancellationToken.None, "pRe");
+
+        // Assert
+        Assert.Equal(2, usersSearchOnlyEmails.Items.Count);
+        Assert.Equal(4, usersWithEmailAndNameContainingO.Items.Count);
+        Assert.Equal(2, usersWithEmails.Items.Count);
+        Assert.Equal(2, handleUpperCaseLetter.Items.Count);
+    }
 }

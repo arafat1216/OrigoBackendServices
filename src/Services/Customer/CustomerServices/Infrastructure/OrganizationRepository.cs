@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 
 #nullable enable
 
@@ -459,9 +460,19 @@ public class OrganizationRepository : IOrganizationRepository
 
         if (!string.IsNullOrEmpty(search))
         {
-            query = query.Where(u => u.FirstName.ToLower().Contains(search.ToLower())
-                                     || u.LastName.ToLower().Contains(search.ToLower())
-                                     || u.Email.ToLower().Contains(search.ToLower()));
+            var phoneNumber = false;
+            bool email = false;
+
+            if (search.Contains('@'))
+                email = true;
+
+            if (Regex.IsMatch(search, "^[+]*[0-9]*$"))
+                phoneNumber = true;
+
+            query = query.Where(u =>    (!email && u.FirstName.ToLower().Contains(search.ToLower()))
+                                     || (!email && u.LastName.ToLower().Contains(search.ToLower()))
+                                     ||   u.Email.ToLower().Contains(search.ToLower())
+                                     || (phoneNumber && u.MobileNumber.Contains(search)));
         }
 
         if (userStatus != null)
