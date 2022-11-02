@@ -466,7 +466,7 @@ public class OrganizationRepository : IOrganizationRepository
             if (search.Contains('@'))
                 email = true;
 
-            if (Regex.IsMatch(search, "^[+]*[0-9]*$"))
+            if (Regex.IsMatch(search, "^[+]{0,1}[0-9]{2,14}$"))
                 phoneNumber = true;
 
             query = query.Where(u =>    (!email && u.FirstName.ToLower().Contains(search.ToLower()))

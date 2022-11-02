@@ -103,6 +103,25 @@ namespace OrigoApiGateway.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves all users for a organization. 
+        /// </summary>
+        /// <param name="organizationId">The organization ID to retrieve users for.</param>
+        /// <param name="filterOptions"> A class containing the various query-parameter filters</param>
+        /// <param name="search">
+        ///     If a value is provided, a lightweight "contains" search is applied to a few select key-properties.
+        ///     <br/><br/>
+        ///     The following properties is searched for: <br/>
+        ///     - First Name
+        ///     - Last Name
+        ///     - E-mail
+        ///     - Phone Number (requires 2 or more characters)
+        ///     <br/><br/>
+        ///     When the value is <c><see langword="null"/>, the filter is ignored.</c>
+        /// </param>
+        /// <param name="page">The paginated page that should be retrieved.</param>
+        /// <param name="limit"> The number of items to retrieve per <paramref name="page"/>. </param>
+        /// <returns> A task containing the appropriate action-result. </returns>
         [HttpGet]
         [ProducesResponseType(typeof(List<OrigoUser>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]

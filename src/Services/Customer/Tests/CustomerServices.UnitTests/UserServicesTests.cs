@@ -804,13 +804,13 @@ public class UserServicesTests
         // Act
         var user = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null,null,null,CancellationToken.None, "+4799999999");
         var multipleUsers = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null,null,null,CancellationToken.None, "+47");
-        var usersWith5InPhoneNumber = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null,null,null,CancellationToken.None, "5");
+        var usersOnlyOneDigits = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null,null,null,CancellationToken.None, "5");
         var noUsersMatch = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null,null,null,CancellationToken.None, "5s");
 
         // Assert
         Assert.Equal(1, user.Items.Count);
         Assert.Equal(4, multipleUsers.Items.Count);
-        Assert.Equal(3, usersWith5InPhoneNumber.Items.Count);
+        Assert.Equal(0, usersOnlyOneDigits.Items.Count);
         Assert.Equal(0, noUsersMatch.Items.Count);
     }
     [Fact]
