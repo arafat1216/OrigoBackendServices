@@ -1,11 +1,8 @@
 ﻿using System.Net;
-using System.Text.Json;
 using AutoMapper;
-using Common.Extensions;
 using Common.Interfaces;
-using Common.Model.EventModels.DatasyncModels;
+using Customer.API.CustomerDatasyncModels;
 using Customer.API.ViewModels;
-using Customer.API.WriteModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
 using Dapr;

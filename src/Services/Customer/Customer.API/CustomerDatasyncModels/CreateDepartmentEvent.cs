@@ -1,4 +1,4 @@
-﻿namespace Common.Model.EventModels.DatasyncModels;
+﻿namespace Customer.API.CustomerDatasyncModels;
 
 public record CreateDepartmentEvent
 {

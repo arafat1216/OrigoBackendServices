@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Customer.API.ViewModels;
 
-namespace Customer.API.WriteModels;
+namespace Customer.API.CustomerDatasyncModels;
 
 public class UpdateUserEvent
 {

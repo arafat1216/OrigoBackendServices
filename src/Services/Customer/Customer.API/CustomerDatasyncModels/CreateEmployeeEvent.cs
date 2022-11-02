@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Common.Model.EventModels.DatasyncModels;
+namespace Customer.API.CustomerDatasyncModels;
 
 /// <summary>
 /// Event message published when a new employee end user is created 

@@ -1,6 +1,6 @@
-﻿namespace Common.Model.EventModels.DatasyncModels;
+﻿namespace Customer.API.CustomerDatasyncModels;
 
-public record UnassignDepartmentEvent
+public record DeleteDepartmentEvent
 {
     /// <summary>
     /// The external id of the customer
@@ -8,14 +8,9 @@ public record UnassignDepartmentEvent
     public Guid CustomerId { get; set; }
 
     /// <summary>
-    /// Department Id
+    /// The external id of the department
     /// </summary>
     public Guid DepartmentId { get; set; }
-
-    /// <summary>
-    /// The external id of the User
-    /// </summary>
-    public Guid UserId { get; set; }
 
     /// <summary>
     /// This might get obsolete in future

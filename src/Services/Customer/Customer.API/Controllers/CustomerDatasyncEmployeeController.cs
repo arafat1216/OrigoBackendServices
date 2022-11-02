@@ -3,14 +3,13 @@ using System.Text.Json;
 using AutoMapper;
 using Common.Extensions;
 using Common.Interfaces;
-using Common.Model.EventModels.DatasyncModels;
+using Customer.API.CustomerDatasyncModels;
 using Customer.API.ViewModels;
 using Customer.API.WriteModels;
 using CustomerServices;
 using CustomerServices.Exceptions;
 using Dapr;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 #nullable enable
@@ -25,9 +24,9 @@ namespace Customer.API.Controllers;
 [Route("api/v{version:apiVersion}/customer-datasync/users")]
 [Tags("Customer Data Sync API: Users")]
 [SwaggerResponse(StatusCodes.Status500InternalServerError, "Returned when the system encountered an unexpected problem.")]
-public class CustomerDatasyncUsersController : ControllerBase
+public class CustomerDatasyncEmployeeController : ControllerBase
 {
-    private readonly ILogger<CustomerDatasyncUsersController> _logger;
+    private readonly ILogger<CustomerDatasyncEmployeeController> _logger;
     private readonly IUserServices _userServices;
     private readonly IDepartmentsServices _departmentServices;
     private readonly IMapper _mapper;
@@ -39,7 +38,7 @@ public class CustomerDatasyncUsersController : ControllerBase
     /// <param name="userServices"> The injected <see cref="IUserServices"/> instance. </param>
     /// <param name="departmentServices"> The injected <see cref="IDepartmentsServices"/> instance. </param>
     /// <param name="mapper"> The injected <see cref="IMapper"/> (automapper) instance. </param>
-    public CustomerDatasyncUsersController(ILogger<CustomerDatasyncUsersController> logger, IUserServices userServices, IDepartmentsServices departmentServices, IMapper mapper)
+    public CustomerDatasyncEmployeeController(ILogger<CustomerDatasyncEmployeeController> logger, IUserServices userServices, IDepartmentsServices departmentServices, IMapper mapper)
     {
         _logger = logger;
         _userServices = userServices;

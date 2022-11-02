@@ -1,6 +1,6 @@
-﻿namespace Common.Model.EventModels.DatasyncModels;
+﻿namespace Customer.API.CustomerDatasyncModels;
 
-public record DeleteUserEvent
+public record DeleteUserByPhoneNumberEvent
 {
     /// <summary>
     /// The external id of the customer
@@ -8,9 +8,9 @@ public record DeleteUserEvent
     public Guid CustomerId { get; set; }
     
     /// <summary>
-    /// The external id of the User
+    /// User's phone number
     /// </summary>
-    public Guid UserId { get; set; }
+    public string PhoneNumber { get; set; }
 
     /// <summary>
     /// NB! This Will be removed in a later version

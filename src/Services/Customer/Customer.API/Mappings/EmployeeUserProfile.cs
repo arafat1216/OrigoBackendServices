@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Common.Model.EventModels.DatasyncModels;
+using Customer.API.CustomerDatasyncModels;
 using Customer.API.ViewModels;
 using Customer.API.WriteModels;
 
