@@ -813,6 +813,7 @@ public class UserServicesTests
         Assert.Equal(0, usersOnlyOneDigits.Items.Count);
         Assert.Equal(0, noUsersMatch.Items.Count);
     }
+
     [Fact]
     [Trait("Category", "UnitTest")]
     public async Task GetAllUsersAsync_SearchByNameAndEmail()
@@ -836,5 +837,28 @@ public class UserServicesTests
         Assert.Equal(4, usersWithEmailAndNameContainingO.Items.Count);
         Assert.Equal(2, usersWithEmails.Items.Count);
         Assert.Equal(2, handleUpperCaseLetter.Items.Count);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetAllUsersAsync_TrimSearch()
+    {
+        // Arrange
+        await using var context = new CustomerContext(ContextOptions, _apiRequesterService);
+        var organizationRepository =
+            new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var userPermissionServices = Mock.Of<IUserPermissionServices>();
+        var userServices = new UserServices(Mock.Of<ILogger<UserServices>>(), organizationRepository,
+            Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
+
+        // Act
+        var spaceInBetween = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null, null, CancellationToken.None, "De N");
+        var spaceBefore = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null, null, CancellationToken.None, " De N");
+        var spaceInfront = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null, null, CancellationToken.None, "De N ");
+
+        // Assert
+        Assert.Equal(1, spaceInBetween.Items.Count);
+        Assert.Equal(1, spaceBefore.Items.Count);
+        Assert.Equal(1, spaceInfront.Items.Count);
     }
 }

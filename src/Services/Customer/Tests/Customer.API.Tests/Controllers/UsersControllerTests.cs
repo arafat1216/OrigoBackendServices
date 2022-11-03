@@ -1864,5 +1864,26 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.NotNull(user);
             Assert.Null(user.UserName);
         }
+
+        [Fact]
+        public async Task GetAllUsers_SearchWithSpecialCharacters_ShouldTrim()
+        {
+
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            // Setup
+            var search = "+47";
+            var page = 1;
+            var limit = 1000;
+
+
+            var requestUri = $"/api/v1/organizations/{_customerId}/users?q={search}&page={page}&limit={limit}";
+
+            var response = await httpClient.GetAsync(requestUri);
+            var users = await response.Content.ReadFromJsonAsync<PagedModel<UserDTO>>();
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(5, users?.TotalItems);
+        }
     }
 }

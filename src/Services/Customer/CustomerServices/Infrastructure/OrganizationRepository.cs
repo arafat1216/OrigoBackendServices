@@ -460,6 +460,7 @@ public class OrganizationRepository : IOrganizationRepository
 
         if (!string.IsNullOrEmpty(search))
         {
+            search = search.Trim();
             var phoneNumber = false;
             bool email = false;
 
