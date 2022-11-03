@@ -24,10 +24,6 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
             builder.Property(e => e.SubscriptionOrderId)
                    .HasColumnOrder(1);
 
-            builder.Property(e => e.MobileNumber)
-               .HasComment("A phone-number using E.164 format.")
-               .HasMaxLength(15)
-               .IsUnicode(false);
             builder.Property(s => s.SimCardNumber).HasMaxLength(22);
         }
     }

@@ -1,4 +1,6 @@
 ﻿using Common.Enums;
+using Common.Interfaces;
+using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.SubscriptionManagement;
 using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
@@ -31,10 +33,10 @@ namespace OrigoApiGateway.Services
             TransferToPrivateSubscriptionOrder order, Guid callerId);
         Task<OrigoChangeSubscriptionOrder> ChangeSubscriptionOrderAsync(Guid organizationId, ChangeSubscriptionOrderPostRequest subscriptionOrderModel);
         Task<IList<OrigoSubscriptionOrderListItem>> GetSubscriptionOrders(Guid organizationId);
+        Task<PagedModel<OrigoSubscriptionOrderListItem>> GetAllSubscriptionOrders(Guid organizationId, CancellationToken cancellationToken, FilterOptionsForSubscriptionOrder? filterOptions, string? search = null, int page = 1, int limit = 25);
         Task<int> GetSubscriptionOrdersCount(Guid organizationId, IList<SubscriptionOrderTypes>? orderTypes = null, string? phoneNumber = null, bool checkOrderExist = false);
         Task<OrigoCancelSubscriptionOrder> CancelSubscriptionOrderForCustomerAsync(Guid organizationId, CancelSubscriptionOrderDTO order);
         Task<OrigoOrderSim> OrderSimCardForCustomerAsync(Guid organizationId, OrderSim order, Guid callerId);
-
         Task<OrigoActivateSimOrder> ActivateSimCardForCustomerAsync(Guid organizationId, ActivateSimOrderPostRequest activateSimOrder);
         Task<OrigoNewSubscriptionOrder> NewSubscriptionOrder(Guid organizationId, NewSubscriptionOrderPostRequest requestModel);
         Task<IList<OrigoCustomerStandardPrivateSubscriptionProduct>> GetCustomerStandardPrivateSubscriptionProductAsync(Guid organizationId);

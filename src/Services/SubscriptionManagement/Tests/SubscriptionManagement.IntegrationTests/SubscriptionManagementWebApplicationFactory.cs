@@ -98,7 +98,8 @@ public class SubscriptionManagementWebApplicationFactory<TProgram> : WebApplicat
                     OperatorName = "Telia",
                     NewSubscription = "New",
                     OrderExecutionDate = DateTime.UtcNow,
-                    OrganizationId = ORGANIZATION_ID
+                    OrganizationId = ORGANIZATION_ID,
+                    SalesforceTicketId = "911"
                 });
 
                 subscriptionManagementContext.SaveChanges();

@@ -1,4 +1,5 @@
 ﻿using Common.Enums;
+using Common.Interfaces;
 using SubscriptionManagementServices.ServiceModels;
 
 namespace SubscriptionManagementServices
@@ -15,5 +16,6 @@ namespace SubscriptionManagementServices
         Task<ActivateSimOrderDTO> ActivateSimAsync(Guid organizationId, NewActivateSimOrder simOrder);
         Task<NewSubscriptionOrderDTO> NewSubscriptionOrderAsync(Guid organizationId, NewSubscriptionOrderRequestDTO newSubscriptionOrder);
         Task<DetailViewSubscriptionOrderLog> GetDetailViewSubscriptionOrderLogAsync(Guid organizationId, Guid orderId,int orderType);
+        Task<PagedModel<SubscriptionOrderListItemDTO>> GetAllSubscriptionOrderLog(Guid organizationId, string? search, IList<SubscriptionOrderTypes>? OrderType, int page, int limit, CancellationToken cancellationToken);
     }
 }

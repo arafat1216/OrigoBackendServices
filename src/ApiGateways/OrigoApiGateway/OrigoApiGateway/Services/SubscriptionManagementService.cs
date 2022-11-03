@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Common.Enums;
+using Common.Interfaces;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Models.SubscriptionManagement;
 using OrigoApiGateway.Models.SubscriptionManagement.Backend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Backend.Response;
@@ -12,6 +14,7 @@ using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 using System.Net;
 using System.Text.Json;
+using System.Threading;
 
 namespace OrigoApiGateway.Services
 {
@@ -426,6 +429,43 @@ namespace OrigoApiGateway.Services
                 }
 
                 return subscriptionOrderList ?? new List<OrigoSubscriptionOrderListItem>();
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "GetSubscriptionOrders failed with HttpRequestException.");
+                throw;
+            }
+        }
+
+        public async Task<PagedModel<OrigoSubscriptionOrderListItem>> GetAllSubscriptionOrders(Guid organizationId, CancellationToken cancellationToken, FilterOptionsForSubscriptionOrder? filterOptions, string? search = null, int page = 1, int limit = 25)
+        {
+            try
+            {
+                var requestUri = $"{_options.ApiPath}/{organizationId}/subscription-orders/pagination?q={search}&page={page}&limit={limit}";
+
+                if (filterOptions != null)
+                {
+                    string json = JsonSerializer.Serialize(filterOptions);
+                    requestUri = QueryHelpers.AddQueryString(requestUri, "filterOptions", $"{json}");
+                }
+
+                var subscriptionOrderList = await HttpClient.GetFromJsonAsync<PagedModel<OrigoSubscriptionOrderListItem>>(requestUri);
+                var userNames = await _userServices.GetAllUsersNamesAsync(organizationId, cancellationToken);
+                if (subscriptionOrderList != null)
+                {
+                    foreach (var log in subscriptionOrderList.Items)
+                    {
+                        if (!Guid.TryParse(log.CreatedBy, out var userId)) continue;
+                        var userName = string.Empty;
+                        if (userNames.TryGetValue(new UserNamesDTO { UserId = userId }, out var foundUserNamesDTO))
+                        {
+                            userName = foundUserNamesDTO.UserName;
+                        }
+                        log.CreatedBy = userName;
+                    }
+                }
+
+                return subscriptionOrderList ?? new PagedModel<OrigoSubscriptionOrderListItem>();
             }
             catch (HttpRequestException ex)
             {

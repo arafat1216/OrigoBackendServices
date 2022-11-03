@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Common.Enums;
+using Common.Interfaces;
 using SubscriptionManagement.API.Controllers;
 using SubscriptionManagement.API.ViewModels;
 using SubscriptionManagementServices.ServiceModels;
@@ -1169,5 +1171,56 @@ public class
         Assert.Contains(
         $"Can't find the order with id: {subscriptionOrderList[0].SubscriptionOrderId}",
        response.Content.ReadAsStringAsync().Result);
+    }
+    [Fact]
+    public async Task GetAllSubscriptionOrders()
+    {
+        // Act
+        var response = await _httpClient.GetFromJsonAsync<PagedModel<SubscriptionOrderListItemDTO>>($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-orders/pagination?page={1}&limit={25}");
+        
+        // Assert
+        Assert.Equal(15, response!.TotalItems);
+    }
+    [Fact]
+    public async Task GetAllSubscriptionOrders_ByPhoneNumber()
+    {
+        // Arrange
+        var search = "99999998";
+
+        // Act
+        var response = await _httpClient.GetFromJsonAsync<PagedModel<SubscriptionOrderListItemDTO>>($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-orders/pagination?q={search}&page={1}&limit={25}");
+        
+        // Assert
+        Assert.Equal(1, response!.TotalItems);
+        Assert.Equal(search, response!.Items[0].PhoneNumber);
+    }
+    [Fact]
+    public async Task GetAllSubscriptionOrders_ByOrderNumber()
+    {
+        // Arrange
+        var orderNumber = "911";
+
+        // Act
+        var response = await _httpClient.GetFromJsonAsync<PagedModel<SubscriptionOrderListItemDTO>>($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-orders/pagination?q={orderNumber}&page={1}&limit={25}");
+
+        // Assert
+        Assert.Equal(5, response!.TotalItems);
+    }
+    [Fact]
+    public async Task GetAllSubscriptionOrders_ByOrderType()
+    {
+        // Arrange
+        var filterOptions = new FilterOptionsForSubscriptionOrder
+        {
+            OrderType = new List<SubscriptionOrderTypes>() { SubscriptionOrderTypes.TransferToBusiness }
+        };
+        var json = JsonSerializer.Serialize(filterOptions);
+
+        // Act
+        var response = await _httpClient.GetFromJsonAsync<PagedModel<SubscriptionOrderListItemDTO>>($"/api/v1/SubscriptionManagement/{_organizationId}/subscription-orders/pagination?page={1}&limit={25}&filterOptions={json}");
+        
+        // Assert
+        Assert.Equal(3, response!.TotalItems);
+        Assert.Equal((int)SubscriptionOrderTypes.TransferToBusiness, response!.Items[0].OrderTypeId);
     }
 }

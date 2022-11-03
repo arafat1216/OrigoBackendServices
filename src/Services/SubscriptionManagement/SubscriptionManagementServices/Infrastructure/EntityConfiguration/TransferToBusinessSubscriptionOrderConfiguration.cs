@@ -30,11 +30,6 @@ namespace SubscriptionManagementServices.Infrastructure.EntityConfiguration
 
             builder.HasOne(e => e.BusinessSubscription);
 
-            builder.Property(e => e.MobileNumber)
-               .HasComment("A phone-number using E.164 format.")
-               .HasMaxLength(15)
-               .IsUnicode(false);
-
             builder.Property(e => e.OperatorAccountPhoneNumber)
                .HasComment("A phone-number using E.164 format.")
                .HasMaxLength(15)

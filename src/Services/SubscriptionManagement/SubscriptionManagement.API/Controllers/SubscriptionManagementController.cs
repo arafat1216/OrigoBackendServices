@@ -7,6 +7,8 @@ using SubscriptionManagementServices.ServiceModels;
 using System.Net;
 using Swashbuckle.AspNetCore.Annotations;
 using Common.Enums;
+using System.Text.Json;
+using Common.Interfaces;
 
 namespace SubscriptionManagement.API.Controllers
 {
@@ -241,6 +243,27 @@ namespace SubscriptionManagement.API.Controllers
         public async Task<ActionResult> GetSubscriptionOrders(Guid organizationId)
         {
             return Ok(await _subscriptionServices.GetSubscriptionOrderLog(organizationId));
+        }
+
+        /// <summary>
+        /// Gets a list of all subscription orders for a customer
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <returns></returns>
+        [Route("{organizationId:Guid}/subscription-orders/pagination")]
+        [ProducesResponseType(typeof(PagedModel<SubscriptionOrderListItemDTO>), (int)HttpStatusCode.OK)]
+        [SwaggerOperation(Tags = new[] { "Subscription Orders" })]
+        [HttpGet]
+        public async Task<ActionResult> GetAllSubscriptionOrders([FromRoute] Guid organizationId, CancellationToken cancellationToken, [FromQuery(Name = "q")] string? search,
+                    [FromQuery] int page = 1, [FromQuery] int limit = 25,
+                    [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString = null)
+        {
+            FilterOptionsForSubscriptionOrder? filterOptions = null;
+            if (!string.IsNullOrEmpty(filterOptionsAsJsonString))
+            {
+                filterOptions = JsonSerializer.Deserialize<FilterOptionsForSubscriptionOrder>(filterOptionsAsJsonString);
+            }
+            return Ok(await _subscriptionServices.GetAllSubscriptionOrderLog(organizationId, search, filterOptions?.OrderType, page, limit, cancellationToken));
         }
 
         /// <summary>

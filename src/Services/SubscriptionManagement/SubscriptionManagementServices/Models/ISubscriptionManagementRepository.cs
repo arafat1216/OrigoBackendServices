@@ -1,4 +1,6 @@
 ﻿using Common.Enums;
+using Common.Interfaces;
+using SubscriptionManagementServices.ServiceModels;
 
 namespace SubscriptionManagementServices.Models
 {
@@ -14,5 +16,6 @@ namespace SubscriptionManagementServices.Models
         Task<NewSubscriptionOrder> GetNewSubscriptionOrder(Guid subscriptionOrder);
         Task<ChangeSubscriptionOrder> GetChangeSubscriptionOrder(Guid subscriptionOrder);
         Task<CancelSubscriptionOrder> GetCancelSubscriptionOrder(Guid subscriptionOrder);
+        Task<PagedModel<SubscriptionOrderListItemDTO>> GetAllSubscriptionOrdersForCustomer(Guid organizationId, string? search, IList<SubscriptionOrderTypes>? OrderType, int page, int limit, CancellationToken cancellationToken);
     }
 }

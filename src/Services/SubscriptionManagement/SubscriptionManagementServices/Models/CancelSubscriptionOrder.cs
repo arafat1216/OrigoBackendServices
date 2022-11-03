@@ -23,7 +23,6 @@ namespace SubscriptionManagementServices.Models
             CreatedBy = callerId;
             AddDomainEvent(new CancelSubscriptionOrderCreatedDomainEvent(this, callerId));
         }
-        [MaxLength(15)]
         public string MobileNumber { get; set; }
         public DateTime DateOfTermination { get; set; }
         public string OperatorName { get; set; }

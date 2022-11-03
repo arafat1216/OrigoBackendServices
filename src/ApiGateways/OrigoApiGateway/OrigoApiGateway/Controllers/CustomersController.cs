@@ -1136,6 +1136,32 @@ namespace OrigoApiGateway.Controllers
             return Ok(response);
         }
 
+        [HttpGet]
+        [Route("{organizationId:Guid}/subscription-orders/pagination")]
+        [ProducesResponseType(typeof(PagedModel<OrigoSubscriptionOrderListItem>), (int)HttpStatusCode.OK)]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
+        public async Task<ActionResult> GetAllSubscriptionOrders([FromRoute]Guid organizationId, [FromQuery] FilterOptionsForSubscriptionOrder filterOptions, CancellationToken cancellationToken,
+            [FromQuery(Name = "q")] string search = "", [FromQuery] int page = 1, [FromQuery][Range(1, 100)] int limit = 25)
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == PredefinedRole.EndUser.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+            var response = await SubscriptionManagementService.GetAllSubscriptionOrders(organizationId, cancellationToken, filterOptions, search, page, limit);
+
+            return Ok(response);
+        }
+
         [Route("{organizationId:Guid}/subscription-orders/count")]
         [ProducesResponseType(typeof(OrigoSubscriptionOrdersCount), (int)HttpStatusCode.OK)]
         [HttpGet]

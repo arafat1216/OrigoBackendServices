@@ -89,7 +89,6 @@ namespace SubscriptionManagementServices.Models
         public Guid OrganizationId { get; set; }
         public string? DataPackageName { get; set; }
         public DateTime OrderExecutionDate { get; set; }
-        [MaxLength(15)]
         public string MobileNumber { get; set; }
         public string CustomerReferenceFields { get; set; }
         public string? OperatorAccountOwner { get; set; }

@@ -2,6 +2,7 @@
 using System.Text.Json;
 using AutoMapper;
 using Common.Enums;
+using Common.Interfaces;
 using Common.Utilities;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
@@ -337,6 +338,12 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         IList<ISubscriptionOrder> subscriptionOrders = await _subscriptionManagementRepository.GetAllSubscriptionOrdersForCustomer(organizationId);
         return _mapper.Map<IList<SubscriptionOrderListItemDTO>>(subscriptionOrders);
     }
+    public async Task<PagedModel<SubscriptionOrderListItemDTO>> GetAllSubscriptionOrderLog(Guid organizationId, string? search, IList<SubscriptionOrderTypes>? OrderType, int page, int limit, CancellationToken cancellationToken)
+    {
+        var subscriptionOrders = await _subscriptionManagementRepository.GetAllSubscriptionOrdersForCustomer(organizationId, search, OrderType, page, limit, cancellationToken);
+        return subscriptionOrders;
+    }
+
 
     public async Task<int> GetSubscriptionOrdersCount(Guid organizationId, IList<SubscriptionOrderTypes>? orderTypes = null, string? phoneNumber = null, bool checkOrderExist = false)
     {

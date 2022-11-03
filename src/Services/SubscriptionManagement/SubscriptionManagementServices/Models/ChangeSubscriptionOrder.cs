@@ -25,7 +25,6 @@ namespace SubscriptionManagementServices.Models
             SubscriptionOrderId = Guid.NewGuid();
             AddDomainEvent(new ChangeSubscriptionOrderCreatedDomainEvent(this, callerId));
         }
-        [MaxLength(15)]
         public string MobileNumber { get; set; }
         public string OperatorName { get; set; }
         public string ProductName { get; set; }

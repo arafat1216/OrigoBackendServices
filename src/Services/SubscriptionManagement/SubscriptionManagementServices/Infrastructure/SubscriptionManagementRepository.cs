@@ -1,11 +1,16 @@
 ﻿using Common.Enums;
 using Common.Extensions;
+using Common.Interfaces;
 using Common.Logging;
 using Common.Seedwork;
 using Common.Utilities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SubscriptionManagementServices.Models;
+using SubscriptionManagementServices.ServiceModels;
+using System.Linq;
+using CancelSubscriptionOrder = SubscriptionManagementServices.Models.CancelSubscriptionOrder;
+using NewSubscriptionOrder = SubscriptionManagementServices.Models.NewSubscriptionOrder;
 
 namespace SubscriptionManagementServices.Infrastructure
 {
@@ -94,6 +99,165 @@ namespace SubscriptionManagementServices.Infrastructure
 
             return subscriptionOrderList.OrderByDescending(o=> o.CreatedDate).Take(15).ToList();
         }
+        public async Task<PagedModel<SubscriptionOrderListItemDTO>> GetAllSubscriptionOrdersForCustomer(Guid organizationId, string? search, IList<SubscriptionOrderTypes>? OrderType, int page, int limit, CancellationToken cancellationToken)
+        {
+            var query = _subscriptionManagementContext.Set<TransferToBusinessSubscriptionOrder>()
+                        .Where(x => x.OrganizationId == organizationId)
+                        .Select(x => new SubscriptionOrderBaseData
+                        {
+                            SubscriptionOrderId = x.SubscriptionOrderId,
+                            CreatedDate = x.CreatedDate,
+                            OrderTypeId = (int)SubscriptionOrderTypes.TransferToBusiness,
+                            OrderType = SubscriptionOrderTypes.TransferToBusiness.ToString(),
+                            CustomerId = x.OrganizationId,
+                            PhoneNumber = x.MobileNumber,
+                            OrderExecutionDate = x.OrderExecutionDate,
+                            CreatedBy = x.CreatedBy,
+                            OrderNumber = x.SalesforceTicketId,
+                            PrivateFirstName = x.PrivateSubscription!.FirstName,
+                            PrivateLastName = x.PrivateSubscription.LastName,
+                            BusinessFirstName = x.BusinessSubscription!.Name,
+                            BusinessLastName = ""
+                        })
+                        .Concat(_subscriptionManagementContext.Set<TransferToPrivateSubscriptionOrder>()
+                        .Where(x => x.OrganizationId == organizationId)
+                            .Select(x => new SubscriptionOrderBaseData
+                            {
+                                SubscriptionOrderId = x.SubscriptionOrderId,
+                                CreatedDate = x.CreatedDate,
+                                OrderTypeId = (int)SubscriptionOrderTypes.TransferToPrivate,
+                                OrderType = SubscriptionOrderTypes.TransferToPrivate.ToString(),
+                                CustomerId = x.OrganizationId,
+                                PhoneNumber = x.MobileNumber,
+                                OrderExecutionDate = x.OrderExecutionDate,
+                                CreatedBy = x.CreatedBy,
+                                OrderNumber = x.SalesforceTicketId,
+                                PrivateFirstName = x.UserInfo.FirstName,
+                                PrivateLastName = x.UserInfo.LastName,
+                                BusinessFirstName = "",
+                                BusinessLastName = ""
+                            }))
+                        .Concat(_subscriptionManagementContext.Set<ChangeSubscriptionOrder>()
+                        .Where(x => x.OrganizationId == organizationId)
+                            .Select(x => new SubscriptionOrderBaseData
+                            {
+                                SubscriptionOrderId = x.SubscriptionOrderId,
+                                CreatedDate = x.CreatedDate,
+                                OrderTypeId = (int)SubscriptionOrderTypes.ChangeSubscription,
+                                OrderType = SubscriptionOrderTypes.ChangeSubscription.ToString(),
+                                CustomerId = x.OrganizationId,
+                                PhoneNumber = x.MobileNumber,
+                                OrderExecutionDate = x.CreatedDate,
+                                CreatedBy = x.CreatedBy,
+                                OrderNumber = x.SalesforceTicketId,
+                                PrivateFirstName = x.SubscriptionOwner != null ? x.SubscriptionOwner : "Owner not specified",
+                                PrivateLastName = "",
+                                BusinessFirstName = "",
+                                BusinessLastName = ""
+                            }))
+                        .Concat(_subscriptionManagementContext.Set<CancelSubscriptionOrder>()
+                        .Where(x => x.OrganizationId == organizationId)
+                            .Select(x => new SubscriptionOrderBaseData
+                            {
+                                SubscriptionOrderId = x.SubscriptionOrderId,
+                                CreatedDate = x.CreatedDate,
+                                OrderTypeId = (int)SubscriptionOrderTypes.CancelSubscription,
+                                OrderType = SubscriptionOrderTypes.CancelSubscription.ToString(),
+                                CustomerId = x.OrganizationId,
+                                PhoneNumber = x.MobileNumber,
+                                OrderExecutionDate = x.DateOfTermination,
+                                CreatedBy = x.CreatedBy,
+                                OrderNumber = x.SalesforceTicketId,
+                                PrivateFirstName = "",
+                                PrivateLastName = "",
+                                BusinessFirstName = "",
+                                BusinessLastName = ""
+                            }))
+                        .Concat(_subscriptionManagementContext.Set<OrderSimSubscriptionOrder>()
+                        .Where(x => x.OrganizationId == organizationId)
+                            .Select(x => new SubscriptionOrderBaseData
+                            {
+                                SubscriptionOrderId = x.SubscriptionOrderId,
+                                CreatedDate = x.CreatedDate,
+                                OrderTypeId = (int)SubscriptionOrderTypes.OrderSim,
+                                OrderType = SubscriptionOrderTypes.OrderSim.ToString(),
+                                CustomerId = x.OrganizationId,
+                                PhoneNumber = "",
+                                OrderExecutionDate = x.CreatedDate,
+                                CreatedBy = x.CreatedBy,
+                                OrderNumber = x.SalesforceTicketId,
+                                PrivateFirstName = x.SendToName,
+                                PrivateLastName = "",
+                                BusinessFirstName = "",
+                                BusinessLastName = ""
+                            }))
+                        .Concat(_subscriptionManagementContext.Set<ActivateSimOrder>()
+                        .Where(x => x.OrganizationId == organizationId)
+                            .Select(x => new SubscriptionOrderBaseData
+                            {
+                                SubscriptionOrderId = x.SubscriptionOrderId,
+                                CreatedDate = x.CreatedDate,
+                                OrderTypeId = (int)SubscriptionOrderTypes.ActivateSim,
+                                OrderType = SubscriptionOrderTypes.ActivateSim.ToString(),
+                                CustomerId = x.OrganizationId,
+                                PhoneNumber = x.MobileNumber,
+                                OrderExecutionDate = x.CreatedDate,
+                                CreatedBy = x.CreatedBy,
+                                OrderNumber = x.SalesforceTicketId,
+                                PrivateFirstName = "",
+                                PrivateLastName = "",
+                                BusinessFirstName = "",
+                                BusinessLastName = ""
+                            }))
+                        .Concat(_subscriptionManagementContext.Set<NewSubscriptionOrder>()
+                        .Where(x => x.OrganizationId == organizationId)
+                            .Select(x => new SubscriptionOrderBaseData
+                            {
+                                SubscriptionOrderId = x.SubscriptionOrderId,
+                                CreatedDate = x.CreatedDate,
+                                OrderTypeId = (int)SubscriptionOrderTypes.NewSubscription,
+                                OrderType = SubscriptionOrderTypes.NewSubscription.ToString(),
+                                CustomerId = x.OrganizationId,
+                                PhoneNumber = "",
+                                OrderExecutionDate = x.OrderExecutionDate,
+                                CreatedBy = x.CreatedBy,
+                                OrderNumber = x.SalesforceTicketId,
+                                PrivateFirstName = x.PrivateSubscription!.FirstName,
+                                PrivateLastName = x.PrivateSubscription!.LastName,
+                                BusinessFirstName = x.SimCardReceiverFirstName!,
+                                BusinessLastName = x.SimCardReceiverLastName!
+                            }));
+
+            if (OrderType != null && OrderType.Any())
+            {
+                query = query.Where(x => OrderType.Contains((SubscriptionOrderTypes)x.OrderTypeId));
+            }
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(x => x.PhoneNumber.ToLower().Contains(search.ToLower()) || x.OrderNumber.ToLower().Contains(search.ToLower()));
+            }
+
+            return await query.Select(x => new SubscriptionOrderListItemDTO()
+            {
+                OrderNumber = x.OrderNumber!,
+                OrderTypeId = x.OrderTypeId,
+                SubscriptionOrderId = x.SubscriptionOrderId,
+                CreatedDate = x.CreatedDate,
+                OrderType = x.OrderType,
+                PhoneNumber = x.PhoneNumber,
+                NewSubscriptionOrderOwnerName = x.OrderType == SubscriptionOrderTypes.CancelSubscription.ToString() ? 
+                    x.PhoneNumber : x.OrderType == SubscriptionOrderTypes.ActivateSim.ToString() ?
+                    (string.IsNullOrEmpty(x.PhoneNumber) ? "Order reference not specified" : x.PhoneNumber) : string.IsNullOrEmpty(($"{x.PrivateFirstName} {x.PrivateLastName}").Trim()) ? 
+                    $"{x.BusinessFirstName} {x.BusinessLastName}" : $"{x.PrivateFirstName} {x.PrivateLastName}",
+                OrderExecutionDate = x.OrderExecutionDate,
+                CreatedBy = x.CreatedBy
+            }).PaginateAsync(page, limit, cancellationToken);
+        }
+
+
+
+
 
         public async Task<int> GetTotalSubscriptionOrdersCountForCustomer(Guid organizationId, IList<SubscriptionOrderTypes>? orderTypes = null, string? phoneNumber = null, bool checkOrderExist = false)
         {
