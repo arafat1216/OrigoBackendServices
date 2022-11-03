@@ -1111,6 +1111,7 @@ namespace OrigoApiGateway.Controllers
             return CreatedAtAction(nameof(NewSubscriptionOrder), response);
         }
 
+        [Obsolete]
         [HttpGet]
         [Route("{organizationId:Guid}/subscription-orders")]
         [ProducesResponseType(typeof(IList<OrigoSubscriptionOrderListItem>), (int)HttpStatusCode.OK)]
@@ -1136,6 +1137,16 @@ namespace OrigoApiGateway.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Gets a Paginated list of all subscription orders for a customer
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <param name="cancellationToken"></param>
+        /// <param name="search"></param>
+        /// <param name="page"></param>
+        /// <param name="limit"></param>
+        /// <param name="filterOptions"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("{organizationId:Guid}/subscription-orders/pagination")]
         [ProducesResponseType(typeof(PagedModel<OrigoSubscriptionOrderListItem>), (int)HttpStatusCode.OK)]

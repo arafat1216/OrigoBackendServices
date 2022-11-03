@@ -236,6 +236,7 @@ namespace SubscriptionManagement.API.Controllers
         /// </summary>
         /// <param name="organizationId"></param>
         /// <returns></returns>
+        [Obsolete]
         [Route("{organizationId:Guid}/subscription-orders")]
         [ProducesResponseType(typeof(IList<SubscriptionOrderListItemDTO>), (int)HttpStatusCode.OK)]
         [SwaggerOperation(Tags = new[] { "Subscription Orders" })]
@@ -246,9 +247,14 @@ namespace SubscriptionManagement.API.Controllers
         }
 
         /// <summary>
-        /// Gets a list of all subscription orders for a customer
+        /// Gets a Paginated list of all subscription orders for a customer
         /// </summary>
         /// <param name="organizationId"></param>
+        /// <param name="cancellationToken"></param>
+        /// <param name="search"></param>
+        /// <param name="page"></param>
+        /// <param name="limit"></param>
+        /// <param name="filterOptionsAsJsonString"></param>
         /// <returns></returns>
         [Route("{organizationId:Guid}/subscription-orders/pagination")]
         [ProducesResponseType(typeof(PagedModel<SubscriptionOrderListItemDTO>), (int)HttpStatusCode.OK)]

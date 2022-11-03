@@ -16,6 +16,16 @@ namespace SubscriptionManagementServices
         Task<ActivateSimOrderDTO> ActivateSimAsync(Guid organizationId, NewActivateSimOrder simOrder);
         Task<NewSubscriptionOrderDTO> NewSubscriptionOrderAsync(Guid organizationId, NewSubscriptionOrderRequestDTO newSubscriptionOrder);
         Task<DetailViewSubscriptionOrderLog> GetDetailViewSubscriptionOrderLogAsync(Guid organizationId, Guid orderId,int orderType);
+        /// <summary>
+        /// Get Paged list of all Subscription Orders
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="page"></param>
+        /// <param name="limit"></param>
+        /// <param name="search"></param>
+        /// <param name="organizationId"></param>
+        /// <param name="OrderType"></param>
+        /// <returns></returns>
         Task<PagedModel<SubscriptionOrderListItemDTO>> GetAllSubscriptionOrderLog(Guid organizationId, string? search, IList<SubscriptionOrderTypes>? OrderType, int page, int limit, CancellationToken cancellationToken);
     }
 }
