@@ -1,13 +1,10 @@
-using System;
 using AssetServices.Infrastructure;
 using AssetServices.Models;
 using Common.Enums;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using Common.Logging;
-using MediatR;
-using Moq;
 using Common.Model;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 // ReSharper disable InconsistentNaming
 
@@ -22,7 +19,7 @@ namespace AssetServices.UnitTests
         protected readonly Guid ASSETLIFECYCLE_FIVE_ID = new("4315bba8-698f-4ddd-aee2-82554c91721f");
         protected readonly Guid ASSETLIFECYCLE_SIX_ID = new("4515bba8-698f-4ddd-aee2-82554c91721f");
         protected readonly Guid ASSETLIFECYCLE_SEVEN_ID = new("1dee1675-0a94-4571-be24-d87ce0fb986a");
-        
+
         protected readonly Guid ASSETLIFECYCLE_EIGHT_ID = new("b6afee47-f4a7-4cc7-b890-4eaf2b36acd4");
         protected readonly Guid ASSETLIFECYCLE_NINE_ID = new("a729805b-e341-4c45-97cf-3ea76722d026");
         protected readonly Guid ASSETLIFECYCLE_TEN_ID = new("370911d5-8545-41a3-af83-3ae376a88775");

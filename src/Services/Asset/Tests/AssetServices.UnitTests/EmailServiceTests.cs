@@ -1,10 +1,8 @@
 ﻿using AssetServices.Email;
 using AssetServices.Email.Model;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using System.Resources;
-using Xunit;
 
 namespace AssetServices.UnitTests
 {
@@ -83,7 +81,7 @@ namespace AssetServices.UnitTests
             //Arrange
             var language = "sv";
             var resourceManger = new ResourceManager("AssetServices.Resources.Asset", Assembly.GetAssembly(typeof(EmailService)));
-            
+
             //Act
             var ReassignedToUserEngTemplate = resourceManger.GetString(ReAssignedToUserNotification.TemplateName, CultureInfo.CreateSpecificCulture(language));
             var ReportAssetEngTemplate = resourceManger.GetString(ReportAssetNotification.TemplateName, CultureInfo.CreateSpecificCulture(language));

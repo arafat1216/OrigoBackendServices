@@ -13,14 +13,9 @@ using Common.Model;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Moq;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace AssetServices.UnitTests;
 
@@ -722,9 +717,9 @@ public class AssetServicesTests : AssetBaseTest
 
         // Assert
         Assert.NotNull(newAssetRead);
-        Assert.Equal(4,newAssetRead.Labels.Count());
+        Assert.Equal(4, newAssetRead.Labels.Count());
         Assert.Collection(
-            newAssetRead.Labels, 
+            newAssetRead.Labels,
             item => Assert.Equal("Label_1", item.Text),
             item => Assert.Equal("Label_2", item.Text),
             item => Assert.Equal("A new one", item.Text),
@@ -757,7 +752,7 @@ public class AssetServicesTests : AssetBaseTest
             ManagedByDepartmentId = Guid.NewGuid(),
             Note = "Test note",
             Description = "description",
-            PaidByCompany = new Money(10000,CurrencyCode.NOK)
+            PaidByCompany = new Money(10000, CurrencyCode.NOK)
         };
 
         // Act
@@ -766,8 +761,8 @@ public class AssetServicesTests : AssetBaseTest
 
         // Assert
         Assert.NotNull(newAssetRead);
-        Assert.Equal(10000,newAssetRead.PaidByCompany.Amount);
-        Assert.Equal("NOK",newAssetRead.PaidByCompany.CurrencyCode);
+        Assert.Equal(10000, newAssetRead.PaidByCompany.Amount);
+        Assert.Equal("NOK", newAssetRead.PaidByCompany.CurrencyCode);
     }
 
     [Fact]
@@ -1837,7 +1832,7 @@ public class AssetServicesTests : AssetBaseTest
 
         //Act
         var assetList = await assetRepository.GetAssetLifecyclesAsync(COMPANY_ID, null, null, null, null, null, null, null, null, null, "atish", 1, 10, CancellationToken.None
-            ,includeContractHolderUser: true);
+            , includeContractHolderUser: true);
 
         //Assert
         Assert.Equal(1, assetList.Items.Count);
@@ -2033,12 +2028,12 @@ public class AssetServicesTests : AssetBaseTest
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
-        ChangeAssetStatus change = new ChangeAssetStatus { AssetLifecycleId = new List<Guid> { ASSETLIFECYCLE_ONE_ID}, CallerId = Guid.NewGuid() };
+        ChangeAssetStatus change = new ChangeAssetStatus { AssetLifecycleId = new List<Guid> { ASSETLIFECYCLE_ONE_ID }, CallerId = Guid.NewGuid() };
         // Act & Assert
         var activateAssets = await assetService.DeactivateAssetLifecycleStatus(COMPANY_ID, change);
         Assert.NotNull(activateAssets);
         Assert.Equal(1, activateAssets.Count);
-        Assert.All(activateAssets, assetLifecycle => Assert.Equal(1,assetLifecycle.Asset.Imeis.Count));
+        Assert.All(activateAssets, assetLifecycle => Assert.Equal(1, assetLifecycle.Asset.Imeis.Count));
         Assert.All(activateAssets, assetLifecycle => Assert.All(assetLifecycle.Asset.Imeis, imei => Assert.Equal(500119468586675, imei)));
     }
 

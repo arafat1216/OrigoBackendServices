@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AssetServices.DomainEvents.AssetLifecycleEvents;
+﻿using AssetServices.DomainEvents.AssetLifecycleEvents;
 using AssetServices.Exceptions;
 using AssetServices.Models;
 using AssetServices.ServiceModel;
 using Common.Enums;
-using Xunit;
+using System.Linq;
 
 namespace AssetServices.UnitTests;
 
@@ -363,7 +360,7 @@ public class AssetLifecycleTests
         var assetLifecycle = AssetLifecycle.CreateAssetLifecycle(createAssetLifecycleDTO);
 
         //Act
-        assetLifecycle.AssignAssetLifecycleHolder(null, Guid.NewGuid(),callerId);
+        assetLifecycle.AssignAssetLifecycleHolder(null, Guid.NewGuid(), callerId);
         assetLifecycle.MakeAssetExpiresSoon(callerId);
         assetLifecycle.MakeReturnRequest(callerId);
         assetLifecycle.CancelReturn(callerId, today);
