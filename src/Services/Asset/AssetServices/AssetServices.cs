@@ -35,8 +35,8 @@ public class AssetServices : IAssetServices
     private readonly IEmailService _emailService;
     private readonly ITechstepCoreProductsRepository? _techstepCoreProductsRepository;
 
-    public AssetServices(ILogger<AssetServices> logger, 
-        IAssetLifecycleRepository assetLifecycleRepository, 
+    public AssetServices(ILogger<AssetServices> logger,
+        IAssetLifecycleRepository assetLifecycleRepository,
         IMapper mapper,
         IEmailService emailService,
         ITechstepCoreProductsRepository? techstepCoreProductsRepository = null)
@@ -118,7 +118,7 @@ public class AssetServices : IAssetServices
     public async Task<AssetLifecycleDTO?> GetAssetLifecycleForCustomerAsync(Guid customerId, Guid assetId, string? userId, IList<Guid?>? department,
         bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false)
     {
-        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, userId, department, 
+        var assetLifecycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(customerId, assetId, userId, department,
             includeAsset, includeImeis, includeLabels, includeContractHolderUser, asNoTracking: true);
         return assetLifecycle == null ? null : _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
     }
@@ -126,7 +126,7 @@ public class AssetServices : IAssetServices
     public async Task<IList<CustomerLabel>> AddLabelsForCustomerAsync(Guid customerId, Guid callerId, IList<Label> labels)
     {
         var customerLabels = labels.Select(label => new CustomerLabel(customerId, callerId, label)).ToList();
-        return await _assetLifecycleRepository.AddCustomerLabelsForCustomerAsync(customerId, customerLabels);            
+        return await _assetLifecycleRepository.AddCustomerLabelsForCustomerAsync(customerId, customerLabels);
     }
 
     public async Task<IList<CustomerLabel>> GetCustomerLabelsForCustomerAsync(Guid customerId)
@@ -255,7 +255,7 @@ public class AssetServices : IAssetServices
         {
             newAssetDTO.IsPersonal = false;
         }
-            
+
         var uniqueImeiList = new List<long>();
         //Validate list of IMEI and making sure that they are not duplicated for both MOBILE AND TABLET 
         if (newAssetDTO.Imei != null && newAssetDTO.Imei.Any())
@@ -396,7 +396,7 @@ public class AssetServices : IAssetServices
         var updatedAssetLifeCycle = await _assetLifecycleRepository.MakeAssetAvailableAsync(customerId, data.CallerId, data.AssetLifeCycleId);
         if (updatedAssetLifeCycle == null)
             throw new ResourceNotFoundException("No assets were found using the given AssetId. Did you enter the correct asset Id?", Guid.Parse("fc64478-8011-4900-afb8-06b4b624aaeb"));
-        
+
         if (data.PreviousUser != null && (!string.IsNullOrEmpty(data.PreviousUser?.Email) && !string.IsNullOrEmpty(data.PreviousUser?.Name)))
         {
             await _emailService.UnassignedFromUserEmailAsync(new Email.Model.UnassignedFromUserNotification()
@@ -441,7 +441,7 @@ public class AssetServices : IAssetServices
 
         var returnLocations = await GetReturnLocationsByCustomer(customerId);
         var returnLocation = returnLocations.FirstOrDefault(x => x.ExternalId == data.ReturnLocationId);
-        if(!assetLifecycle.IsPersonal || data.Role != PredefinedRole.EndUser.ToString())
+        if (!assetLifecycle.IsPersonal || data.Role != PredefinedRole.EndUser.ToString())
         {
             // Confirm Return
             if (returnLocation == null)
@@ -450,7 +450,7 @@ public class AssetServices : IAssetServices
             }
             assetLifecycle.ConfirmReturnDevice(data.CallerId, returnLocation.Name, returnLocation.ReturnDescription);
 
-            if(assetLifecycle.IsPersonal && data.User != null)
+            if (assetLifecycle.IsPersonal && data.User != null)
             {
                 // Email To User thath Asset Returned on his Behalf
                 var emailData = new Email.Model.ManagerOnBehalfReturnNotification()
@@ -471,21 +471,21 @@ public class AssetServices : IAssetServices
             assetLifecycle.MakeReturnRequest(data.CallerId);
 
             // To Manager(s)
-            if(data.Managers != null && data.Managers.Any())
+            if (data.Managers != null && data.Managers.Any())
             {
                 await _emailService.PendingReturnEmailAsync(new Email.Model.PendingReturnNotification()
                 {
                     FirstName = string.Empty,
-                    Recipients = data.Managers.Select(x=>x.Email).ToList(),
+                    Recipients = data.Managers.Select(x => x.Email).ToList(),
                     CustomerId = customerId.ToString(),
                     AssetLifecycleId = assetLifecycle.ExternalId.ToString(),
                 }, "en");
             }
         }
-        else if(assetLifecycle.IsPersonal && assetLifecycle.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn)
+        else if (assetLifecycle.IsPersonal && assetLifecycle.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn)
         {
             // Confirm Return
-            if(returnLocation == null)
+            if (returnLocation == null)
             {
                 throw new ReturnDeviceRequestException($"Return Location not found to confirm pending return!!! asset Id: {data.AssetLifeCycleId}", Guid.Parse("78d06bfc-3897-497e-af90-8d9e3f0cc2e7"));
             }
@@ -548,7 +548,7 @@ public class AssetServices : IAssetServices
             .Where(x => !string.IsNullOrEmpty(x.Imei)).Select(x => x.Imei).ToList());
 
         var assetValidationResult = new AssetValidationResult();
-        
+
         foreach (var assetFromCsv in assetsFromFileRecords)
         {
             var asset = long.TryParse(assetFromCsv.Imei, out var imei)
@@ -586,7 +586,7 @@ public class AssetServices : IAssetServices
             }
             if (asset.ValidateAsset() && !errors.Any())
             {
-                var importedAsset = CreateImportedAsset(asset, assetFromCsv, purchaseDate, true); 
+                var importedAsset = CreateImportedAsset(asset, assetFromCsv, purchaseDate, true);
                 assetValidationResult.ValidAssets.Add(importedAsset);
             }
             else
@@ -709,7 +709,7 @@ public class AssetServices : IAssetServices
                 Recipient = data.PayrollContactEmail
             };
             await _emailService.AssetBuyoutEmailAsync(emailData, "en");
-        }  
+        }
 
         await _assetLifecycleRepository.SaveEntitiesAsync();
         return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
@@ -746,7 +746,7 @@ public class AssetServices : IAssetServices
         }
 
         // To Manager(s)
-        if(data.Managers != null && data.Managers.Any())
+        if (data.Managers != null && data.Managers.Any())
         {
             emailData.FirstName = string.Empty;
             emailData.Recipients = data.Managers.Select(x => x.Email).ToList();
@@ -771,13 +771,13 @@ public class AssetServices : IAssetServices
             includeAsset: true, includeImeis: true, includeLabels: true, includeContractHolderUser: true);
         if (assetLifecycle == null)
         {
-            throw new InvalidAssetDataException($"Asset Lifecycle {assetId} not found",Guid.Parse("175d952c-d23e-44ed-82c2-ca47112958ac"));
+            throw new InvalidAssetDataException($"Asset Lifecycle {assetId} not found", Guid.Parse("175d952c-d23e-44ed-82c2-ca47112958ac"));
         }
         var asset = assetLifecycle.Asset;
         if (asset == null)
         {
             //Should have a AssetNotFoundException?
-            throw new InvalidAssetDataException($"Asset for asset life cycle {assetId} not found",Guid.Parse("bb2d2355-b141-44f2-aecd-32026d62877f"));
+            throw new InvalidAssetDataException($"Asset for asset life cycle {assetId} not found", Guid.Parse("bb2d2355-b141-44f2-aecd-32026d62877f"));
         }
 
         if (!string.IsNullOrWhiteSpace(brand) && asset.Brand != brand)
@@ -792,7 +792,7 @@ public class AssetServices : IAssetServices
         {
             assetLifecycle.UpdateAlias(alias.Trim(), callerId);
         }
- 
+
         if (purchaseDate != null && assetLifecycle.PurchaseDate != purchaseDate)
         {
             assetLifecycle.UpdatePurchaseDate(purchaseDate.Value, callerId);
@@ -801,7 +801,7 @@ public class AssetServices : IAssetServices
         {
             assetLifecycle.UpdateNote(note, callerId);
         }
-        
+
         if (!asset.ValidateAsset())
         {
             var exceptionMsg = new StringBuilder();
@@ -826,7 +826,7 @@ public class AssetServices : IAssetServices
         return _mapper.Map<AssetLifecycleDTO>(assetLifecycle);
     }
 
-    private void UpdateDerivedAssetType(Models.Asset asset, string? serialNumber, IList<long>? imei, string? macAddress,Guid callerId)
+    private void UpdateDerivedAssetType(Models.Asset asset, string? serialNumber, IList<long>? imei, string? macAddress, Guid callerId)
     {
         var phone = asset as MobilePhone;
         if (phone != null)
@@ -872,7 +872,7 @@ public class AssetServices : IAssetServices
 
         if (!string.IsNullOrWhiteSpace(macAddress) && tablet.MacAddress != macAddress)
         {
-            tablet.SetMacAddress(macAddress, callerId);   
+            tablet.SetMacAddress(macAddress, callerId);
         }
     }
 
@@ -944,7 +944,7 @@ public class AssetServices : IAssetServices
         {
             var usersAssets = await _assetLifecycleRepository.GetAssetForUser(userId);
             var hasAsset = usersAssets.FirstOrDefault(a => a.ExternalId == assetId);
-            if (hasAsset == null) throw new ResourceNotFoundException($"No connected assets to user with id: {userId}.",Guid.Parse("7d8a072c-a8a9-4b46-888d-2ad97bffaf9e"));
+            if (hasAsset == null) throw new ResourceNotFoundException($"No connected assets to user with id: {userId}.", Guid.Parse("7d8a072c-a8a9-4b46-888d-2ad97bffaf9e"));
         }
 
 
@@ -975,7 +975,7 @@ public class AssetServices : IAssetServices
                 {
                     continue;
                 }
-                   
+
                 var previousStatus = PropertyExist(@event, "PreviousStatus")
                     ? @event.PreviousStatus.ToString()
                     : @event.AssetLifecycle.AssetLifecycleStatus.ToString();
@@ -1019,8 +1019,8 @@ public class AssetServices : IAssetServices
         {
             throw new ResourceNotFoundException("No LifeCycletSetting were found using the given Customer. Did you enter the correct customer Id?", Guid.Parse("b3fbf0f4-40e2-4562-84a5-8bc8c84824d4"));
         }
-        var lifeCycleSetting = existingSettings.LifeCycleSettings.FirstOrDefault(x=>x.AssetCategoryId == lifeCycleSettingDTO.AssetCategoryId);
-            
+        var lifeCycleSetting = existingSettings.LifeCycleSettings.FirstOrDefault(x => x.AssetCategoryId == lifeCycleSettingDTO.AssetCategoryId);
+
         if (lifeCycleSetting == null)
         {
             throw new ResourceNotFoundException("No LifeCycletSetting were found for this AssetCategory", Guid.Parse("33643f96-5446-4f82-b79d-4e53f1daa0b0"));
@@ -1061,12 +1061,12 @@ public class AssetServices : IAssetServices
     {
         var disposeSetting = new DisposeSetting(CallerId);
         var customerSetting = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
-        if(customerSetting == null)
+        if (customerSetting == null)
         {
             customerSetting = new CustomerSettings(customerId, CallerId);
             await _assetLifecycleRepository.AddCustomerSettingAsync(customerSetting, customerId);
         }
-        if(customerSetting.DisposeSetting != null) throw new InvalidOperationException();
+        if (customerSetting.DisposeSetting != null) throw new InvalidOperationException();
         customerSetting.AddDisposeSetting(disposeSetting, CallerId);
         await _assetLifecycleRepository.SaveEntitiesAsync();
         return _mapper.Map<DisposeSettingDTO>(disposeSetting);
@@ -1101,9 +1101,9 @@ public class AssetServices : IAssetServices
             customerSettings = await _assetLifecycleRepository.AddCustomerSettingAsync(new CustomerSettings(customerId, Guid.Empty), customerId);
         }
         var returnLocation = new ReturnLocation(returnLocationDTO.Name, returnLocationDTO.ReturnDescription, returnLocationDTO.LocationId);
-        if(customerSettings.DisposeSetting == null)
+        if (customerSettings.DisposeSetting == null)
         {
-            customerSettings.AddDisposeSetting(new DisposeSetting(),callerId);
+            customerSettings.AddDisposeSetting(new DisposeSetting(), callerId);
         }
         customerSettings.DisposeSetting!.AddReturnLocation(returnLocation, callerId, customerId);
 
@@ -1123,7 +1123,7 @@ public class AssetServices : IAssetServices
     public async Task<ReturnLocationDTO> UpdateReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, ReturnLocationDTO returnLocationDTO, Guid callerId)
     {
         var customerSettings = await _assetLifecycleRepository.GetCustomerSettingsAsync(customerId);
-        if(customerSettings is null || customerSettings.DisposeSetting is null || !customerSettings.DisposeSetting.ReturnLocations.Any())
+        if (customerSettings is null || customerSettings.DisposeSetting is null || !customerSettings.DisposeSetting.ReturnLocations.Any())
         {
             throw new ResourceNotFoundException("No DisposeSetting were found using the given Customer. Did you enter the correct customer Id?", Guid.Parse("da38e153-18b8-4b57-8ae4-c2f490875c16"));
         }
@@ -1178,8 +1178,8 @@ public class AssetServices : IAssetServices
 
         //Change status
         assetLifeCycle.RepairCompleted(assetLifeCycleRepairCompleted.CallerId, assetLifeCycleRepairCompleted.Discarded);
-           
-            
+
+
         //Add new asset if new values are added 
         long imei = 0;
         List<AssetImei>? imeiList = new List<AssetImei>();
@@ -1227,7 +1227,7 @@ public class AssetServices : IAssetServices
     {
         var assetLifeCycle = await _assetLifecycleRepository.GetAssetLifecycleAsync(assetLifecycleId);
 
-        if(assetLifeCycle == null)
+        if (assetLifeCycle == null)
         {
             throw new ResourceNotFoundException($"Asset lifecycle with id {assetLifecycleId} not found", Guid.Parse("9925087e-78e2-4ea3-b7df-b18a0f6c4782"));
         }
@@ -1249,15 +1249,15 @@ public class AssetServices : IAssetServices
         }
         if (filterStatus == null || !filterStatus.Any())
         {
-            filterStatus = new List<AssetLifecycleStatus>() { 
-                AssetLifecycleStatus.Active, AssetLifecycleStatus.Available, 
-                AssetLifecycleStatus.InUse, AssetLifecycleStatus.InputRequired, 
-                AssetLifecycleStatus.Expired, AssetLifecycleStatus.Repair, 
+            filterStatus = new List<AssetLifecycleStatus>() {
+                AssetLifecycleStatus.Active, AssetLifecycleStatus.Available,
+                AssetLifecycleStatus.InUse, AssetLifecycleStatus.InputRequired,
+                AssetLifecycleStatus.Expired, AssetLifecycleStatus.Repair,
                 AssetLifecycleStatus.PendingReturn,AssetLifecycleStatus.ExpiresSoon,
                 AssetLifecycleStatus.PendingRecycle
             };
         }
-           
+
         if (!filterStatus.Select(x => x).All(x => Enum.IsDefined(typeof(AssetLifecycleStatus), x)))
         {
             throw new ResourceNotFoundException("Not a valid asset status", Guid.Parse("b7a42841-bef7-4138-a3d1-d5f7d3b5aab1"));
@@ -1267,7 +1267,7 @@ public class AssetServices : IAssetServices
 
         if (departments != null && departments.Any())
         {
-            return await _assetLifecycleRepository.GetAssetCountForDepartmentAsync(customerId,userId, filterStatus, departments);
+            return await _assetLifecycleRepository.GetAssetCountForDepartmentAsync(customerId, userId, filterStatus, departments);
         }
 
 
@@ -1369,12 +1369,18 @@ public class AssetServices : IAssetServices
             changed = true;
         }
         else if ((AssetLifecycleStatus)assetLifecycleStatus == AssetLifecycleStatus.PendingRecycle)
-        { 
+        {
             assetLifeCycle.PendingRecycle(callerId);
             changed = true;
         }
 
         if (changed) await _assetLifecycleRepository.SaveEntitiesAsync();
+    }
+
+    public async Task<PagedModel<AssetLifecycleDTO>> AdvancedSearch(SearchParameters searchParameters, int page, int limit, CancellationToken cancellationToken)
+    {
+        var results = await _assetLifecycleRepository.AdvancedSearchAsync(searchParameters, page, limit, cancellationToken);
+        return _mapper.Map<PagedModel<AssetLifecycleDTO>>(results);
     }
 
     public async Task<IList<TechstepProduct>> FindTechstepProductsAsync(string productSearchString)

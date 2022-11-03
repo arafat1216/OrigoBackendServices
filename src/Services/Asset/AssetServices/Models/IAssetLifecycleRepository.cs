@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
 using Common.Enums;
+using AssetServices.ServiceModel;
 
 namespace AssetServices.Models
 {
@@ -48,5 +49,7 @@ namespace AssetServices.Models
         /// <param name="imeis"> List if imeis to search for </param>
         /// <returns></returns>
         Task<IList<string>> GetActiveImeisList(List<string> imeis);
+
+        Task<PagedModel<AssetLifecycle>> AdvancedSearchAsync(SearchParameters searchParameters, int page, int limit, CancellationToken cancellationToken);
     }
 }

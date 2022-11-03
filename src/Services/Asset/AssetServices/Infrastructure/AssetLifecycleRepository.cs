@@ -1,20 +1,21 @@
-﻿using AssetServices.Models;
+﻿using AssetServices.Exceptions;
+using AssetServices.Models;
+using AssetServices.ServiceModel;
+using AutoMapper.QueryableExtensions;
 using Common.Enums;
 using Common.Extensions;
 using Common.Interfaces;
 using Common.Logging;
+using Common.Seedwork;
 using Common.Utilities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Seedwork;
-using AssetServices.Exceptions;
-using System.Collections;
-using System.Text.RegularExpressions;
 
 namespace AssetServices.Infrastructure
 {
@@ -90,7 +91,7 @@ namespace AssetServices.Infrastructure
         {
             if (departmentId != null && departmentId != Guid.Empty)
             {
-                
+
                 var countStatus = await _assetContext.AssetLifeCycles
                     .Where(a => a.CustomerId == customerId && a.ManagedByDepartmentId == departmentId)
                     .GroupBy(a => a.AssetLifecycleStatus)
@@ -129,6 +130,176 @@ namespace AssetServices.Infrastructure
             return assets.Sum(x => x.BookValue);
         }
 
+#nullable enable
+        public async Task<PagedModel<AssetLifecycle>> AdvancedSearchAsync(SearchParameters searchParameters, int page, int limit, CancellationToken cancellationToken)
+        {
+            IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
+
+            // Where filter: Customer-ID is in list
+            if (searchParameters.CustomerIds is not null && searchParameters.CustomerIds.Any())
+            {
+                query = query.Where(e => searchParameters.CustomerIds.Contains(e.CustomerId));
+            }
+
+            // Where filter: User-ID is in list
+            if (searchParameters.UserIds is not null && searchParameters.UserIds.Any())
+            {
+                query = query.Where(e => e.ContractHolderUser != null && searchParameters.UserIds.Contains(e.ContractHolderUser.ExternalId));
+            }
+
+            // Where filter: Department-ID is in list
+            if (searchParameters.DepartmentIds is not null && searchParameters.DepartmentIds.Any())
+            {
+                query = query.Where(e => e.ManagedByDepartmentId.HasValue && searchParameters.DepartmentIds.Contains(e.ManagedByDepartmentId.Value));
+            }
+
+            // Where filter: Asset category ID is in list
+            if (searchParameters.AssetCategoryIds is not null && searchParameters.AssetCategoryIds.Any())
+            {
+                // The asset-category IDs we return from our APIs is set in-code, and not kept anywhere in the database.
+                // In the database, the category-type is set through a hidden discriminator (shadow-property). This determines
+                // if the inherited "Asset"-entity is for example a "Tablet" or a "Mobile Phone".
+                //
+                // As the IDs is not actually present in the DB, it makes it a bit tricky to apply conditionally or-filters for it,
+                // so we have to do some "black magic" here by extracting the class-names, before filtering on the shadow-property.
+                //
+                // More details: https://learn.microsoft.com/en-us/ef/core/modeling/inheritance
+
+                List<string> types = new();
+
+                foreach (int id in searchParameters.AssetCategoryIds)
+                {
+                    if (id == 1)
+                    {
+                        types.Add(typeof(MobilePhone).Name);
+                    }
+
+                    if (id == 2)
+                    {
+                        types.Add(typeof(Tablet).Name);
+                    }
+
+                    // TODO: Find a smoother way, so we don't have to update this list as we add in new types.
+                }
+
+                // On the base asset-class, let's apply a "where in" filter on the type-discriminator (the shadow property named "Discriminator")
+                query = query.Where(e => types.Contains(EF.Property<string>(e.Asset, "Discriminator")));
+            }
+
+            // Where filter: Lifecycle status-ID is in list
+            if (searchParameters.AssetLifecycleStatusIds is not null && searchParameters.AssetLifecycleStatusIds.Any())
+            {
+                query = query.Where(e => searchParameters.AssetLifecycleStatusIds.Contains((int)e.AssetLifecycleStatus));
+            }
+
+            // Where filter: Lifecycle type-ID is in list
+            if (searchParameters.AssetLifecycleTypeIds is not null && searchParameters.AssetLifecycleTypeIds.Any())
+            {
+                query = query.Where(e => searchParameters.AssetLifecycleTypeIds.Contains((int)e.AssetLifecycleType));
+            }
+
+            // Where filter: Start period
+            if (searchParameters.StartPeriod is not null && searchParameters.StartPeriod != default)
+            {
+                switch (searchParameters.StartPeriodSearchType)
+                {
+                    case DateSearchType.ExcactDate:
+                        query = query.Where(e => e.StartPeriod.HasValue && e.StartPeriod.Value.Date == searchParameters.StartPeriod.Value.Date);
+                        break;
+                    case DateSearchType.OnOrAfterDate:
+                        query = query.Where(e => e.StartPeriod.HasValue && e.StartPeriod.Value.Date >= searchParameters.StartPeriod.Value.Date);
+                        break;
+                    case DateSearchType.OnOrBeforeDate:
+                        query = query.Where(e => e.StartPeriod.HasValue && e.StartPeriod.Value.Date <= searchParameters.StartPeriod.Value.Date);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // Where filter: End period
+            if (searchParameters.EndPeriod is not null && searchParameters.EndPeriod != default)
+            {
+                switch (searchParameters.EndPeriodSearchType)
+                {
+                    case DateSearchType.ExcactDate:
+                        query = query.Where(e => e.EndPeriod.HasValue && e.EndPeriod.Value.Date == searchParameters.EndPeriod.Value.Date);
+                        break;
+                    case DateSearchType.OnOrAfterDate:
+                        query = query.Where(e => e.EndPeriod.HasValue && e.EndPeriod.Value.Date >= searchParameters.EndPeriod.Value.Date);
+                        break;
+                    case DateSearchType.OnOrBeforeDate:
+                        query = query.Where(e => e.EndPeriod.HasValue && e.EndPeriod.Value.Date <= searchParameters.EndPeriod.Value.Date);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // Where filter: Purchase date
+            if (searchParameters.PurchaseDate is not null && searchParameters.PurchaseDate != default)
+            {
+                switch (searchParameters.PurchaseDateSearchType)
+                {
+                    case DateSearchType.ExcactDate:
+                        query = query.Where(e => e.PurchaseDate.Date == searchParameters.PurchaseDate.Value.Date);
+                        break;
+                    case DateSearchType.OnOrAfterDate:
+                        query = query.Where(e => e.PurchaseDate.Date >= searchParameters.PurchaseDate.Value.Date);
+                        break;
+                    case DateSearchType.OnOrBeforeDate:
+                        query = query.Where(e => e.PurchaseDate.Date <= searchParameters.PurchaseDate.Value.Date);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // Where filter: IMEI
+            if (!string.IsNullOrEmpty(searchParameters.Imei))
+            {
+                switch (searchParameters.ImeiSearchType)
+                {
+                    case StringSearchType.Equals:
+                        {
+
+                            query = query.Where(e =>
+                                (e.Asset is MobilePhone && (e.Asset as MobilePhone)!.Imeis.Any(xx => EF.Functions.Like(xx.Imei.ToString(), searchParameters.Imei)))
+                                || (e.Asset is Tablet && (e.Asset as Tablet)!.Imeis.Any(xx => EF.Functions.Like(xx.Imei.ToString(), searchParameters.Imei)))
+                            );
+
+                            break;
+                        }
+                    case StringSearchType.StartsWith:
+                        {
+                            query = query.Where(e =>
+                                (e.Asset is MobilePhone && (e.Asset as MobilePhone)!.Imeis.Any(xx => EF.Functions.Like(xx.Imei.ToString(), $"{searchParameters.Imei}%")))
+                                || (e.Asset is Tablet && (e.Asset as Tablet)!.Imeis.Any(xx => EF.Functions.Like(xx.Imei.ToString(), $"{searchParameters.Imei}%")))
+                            );
+
+                            break;
+                        }
+                    case StringSearchType.Contains:
+                        {
+                            query = query.Where(e =>
+                                (e.Asset is MobilePhone && (e.Asset as MobilePhone)!.Imeis.Any(xx => EF.Functions.Like(xx.Imei.ToString(), $"%{searchParameters.Imei}%")))
+                                || (e.Asset is Tablet && (e.Asset as Tablet)!.Imeis.Any(xx => EF.Functions.Like(xx.Imei.ToString(), $"%{searchParameters.Imei}%")))
+                            );
+
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+
+
+            return await query.AsNoTracking()
+                              .PaginateAsync(page, limit, cancellationToken);
+        }
+#nullable restore
+
+
         public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,
            Guid[]? label, bool? isActiveState, bool? isPersonal, DateTime? endPeriodMonth, DateTime? purchaseMonth, string? search, int page, int limit, CancellationToken cancellationToken,
            bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false)
@@ -151,11 +322,11 @@ namespace AssetServices.Infrastructure
                     query = query.Include(al => al.Asset);
                 }
             }
-                
-            if (includeLabels)   
+
+            if (includeLabels)
                 query = query.Include(al => al.Labels);
 
-            if (includeContractHolderUser)   
+            if (includeContractHolderUser)
                 query = query.Include(al => al.ContractHolderUser);
 
             if (!string.IsNullOrEmpty(search))
@@ -178,12 +349,12 @@ namespace AssetServices.Infrastructure
                 // See if the query-string contains a potential MAC address. If not, we can skip the related search. This is valid if the query-string
                 // starts with one of the six MAC address groups (two hexadecimal digits, followed by either '-' or ':').
                 bool potentialMacAddressFound = false;
-                if (Regex.IsMatch(search, "^([0-9A-Fa-f]{2}[:-])")) 
+                if (Regex.IsMatch(search, "^([0-9A-Fa-f]{2}[:-])"))
                 {
                     potentialMacAddressFound = true;
                 }
 
-                query = query.Where(al => 
+                query = query.Where(al =>
                                         al.Alias.ToLower().Contains(search.ToLower()) ||
                                         (al.Asset != null && (
                                             //al.Asset.Brand.ToLower().Contains(search.ToLower()) ||
@@ -243,7 +414,7 @@ namespace AssetServices.Infrastructure
             {
                 if (isActiveState.Value)
                 {
-                    query = query.Where(al => 
+                    query = query.Where(al =>
                                             al.AssetLifecycleStatus == AssetLifecycleStatus.InputRequired ||
                                             al.AssetLifecycleStatus == AssetLifecycleStatus.InUse ||
                                             al.AssetLifecycleStatus == AssetLifecycleStatus.PendingReturn ||
@@ -256,7 +427,7 @@ namespace AssetServices.Infrastructure
                 }
                 else
                 {
-                    query = query.Where(al => 
+                    query = query.Where(al =>
                                             al.AssetLifecycleStatus == AssetLifecycleStatus.Lost ||
                                             al.AssetLifecycleStatus == AssetLifecycleStatus.Stolen ||
                                             al.AssetLifecycleStatus == AssetLifecycleStatus.BoughtByUser ||
@@ -475,7 +646,7 @@ namespace AssetServices.Infrastructure
                 else
                     query = query.Include(al => al.Asset);
 
-            if(includeContractHolderUser)
+            if (includeContractHolderUser)
                 query = query.Include(al => al.ContractHolderUser);
 
             if (asNoTracking)
@@ -558,7 +729,7 @@ namespace AssetServices.Infrastructure
 
         public async Task<User?> GetUser(Guid userId, bool asNoTracking = false)
         {
-            if(asNoTracking)
+            if (asNoTracking)
                 return await _assetContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.ExternalId == userId);
             else
                 return await _assetContext.Users.FirstOrDefaultAsync(u => u.ExternalId == userId);
@@ -636,7 +807,7 @@ namespace AssetServices.Infrastructure
             && !q.IsDeleted);
 
             var existingImeis = await query.Where(q => (q.Asset as MobilePhone).Imeis.Any(i => imeis.Contains(i.Imei.ToString())))
-                .SelectMany(x=> (x.Asset as MobilePhone).Imeis.Select(s=>s.Imei.ToString())).ToListAsync();
+                .SelectMany(x => (x.Asset as MobilePhone).Imeis.Select(s => s.Imei.ToString())).ToListAsync();
 
             return existingImeis;
         }
@@ -653,7 +824,7 @@ namespace AssetServices.Infrastructure
 
         public async Task<CustomerSettings?> GetCustomerSettingsAsync(Guid customerId, bool asNoTracking = false)
         {
-            if(asNoTracking)
+            if (asNoTracking)
                 return await _assetContext.CustomerSettings.Include(x => x.LifeCycleSettings).AsNoTracking().FirstOrDefaultAsync(x => x.CustomerId == customerId);
             else
                 return await _assetContext.CustomerSettings.Include(x => x.LifeCycleSettings).FirstOrDefaultAsync(x => x.CustomerId == customerId);

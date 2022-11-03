@@ -80,6 +80,7 @@ namespace AssetServices
         Task CancelUserOffboarding(Guid customerId, Guid userId, Guid callerId);
         Task <AssetValidationResult> ImportAssetsFromFile(Guid customerId, IFormFile file, bool validateOnly, LifecycleType lifeCycleType);
         Task<AssetLifecycleDTO> ConfirmBuyoutDeviceAsync(Guid customerId, BuyoutDeviceDTO data);
+
         /// <summary>
         /// Updates the asset lifecycle to an active state when a order to cancel a return is made.
         /// Also calculates if the asset lifecycle has expired or is expiring soon based on the assets end date. 
@@ -98,5 +99,6 @@ namespace AssetServices
         /// <returns>Asynchronously task that returns no value.</returns>
         Task RecycleAssetLifecycle(Guid assetLifecycleId, int assetLifecycleStatus, Guid callerId);
 
+        Task<PagedModel<AssetLifecycleDTO>> AdvancedSearch(SearchParameters searchParameters, int page, int limit, CancellationToken cancellationToken);
     }
 }

@@ -157,7 +157,8 @@ public class AssetsController : ControllerBase
 
         var options = new JsonSerializerOptions
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true
         };
         return Ok(JsonSerializer.Serialize<object>(labelsView, options));
     }
@@ -182,7 +183,8 @@ public class AssetsController : ControllerBase
 
         var options = new JsonSerializerOptions
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true
         };
         return Ok(JsonSerializer.Serialize<object>(labelList, options));
     }
@@ -223,7 +225,8 @@ public class AssetsController : ControllerBase
 
         var options = new JsonSerializerOptions
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true
         };
         return Ok(JsonSerializer.Serialize<object>(labelList, options));
     }
@@ -259,7 +262,7 @@ public class AssetsController : ControllerBase
     public async Task<ActionResult<PagedAssetList>> Get([FromRoute] Guid customerId, CancellationToken cancellationToken,
         [FromQuery(Name = "q")] string? search, int page = 1, int limit = 25,
         [FromQuery(Name = "filterOptions")] string? filterOptionsAsJsonString = null,
-        [FromQuery]bool includeAsset = true, bool includeImeis = true, bool includeLabels = true, bool includeContractHolderUser = true)
+        [FromQuery] bool includeAsset = true, bool includeImeis = true, bool includeLabels = true, bool includeContractHolderUser = true)
     {
         FilterOptionsForAsset? filterOptions = null;
         if (!string.IsNullOrEmpty(filterOptionsAsJsonString))
@@ -774,7 +777,7 @@ public class AssetsController : ControllerBase
     [ProducesResponseType(typeof(IList<Label>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<ActionResult> ImportAssets([FromRoute] Guid customerId,
-        [FromForm] IFormFile assetImportFile , [FromQuery] LifecycleType lifeCycleType, [FromQuery] bool validateOnly = true)
+        [FromForm] IFormFile assetImportFile, [FromQuery] LifecycleType lifeCycleType, [FromQuery] bool validateOnly = true)
     {
         if (assetImportFile.Length <= 0)
         {
@@ -839,4 +842,16 @@ public class AssetsController : ControllerBase
 
         return Ok();
     }
+
+
+#nullable enable
+    [Route("search")]
+    [HttpPost]
+    public async Task<IActionResult> AdvancedSearch([FromBody] SearchParameters searchParameters, CancellationToken cancellationToken, [FromQuery] int page = 1, [FromQuery] int limit = 25)
+    {
+        var results = await _assetServices.AdvancedSearch(searchParameters, page, limit, cancellationToken);
+
+        return Ok(results);
+    }
+#nullable restore
 }
