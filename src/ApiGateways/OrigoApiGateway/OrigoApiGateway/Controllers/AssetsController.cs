@@ -1550,7 +1550,7 @@ namespace OrigoApiGateway.Controllers
                         return Forbid();
                     }
                 }
-                var customer = await _customerServices.GetCustomerAsync(organizationId, false, false, false, true);
+                var customer = await _customerServices.GetCustomerAsync(organizationId, includeOrganizationPreferences: true, includeDepartments: false, includeLocation: false, includePartner: true);
                 if (!customer.PartnerId.HasValue)
                 {
                     return BadRequest("RequestFailedException: Could not import file: Customer not associated to a partner");

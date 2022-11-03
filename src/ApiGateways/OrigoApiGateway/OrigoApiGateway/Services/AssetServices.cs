@@ -462,7 +462,8 @@ namespace OrigoApiGateway.Services
                 return assetValidationResults;
             }
 
-            var currency = GetCurrencyByCountry(customer.Preferences.PrimaryLanguage);
+            //In case the customer has no preferences 
+            var currency = customer.Preferences != null ? GetCurrencyByCountry(customer.Preferences.PrimaryLanguage) : "NOK";
 
             var callerId = Guid.Parse("00000000-0000-0000-0000-000000000001");
             foreach (var validAsset in assetValidationResults.ValidAssets)
