@@ -4,6 +4,7 @@
     <UserSecretsId>099c2e7d-3673-475e-abf1-d0634c0e625e</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\..\..\.editorconfig" Link=".editorconfig" />

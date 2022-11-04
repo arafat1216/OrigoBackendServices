@@ -1,6 +1,3 @@
-using System;
-using System.Reflection;
-using System.Resources;
 using Asset.API.Filters;
 using AssetServices;
 using AssetServices.Email;
@@ -8,7 +5,6 @@ using AssetServices.Email.Configuration;
 using AssetServices.Infrastructure;
 using AssetServices.Mappings;
 using AssetServices.Models;
-using Common.Configuration;
 using Common.Logging;
 using Common.Utilities;
 using Dapr.Client;
@@ -23,6 +19,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using Microsoft.OpenApi.Models;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Resources;
 
 namespace Asset.API
 {
@@ -50,9 +52,14 @@ namespace Asset.API
             });
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc($"v{_apiVersion.MajorVersion}",
-                    new OpenApiInfo {Title = "Asset Management", Version = $"v{_apiVersion.MajorVersion}"});
+                c.SwaggerDoc($"v{_apiVersion.MajorVersion}", new OpenApiInfo { Title = "Asset Management", Version = $"v{_apiVersion.MajorVersion}" });
+                c.EnableAnnotations();
+
+                // Setup for multiple XML documentation files (for referenced projects)
+                List<string> xmlFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml", SearchOption.TopDirectoryOnly).ToList();
+                xmlFiles.ForEach(xmlFile => c.IncludeXmlComments(xmlFile));
             });
+
             services.AddAutoMapper(Assembly.GetExecutingAssembly(), Assembly.GetAssembly(typeof(AssetLifecycleProfile)));
             services.AddApplicationInsightsTelemetry();
 
@@ -81,7 +88,7 @@ namespace Asset.API
             services.AddSingleton<IEmailService, EmailService>();
             services.AddSingleton<IFlatDictionaryProvider, FlatDictionary>();
             services.AddScoped<ErrorExceptionFilter>();
-            
+
             services.AddHttpClient("emailservices", c => { c.BaseAddress = new Uri("http://emailnotificationservices"); })
                 .AddHttpMessageHandler(() => new InvocationHandler());
             var techstepCoreConfiguration = Configuration.GetSection("TechstepCore:Products");
