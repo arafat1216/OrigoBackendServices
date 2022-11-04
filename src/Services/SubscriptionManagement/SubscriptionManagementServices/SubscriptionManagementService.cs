@@ -11,7 +11,6 @@ using SubscriptionManagementServices.Email.Models;
 using SubscriptionManagementServices.Exceptions;
 using SubscriptionManagementServices.Models;
 using SubscriptionManagementServices.ServiceModels;
-using SubscriptionManagementServices.Types;
 using SubscriptionManagementServices.Utilities;
 
 namespace SubscriptionManagementServices;
@@ -341,8 +340,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
     /// <inheritdoc />
     public async Task<PagedModel<SubscriptionOrderListItemDTO>> GetAllSubscriptionOrderLog(Guid organizationId, string? search, IList<SubscriptionOrderTypes>? OrderType, int page, int limit, CancellationToken cancellationToken)
     {
-        var subscriptionOrders = await _subscriptionManagementRepository.GetAllSubscriptionOrdersForCustomer(organizationId, search, OrderType, page, limit, cancellationToken);
-        return subscriptionOrders;
+        return await _subscriptionManagementRepository.GetAllSubscriptionOrdersForCustomer(organizationId, search, OrderType, page, limit, cancellationToken);
     }
 
 
