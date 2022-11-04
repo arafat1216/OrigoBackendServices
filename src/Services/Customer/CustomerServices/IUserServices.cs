@@ -71,5 +71,6 @@ namespace CustomerServices
         /// <returns>Asynchronously task that returns a list of strings with information about exceptions.</returns>
         /// <exception cref="Exceptions.UserNotFoundException">If user with the user id provided is not found.</exception>
         Task<ExceptionMessagesDTO> ResendOrigoInvitationMail(Guid customerId, IList<Guid> userIds, string[]? role, Guid[]? assignedToDepartment);
+        Task SubscriptionHandledForOffboardingAsync(Guid customerId, string mobileNumber, Guid callerId);
     }
 }

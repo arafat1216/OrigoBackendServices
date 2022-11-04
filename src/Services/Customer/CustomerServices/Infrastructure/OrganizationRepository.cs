@@ -407,16 +407,22 @@ public class OrganizationRepository : IOrganizationRepository
             .FirstOrDefaultAsync();
     }
 
-    public async Task<User?> GetUserByMobileNumber(string mobileNumber, Guid organizationId)
-    {
-        if (string.IsNullOrEmpty(mobileNumber))
-            return null;
+        public async Task<User?> GetUserByMobileNumber(string mobileNumber, Guid organizationId, bool includeUserpreferences = false)
+        {
+            if (string.IsNullOrEmpty(mobileNumber))
+                return null;
 
-        return await _customerContext.Users
-            .Include(u => u.Customer)
-            .Where(u => u.MobileNumber == mobileNumber && u.Customer.OrganizationId == organizationId)
-            .FirstOrDefaultAsync();
-    }
+            if(includeUserpreferences) return await _customerContext.Users
+                                         .Include(u => u.Customer)
+                                         .Include(u => u.UserPreference)
+                                         .Where(u => u.MobileNumber == mobileNumber && u.Customer.OrganizationId == organizationId)
+                                         .FirstOrDefaultAsync();
+
+            return await _customerContext.Users
+                                         .Include(u => u.Customer)
+                                         .Where(u => u.MobileNumber == mobileNumber && u.Customer.OrganizationId == organizationId)
+                                         .FirstOrDefaultAsync();
+        }
 
     public async Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId,
         string[]? role,

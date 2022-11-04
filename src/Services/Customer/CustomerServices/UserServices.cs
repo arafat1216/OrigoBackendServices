@@ -871,5 +871,15 @@ namespace CustomerServices
         {
             return _mapper.Map<UserInfoDTO>( await _organizationRepository.GetUserByMobileNumber(mobileNumber, organizationId) );
         }
+
+        public async Task SubscriptionHandledForOffboardingAsync(Guid customerId, string mobileNumber, Guid callerId)
+        {
+            var user = await _organizationRepository.GetUserByMobileNumber(mobileNumber, customerId, includeUserpreferences: true);
+            if(user != null && user.UserStatus == UserStatus.OffboardInitiated)
+            {
+                user.HandleSubscriptionForOffboarding(true, callerId);
+                await _organizationRepository.SaveEntitiesAsync();
+            }
+        }
     }
 }

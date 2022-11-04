@@ -199,8 +199,8 @@ public interface IOrganizationRepository
         bool includeUserPreference = false,
         bool asNoTracking = false);
 
-    Task<User?> GetUserByMobileNumber(string mobileNumber, Guid organizationId);
-    Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, bool asNoTracking, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 25);
+        Task<User?> GetUserByMobileNumber(string mobileNumber, Guid organizationId, bool includeUserpreferences = false);
+        Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, bool asNoTracking, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 25);
 
     /// <summary>
     ///     Retrieves a user by the organization and user IDs. Optional parameters may be provided to apply additional filtering, and for enabling eager loading. <br/>

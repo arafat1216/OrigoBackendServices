@@ -1866,6 +1866,49 @@ namespace Customer.API.IntegrationTests.Controllers
         }
 
         [Fact]
+        public async Task SubscriptionHandledForOffboardingAsync()
+        {
+            //Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/offboard-subscription";
+
+            var mobileNumber = "+4790603369";
+            //+4790603369
+            //Act
+            var response = await httpClient.PostAsync(requestUri, JsonContent.Create(mobileNumber));
+            
+            var responseGetUser = await _httpClient.GetAsync($"/api/v1/organizations/{_customerId}/users/{_userTwoId}");
+            var user = await responseGetUser.Content.ReadFromJsonAsync<User>();
+
+            //Assert  
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, responseGetUser.StatusCode);
+            Assert.NotNull(user);
+            Assert.Equal("OffboardInitiated", user.UserStatusName);
+            Assert.True(user.UserPreference.SubscriptionIsHandledForOffboarding, "SubscriptionIsHandledForOffboarding should be true when user has the status offboardInitiated.");
+        }
+        [Fact]
+        public async Task SubscriptionHandledForOffboardingAsync_UserDoesNotHaveOffboardInitiated()
+        {
+            //Arrange
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/offboard-subscription";
+
+            //Act
+            var response = await httpClient.PostAsync(requestUri, JsonContent.Create(_userOnePhoneNumber));
+
+            var responseGetUser = await _httpClient.GetAsync($"/api/v1/organizations/{_customerId}/users/{_userOneId}");
+            var user = await responseGetUser.Content.ReadFromJsonAsync<User>();
+
+            //Assert  
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, responseGetUser.StatusCode);
+            Assert.NotNull(user);
+            Assert.Equal("Invited", user.UserStatusName);
+            Assert.False(user.UserPreference.SubscriptionIsHandledForOffboarding, "SubscriptionIsHandledForOffboarding should be false when user does not have status offboardInitiated.");
+        }
+
+        [Fact]
         public async Task GetAllUsers_SearchWithSpecialCharacters_ShouldTrim()
         {
 

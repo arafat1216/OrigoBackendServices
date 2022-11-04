@@ -388,6 +388,9 @@ namespace OrigoApiGateway.Services
 
             if (postSubscription.StatusCode == HttpStatusCode.Created)
             {
+                //This handles the userpreferences to be able to remove the offboarding tile if the user is in an offboaring state
+                await _userServices.SubscriptionHandledForOffboardingAsync(organizationId, order.MobileNumber);
+
                 return await postSubscription.Content.ReadFromJsonAsync<OrigoTransferToPrivateSubscriptionOrder>();
             }
             if (postSubscription.StatusCode == HttpStatusCode.BadRequest)
@@ -501,6 +504,9 @@ namespace OrigoApiGateway.Services
 
             if (postSubscription.StatusCode == HttpStatusCode.Created)
             {
+                //This handles the userpreferences to be able to remove the offboarding tile if the user is in an offboaring state
+                await _userServices.SubscriptionHandledForOffboardingAsync(organizationId, order.MobileNumber);
+
                 return await postSubscription.Content.ReadFromJsonAsync<OrigoCancelSubscriptionOrder>();
             }
             if (postSubscription.StatusCode == HttpStatusCode.BadRequest)

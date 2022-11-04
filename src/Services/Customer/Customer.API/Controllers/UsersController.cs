@@ -597,4 +597,22 @@ public class UsersController : ControllerBase
         return Ok(_mapper.Map<User>(user));
 
     }
+    /// <summary>
+    /// Completes the subscription offboarding task.
+    /// </summary>
+    /// <param name="customerId">Users connected organization.</param>
+    /// <param name="mobileNumber">Mobilenumber to identify the user.</param>
+    /// <param name="callerId">user makes the request.</param>
+    /// <returns>Returns a ActionResult with User object.The ActionResult types represent various HTTP status codes.</returns>
+    [Route("offboard-subscription")]
+    [HttpPost]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    public async Task<ActionResult> CompleteSubscriptionOffboardingTask([FromRoute] Guid customerId, [FromBody] string mobileNumber, [FromHeader(Name = "X-Authenticated-UserId")] Guid callerId)
+    {
+
+        await _userServices.SubscriptionHandledForOffboardingAsync(customerId, mobileNumber, callerId);
+
+        return Ok();
+
+    }
 }

@@ -685,7 +685,7 @@ public class UserServicesTests
             MOBILE_NUMBER_THAT_EXIST, "emp123", new UserPreference("no", UnitTestDatabaseSeeder.CALLER_ID), UnitTestDatabaseSeeder.CALLER_ID);
 
         mockRepository.Setup(u => u.GetUserByEmailAddress(EMAIL_THAT_EXIST, It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(existingUser);
-        mockRepository.Setup(u => u.GetUserByMobileNumber(MOBILE_NUMBER_THAT_EXIST, organizationId)).ReturnsAsync(existingUser);
+        mockRepository.Setup(u => u.GetUserByMobileNumber(MOBILE_NUMBER_THAT_EXIST, organizationId, false)).ReturnsAsync(existingUser);
 
 
         var userPermissionServices = Mock.Of<IUserPermissionServices>();

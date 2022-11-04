@@ -685,5 +685,18 @@ namespace OrigoApiGateway.Services
 
             return user.OrganizationId == organizationId ? (correctOrganization: true, userId: user.UserId) : (correctOrganization: false, userId: Guid.Empty);
         }
+
+        public async Task SubscriptionHandledForOffboardingAsync(Guid organizationId, string mobileNumber)
+        {
+            try 
+            {
+                var completeOffboardingSubscriptionTaskUri = $"{_options.ApiPath}/{organizationId}/users/offboard-subscription";
+                await HttpClient.PostAsync(completeOffboardingSubscriptionTaskUri, JsonContent.Create(mobileNumber));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SubscriptionHandledForOffboardingAsync failed with exception.");
+            }
+        }
     }
 }

@@ -31,5 +31,6 @@ namespace OrigoApiGateway.Services
         Task<OrigoExceptionMessages> ResendOrigoInvitationMail(Guid customerId, InviteUsers users, FilterOptionsForUser filterOptions);
         Task<OrigoUser> CompleteOnboardingAsync(Guid customerId, Guid userId);
         Task<(bool correctOrganization, Guid userId)> UserEmailLinkedToGivenOrganization(Guid organizationId, string userEmail);
+        Task SubscriptionHandledForOffboardingAsync(Guid customerId, string mobileNumber);
     }
 }
