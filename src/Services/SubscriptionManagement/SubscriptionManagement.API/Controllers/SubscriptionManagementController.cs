@@ -269,7 +269,7 @@ namespace SubscriptionManagement.API.Controllers
             {
                 filterOptions = JsonSerializer.Deserialize<FilterOptionsForSubscriptionOrder>(filterOptionsAsJsonString);
             }
-            return Ok(await _subscriptionServices.GetAllSubscriptionOrderLog(organizationId, search, filterOptions?.OrderType, page, limit, cancellationToken));
+            return Ok(await _subscriptionServices.GetAllSubscriptionOrderLog(organizationId, search, filterOptions?.OrderTypes, page, limit, cancellationToken));
         }
 
         /// <summary>

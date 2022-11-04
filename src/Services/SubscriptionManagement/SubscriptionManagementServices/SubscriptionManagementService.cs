@@ -338,7 +338,7 @@ public class SubscriptionManagementService : ISubscriptionManagementService
         return _mapper.Map<IList<SubscriptionOrderListItemDTO>>(subscriptionOrders);
     }
     /// <inheritdoc />
-    public async Task<PagedModel<SubscriptionOrderListItemDTO>> GetAllSubscriptionOrderLog(Guid organizationId, string? search, IList<SubscriptionOrderTypes>? OrderType, int page, int limit, CancellationToken cancellationToken)
+    public async Task<PagedModel<SubscriptionOrderListItemDTO>> GetAllSubscriptionOrderLog(Guid organizationId, string? search, IList<int>? OrderType, int page, int limit, CancellationToken cancellationToken)
     {
         return await _subscriptionManagementRepository.GetAllSubscriptionOrdersForCustomer(organizationId, search, OrderType, page, limit, cancellationToken);
     }

@@ -16,6 +16,6 @@ namespace SubscriptionManagementServices.Models
         Task<NewSubscriptionOrder> GetNewSubscriptionOrder(Guid subscriptionOrder);
         Task<ChangeSubscriptionOrder> GetChangeSubscriptionOrder(Guid subscriptionOrder);
         Task<CancelSubscriptionOrder> GetCancelSubscriptionOrder(Guid subscriptionOrder);
-        Task<PagedModel<SubscriptionOrderListItemDTO>> GetAllSubscriptionOrdersForCustomer(Guid organizationId, string? search, IList<SubscriptionOrderTypes>? OrderType, int page, int limit, CancellationToken cancellationToken);
+        Task<PagedModel<SubscriptionOrderListItemDTO>> GetAllSubscriptionOrdersForCustomer(Guid organizationId, string? search, IList<int>? OrderType, int page, int limit, CancellationToken cancellationToken);
     }
 }

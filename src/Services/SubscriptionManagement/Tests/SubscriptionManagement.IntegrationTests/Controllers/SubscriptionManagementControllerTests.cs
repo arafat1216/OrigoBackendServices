@@ -1212,7 +1212,7 @@ public class
         // Arrange
         var filterOptions = new FilterOptionsForSubscriptionOrder
         {
-            OrderType = new List<SubscriptionOrderTypes>() { SubscriptionOrderTypes.TransferToBusiness }
+            OrderTypes = new List<int>() { (int)SubscriptionOrderTypes.TransferToBusiness }
         };
         var json = JsonSerializer.Serialize(filterOptions);
 

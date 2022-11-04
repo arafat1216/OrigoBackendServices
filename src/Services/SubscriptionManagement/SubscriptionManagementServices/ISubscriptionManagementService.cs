@@ -26,6 +26,6 @@ namespace SubscriptionManagementServices
         /// <param name="organizationId"></param>
         /// <param name="OrderType"></param>
         /// <returns></returns>
-        Task<PagedModel<SubscriptionOrderListItemDTO>> GetAllSubscriptionOrderLog(Guid organizationId, string? search, IList<SubscriptionOrderTypes>? OrderType, int page, int limit, CancellationToken cancellationToken);
+        Task<PagedModel<SubscriptionOrderListItemDTO>> GetAllSubscriptionOrderLog(Guid organizationId, string? search, IList<int>? OrderType, int page, int limit, CancellationToken cancellationToken);
     }
 }

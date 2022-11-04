@@ -99,7 +99,7 @@ namespace SubscriptionManagementServices.Infrastructure
 
             return subscriptionOrderList.OrderByDescending(o=> o.CreatedDate).Take(15).ToList();
         }
-        public async Task<PagedModel<SubscriptionOrderListItemDTO>> GetAllSubscriptionOrdersForCustomer(Guid organizationId, string? search, IList<SubscriptionOrderTypes>? OrderType, int page, int limit, CancellationToken cancellationToken)
+        public async Task<PagedModel<SubscriptionOrderListItemDTO>> GetAllSubscriptionOrdersForCustomer(Guid organizationId, string? search, IList<int>? OrderType, int page, int limit, CancellationToken cancellationToken)
         {
             var query = _subscriptionManagementContext.Set<TransferToBusinessSubscriptionOrder>()
                         .Where(x => x.OrganizationId == organizationId)
@@ -230,7 +230,7 @@ namespace SubscriptionManagementServices.Infrastructure
 
             if (OrderType != null && OrderType.Any())
             {
-                query = query.Where(x => OrderType.Contains((SubscriptionOrderTypes)x.OrderTypeId));
+                query = query.Where(x => OrderType.Contains(x.OrderTypeId));
             }
 
             if (!string.IsNullOrEmpty(search))
