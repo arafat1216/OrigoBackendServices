@@ -18,6 +18,8 @@ public static class ModelBuilderExtensions
         const int CAN_CREATE_ASSET_ID = 6;
         const int CAN_UPDATE_ASSET_ID = 7;
         const int CAN_READ_ONBOARDING_STATUS_ID = 8;
+        const int CAN_CREATE_USER_ID = 9;
+
         modelBuilder.Entity<Permission>().HasData(
             new Permission(CAN_CREATE_CUSTOMER_ID, "CanCreateCustomer", new DateTime(2022, 1, 1)),
             new Permission(CAN_READ_CUSTOMER_ID, "CanReadCustomer", new DateTime(2022, 1, 1)),
@@ -26,7 +28,8 @@ public static class ModelBuilderExtensions
             new Permission(CAN_READ_ASSET_ID, "CanReadAsset", new DateTime(2022, 1, 1)),
             new Permission(CAN_CREATE_ASSET_ID, "CanCreateAsset", new DateTime(2022, 1, 1)),
             new Permission(CAN_UPDATE_ASSET_ID, "CanUpdateAsset", new DateTime(2022, 1, 1)),
-            new Permission(CAN_READ_ONBOARDING_STATUS_ID, "CanReadOnboardingStatus", new DateTime(2022, 1, 1))
+            new Permission(CAN_READ_ONBOARDING_STATUS_ID, "CanReadOnboardingStatus", new DateTime(2022, 1, 1)),
+            new Permission(CAN_CREATE_USER_ID, "CanCreateUser", new DateTime(2022, 1, 1))
         );
 
         // Roles
@@ -69,6 +72,7 @@ public static class ModelBuilderExtensions
                 new { PermissionSetsId = FULL_CUSTOMER_PERMISSION_SET, PermissionsId = CAN_CREATE_ASSET_ID },
                 new { PermissionSetsId = FULL_CUSTOMER_PERMISSION_SET, PermissionsId = CAN_UPDATE_ASSET_ID },
                 new { PermissionSetsId = FULL_CUSTOMER_PERMISSION_SET, PermissionsId = CAN_READ_ONBOARDING_STATUS_ID },
+                new { PermissionSetsId = FULL_CUSTOMER_PERMISSION_SET, PermissionsId = CAN_CREATE_USER_ID },
 
                 new { PermissionSetsId = INTERNAL_CUSTOMER_ACCESS_PERMISSION_SET, PermissionsId = CAN_READ_CUSTOMER_ID },
                 new { PermissionSetsId = INTERNAL_CUSTOMER_ACCESS_PERMISSION_SET, PermissionsId = CAN_UPDATE_CUSTOMER_ID },
@@ -76,6 +80,7 @@ public static class ModelBuilderExtensions
                 new { PermissionSetsId = INTERNAL_CUSTOMER_ACCESS_PERMISSION_SET, PermissionsId = CAN_CREATE_ASSET_ID },
                 new { PermissionSetsId = INTERNAL_CUSTOMER_ACCESS_PERMISSION_SET, PermissionsId = CAN_UPDATE_ASSET_ID },
                 new { PermissionSetsId = INTERNAL_CUSTOMER_ACCESS_PERMISSION_SET, PermissionsId = CAN_READ_ONBOARDING_STATUS_ID },
+                new { PermissionSetsId = INTERNAL_CUSTOMER_ACCESS_PERMISSION_SET, PermissionsId = CAN_CREATE_USER_ID },
 
                 new { PermissionSetsId = MANAGER_ACCESS_PERMISSION_SET, PermissionsId = CAN_READ_CUSTOMER_ID },
                 new { PermissionSetsId = MANAGER_ACCESS_PERMISSION_SET, PermissionsId = CAN_READ_ASSET_ID },
