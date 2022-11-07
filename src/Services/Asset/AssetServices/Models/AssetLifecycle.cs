@@ -204,7 +204,7 @@ public class AssetLifecycle : Entity, IAggregateRoot
         return assetLifecycleStatus is AssetLifecycleStatus.InputRequired or AssetLifecycleStatus.InUse
             or AssetLifecycleStatus.Repair or AssetLifecycleStatus.PendingReturn or AssetLifecycleStatus.PendingBuyout
             or AssetLifecycleStatus.Available or AssetLifecycleStatus.Active or AssetLifecycleStatus.ExpiresSoon 
-            or AssetLifecycleStatus.PendingRecycle or AssetLifecycleStatus.Expired or AssetLifecycleStatus.ExpiresSoon;
+            or AssetLifecycleStatus.PendingRecycle or AssetLifecycleStatus.Expired;
     }
 
     /// <summary>
@@ -402,6 +402,8 @@ public class AssetLifecycle : Entity, IAggregateRoot
             throw new AssetExpiresSoonRequestException("Asset has No Life Cycle that can expires soon", Guid.Parse("51307f19-ee44-4897-a90c-bb8eca6cb44e"));
         if (!IsActiveState)
             throw new InvalidOperationForInactiveState($"{_assetLifecycleStatus}", ExternalId, Guid.Parse("46b0157b-9366-4aa8-9bbb-1b9f77962378"));
+        if (_assetLifecycleStatus == AssetLifecycleStatus.Expired)
+            throw new AssetExpireRequestException("Asset already 'Expired'", Guid.Parse("0a3cb7d5-8ceb-46ba-841b-056e9aaf40d1"));
 
         UpdatedBy = callerId;
         LastUpdatedDate = DateTime.UtcNow;

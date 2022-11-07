@@ -26,4 +26,14 @@ public static class GuidExtension
     {
         return Guid.Parse("00000000-0000-0000-0000-000000000003");
     }
+    /// <summary>
+    /// System user for the EoL Scheduler Service.
+    /// </summary>
+    /// <param name="guid"></param>
+    /// <returns></returns>
+    public static Guid EoLUserId(this Guid guid)
+    {
+        return Guid.Parse("00000000-0000-0000-0000-000000000004");
+    }
+
 }

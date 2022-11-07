@@ -1181,7 +1181,22 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
 
         Assert.Equal(HttpStatusCode.BadRequest, responsePost.StatusCode);
     }
+    [Fact]
+    public async Task MakeAssetExpiresSoon_AlreadyExpired()
+    {
+        var expiresData = new MakeAssetExpired { AssetLifeCycleId = _assetNine, CallerId = _callerId };
+        await _httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/{_customerId}/make-expiressoon", expiresData);
+        var postData = new MakeAssetAvailable { AssetLifeCycleId = _assetNine, CallerId = _callerId };
+        var requestUri = $"/api/v1/Assets/customers/{_customerId}/make-expire";
+        _testOutputHelper.WriteLine(requestUri);
+        await _httpClient.PostAsync(requestUri, JsonContent.Create(postData));
+        var responsePost = await _httpClient.PostAsJsonAsync($"/api/v1/Assets/customers/{_customerId}/make-expiressoon", expiresData);
+        var errorResponse = await responsePost.Content.ReadFromJsonAsync<ErrorResponse>();
 
+        Assert.Equal(HttpStatusCode.BadRequest, responsePost.StatusCode);
+        Assert.Equal($"Asset already 'Expired'", errorResponse?.Message);
+
+    }
     [Fact]
     public async Task MakeAssetExpireAsync()
     {
