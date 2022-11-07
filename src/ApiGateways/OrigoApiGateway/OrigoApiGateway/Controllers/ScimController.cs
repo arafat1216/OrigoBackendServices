@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrigoApiGateway.Authorization;
 using OrigoApiGateway.Exceptions;
+using OrigoApiGateway.Filters;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
 using OrigoApiGateway.Models.SCIM;
@@ -16,11 +17,12 @@ using System.Security.Claims;
 
 namespace OrigoApiGateway.Controllers;
 
+[ServiceFilter(typeof(ErrorExceptionFilter))]
 [ApiController]
 [ApiVersion("1.0")]
 [Authorize(Roles = "SystemAdmin")]
 [ProducesResponseType(typeof(ScimException), (int)HttpStatusCode.InternalServerError)]
-[Route("origoapi/v{version:apiVersion}/[controller]/v2")]
+[Route("/origoapi/v{version:apiVersion}/[controller]/v2")]
 public class ScimController : ControllerBase
 {
     private readonly ILogger<ScimController> _logger;
@@ -28,7 +30,6 @@ public class ScimController : ControllerBase
     private readonly ICustomerServices _customerServices;
     private readonly IMapper _mapper;
     private readonly IProductCatalogServices _productCatalogServices;
-
 
     public ScimController(ILogger<ScimController> logger,
         IUserServices userServices,
@@ -43,42 +44,42 @@ public class ScimController : ControllerBase
         _mapper = mapper;
     }
 
-    [Route("/Users")]
+    [Route("Users/{userId:Guid}")]
     [HttpGet]
-    [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ListResponse), (int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-    public async Task<ActionResult<OrigoUser>> GetUser()
+    public async Task<ActionResult<ListResponse>> GetUser(Guid? userId)
     {
         throw new NotImplementedException();
     }
 
-    [Route("/Users")]
+    [Route("Users")]
     [HttpPut]
-    [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ListResponse), (int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-    public async Task<ActionResult<OrigoUser>> UpdateUser()
+    public async Task<ActionResult<ListResponse>> UpdateUser()
     {
         throw new NotImplementedException();
     }
 
-    [Route("/Users")]
+    [Route("Users")]
     [HttpPost]
-    [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ListResponse), (int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-    public async Task<ActionResult<ScimResponse<ScimUser>>> CreateUserForCustomer([FromBody] ScimUser newUser)
+    public async Task<ActionResult<ListResponse>> CreateUserForCustomer([FromBody] ScimUser newUser)
     {
         throw new NotImplementedException();
     }
 
-    [Route("/Users")]
+    [Route("Users")]
     [HttpDelete]
-    [ProducesResponseType(typeof(OrigoUser), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ListResponse), (int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-    public async Task<ActionResult<OrigoUser>> DeleteUser()
+    public async Task<ActionResult<ListResponse>> DeleteUser()
     {
         throw new NotImplementedException();
     }
