@@ -622,7 +622,12 @@ namespace OrigoApiGateway.Services
                         if (asset.AssetHolderId != null)
                         {
                             var user = await _userServices.GetUserAsync(asset.AssetHolderId ?? throw new ArgumentNullException("UserId"));
-                            if (user != null) result.AssetHolderName = user.DisplayName;
+                            if (user != null) 
+                            { 
+                                result.AssetHolderName = user.DisplayName;
+                                result.AssetholderFirstName = user.FirstName;
+                                result.AssetHolderLastName = user.LastName;
+                            }
                         }
                     }
                     catch (HttpRequestException ex)

@@ -1,6 +1,7 @@
 #nullable enable
 using Common.Enums;
 using Common.Model;
+using OrigoApiGateway.Models.Asset;
 using System;
 using System.Collections.Generic;
 // ReSharper disable MemberCanBePrivate.Global
@@ -129,6 +130,14 @@ namespace OrigoApiGateway.Models
         /// Name of the employee holding the asset.
         /// </summary>
         public string? AssetHolderName { get; set; }
+        /// <summary>
+        /// Assetholders first name
+        /// </summary>
+        public string AssetholderFirstName { get; set; } = string.Empty;
+        /// <summary>
+        /// Assetholders lastname
+        /// </summary>
+        public string AssetHolderLastName { get; set; } = string.Empty;
         /// <summary>
         /// The status of the asset.
         /// <see cref="AssetStatus">AssetStatus</see>
