@@ -101,7 +101,63 @@ namespace SubscriptionManagementServices.Infrastructure
         }
         public async Task<PagedModel<SubscriptionOrderListItemDTO>> GetAllSubscriptionOrdersForCustomer(Guid organizationId, string? search, IList<int>? OrderType, int page, int limit, CancellationToken cancellationToken)
         {
-            var query = _subscriptionManagementContext.Set<TransferToBusinessSubscriptionOrder>()
+            IQueryable<SubscriptionOrderBaseData>? query = null;
+            if (OrderType == null || !OrderType.Any())
+            {
+                OrderType = Enum.GetValues<SubscriptionOrderTypes>().Select(x => (int)x).ToList();
+            }
+            foreach (var orderType in OrderType)
+            {
+                switch ((SubscriptionOrderTypes)orderType)
+                {
+                    case SubscriptionOrderTypes.TransferToPrivate:
+                        if(query == null)
+                        {
+                            query = _subscriptionManagementContext.Set<TransferToPrivateSubscriptionOrder>()
+                                    .Where(x => x.OrganizationId == organizationId)
+                                        .Select(x => new SubscriptionOrderBaseData
+                                        {
+                                            SubscriptionOrderId = x.SubscriptionOrderId,
+                                            CreatedDate = x.CreatedDate,
+                                            OrderTypeId = (int)SubscriptionOrderTypes.TransferToPrivate,
+                                            OrderType = SubscriptionOrderTypes.TransferToPrivate.ToString(),
+                                            CustomerId = x.OrganizationId,
+                                            PhoneNumber = x.MobileNumber,
+                                            OrderExecutionDate = x.OrderExecutionDate,
+                                            CreatedBy = x.CreatedBy,
+                                            OrderNumber = x.SalesforceTicketId,
+                                            PrivateFirstName = x.UserInfo.FirstName,
+                                            PrivateLastName = x.UserInfo.LastName,
+                                            BusinessFirstName = "",
+                                            BusinessLastName = ""
+                                        });
+                        }
+                        else
+                        {
+                            query = query.Concat(_subscriptionManagementContext.Set<TransferToPrivateSubscriptionOrder>()
+                                    .Where(x => x.OrganizationId == organizationId)
+                                        .Select(x => new SubscriptionOrderBaseData
+                                        {
+                                            SubscriptionOrderId = x.SubscriptionOrderId,
+                                            CreatedDate = x.CreatedDate,
+                                            OrderTypeId = (int)SubscriptionOrderTypes.TransferToPrivate,
+                                            OrderType = SubscriptionOrderTypes.TransferToPrivate.ToString(),
+                                            CustomerId = x.OrganizationId,
+                                            PhoneNumber = x.MobileNumber,
+                                            OrderExecutionDate = x.OrderExecutionDate,
+                                            CreatedBy = x.CreatedBy,
+                                            OrderNumber = x.SalesforceTicketId,
+                                            PrivateFirstName = x.UserInfo.FirstName,
+                                            PrivateLastName = x.UserInfo.LastName,
+                                            BusinessFirstName = "",
+                                            BusinessLastName = ""
+                                        }));
+                        }
+                        break;
+                    case SubscriptionOrderTypes.TransferToBusiness:
+                        if (query == null)
+                        {
+                            query = _subscriptionManagementContext.Set<TransferToBusinessSubscriptionOrder>()
                         .Where(x => x.OrganizationId == organizationId)
                         .Select(x => new SubscriptionOrderBaseData
                         {
@@ -118,62 +174,34 @@ namespace SubscriptionManagementServices.Infrastructure
                             PrivateLastName = x.PrivateSubscription.LastName,
                             BusinessFirstName = x.BusinessSubscription!.Name,
                             BusinessLastName = ""
-                        })
-                        .Concat(_subscriptionManagementContext.Set<TransferToPrivateSubscriptionOrder>()
+                        });
+                        }
+                        else
+                        {
+                            query = query.Concat(_subscriptionManagementContext.Set<TransferToBusinessSubscriptionOrder>()
                         .Where(x => x.OrganizationId == organizationId)
-                            .Select(x => new SubscriptionOrderBaseData
-                            {
-                                SubscriptionOrderId = x.SubscriptionOrderId,
-                                CreatedDate = x.CreatedDate,
-                                OrderTypeId = (int)SubscriptionOrderTypes.TransferToPrivate,
-                                OrderType = SubscriptionOrderTypes.TransferToPrivate.ToString(),
-                                CustomerId = x.OrganizationId,
-                                PhoneNumber = x.MobileNumber,
-                                OrderExecutionDate = x.OrderExecutionDate,
-                                CreatedBy = x.CreatedBy,
-                                OrderNumber = x.SalesforceTicketId,
-                                PrivateFirstName = x.UserInfo.FirstName,
-                                PrivateLastName = x.UserInfo.LastName,
-                                BusinessFirstName = "",
-                                BusinessLastName = ""
-                            }))
-                        .Concat(_subscriptionManagementContext.Set<ChangeSubscriptionOrder>()
-                        .Where(x => x.OrganizationId == organizationId)
-                            .Select(x => new SubscriptionOrderBaseData
-                            {
-                                SubscriptionOrderId = x.SubscriptionOrderId,
-                                CreatedDate = x.CreatedDate,
-                                OrderTypeId = (int)SubscriptionOrderTypes.ChangeSubscription,
-                                OrderType = SubscriptionOrderTypes.ChangeSubscription.ToString(),
-                                CustomerId = x.OrganizationId,
-                                PhoneNumber = x.MobileNumber,
-                                OrderExecutionDate = x.CreatedDate,
-                                CreatedBy = x.CreatedBy,
-                                OrderNumber = x.SalesforceTicketId,
-                                PrivateFirstName = x.SubscriptionOwner != null ? x.SubscriptionOwner : "Owner not specified",
-                                PrivateLastName = "",
-                                BusinessFirstName = "",
-                                BusinessLastName = ""
-                            }))
-                        .Concat(_subscriptionManagementContext.Set<CancelSubscriptionOrder>()
-                        .Where(x => x.OrganizationId == organizationId)
-                            .Select(x => new SubscriptionOrderBaseData
-                            {
-                                SubscriptionOrderId = x.SubscriptionOrderId,
-                                CreatedDate = x.CreatedDate,
-                                OrderTypeId = (int)SubscriptionOrderTypes.CancelSubscription,
-                                OrderType = SubscriptionOrderTypes.CancelSubscription.ToString(),
-                                CustomerId = x.OrganizationId,
-                                PhoneNumber = x.MobileNumber,
-                                OrderExecutionDate = x.DateOfTermination,
-                                CreatedBy = x.CreatedBy,
-                                OrderNumber = x.SalesforceTicketId,
-                                PrivateFirstName = "",
-                                PrivateLastName = "",
-                                BusinessFirstName = "",
-                                BusinessLastName = ""
-                            }))
-                        .Concat(_subscriptionManagementContext.Set<OrderSimSubscriptionOrder>()
+                        .Select(x => new SubscriptionOrderBaseData
+                        {
+                            SubscriptionOrderId = x.SubscriptionOrderId,
+                            CreatedDate = x.CreatedDate,
+                            OrderTypeId = (int)SubscriptionOrderTypes.TransferToBusiness,
+                            OrderType = SubscriptionOrderTypes.TransferToBusiness.ToString(),
+                            CustomerId = x.OrganizationId,
+                            PhoneNumber = x.MobileNumber,
+                            OrderExecutionDate = x.OrderExecutionDate,
+                            CreatedBy = x.CreatedBy,
+                            OrderNumber = x.SalesforceTicketId,
+                            PrivateFirstName = x.PrivateSubscription!.FirstName,
+                            PrivateLastName = x.PrivateSubscription.LastName,
+                            BusinessFirstName = x.BusinessSubscription!.Name,
+                            BusinessLastName = ""
+                        }));
+                        }
+                        break;
+                    case SubscriptionOrderTypes.OrderSim:
+                        if (query == null)
+                        {
+                            query = _subscriptionManagementContext.Set<OrderSimSubscriptionOrder>()
                         .Where(x => x.OrganizationId == organizationId)
                             .Select(x => new SubscriptionOrderBaseData
                             {
@@ -190,8 +218,34 @@ namespace SubscriptionManagementServices.Infrastructure
                                 PrivateLastName = "",
                                 BusinessFirstName = "",
                                 BusinessLastName = ""
-                            }))
-                        .Concat(_subscriptionManagementContext.Set<ActivateSimOrder>()
+                            });
+                        }
+                        else
+                        {
+                            query = query.Concat(_subscriptionManagementContext.Set<OrderSimSubscriptionOrder>()
+                        .Where(x => x.OrganizationId == organizationId)
+                            .Select(x => new SubscriptionOrderBaseData
+                            {
+                                SubscriptionOrderId = x.SubscriptionOrderId,
+                                CreatedDate = x.CreatedDate,
+                                OrderTypeId = (int)SubscriptionOrderTypes.OrderSim,
+                                OrderType = SubscriptionOrderTypes.OrderSim.ToString(),
+                                CustomerId = x.OrganizationId,
+                                PhoneNumber = "",
+                                OrderExecutionDate = x.CreatedDate,
+                                CreatedBy = x.CreatedBy,
+                                OrderNumber = x.SalesforceTicketId,
+                                PrivateFirstName = x.SendToName,
+                                PrivateLastName = "",
+                                BusinessFirstName = "",
+                                BusinessLastName = ""
+                            }));
+                        }
+                        break;
+                    case SubscriptionOrderTypes.ActivateSim:
+                        if (query == null)
+                        {
+                            query = _subscriptionManagementContext.Set<ActivateSimOrder>()
                         .Where(x => x.OrganizationId == organizationId)
                             .Select(x => new SubscriptionOrderBaseData
                             {
@@ -208,8 +262,55 @@ namespace SubscriptionManagementServices.Infrastructure
                                 PrivateLastName = "",
                                 BusinessFirstName = "",
                                 BusinessLastName = ""
-                            }))
-                        .Concat(_subscriptionManagementContext.Set<NewSubscriptionOrder>()
+                            });
+                        }
+                        else
+                        {
+                            query = query.Concat(_subscriptionManagementContext.Set<ActivateSimOrder>()
+                        .Where(x => x.OrganizationId == organizationId)
+                            .Select(x => new SubscriptionOrderBaseData
+                            {
+                                SubscriptionOrderId = x.SubscriptionOrderId,
+                                CreatedDate = x.CreatedDate,
+                                OrderTypeId = (int)SubscriptionOrderTypes.ActivateSim,
+                                OrderType = SubscriptionOrderTypes.ActivateSim.ToString(),
+                                CustomerId = x.OrganizationId,
+                                PhoneNumber = x.MobileNumber,
+                                OrderExecutionDate = x.CreatedDate,
+                                CreatedBy = x.CreatedBy,
+                                OrderNumber = x.SalesforceTicketId,
+                                PrivateFirstName = "",
+                                PrivateLastName = "",
+                                BusinessFirstName = "",
+                                BusinessLastName = ""
+                            }));
+                        }
+                        break;
+                    case SubscriptionOrderTypes.NewSubscription:
+                        if (query == null)
+                        {
+                            query = _subscriptionManagementContext.Set<NewSubscriptionOrder>()
+                        .Where(x => x.OrganizationId == organizationId)
+                            .Select(x => new SubscriptionOrderBaseData
+                            {
+                                SubscriptionOrderId = x.SubscriptionOrderId,
+                                CreatedDate = x.CreatedDate,
+                                OrderTypeId = (int)SubscriptionOrderTypes.NewSubscription,
+                                OrderType = SubscriptionOrderTypes.NewSubscription.ToString(),
+                                CustomerId = x.OrganizationId,
+                                PhoneNumber = "",
+                                OrderExecutionDate = x.OrderExecutionDate,
+                                CreatedBy = x.CreatedBy,
+                                OrderNumber = x.SalesforceTicketId,
+                                PrivateFirstName = x.PrivateSubscription!.FirstName,
+                                PrivateLastName = x.PrivateSubscription!.LastName,
+                                BusinessFirstName = x.SimCardReceiverFirstName!,
+                                BusinessLastName = x.SimCardReceiverLastName!
+                            });
+                        }
+                        else
+                        {
+                            query = query.Concat(_subscriptionManagementContext.Set<NewSubscriptionOrder>()
                         .Where(x => x.OrganizationId == organizationId)
                             .Select(x => new SubscriptionOrderBaseData
                             {
@@ -227,18 +328,107 @@ namespace SubscriptionManagementServices.Infrastructure
                                 BusinessFirstName = x.SimCardReceiverFirstName!,
                                 BusinessLastName = x.SimCardReceiverLastName!
                             }));
-
-            if (OrderType != null && OrderType.Any())
-            {
-                query = query.Where(x => OrderType.Contains(x.OrderTypeId));
+                        }
+                        break;
+                    case SubscriptionOrderTypes.ChangeSubscription:
+                        if (query == null)
+                        {
+                            query = _subscriptionManagementContext.Set<ChangeSubscriptionOrder>()
+                        .Where(x => x.OrganizationId == organizationId)
+                            .Select(x => new SubscriptionOrderBaseData
+                            {
+                                SubscriptionOrderId = x.SubscriptionOrderId,
+                                CreatedDate = x.CreatedDate,
+                                OrderTypeId = (int)SubscriptionOrderTypes.ChangeSubscription,
+                                OrderType = SubscriptionOrderTypes.ChangeSubscription.ToString(),
+                                CustomerId = x.OrganizationId,
+                                PhoneNumber = x.MobileNumber,
+                                OrderExecutionDate = x.CreatedDate,
+                                CreatedBy = x.CreatedBy,
+                                OrderNumber = x.SalesforceTicketId,
+                                PrivateFirstName = x.SubscriptionOwner != null ? x.SubscriptionOwner : "Owner not specified",
+                                PrivateLastName = "",
+                                BusinessFirstName = "",
+                                BusinessLastName = ""
+                            });
+                        }
+                        else
+                        {
+                            query = query.Concat(_subscriptionManagementContext.Set<ChangeSubscriptionOrder>()
+                        .Where(x => x.OrganizationId == organizationId)
+                            .Select(x => new SubscriptionOrderBaseData
+                            {
+                                SubscriptionOrderId = x.SubscriptionOrderId,
+                                CreatedDate = x.CreatedDate,
+                                OrderTypeId = (int)SubscriptionOrderTypes.ChangeSubscription,
+                                OrderType = SubscriptionOrderTypes.ChangeSubscription.ToString(),
+                                CustomerId = x.OrganizationId,
+                                PhoneNumber = x.MobileNumber,
+                                OrderExecutionDate = x.CreatedDate,
+                                CreatedBy = x.CreatedBy,
+                                OrderNumber = x.SalesforceTicketId,
+                                PrivateFirstName = x.SubscriptionOwner != null ? x.SubscriptionOwner : "Owner not specified",
+                                PrivateLastName = "",
+                                BusinessFirstName = "",
+                                BusinessLastName = ""
+                            }));
+                        }
+                        break;
+                    case SubscriptionOrderTypes.CancelSubscription:
+                        if (query == null)
+                        {
+                            query = _subscriptionManagementContext.Set<CancelSubscriptionOrder>()
+                        .Where(x => x.OrganizationId == organizationId)
+                            .Select(x => new SubscriptionOrderBaseData
+                            {
+                                SubscriptionOrderId = x.SubscriptionOrderId,
+                                CreatedDate = x.CreatedDate,
+                                OrderTypeId = (int)SubscriptionOrderTypes.CancelSubscription,
+                                OrderType = SubscriptionOrderTypes.CancelSubscription.ToString(),
+                                CustomerId = x.OrganizationId,
+                                PhoneNumber = x.MobileNumber,
+                                OrderExecutionDate = x.DateOfTermination,
+                                CreatedBy = x.CreatedBy,
+                                OrderNumber = x.SalesforceTicketId,
+                                PrivateFirstName = "",
+                                PrivateLastName = "",
+                                BusinessFirstName = "",
+                                BusinessLastName = ""
+                            });
+                        }
+                        else
+                        {
+                            query = query.Concat(_subscriptionManagementContext.Set<CancelSubscriptionOrder>()
+                        .Where(x => x.OrganizationId == organizationId)
+                            .Select(x => new SubscriptionOrderBaseData
+                            {
+                                SubscriptionOrderId = x.SubscriptionOrderId,
+                                CreatedDate = x.CreatedDate,
+                                OrderTypeId = (int)SubscriptionOrderTypes.CancelSubscription,
+                                OrderType = SubscriptionOrderTypes.CancelSubscription.ToString(),
+                                CustomerId = x.OrganizationId,
+                                PhoneNumber = x.MobileNumber,
+                                OrderExecutionDate = x.DateOfTermination,
+                                CreatedBy = x.CreatedBy,
+                                OrderNumber = x.SalesforceTicketId,
+                                PrivateFirstName = "",
+                                PrivateLastName = "",
+                                BusinessFirstName = "",
+                                BusinessLastName = ""
+                            }));
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
 
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(x => x.PhoneNumber.ToLower().Contains(search.ToLower()) || x.OrderNumber.ToLower().Contains(search.ToLower()));
+                query = query!.Where(x => x.PhoneNumber.ToLower().Contains(search.ToLower()) || x.OrderNumber.ToLower().Contains(search.ToLower()));
             }
 
-            return await query.Select(x => new SubscriptionOrderListItemDTO()
+            return await query!.Select(x => new SubscriptionOrderListItemDTO()
             {
                 OrderNumber = x.OrderNumber!,
                 OrderTypeId = x.OrderTypeId,
