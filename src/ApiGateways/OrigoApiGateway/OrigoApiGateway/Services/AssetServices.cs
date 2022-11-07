@@ -2,6 +2,7 @@
 using Common.Enums;
 using Common.Interfaces;
 using Common.Models;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
@@ -9,7 +10,6 @@ using OrigoApiGateway.Models.Asset;
 using OrigoApiGateway.Models.BackendDTO;
 using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.WebUtilities;
 
 namespace OrigoApiGateway.Services
 {
@@ -25,6 +25,7 @@ namespace OrigoApiGateway.Services
             _mapper = mapper;
             _userPermissionService = userPermissionService;
         }
+
         private readonly IUserServices _userServices;
         private readonly IUserPermissionService _userPermissionService;
         private readonly IDepartmentsServices _departmentsServices;
@@ -53,6 +54,7 @@ namespace OrigoApiGateway.Services
                 throw new AssetException("GetAllCustomerAssetsCountAsync failed", exception);
             }
         }
+
         public async Task<IList<CustomerAssetCount>> GetAllCustomerAssetsCountAsync(List<Guid> customerIds)
         {
             try
@@ -72,8 +74,8 @@ namespace OrigoApiGateway.Services
                 throw new AssetException("GetAllCustomerAssetsCountAsync failed", exception);
             }
         }
-        public async Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId,
-            AssetLifecycleStatus? assetLifecycleStatus)
+
+        public async Task<int> GetAssetsCountAsync(Guid customerId, Guid? departmentId, AssetLifecycleStatus? assetLifecycleStatus)
         {
             try
             {
@@ -112,8 +114,6 @@ namespace OrigoApiGateway.Services
                 throw new AssetException("GetCustomerTotalBookValue failed", exception);
             }
         }
-
-
 
         public async Task<IList<object>> GetAssetsForUserAsync(Guid customerId, Guid userId, bool includeAsset = false, bool includeImeis = false, bool includeContractHolderUser = false)
         {
@@ -175,7 +175,7 @@ namespace OrigoApiGateway.Services
 
                         if (asset.AssetHolderId == null) continue;
                         var userName = string.Empty;
-                        if(users.TryGetValue(new UserNamesDTO { UserId = asset.AssetHolderId.Value }, out var foundUserNamesDTO))
+                        if (users.TryGetValue(new UserNamesDTO { UserId = asset.AssetHolderId.Value }, out var foundUserNamesDTO))
                         {
                             userName = foundUserNamesDTO.UserName;
                         }
@@ -224,7 +224,7 @@ namespace OrigoApiGateway.Services
 
                 if (settings == null)
                     return null;
-                foreach(var setting in settings)
+                foreach (var setting in settings)
                 {
                     setting.Currency = currency;
                 }
@@ -255,11 +255,11 @@ namespace OrigoApiGateway.Services
                 var response = new HttpResponseMessage();
                 var newSettingtDTO = _mapper.Map<NewLifeCycleSettingDTO>(setting);
                 newSettingtDTO.CallerId = callerId;
-                if (existingSetting == null || existingSetting!.FirstOrDefault(x=>x.AssetCategoryId == setting.AssetCategoryId) == null)
+                if (existingSetting == null || existingSetting!.FirstOrDefault(x => x.AssetCategoryId == setting.AssetCategoryId) == null)
                     response = await HttpClient.PostAsJsonAsync(requestUri, newSettingtDTO);
                 else
                     response = await HttpClient.PutAsJsonAsync(requestUri, newSettingtDTO);
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorDescription = await response.Content.ReadAsStringAsync();
@@ -357,6 +357,7 @@ namespace OrigoApiGateway.Services
 
             return null;
         }
+
         public async Task<ReturnLocation> AddReturnLocationsByCustomer(Guid customerId, NewReturnLocation data, IList<Location> officeLocation, Guid callerId)
         {
             try
@@ -387,6 +388,7 @@ namespace OrigoApiGateway.Services
                 throw new AssetException("AddReturnLocationsByCustomer failed", exception);
             }
         }
+
         public async Task<ReturnLocation> UpdateReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, NewReturnLocation data, Guid callerId)
         {
             try
@@ -412,6 +414,7 @@ namespace OrigoApiGateway.Services
                 throw new AssetException("UpdateReturnLocationsByCustomer failed", exception);
             }
         }
+
         public async Task<IList<ReturnLocation>> DeleteReturnLocationsByCustomer(Guid customerId, Guid returnLocationId)
         {
             try
@@ -477,7 +480,7 @@ namespace OrigoApiGateway.Services
                         new NewAssetDTO
                         {
                             Alias = validAsset.Alias,
-                            AssetHolderId = validAsset.MatchedUserId, 
+                            AssetHolderId = validAsset.MatchedUserId,
                             Brand = validAsset.Brand,
                             AssetCategoryId = 1,
                             Imei =
@@ -490,7 +493,7 @@ namespace OrigoApiGateway.Services
                             PaidByCompany = new Common.Model.Money(decimal.Parse(validAsset.PurchasePrice), currency)
                         });
 
-                    
+
 
                 }
                 else //the asset do have a user or need to import a new user 
@@ -584,7 +587,7 @@ namespace OrigoApiGateway.Services
                 else validAsset.MatchedUserId = Guid.Empty; // need to import user
 
             }
-            
+
             assetValidationResults.ValidAssets.RemoveAll(a => a.MatchedUserId == null);
         }
 
@@ -775,7 +778,7 @@ namespace OrigoApiGateway.Services
 
                 var requestUri = $"{_options.ApiPath}/customers/{customerId}/make-available";
                 var existingAsset = await GetAssetForCustomerAsync(customerId, data.AssetLifeCycleId, null);
-                if(existingAsset.AssetHolderId != null)
+                if (existingAsset.AssetHolderId != null)
                 {
                     var user = await _userServices.GetUserAsync(existingAsset.AssetHolderId.Value);
                     makeAssetAvailableDTO.PreviousUser = new EmailPersonAttributeDTO()
@@ -820,7 +823,7 @@ namespace OrigoApiGateway.Services
             {
                 var existingAsset = await GetAssetForCustomerAsync(customerId, assetLifeCycleId, null);
                 if (existingAsset == null) throw new ResourceNotFoundException("Asset Not Found!!", _logger);
-                if((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && !accessList.Contains(existingAsset.ManagedByDepartmentId))
+                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && !accessList.Contains(existingAsset.ManagedByDepartmentId))
                     throw new UnauthorizedAccessException("Manager does not have access to this asset!!!");
 
                 var returnDTO = new ReturnDeviceDTO()
@@ -834,10 +837,10 @@ namespace OrigoApiGateway.Services
                 {
                     throw new AssetException("Return Request Already Pending!!!");
                 }
-                else if(role == PredefinedRole.EndUser.ToString() && existingAsset.IsPersonal && existingAsset.AssetStatus != AssetLifecycleStatus.PendingReturn)
+                else if (role == PredefinedRole.EndUser.ToString() && existingAsset.IsPersonal && existingAsset.AssetStatus != AssetLifecycleStatus.PendingReturn)
                 {
                     if (existingAsset.AssetHolderId != callerId && role == PredefinedRole.EndUser.ToString()) throw new Exception("Only ContractHolderUser can make Return Request!!!");
-                    if(existingAsset.ManagedByDepartmentId != null)
+                    if (existingAsset.ManagedByDepartmentId != null)
                     {
                         var department = await _departmentsServices.GetDepartmentAsync(customerId, existingAsset.ManagedByDepartmentId.Value);
                         var managers = new List<EmailPersonAttributeDTO>();
@@ -899,7 +902,7 @@ namespace OrigoApiGateway.Services
                 }
                 return result;
             }
-            catch(ResourceNotFoundException exception)
+            catch (ResourceNotFoundException exception)
             {
                 throw exception;
             }
@@ -918,7 +921,7 @@ namespace OrigoApiGateway.Services
                     throw new UnauthorizedAccessException("Manager does not have access to this asset!!!");
 
                 if (existingAsset.AssetHolderId != callerId && role == PredefinedRole.EndUser.ToString()) throw new Exception("Only ContractHolderUser can do buyout!!!");
-                
+
                 var buyoutDTO = new BuyoutDeviceDTO()
                 {
                     AssetLifeCycleId = assetLifeCycleId,
@@ -951,7 +954,7 @@ namespace OrigoApiGateway.Services
                 }
                 return result;
             }
-            catch(ResourceNotFoundException exception)
+            catch (ResourceNotFoundException exception)
             {
                 throw exception;
             }
@@ -979,14 +982,14 @@ namespace OrigoApiGateway.Services
                     Currency = currency,
                 };
 
-                if(existingAsset.AssetHolderId == null)
+                if (existingAsset.AssetHolderId == null)
                 {
                     throw new PendingBuyoutException("No Asset Contract Holder found!!!", _logger);
                 }
                 else
                 {
                     var user = await _userServices.GetUserAsync(existingAsset.AssetHolderId.Value);
-                    if(user.UserStatus != (int)UserStatus.OffboardInitiated && user.UserStatus != (int)UserStatus.OffboardOverdue)
+                    if (user.UserStatus != (int)UserStatus.OffboardInitiated && user.UserStatus != (int)UserStatus.OffboardOverdue)
                         throw new PendingBuyoutException("User is not Offboarding!!!", _logger);
 
                     buyoutDTO.User = new EmailPersonAttributeDTO()
@@ -1001,7 +1004,7 @@ namespace OrigoApiGateway.Services
                     buyoutDTO.LasWorkingDay = user.LastWorkingDay.Value;
                 }
 
-                if(role != PredefinedRole.EndUser.ToString() && callerId != Guid.Empty)
+                if (role != PredefinedRole.EndUser.ToString() && callerId != Guid.Empty)
                 {
                     var manager = await _userServices.GetUserAsync(callerId);
                     if (manager != null)
@@ -1068,7 +1071,7 @@ namespace OrigoApiGateway.Services
                     TimePeriodTo = data.TimePeriodTo,
                     City = data.City,
                     Country = data.Country,
-                    Address =data.Address,
+                    Address = data.Address,
                     PostalCode = data.PostalCode
                 };
 
@@ -1153,7 +1156,7 @@ namespace OrigoApiGateway.Services
                 }
                 return result;
             }
-            catch(ResourceNotFoundException exception)
+            catch (ResourceNotFoundException exception)
             {
                 throw exception;
             }
@@ -1229,7 +1232,7 @@ namespace OrigoApiGateway.Services
                 }
                 var department = await _departmentsServices.GetDepartmentAsync(customerId, existingAsset.ManagedByDepartmentId.Value);
                 var oldManagers = new List<EmailPersonAttributeDTO>();
-                foreach(var manager in department.ManagedBy)
+                foreach (var manager in department.ManagedBy)
                 {
                     var oldManager = await _userServices.GetUserAsync(customerId, manager.UserId);
                     oldManagers.Add(new EmailPersonAttributeDTO()
@@ -1491,7 +1494,7 @@ namespace OrigoApiGateway.Services
                 var allMinBuyoutPrices = await HttpClient.GetFromJsonAsync<IList<MinBuyoutPrice>>($"{_options.ApiPath}/min-buyout-price?{(string.IsNullOrWhiteSpace(country) ? "" : $"country={country}")}&{(assetCategoryId == null ? "" : $"assetCategoryId={assetCategoryId}")}");
                 if (allMinBuyoutPrices == null)
                     return null;
-                foreach(var data in allMinBuyoutPrices)
+                foreach (var data in allMinBuyoutPrices)
                 {
                     data.Currency = GetCurrencyByCountry(data.Country);
                 }
@@ -1513,7 +1516,7 @@ namespace OrigoApiGateway.Services
 
             return null;
         }
-         public async Task<IList<OrigoAssetLifecycle>> GetLifecycles()
+        public async Task<IList<OrigoAssetLifecycle>> GetLifecycles()
         {
             try
             {
@@ -1654,7 +1657,7 @@ namespace OrigoApiGateway.Services
 
                     if (asset.ManagedByDepartmentId != null)
                     {
-                        if(department == null)
+                        if (department == null)
                             department = await _departmentsServices.GetDepartmentAsync(asset.OrganizationId, asset.ManagedByDepartmentId ?? throw new ArgumentNullException("DepartmentId"));
                         result.DepartmentName = department.Name;
                     }
@@ -1756,7 +1759,7 @@ namespace OrigoApiGateway.Services
             return defaultAttributes;
         }
 
-        public async Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId,Guid callerId, string role)
+        public async Task<IList<AssetAuditLog>> GetAssetAuditLog(Guid assetId, Guid callerId, string role)
         {
             try
             {
@@ -1823,29 +1826,29 @@ namespace OrigoApiGateway.Services
             try
             {
                 var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/customers/{customerId}/activate", changedAssetStatus);
-                
-                
+
+
                 var assetLifecycles = await response.Content.ReadFromJsonAsync<IList<AssetDTO>>();
                 if (assetLifecycles == null)
                 {
                     return null;
                 }
-                
+
                 IList<OrigoAsset> assets = new List<OrigoAsset>();
                 OrigoAsset result = null;
-                foreach (var assetLifecycle in assetLifecycles) 
-                { 
-                if (assetLifecycle != null)
+                foreach (var assetLifecycle in assetLifecycles)
                 {
-                    if (assetLifecycle.AssetCategoryId == 1)
-                        result = _mapper.Map<OrigoMobilePhone>(assetLifecycle);
-                    else
-                        result = _mapper.Map<OrigoTablet>(assetLifecycle);
+                    if (assetLifecycle != null)
+                    {
+                        if (assetLifecycle.AssetCategoryId == 1)
+                            result = _mapper.Map<OrigoMobilePhone>(assetLifecycle);
+                        else
+                            result = _mapper.Map<OrigoTablet>(assetLifecycle);
                         assets.Add(result);
+                    }
                 }
-            }
 
-                    return assets;
+                return assets;
             }
             catch (Exception exception)
             {
@@ -1875,4 +1878,6 @@ namespace OrigoApiGateway.Services
             }
         }
     }
+
+
 }

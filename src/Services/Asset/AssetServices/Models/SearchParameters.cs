@@ -1,4 +1,5 @@
-﻿using Swashbuckle.AspNetCore.Annotations;
+﻿using Common.Enums;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
