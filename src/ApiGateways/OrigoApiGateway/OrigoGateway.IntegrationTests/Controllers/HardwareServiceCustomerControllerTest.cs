@@ -240,6 +240,123 @@ namespace OrigoGateway.IntegrationTests.Controllers
             var response = await client.GetAsync($"origoapi/v1.0/hardware-service/organization/{organizationId2}/orders/{serviceOrderId}");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
+        
+        [Fact]
+        public async Task CreateHardwareServiceOrderForRepairAsync_Test_For_EndUser()
+        {
+            var client = PrepareClientFor_END_USER();
+            var organizationId = Guid.NewGuid();
+            var hardwareServiceOrder = new NewHardwareServiceOrder()
+            {
+                DeliveryAddress = new()
+                {
+                    RecipientType = RecipientTypeEnum.Personal,
+                    Recipient = "[Recipient]",
+                    Address1 = "[Address1]",
+                    Address2 = "[Address2]",
+                    PostalCode = "[0001]",
+                    City = "[Oslo]",
+                    Country = "NO"
+                },
+                UserDescription = "[UserDescription]",
+                AssetId = Guid.NewGuid(),
+                UserSelectedServiceOrderAddonIds = new HashSet<int>() { 1 }
+            };
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.PostAsJsonAsync($"origoapi/v1.0/hardware-service/organization/{organizationId}/orders/repair", hardwareServiceOrder);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task CreateHardwareServiceOrderForRemarketingAsync_Test_For_EndUser()
+        {
+            var client = PrepareClientFor_END_USER();
+            var organizationId = Guid.NewGuid();
+            var hardwareServiceOrder = new NewHardwareAftermarketOrder()
+            {
+                DeliveryAddress = new()
+                {
+                    RecipientType = RecipientTypeEnum.Personal,
+                    Recipient = "[Recipient]",
+                    Address1 = "[Address1]",
+                    Address2 = "[Address2]",
+                    PostalCode = "[0001]",
+                    City = "[Oslo]",
+                    Country = "NO"
+                },
+                UserDescription = "[UserDescription]",
+                AssetId = Guid.NewGuid(),
+                UserSelectedServiceOrderAddonIds = new HashSet<int>() { 1 }
+            };
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.PostAsJsonAsync($"origoapi/v1.0/hardware-service/organization/{organizationId}/orders/remarketing", hardwareServiceOrder);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        private HttpClient PrepareClientFor_END_USER()
+        {
+            var userId = Guid.NewGuid();
+            var email = "test@techstep.no";
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, nameof(PredefinedRole.EndUser)));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, userId.ToString()));
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ =>
+                        _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None))
+                        .Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+
+                    var assetService = new Mock<IAssetServices>();
+
+                    var hardwareSuperTypeWithIncludeContractHolderUser = new HardwareSuperType()
+                    {
+                        AssetHolderId = userId,
+                        ManagedByDepartmentId = Guid.NewGuid()
+                    };
+                    
+                    var hardwareSuperTypeWithoutIncludeContractHolderUser = new HardwareSuperType()
+                    {
+                        AssetHolderId = null,
+                        ManagedByDepartmentId = Guid.NewGuid()
+                    };
+
+                    assetService.Setup(_ => _.GetAssetForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), null,
+                        It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), true))
+                        .ReturnsAsync(hardwareSuperTypeWithIncludeContractHolderUser);
+                    
+                    assetService.Setup(_ => _.GetAssetForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), null,
+                            It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), false))
+                        .ReturnsAsync(hardwareSuperTypeWithoutIncludeContractHolderUser);
+
+                    var hardwareServiceOrderService = new Mock<IHardwareServiceOrderService>();
+
+                    hardwareServiceOrderService.Setup(_ =>
+                        _.CreateHardwareServiceOrderAsync(
+                            It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>(),
+                            It.IsAny<NewHardwareServiceOrder>(),
+                            It.IsAny<HardwareSuperType>()))
+                        .ReturnsAsync(new OrigoApiGateway.Models.HardwareServiceOrder.Backend.HardwareServiceOrder() { });
+
+                    services.AddSingleton(assetService.Object);
+                    services.AddSingleton(hardwareServiceOrderService.Object);
+                });
+            }).CreateClient();
+            return client;
+        }
 
     }
 }
