@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
+using OrigoApiGateway.Models.Asset.Backend;
 using OrigoApiGateway.Models.BackendDTO;
 using System.Text;
 using System.Text.Json;
@@ -443,11 +444,11 @@ namespace OrigoApiGateway.Services
             var products = await _userPermissionService.GetOrderedModuleProductsByPartnerAndOrganizationAsync(customer.PartnerId!.Value, customer.OrganizationId, false);
             var lifeCycleType = LifecycleType.NoLifecycle;
 
-            if(products.Any(x=>x.Id == 2))
+            if (products.Any(x => x.Id == 2))
             {
                 lifeCycleType = LifecycleType.NoLifecycle;
             }
-            else if(products.Any(x=>x.Id == 3))
+            else if (products.Any(x => x.Id == 3))
             {
                 lifeCycleType = LifecycleType.Transactional;
             }
@@ -1877,7 +1878,22 @@ namespace OrigoApiGateway.Services
                 throw new AssetException("DeactivateAssetStatusOnAssetLifecycle failed", exception);
             }
         }
+
+
+#nullable enable
+        /// <inheritdoc/>
+        public async Task<PagedModel<HardwareSuperType>> AssetAdvancedSearch(AssetSearchParameters searchParameters, int page, int limit, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false)
+        {
+            var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/search/assets?includeImeis={includeImeis}&includeLabels={includeLabels}&includeContractHolderUser={includeContractHolderUser}", searchParameters);
+            var assetLifecycles = await response.Content.ReadFromJsonAsync<PagedModel<HardwareSuperType>>();
+
+            if (assetLifecycles is null)
+                throw new JsonException("The deserialized JSON object was null");
+
+            return assetLifecycles;
+        }
+#nullable restore
+
+
     }
-
-
 }

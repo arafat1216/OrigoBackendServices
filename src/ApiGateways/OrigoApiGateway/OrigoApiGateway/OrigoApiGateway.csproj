@@ -35,4 +35,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\Core\Common.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Models\Asset\Frontend\" />
+	</ItemGroup>
 </Project>

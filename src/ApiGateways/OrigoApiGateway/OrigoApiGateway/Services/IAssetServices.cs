@@ -3,6 +3,7 @@ using Common.Interfaces;
 using Common.Models;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.Asset;
+using OrigoApiGateway.Models.Asset.Backend;
 using OrigoApiGateway.Models.BackendDTO;
 
 namespace OrigoApiGateway.Services
@@ -38,7 +39,7 @@ namespace OrigoApiGateway.Services
         Task<string> CreateAssetSeedData();
         Task<decimal> GetCustomerTotalBookValue(Guid customerId);
         Task<OrigoAsset> MakeAssetAvailableAsync(Guid customerId, MakeAssetAvailable data, Guid callerId);
-        Task<OrigoAsset> ReturnDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, List<Guid?> accessList, Guid returnLocationId , Guid callerId);
+        Task<OrigoAsset> ReturnDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, List<Guid?> accessList, Guid returnLocationId, Guid callerId);
         Task<OrigoAsset> BuyoutDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, List<Guid?> accessList, string payrollContactEmail, Guid callerId);
         Task<OrigoAsset> PendingBuyoutDeviceAsync(Guid customerId, Guid assetLifeCycleId, string role, List<Guid?> accessList, string currency, Guid callerId);
         Task<OrigoAsset> ReportDeviceAsync(Guid customerId, ReportDevice data, string role, List<Guid?> accessList, Guid callerId);
@@ -58,5 +59,29 @@ namespace OrigoApiGateway.Services
         Task<ReturnLocation> UpdateReturnLocationsByCustomer(Guid customerId, Guid returnLocationId, NewReturnLocation data, Guid callerId);
         Task<IList<ReturnLocation>> DeleteReturnLocationsByCustomer(Guid customerId, Guid returnLocationId);
         Task<AssetValidationResult> ImportAssetsFileAsync(Organization customer, IFormFile file, bool validateOnly);
+
+#nullable enable
+        /// <summary>
+        ///     An advanced search that retrieves all <c>Assets</c> that matches the given criteria.
+        /// </summary>
+        /// <param name="searchParameters"> A class containing all the search-parameters. </param>
+        /// <param name="page"> The current page number. </param>
+        /// <param name="limit"> The highest number of items that can be added in a single page. </param>
+        /// <param name="includeImeis">
+        ///     When <c><see langword="true"/></c>, the <c>IMEI</c> property is loaded/included in the retrieved data. 
+        ///     <para>This property will not be included unless it's explicitly requested. </para>
+        /// </param>
+        /// <param name="includeLabels">
+        ///     When <c><see langword="true"/></c>, the <c>Labels</c> property is loaded/included in the retrieved data. 
+        ///     <para>This property will not be included unless it's explicitly requested. </para>
+        /// </param>
+        /// <param name="includeContractHolderUser">
+        ///     When <c><see langword="true"/></c>, information about the user is loaded/included in the retrieved data. 
+        ///     <para>This property will not be included unless it's explicitly requested. </para>
+        /// </param>
+        /// <returns> The asynchronous task. The task results contains the corresponding search-results. </returns>
+        Task<PagedModel<HardwareSuperType>> AssetAdvancedSearch(AssetSearchParameters searchParameters, int page, int limit, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false);
+#nullable restore
+
     }
 }

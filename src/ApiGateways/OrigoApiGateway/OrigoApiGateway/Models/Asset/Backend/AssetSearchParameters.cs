@@ -1,17 +1,13 @@
-﻿using Common.Enums;
-using Swashbuckle.AspNetCore.Annotations;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text.Json.Serialization;
+﻿#nullable enable
 
-namespace AssetServices.Models
+using Common.Enums;
+
+namespace OrigoApiGateway.Models.Asset.Backend
 {
     /// <summary>
-    ///     Contains all the user-provided search-parameters used when performing an advanced search.
+    ///     Contains all potential search-parameters when performing a advanced asset-search
     /// </summary>
-    public record SearchParameters : IValidatableObject
+    public class AssetSearchParameters
     {
         /*
          * Generic search
@@ -44,7 +40,7 @@ namespace AssetServices.Models
         /// </para>
         /// </summary>
         [EnumDataType(typeof(StringSearchType))]
-        public StringSearchType QuickSearchSearchType { get; init; } = StringSearchType.Contains;
+        public StringSearchType QuickSearchSearchType { get; set; } = StringSearchType.Contains;
 
 
         /*
@@ -54,32 +50,32 @@ namespace AssetServices.Models
         /// <summary>
         /// Filter the search-results to only contain results from these customers. The filter will be ignored if the value is omitted or <see langword="null"/>.
         /// </summary>
-        public HashSet<Guid>? CustomerIds { get; init; }
+        public HashSet<Guid>? CustomerIds { get; set; }
 
         /// <summary>
         /// Filter the search-results to only contain results from these users. The filter will be ignored if the value is omitted or <see langword="null"/>.
         /// </summary>
-        public HashSet<Guid>? UserIds { get; init; }
+        public HashSet<Guid>? UserIds { get; set; }
 
         /// <summary>
         /// Filter the search-results to only contain results from these departments. The filter will be ignored if the value is omitted or <see langword="null"/>.
         /// </summary>
-        public HashSet<Guid>? DepartmentIds { get; init; }
+        public HashSet<Guid>? DepartmentIds { get; set; }
 
         /// <summary>
         /// Filter the search-results so only assets with the specified categories is retrieved. The filter will be ignored if the value is omitted or <see langword="null"/>.
         /// </summary>
-        public HashSet<int>? AssetCategoryIds { get; init; }
+        public HashSet<int>? AssetCategoryIds { get; set; }
 
         /// <summary>
         /// Filter the search-results so only assets with the specified lifecycle status-IDs is retrieved. The filter will be ignored if the value is omitted or <see langword="null"/>.
         /// </summary>
-        public HashSet<int>? AssetLifecycleStatusIds { get; init; }
+        public HashSet<int>? AssetLifecycleStatusIds { get; set; }
 
         /// <summary>
         /// Filter the search-results so only assets with the specified lifecycle types is retrieved. The filter will be ignored if the value is omitted or <see langword="null"/>.
         /// </summary>
-        public HashSet<int>? AssetLifecycleTypeIds { get; init; }
+        public HashSet<int>? AssetLifecycleTypeIds { get; set; }
 
 
         /*
@@ -92,7 +88,7 @@ namespace AssetServices.Models
         /// <example>514127746123926</example>
         [MaxLength(15)]
         [RegularExpression("^[0-9]{0,15}$")]
-        public string? Imei { get; init; }
+        public string? Imei { get; set; }
 
         /// <summary>
         /// Determines the search-condition that should be used for <c><see cref="Imei"/></c>.
@@ -106,12 +102,12 @@ namespace AssetServices.Models
         /// </para>
         /// </summary>
         [EnumDataType(typeof(StringSearchType))]
-        public StringSearchType ImeiSearchType { get; init; } = StringSearchType.StartsWith;
+        public StringSearchType ImeiSearchType { get; set; } = StringSearchType.StartsWith;
 
         /// <summary>
         /// The assets serial-number.
         /// </summary>
-        public string? SerialNumber { get; init; }
+        public string? SerialNumber { get; set; }
 
         /// <summary>
         /// Determines the search-condition that should be used for <c><see cref="SerialNumber"/></c>.
@@ -125,9 +121,9 @@ namespace AssetServices.Models
         /// </para>
         /// </summary>
         [EnumDataType(typeof(StringSearchType))]
-        public StringSearchType SerialNumberSearchType { get; init; } = StringSearchType.StartsWith;
+        public StringSearchType SerialNumberSearchType { get; set; } = StringSearchType.StartsWith;
 
-        public string? Alias { get; init; }
+        public string? Alias { get; set; }
 
         /// <summary>
         /// Determines the search-condition that should be used for <c><see cref="Alias"/></c>.
@@ -141,14 +137,14 @@ namespace AssetServices.Models
         /// </para>
         /// </summary>
         [EnumDataType(typeof(StringSearchType))]
-        public StringSearchType AliasSearchType { get; init; } = StringSearchType.Contains;
+        public StringSearchType AliasSearchType { get; set; } = StringSearchType.Contains;
 
         /// <summary>
         /// The asset brand (e.g. Samsung)
         /// </summary>
         /// <example>Samsung</example>
         [MaxLength(50, ErrorMessage = "The brand name can't be longer then 50 characters.")]
-        public string? Brand { get; init; }
+        public string? Brand { get; set; }
 
         /// <summary>
         /// Determines the search-condition that should be used for <c><see cref="Brand"/></c>.
@@ -162,14 +158,14 @@ namespace AssetServices.Models
         /// </para>
         /// </summary>
         [EnumDataType(typeof(StringSearchType))]
-        public StringSearchType BrandSearchType { get; init; } = StringSearchType.StartsWith;
+        public StringSearchType BrandSearchType { get; set; } = StringSearchType.StartsWith;
 
         /// <summary>
         /// The model or product name of this asset (e.g. Samsung Galaxy)
         /// </summary>
         /// <example>Galaxy S22 Ultra</example>
         [MaxLength(50, ErrorMessage = "The model/product-name can't be longer then 50 characters.")]
-        public string? ProductName { get; init; }
+        public string? ProductName { get; set; }
 
         /// <summary>
         /// Determines the search-condition that should be used for <c><see cref="ProductName"/></c>.
@@ -183,14 +179,14 @@ namespace AssetServices.Models
         /// </para>
         /// </summary>
         [EnumDataType(typeof(StringSearchType))]
-        public StringSearchType ProductNameSearchType { get; init; } = StringSearchType.StartsWith;
+        public StringSearchType ProductNameSearchType { get; set; } = StringSearchType.StartsWith;
 
         /// <summary>
         /// The start period for this asset lifecycle.
         /// </summary>
         /// <example>2022-06-01</example>
         [SwaggerSchema(Format = "date")]
-        public DateTime? StartPeriod { get; init; }
+        public DateTime? StartPeriod { get; set; }
 
         /// <summary>
         /// Determines the search-condition that should be used for <c><see cref="StartPeriod"/></c>.
@@ -204,14 +200,14 @@ namespace AssetServices.Models
         /// </para>
         /// </summary>
         [EnumDataType(typeof(DateSearchType))]
-        public DateSearchType StartPeriodSearchType { get; init; } = DateSearchType.ExcactDate;
+        public DateSearchType StartPeriodSearchType { get; set; } = DateSearchType.ExcactDate;
 
         /// <summary>
         /// The end period for this asset lifecycle.
         /// </summary>
         /// <example>2024-06-01</example>
         [SwaggerSchema(Format = "date")]
-        public DateTime? EndPeriod { get; init; }
+        public DateTime? EndPeriod { get; set; }
 
         /// <summary>
         /// Determines the search-condition that should be used for <c><see cref="EndPeriod"/></c>.
@@ -225,14 +221,14 @@ namespace AssetServices.Models
         /// </para>
         /// </summary>
         [EnumDataType(typeof(DateSearchType))]
-        public DateSearchType EndPeriodSearchType { get; init; } = DateSearchType.ExcactDate;
+        public DateSearchType EndPeriodSearchType { get; set; } = DateSearchType.ExcactDate;
 
         /// <summary>
         /// The purchase date of the asset lifecycle.
         /// </summary>
         /// <example>2022-05-22</example>
         [SwaggerSchema(Format = "date")]
-        public DateTime? PurchaseDate { get; init; }
+        public DateTime? PurchaseDate { get; set; }
 
         /// <summary>
         /// Determines the search-condition that should be used for <c><see cref="PurchaseDate"/></c>.
@@ -246,73 +242,10 @@ namespace AssetServices.Models
         /// </para>
         /// </summary>
         [EnumDataType(typeof(DateSearchType))]
-        public DateSearchType PurchaseDateSearchType { get; init; } = DateSearchType.ExcactDate;
+        public DateSearchType PurchaseDateSearchType { get; set; } = DateSearchType.ExcactDate;
 
 
-        /*
-         * Sorting
-         */
-
-        /// <summary>
-        /// When set, the search-results is ordered using the specified property. 
-        /// If the value is omitted or <see langword="null"/>, the default sorting is used.
-        /// 
-        /// <para>Only database-persisted values from the <c>Entity Framework</c> <see cref="AssetLifecycle"/>-entity is supported.
-        /// All properties must match the entity-name. </para>
-        /// 
-        /// <para>
-        /// <b>Supported values:</b>
-        /// <list type="bullet">
-        ///     <item>startPeriod</item>
-        ///     <item>endPeriod</item>
-        ///     <item>purchaseDate</item>
-        ///     <item>alias</item>
-        ///     <item>source</item>
-        ///     <item>assetLifecycleStatus</item>
-        /// </list>
-        /// </para>
-        /// </summary>
-        [JsonIgnore] // Temporarily ignored so it can't be used, as it required additional testing.
-        public string? OrderBy { get; init; }
-
-        /// <summary>
-        /// When <c><see langword="true"/></c>, it is sorted in <c>ascending</c> order.
-        /// <br/>
-        /// When <c><see langword="false"/></c>, it is sorted in <c>descending</c> order.
-        /// 
-        /// <para>
-        /// If the value is omitted or <see langword="null"/>, it will be sorted in ascending order.
-        /// </para>
-        /// </summary>
-        [JsonIgnore] // TODO: This requires more testing before it's put into use! Therefore we temporarily ignore the property in the APIs so it can't be used.
-        public bool OrderIsAscending { get; init; } = true;
-
-
-        /*
-         * Other
-         */
-
-        /// <inheritdoc/>
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (!string.IsNullOrEmpty(OrderBy))
-            {
-                List<string> allowedValues = new()
-                {
-                    nameof(AssetLifecycle.StartPeriod),
-                    nameof(AssetLifecycle.EndPeriod),
-                    nameof(AssetLifecycle.PurchaseDate),
-                    nameof(AssetLifecycle.Alias),
-                    nameof(AssetLifecycle.Source),
-                    nameof(AssetLifecycle.AssetLifecycleStatus),
-                };
-
-                if (allowedValues.Any(e => e.Equals(OrderBy, StringComparison.InvariantCultureIgnoreCase)))
-                {
-                    yield return new ValidationResult("The provided value is invalid or not supported, and can't be used for sorting.", new[] { nameof(OrderBy) });
-                }
-            }
-        }
+        // TODO: The sorting/ordering properties (and validation) has been omitted from the API gateway model, as it's still experimental.
     }
 }
 
