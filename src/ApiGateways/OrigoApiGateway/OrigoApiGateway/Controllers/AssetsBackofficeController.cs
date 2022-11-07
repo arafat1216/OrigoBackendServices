@@ -70,7 +70,7 @@ namespace OrigoApiGateway.Controllers
         [Route("search/quicksearch")]
         [Authorize(Roles = "SystemAdmin,PartnerAdmin")]
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(PagedModel<HardwareSuperType>))]
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> AssetQuickSearch([FromQuery(Name = "q")][Required][MinLength(3)] string search, [FromQuery] int page = 1, [FromQuery][Range(1, 100)] int limit = 25, [FromQuery] bool includeImeis = false, [FromQuery] bool includeLabels = false, [FromQuery] bool includeContractHolderUser = false)
         {
             AssetSearchParameters searchParameters = new()
