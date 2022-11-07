@@ -50,6 +50,6 @@ namespace AssetServices.Models
         /// <returns></returns>
         Task<IList<string>> GetActiveImeisList(List<string> imeis);
 
-        Task<PagedModel<AssetLifecycle>> AdvancedSearchAsync(SearchParameters searchParameters, int page, int limit, CancellationToken cancellationToken);
+        Task<PagedModel<AssetLifecycle>> AdvancedSearchAsync(SearchParameters searchParameters, int page, int limit, CancellationToken cancellationToken, bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false);
     }
 }

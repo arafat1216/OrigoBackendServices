@@ -99,6 +99,6 @@ namespace AssetServices
         /// <returns>Asynchronously task that returns no value.</returns>
         Task RecycleAssetLifecycle(Guid assetLifecycleId, int assetLifecycleStatus, Guid callerId);
 
-        Task<PagedModel<AssetLifecycleDTO>> AdvancedSearch(SearchParameters searchParameters, int page, int limit, CancellationToken cancellationToken);
+        Task<PagedModel<AssetLifecycleDTO>> AdvancedSearch(SearchParameters searchParameters, int page, int limit, CancellationToken cancellationToken, bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false);
     }
 }

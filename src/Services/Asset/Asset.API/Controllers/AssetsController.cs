@@ -1,4 +1,22 @@
-﻿using System;
+﻿using Asset.API.Filters;
+using Asset.API.ViewModels;
+using AssetServices;
+using AssetServices.Exceptions;
+using AssetServices.Models;
+using AssetServices.ServiceModel;
+using AutoMapper;
+using Common.Enums;
+using Common.Extensions;
+using Common.Interfaces;
+using Common.Model.EventModels;
+using Common.Models;
+using Dapr;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.FeatureManagement;
+using Swashbuckle.AspNetCore.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -7,29 +25,12 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Asset.API.Filters;
-using Asset.API.ViewModels;
-using AssetServices;
-using AssetServices.Exceptions;
-using AssetServices.Models;
-using AssetServices.ServiceModel;
-using AutoMapper;
-using Common.Enums;
-using Common.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.FeatureManagement;
 using AssetCategory = Asset.API.ViewModels.AssetCategory;
 using AssetLifecycleType = Asset.API.ViewModels.AssetLifecycleType;
 using DisposeSetting = Asset.API.ViewModels.DisposeSetting;
 using Label = Asset.API.ViewModels.Label;
 using LifeCycleSetting = Asset.API.ViewModels.LifeCycleSetting;
 using ReturnLocation = Asset.API.ViewModels.ReturnLocation;
-using Common.Model.EventModels;
-using Common.Extensions;
-using Dapr;
-using Common.Interfaces;
 
 namespace Asset.API.Controllers;
 
@@ -843,15 +844,38 @@ public class AssetsController : ControllerBase
         return Ok();
     }
 
-
-#nullable enable
-    [Route("search")]
+    /// <summary>
+    ///     Search for assets.
+    /// </summary>
+    /// <remarks>
+    ///     An advanced search that retrieves all <c>Assets</c> that matches the given criteria.
+    /// </remarks>
+    /// <param name="searchParameters"> A class containing all the search-parameters. </param>
+    /// <param name="cancellationToken"> A injected <see cref="CancellationToken"/>. </param>
+    /// <param name="page"> The current page number. </param>
+    /// <param name="limit"> The highest number of items that can be added in a single page. </param>
+    /// <param name="includeImeis">
+    ///     When <c><see langword="true"/></c>, the <c>IMEI</c> property is loaded/included in the retrieved data. 
+    ///     <para>This property will not be included unless it's explicitly requested. </para>
+    /// </param>
+    /// <param name="includeLabels">
+    ///     When <c><see langword="true"/></c>, the <c>Labels</c> property is loaded/included in the retrieved data. 
+    ///     <para>This property will not be included unless it's explicitly requested. </para>
+    /// </param>
+    /// <param name="includeContractHolderUser">
+    ///     When <c><see langword="true"/></c>, information about the user is loaded/included in the retrieved data. 
+    ///     <para>This property will not be included unless it's explicitly requested. </para>
+    /// </param>
+    /// <returns> The asynchronous task. The task results contains the corresponding <see cref="ActionResult{TValue}"/>. </returns>
+    [Route("search/assets")]
+    [SwaggerResponse(StatusCodes.Status200OK, null, typeof(PagedAssetList))]
     [HttpPost]
-    public async Task<IActionResult> AdvancedSearch([FromBody] SearchParameters searchParameters, CancellationToken cancellationToken, [FromQuery] int page = 1, [FromQuery] int limit = 25)
+    public async Task<IActionResult> AssetAdvancedSearch([FromBody] SearchParameters searchParameters, CancellationToken cancellationToken, [FromQuery] int page = 1, [FromQuery] int limit = 25, [FromQuery] bool includeImeis = false, [FromQuery] bool includeLabels = false, [FromQuery] bool includeContractHolderUser = false)
     {
-        var results = await _assetServices.AdvancedSearch(searchParameters, page, limit, cancellationToken);
+        var results = await _assetServices.AdvancedSearch(searchParameters, page, limit, cancellationToken, includeAsset: true, includeImeis: includeImeis, includeLabels: includeLabels, includeContractHolderUser: includeContractHolderUser);
+        var pagedAssetList = _mapper.Map<PagedAssetList>(results);
 
-        return Ok(results);
+        return Ok(pagedAssetList);
     }
-#nullable restore
+
 }

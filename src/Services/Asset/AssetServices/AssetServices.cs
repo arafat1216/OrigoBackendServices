@@ -1,13 +1,21 @@
-﻿using AssetServices.Exceptions;
+﻿using AssetServices.Email;
+using AssetServices.Exceptions;
+using AssetServices.Infrastructure;
 using AssetServices.Models;
+using AssetServices.ServiceModel;
 using AssetServices.Utility;
+using AutoMapper;
 using Common.Enums;
 using Common.Interfaces;
 using Common.Logging;
 using Common.Models;
+using CsvHelper;
+using CsvHelper.Configuration;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Dynamic;
 using System.Globalization;
 using System.IO;
@@ -16,14 +24,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using AssetServices.ServiceModel;
-using AutoMapper;
-using AssetServices.Email;
-using AssetServices.Infrastructure;
-using CsvHelper;
-using CsvHelper.Configuration;
-using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
 
 namespace AssetServices;
 
@@ -1377,9 +1377,9 @@ public class AssetServices : IAssetServices
         if (changed) await _assetLifecycleRepository.SaveEntitiesAsync();
     }
 
-    public async Task<PagedModel<AssetLifecycleDTO>> AdvancedSearch(SearchParameters searchParameters, int page, int limit, CancellationToken cancellationToken)
+    public async Task<PagedModel<AssetLifecycleDTO>> AdvancedSearch(SearchParameters searchParameters, int page, int limit, CancellationToken cancellationToken, bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false)
     {
-        var results = await _assetLifecycleRepository.AdvancedSearchAsync(searchParameters, page, limit, cancellationToken);
+        var results = await _assetLifecycleRepository.AdvancedSearchAsync(searchParameters, page, limit, cancellationToken, includeAsset: includeAsset, includeImeis: includeImeis, includeLabels: includeLabels, includeContractHolderUser: includeContractHolderUser);
         return _mapper.Map<PagedModel<AssetLifecycleDTO>>(results);
     }
 

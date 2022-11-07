@@ -1,7 +1,5 @@
 ﻿using AssetServices.Exceptions;
 using AssetServices.Models;
-using AssetServices.ServiceModel;
-using AutoMapper.QueryableExtensions;
 using Common.Enums;
 using Common.Extensions;
 using Common.Interfaces;
@@ -130,10 +128,94 @@ namespace AssetServices.Infrastructure
             return assets.Sum(x => x.BookValue);
         }
 
-#nullable enable
-        public async Task<PagedModel<AssetLifecycle>> AdvancedSearchAsync(SearchParameters searchParameters, int page, int limit, CancellationToken cancellationToken)
+
+        public async Task<PagedModel<AssetLifecycle>> AdvancedSearchAsync(SearchParameters searchParameters, int page, int limit, CancellationToken cancellationToken, bool includeAsset = false, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false)
         {
             IQueryable<AssetLifecycle> query = _assetContext.Set<AssetLifecycle>();
+
+            // Include: Asset + IMEI
+            if (includeAsset)
+            {
+                if (includeImeis)
+                {
+                    query = query.Include(al => al.Asset)
+                                 .ThenInclude(mp => (mp as MobilePhone)!.Imeis);
+
+                    query = query.Include(al => al.Asset)
+                                 .ThenInclude(mp => (mp as Tablet)!.Imeis);
+                }
+                else
+                {
+                    query = query.Include(al => al.Asset);
+                }
+            }
+
+            // Include: Labels
+            if (includeLabels)
+            {
+                query = query.Include(al => al.Labels);
+            }
+
+            // Include: Contract Holder User
+            if (includeContractHolderUser)
+            {
+                query = query.Include(al => al.ContractHolderUser);
+            }
+
+
+            // Quick search
+            if (!string.IsNullOrEmpty(searchParameters.QuickSearch))
+            {
+                // See if the query-string contains a potential IMEI number. If not, we can skip the related search.
+                bool potentialImeiFound = Regex.IsMatch(searchParameters.QuickSearch, "^[0-9]*$");
+
+                // See if the query-string contains any numbers. If so we can likely skips searching for some of the parameters, such as names.
+                bool numbersFound = Regex.IsMatch(searchParameters.QuickSearch, "\\d");
+
+
+                switch (searchParameters.QuickSearchSearchType)
+                {
+                    case StringSearchType.Equals:
+                        {
+                            query = query.Where(e =>
+                                   (e.Asset is MobilePhone && (e.Asset as MobilePhone)!.SerialNumber!.ToLower().Equals(searchParameters.QuickSearch.ToLower()))
+                                || (e.Asset is Tablet && (e.Asset as Tablet)!.SerialNumber!.ToLower().Equals(searchParameters.QuickSearch.ToLower()))
+                                || (potentialImeiFound && e.Asset is MobilePhone && (e.Asset as MobilePhone)!.Imeis.Any(xx => EF.Functions.Like(xx.Imei.ToString(), searchParameters.QuickSearch)))
+                                || (potentialImeiFound && e.Asset is Tablet && (e.Asset as Tablet)!.Imeis.Any(xx => EF.Functions.Like(xx.Imei.ToString(), searchParameters.QuickSearch)))
+                                || (!numbersFound && e.ContractHolderUser != null && e.ContractHolderUser.Name.ToLower().Equals(searchParameters.QuickSearch.ToLower()))
+                            );
+
+                            break;
+                        }
+                    case StringSearchType.StartsWith:
+                        {
+                            query = query.Where(e =>
+                                   (e.Asset is MobilePhone && (e.Asset as MobilePhone)!.SerialNumber!.ToLower().StartsWith(searchParameters.QuickSearch.ToLower()))
+                                || (e.Asset is Tablet && (e.Asset as Tablet)!.SerialNumber!.ToLower().StartsWith(searchParameters.QuickSearch.ToLower()))
+                                || (potentialImeiFound && e.Asset is MobilePhone && (e.Asset as MobilePhone)!.Imeis.Any(xx => EF.Functions.Like(xx.Imei.ToString(), $"{searchParameters.QuickSearch}%")))
+                                || (potentialImeiFound && e.Asset is Tablet && (e.Asset as Tablet)!.Imeis.Any(xx => EF.Functions.Like(xx.Imei.ToString(), $"{searchParameters.QuickSearch}%")))
+                                || (!numbersFound && e.ContractHolderUser != null && e.ContractHolderUser.Name.ToLower().StartsWith(searchParameters.QuickSearch.ToLower()))
+                            );
+
+                            break;
+                        }
+                    case StringSearchType.Contains:
+                        {
+                            query = query.Where(e =>
+                                   (e.Asset is MobilePhone && (e.Asset as MobilePhone)!.SerialNumber!.ToLower().Contains(searchParameters.QuickSearch.ToLower()))
+                                || (e.Asset is Tablet && (e.Asset as Tablet)!.SerialNumber!.ToLower().Contains(searchParameters.QuickSearch.ToLower()))
+                                || (potentialImeiFound && e.Asset is MobilePhone && (e.Asset as MobilePhone)!.Imeis.Any(xx => EF.Functions.Like(xx.Imei.ToString(), $"%{searchParameters.QuickSearch}%")))
+                                || (potentialImeiFound && e.Asset is Tablet && (e.Asset as Tablet)!.Imeis.Any(xx => EF.Functions.Like(xx.Imei.ToString(), $"%{searchParameters.QuickSearch}%")))
+                                || (!numbersFound && e.ContractHolderUser != null && e.ContractHolderUser.Name.ToLower().Contains(searchParameters.QuickSearch.ToLower()))
+                            );
+
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+
 
             // Where filter: Customer-ID is in list
             if (searchParameters.CustomerIds is not null && searchParameters.CustomerIds.Any())
@@ -256,7 +338,7 @@ namespace AssetServices.Infrastructure
             }
 
             // Where filter: IMEI
-            if (!string.IsNullOrEmpty(searchParameters.Imei))
+            if (!string.IsNullOrEmpty(searchParameters.Imei) && Regex.IsMatch(searchParameters.Imei, "^[0-9]*$"))
             {
                 switch (searchParameters.ImeiSearchType)
                 {
@@ -293,11 +375,133 @@ namespace AssetServices.Infrastructure
                 }
             }
 
+            // Where filter: Serial-number
+            if (!string.IsNullOrEmpty(searchParameters.SerialNumber))
+            {
+                switch (searchParameters.SerialNumberSearchType)
+                {
+                    case StringSearchType.Equals:
+                        {
+                            query = query.Where(e =>
+                                (e.Asset is MobilePhone && (e.Asset as MobilePhone)!.SerialNumber != null && (e.Asset as MobilePhone)!.SerialNumber!.ToLower().Equals(searchParameters.SerialNumber.ToLower()))
+                                || (e.Asset is Tablet && (e.Asset as Tablet)!.SerialNumber != null && (e.Asset as Tablet)!.SerialNumber!.ToLower().Equals(searchParameters.SerialNumber.ToLower()))
+                            );
+
+                            break;
+                        }
+                    case StringSearchType.StartsWith:
+                        {
+                            query = query.Where(e =>
+                                (e.Asset is MobilePhone && (e.Asset as MobilePhone)!.SerialNumber != null && (e.Asset as MobilePhone)!.SerialNumber!.ToLower().StartsWith(searchParameters.SerialNumber.ToLower()))
+                                || (e.Asset is Tablet && (e.Asset as Tablet)!.SerialNumber != null && (e.Asset as Tablet)!.SerialNumber!.ToLower().StartsWith(searchParameters.SerialNumber.ToLower()))
+                            );
+
+                            break;
+                        }
+                    case StringSearchType.Contains:
+                        {
+                            query = query.Where(e =>
+                                (e.Asset is MobilePhone && (e.Asset as MobilePhone)!.SerialNumber != null && (e.Asset as MobilePhone)!.SerialNumber!.Contains(searchParameters.SerialNumber.ToLower()))
+                                || (e.Asset is Tablet && (e.Asset as Tablet)!.SerialNumber != null && (e.Asset as Tablet)!.SerialNumber!.ToLower().Contains(searchParameters.SerialNumber.ToLower()))
+                            );
+
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+
+            // Where filter: Alias-number
+            if (!string.IsNullOrEmpty(searchParameters.Alias))
+            {
+                switch (searchParameters.AliasSearchType)
+                {
+                    case StringSearchType.Equals:
+                        {
+                            query = query.Where(e => !string.IsNullOrEmpty(e.Alias) && e.Alias.ToLower().Equals(searchParameters.Alias.ToLower()));
+                            break;
+                        }
+                    case StringSearchType.StartsWith:
+                        {
+                            query = query.Where(e => !string.IsNullOrEmpty(e.Alias) && e.Alias.ToLower().StartsWith(searchParameters.Alias.ToLower()));
+                            break;
+                        }
+                    case StringSearchType.Contains:
+                        {
+                            query = query.Where(e => !string.IsNullOrEmpty(e.Alias) && e.Alias.ToLower().Contains(searchParameters.Alias.ToLower()));
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+
+            // Where filter: Brand
+            if (!string.IsNullOrEmpty(searchParameters.Brand))
+            {
+                switch (searchParameters.BrandSearchType)
+                {
+                    case StringSearchType.Equals:
+                        {
+                            query = query.Where(e => e.Asset != null && !string.IsNullOrEmpty(e.Asset.Brand) && e.Asset.Brand.ToLower().Equals(searchParameters.Brand.ToLower()));
+                            break;
+                        }
+                    case StringSearchType.StartsWith:
+                        {
+                            query = query.Where(e => e.Asset != null && !string.IsNullOrEmpty(e.Asset.Brand) && e.Asset.Brand.ToLower().StartsWith(searchParameters.Brand.ToLower()));
+                            break;
+                        }
+                    case StringSearchType.Contains:
+                        {
+                            query = query.Where(e => e.Asset != null && !string.IsNullOrEmpty(e.Asset.Brand) && e.Asset.Brand.ToLower().Contains(searchParameters.Brand.ToLower()));
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+
+
+            // Where filter: Product name
+            if (!string.IsNullOrEmpty(searchParameters.ProductName))
+            {
+                switch (searchParameters.ProductNameSearchType)
+                {
+                    case StringSearchType.Equals:
+                        {
+                            query = query.Where(e => e.Asset != null && !string.IsNullOrEmpty(e.Asset.ProductName) && e.Asset.ProductName.ToLower().Equals(searchParameters.ProductName.ToLower()));
+                            break;
+                        }
+                    case StringSearchType.StartsWith:
+                        {
+                            query = query.Where(e => e.Asset != null && !string.IsNullOrEmpty(e.Asset.ProductName) && e.Asset.ProductName.ToLower().StartsWith(searchParameters.ProductName.ToLower()));
+                            break;
+                        }
+                    case StringSearchType.Contains:
+                        {
+                            query = query.Where(e => e.Asset != null && !string.IsNullOrEmpty(e.Asset.ProductName) && e.Asset.ProductName.ToLower().Contains(searchParameters.ProductName.ToLower()));
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+
+
+            // Order by
+            if (!string.IsNullOrEmpty(searchParameters.OrderBy))
+            {
+                if (searchParameters.OrderIsAscending)
+                    query = query.OrderBy(searchParameters.OrderBy);
+                else
+                    query = query.OrderByDescending(searchParameters.OrderBy);
+            }
+
 
             return await query.AsNoTracking()
                               .PaginateAsync(page, limit, cancellationToken);
         }
-#nullable restore
 
 
         public async Task<PagedModel<AssetLifecycle>> GetAssetLifecyclesAsync(Guid customerId, string? userId, IList<AssetLifecycleStatus>? status, IList<Guid?>? department, int[]? category,

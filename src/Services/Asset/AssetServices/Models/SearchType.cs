@@ -2,24 +2,30 @@
 
 namespace AssetServices.Models
 {
+    /// <summary>
+    ///     Contains identifiers for the various search-strategies.
+    /// </summary>
     public enum StringSearchType
     {
         /// <summary>
-        /// The result should be an exact match.
+        /// The result must be an exact match.
         /// </summary>
         Equals = 1,
 
         /// <summary>
-        /// The result should start with the value.
+        /// The result must start with the value.
         /// </summary>
         StartsWith = 2,
 
         /// <summary>
-        /// The result should contain the value.
+        /// The result must contain the value.
         /// </summary>
         Contains = 3
     }
 
+    /// <summary>
+    ///     Contains identifiers for the various search-strategies.
+    /// </summary>
     public enum DateSearchType
     {
         /// <summary>
