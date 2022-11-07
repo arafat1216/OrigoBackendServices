@@ -1,9 +1,9 @@
 apiVersion: dapr.io/v1alpha1
 kind: Subscription
 metadata:
-  name: delete-employee
+  name: delete-department
 spec:
-  topic: delete-employee
+  topic: delete-department
   route: /api/v1/customer-datasync/departments/delete-department
   pubsubname: customer-datasync-pub-sub
 scopes:
