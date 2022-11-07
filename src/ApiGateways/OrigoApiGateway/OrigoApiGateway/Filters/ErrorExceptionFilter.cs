@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Common.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Exceptions;
 using System;
+using System.Net;
 
 namespace OrigoApiGateway.Filters
 {
@@ -41,13 +43,36 @@ namespace OrigoApiGateway.Filters
                 return;
             }
 
-            if(exception is Azure.RequestFailedException or BadHttpRequestException)
+            if(exception is Azure.RequestFailedException or BadHttpRequestException or NotSupportedException)
             {
                 context.Result = new BadRequestObjectResult(exception.Message);
                 return;
             }
 
-            if(exception is MicroserviceErrorResponseException mexception)
+            if (exception is HttpRequestException ex)
+            {
+                switch (ex.StatusCode)
+                {
+                    case HttpStatusCode.NotFound:
+                        {
+                            context.Result = new NotFoundObjectResult(exception.Message);
+                            return;
+                        }
+                    default:
+                        {
+                            context.Result = new BadRequestObjectResult(exception.Message);
+                            return;
+                        }
+                }
+            }
+
+            if (exception is InvalidOrganizationNumberException)
+            {
+                context.Result = new ConflictObjectResult(exception.Message);
+                return;
+            }
+
+            if (exception is MicroserviceErrorResponseException mexception)
             {
                 if (mexception.StatusCode.HasValue && mexception.StatusCode == System.Net.HttpStatusCode.InternalServerError)
                     _logger.LogError(exception,

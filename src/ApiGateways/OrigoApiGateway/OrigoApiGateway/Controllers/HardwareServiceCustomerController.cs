@@ -11,6 +11,7 @@ using OrigoApiGateway.Services;
 using System.Net;
 using System.Security.Claims;
 using OrigoApiGateway.Models;
+using OrigoApiGateway.Filters;
 
 #nullable enable
 
@@ -35,6 +36,7 @@ namespace OrigoApiGateway.Controllers
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Returned when the user is not authenticated.")]
     [SwaggerResponse(StatusCodes.Status403Forbidden)]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Returned if the system encounter an unexpected problem.")]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class HardwareServiceCustomerController : ControllerBase
     {
         private readonly IHardwareServiceOrderService _hardwareServiceOrderService;
@@ -251,16 +253,8 @@ namespace OrigoApiGateway.Controllers
             if (!AuthenticatedUserHasAccessToOrganization(organizationId))
                 return Forbid();
 
-            try
-            {
-                // TODO: Improve the error/exception messages from this call
-                await _hardwareServiceOrderService.AddServiceAddonFromCustomerPortalAsync(organizationId, serviceProviderId, serviceOrderAddonIds);
-                return NoContent();
-            }
-            catch (ArgumentException)
-            {
-                return BadRequest();
-            }
+            await _hardwareServiceOrderService.AddServiceAddonFromCustomerPortalAsync(organizationId, serviceProviderId, serviceOrderAddonIds);
+            return NoContent();
         }
 
 
@@ -283,16 +277,8 @@ namespace OrigoApiGateway.Controllers
             if (!AuthenticatedUserHasAccessToOrganization(organizationId))
                 return Forbid();
 
-            try
-            {
-                // TODO: Improve the error/exception messages from this call
-                await _hardwareServiceOrderService.RemoveServiceAddonFromCustomerPortalAsync(organizationId, serviceProviderId, serviceOrderAddonIds);
-                return NoContent();
-            }
-            catch (ArgumentException)
-            {
-                return BadRequest();
-            }
+            await _hardwareServiceOrderService.RemoveServiceAddonFromCustomerPortalAsync(organizationId, serviceProviderId, serviceOrderAddonIds);
+            return NoContent();
         }
 
 
@@ -330,30 +316,17 @@ namespace OrigoApiGateway.Controllers
         public async Task<ActionResult> GetAllServiceOrdersForOrganizationAsync([FromRoute] Guid organizationId, [FromQuery] FilterOptionsForHardwareServiceOrder filterOptions, [FromQuery] Guid? userId, [FromQuery] int? serviceTypeId,
             [FromQuery] bool activeOnly = false, [FromQuery] bool myOrders = false, [FromQuery(Name = "q")] string? search = null, [FromQuery] int page = 1, [FromQuery][Range(1, 100)] int limit = 25)
         {
-            try
-            {
-                if (!AuthenticatedUserHasAccessToOrganization(organizationId))
-                    return Forbid();
+            if (!AuthenticatedUserHasAccessToOrganization(organizationId))
+                return Forbid();
 
-                // Frontend don't always have the user ID, so we have a special parameter that let's us know to filter the userID to the current user.
-                if (myOrders)
-                    userId = GetCallerId();
-                else if (GetUserRole() == PredefinedRole.EndUser.ToString()) //Todo: Need to check whether this logic should be exported to a separate method
-                    userId = GetCallerId();
+            // Frontend don't always have the user ID, so we have a special parameter that let's us know to filter the userID to the current user.
+            if (myOrders)
+                userId = GetCallerId();
+            else if (GetUserRole() == PredefinedRole.EndUser.ToString()) //Todo: Need to check whether this logic should be exported to a separate method
+                userId = GetCallerId();
 
-                PagedModel<HardwareServiceOrder> results = await _hardwareServiceOrderService.GetAllServiceOrdersForOrganizationAsync(organizationId, filterOptions, userId, serviceTypeId, activeOnly, search, page, limit);
-                return Ok(results);
-            }
-            catch (HttpRequestException ex)
-            {
-                switch (ex.StatusCode)
-                {
-                    case HttpStatusCode.NotFound:
-                        return Unauthorized();
-                    default:
-                        throw;
-                }
-            }
+            PagedModel<HardwareServiceOrder> results = await _hardwareServiceOrderService.GetAllServiceOrdersForOrganizationAsync(organizationId, filterOptions, userId, serviceTypeId, activeOnly, search, page, limit);
+            return Ok(results);
         }
 
 
@@ -371,32 +344,19 @@ namespace OrigoApiGateway.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, null, typeof(HardwareServiceOrder))]
         public async Task<IActionResult> GetServiceOrderByIdAndOrganizationAsync([FromRoute] Guid organizationId, [FromRoute] Guid serviceOrderId)
         {
-            try
-            {
-                if (!AuthenticatedUserHasAccessToOrganization(organizationId))
-                    return Forbid();
+            if (!AuthenticatedUserHasAccessToOrganization(organizationId))
+                return Forbid();
 
-                var result = await _hardwareServiceOrderService.GetServiceOrderByIdAndOrganizationAsync(organizationId, serviceOrderId);
+            var result = await _hardwareServiceOrderService.GetServiceOrderByIdAndOrganizationAsync(organizationId, serviceOrderId);
 
-                //Todo: Need to check whether this logic should be exported to a separate method
-                if (GetUserRole() == PredefinedRole.EndUser.ToString() && result?.Owner.UserId != GetCallerId())
-                    return Forbid();
+            //Todo: Need to check whether this logic should be exported to a separate method
+            if (GetUserRole() == PredefinedRole.EndUser.ToString() && result?.Owner.UserId != GetCallerId())
+                return Forbid();
 
-                if (result is null)
-                    return Forbid();
-                else return
-                        Ok(result);
-            }
-            catch (HttpRequestException ex)
-            {
-                switch (ex.StatusCode)
-                {
-                    case HttpStatusCode.NotFound:
-                        return Forbid();
-                    default:
-                        throw;
-                }
-            }
+            if (result is null)
+                return Forbid();
+            else return
+                    Ok(result);
         }
 
 
@@ -415,38 +375,23 @@ namespace OrigoApiGateway.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateHardwareServiceOrderForSURAsync(Guid organizationId, [FromBody] NewHardwareServiceOrder model)
         {
-            try
-            {
-                var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
 
-                if (!Guid.TryParse(userId, out Guid userIdGuid))
-                    return Unauthorized();
+            if (!Guid.TryParse(userId, out Guid userIdGuid))
+                return Unauthorized();
 
-                var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(organizationId, model.AssetId, null, true, true, includeContractHolderUser: true);
+            var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(organizationId, model.AssetId, null, true, true, includeContractHolderUser: true);
 
-                if (asset is null)
-                    throw new ArgumentException($"Asset does not exist with ID {model.AssetId}", nameof(model.AssetId));
+            if (asset is null)
+                throw new ArgumentException($"Asset does not exist with ID {model.AssetId}", nameof(model.AssetId));
 
-                if (!CheckUserHasAccessToAsset(organizationId, asset))
-                    return Forbid();
+            if (!CheckUserHasAccessToAsset(organizationId, asset))
+                return Forbid();
 
-                // Todo: The Integer value "3" represents ServiceType "SUR" which can be found inside enum ServiceTypeEnum. Later on this should be converted into actual Enum
-                var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(organizationId, userIdGuid, 3, model, asset);
+            // Todo: The Integer value "3" represents ServiceType "SUR" which can be found inside enum ServiceTypeEnum. Later on this should be converted into actual Enum
+            var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(organizationId, userIdGuid, 3, model, asset);
 
-                return Ok(newOrder);
-            }
-            catch (HttpRequestException ex)
-            {
-                return BadRequest();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest();
-            }
-            catch (NotSupportedException ex)
-            {
-                return BadRequest();
-            }
+            return Ok(newOrder);
         }
 
         /// <summary>
@@ -464,38 +409,23 @@ namespace OrigoApiGateway.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateHardwareServiceOrderForRemarketingAsync(Guid organizationId, [FromBody] NewHardwareAftermarketOrder model)
         {
-            try
-            {
-                var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
 
-                if (!Guid.TryParse(userId, out Guid userIdGuid))
-                    return Unauthorized();
+            if (!Guid.TryParse(userId, out Guid userIdGuid))
+                return Unauthorized();
 
-                var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(organizationId, model.AssetId, null, true, true, includeContractHolderUser: true);
+            var asset = (HardwareSuperType)await _assetServices.GetAssetForCustomerAsync(organizationId, model.AssetId, null, true, true, includeContractHolderUser: true);
 
-                if (asset is null)
-                    throw new ArgumentException($"Asset does not exist with ID {model.AssetId}", nameof(model.AssetId));
+            if (asset is null)
+                throw new ArgumentException($"Asset does not exist with ID {model.AssetId}", nameof(model.AssetId));
 
-                if (!CheckUserHasAccessToAsset(organizationId, asset))
-                    return Forbid();
+            if (!CheckUserHasAccessToAsset(organizationId, asset))
+                return Forbid();
 
-                // Todo: The Integer value "2" represents ServiceType "Remarketing" which can be found inside enum ServiceTypeEnum. Later on this should be converted into actual Enum
-                var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(organizationId, userIdGuid, 2, model, asset);
+            // Todo: The Integer value "2" represents ServiceType "Remarketing" which can be found inside enum ServiceTypeEnum. Later on this should be converted into actual Enum
+            var newOrder = await _hardwareServiceOrderService.CreateHardwareServiceOrderAsync(organizationId, userIdGuid, 2, model, asset);
 
-                return Ok(newOrder);
-            }
-            catch (HttpRequestException ex)
-            {
-                return BadRequest();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest();
-            }
-            catch (NotSupportedException ex)
-            {
-                return BadRequest();
-            }
+            return Ok(newOrder);
         }
 
 
@@ -543,22 +473,12 @@ namespace OrigoApiGateway.Controllers
             if (!AuthenticatedUserHasAccessToOrganization(organizationId))
                 return Forbid();
 
-            try
-            {
-                var result = await _hardwareServiceOrderService.GetCustomerSettingsAsync(organizationId);
+            var result = await _hardwareServiceOrderService.GetCustomerSettingsAsync(organizationId);
 
-                if (result is null)
-                    return NotFound("No customer-settings exist for this organization.");
-                else
-                    return Ok(result);
-            }
-            catch (HttpRequestException ex)
-            {
-                if (ex.StatusCode == HttpStatusCode.NotFound)
-                    return NotFound();
-                else
-                    throw;
-            }
+            if (result is null)
+                return NotFound("No customer-settings exist for this organization.");
+            else
+                return Ok(result);
         }
 
 
@@ -578,22 +498,13 @@ namespace OrigoApiGateway.Controllers
             if (!AuthenticatedUserHasAccessToOrganization(organizationId))
                 return Forbid();
 
-            try
-            {
-                var result = await _hardwareServiceOrderService.GetCustomerLoanDeviceSettingsAsync(organizationId);
+            var result = await _hardwareServiceOrderService.GetCustomerLoanDeviceSettingsAsync(organizationId);
 
-                if (result is null)
-                    return NotFound("The requested loan-device settings don't exist, or has not yet been configured.");
-                else
-                    return Ok(result);
-            }
-            catch (HttpRequestException ex)
-            {
-                if (ex.StatusCode == HttpStatusCode.NotFound)
-                    return NotFound();
-                else
-                    throw;
-            }
+            if (result is null)
+                return NotFound("The requested loan-device settings don't exist, or has not yet been configured.");
+            else
+                return Ok(result);
+
         }
     }
 }

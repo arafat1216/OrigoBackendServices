@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OrigoApiGateway.Authorization;
+using OrigoApiGateway.Filters;
 using OrigoApiGateway.Models.SubscriptionManagement;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
@@ -19,6 +20,7 @@ namespace OrigoApiGateway.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [Route("origoapi/v{version:apiVersion}/Customers/{organizationId:Guid}/customer-reference-field")]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class CustomerReferenceFieldController : ControllerBase
     {
         private readonly ISubscriptionManagementService _subscriptionService;

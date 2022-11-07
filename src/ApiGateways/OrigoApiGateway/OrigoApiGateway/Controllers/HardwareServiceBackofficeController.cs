@@ -2,6 +2,7 @@
 using Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OrigoApiGateway.Filters;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Request;
 using OrigoApiGateway.Models.HardwareServiceOrder.Backend.Response;
 using OrigoApiGateway.Services;
@@ -21,6 +22,7 @@ namespace OrigoApiGateway.Controllers
     [Tags("Hardware Service: Backoffice")]
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Returned when the user is not authenticated.")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Returned if the system encounter an unexpected problem.")]
+    [ServiceFilter(typeof(ErrorExceptionFilter))]
     public class HardwareServiceBackofficeController : ControllerBase
     {
         private readonly IHardwareServiceOrderService _hardwareServiceOrderService;
