@@ -88,7 +88,7 @@ namespace SubscriptionManagementServices.SeedData
                 #endregion
                 #endregion
 
-                #region Telia
+                #region Telia Norway
                 #region Telia Smart
                 e.HasData(new { Id = 47, DataPackageName = "Avtalepris S", SubscriptionProductId = 18, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
                 e.HasData(new { Id = 48, DataPackageName = "Avtalepris small+", SubscriptionProductId = 18, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
@@ -114,8 +114,51 @@ namespace SubscriptionManagementServices.SeedData
                 #endregion
                 #endregion
 
-            });
+                #region Tele2 
 
+                #region Mobilt (fast pris)
+                e.HasData(new { Id = 64, DataPackageName = "0,5 GB", SubscriptionProductId = 22, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 65, DataPackageName = "3 GB", SubscriptionProductId = 22, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 66, DataPackageName = "10 GB", SubscriptionProductId = 22, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 67, DataPackageName = "40 GB - standard", SubscriptionProductId = 22, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 68, DataPackageName = "Obegränsad GB", SubscriptionProductId = 22, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 69, DataPackageName = "0 GB", SubscriptionProductId = 22, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                #endregion
+
+                #region Mobilt (rörlig pris)
+                e.HasData(new { Id = 70, DataPackageName = "5 GB", SubscriptionProductId = 23, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 71, DataPackageName = "0 GB", SubscriptionProductId = 23, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                #endregion
+
+                #region Bredband
+                e.HasData(new { Id = 72, DataPackageName = "50 GB", SubscriptionProductId = 24, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 73, DataPackageName = "500 GB", SubscriptionProductId = 24, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                #endregion
+
+                #region Datakort
+                e.HasData(new { Id = 74, DataPackageName = "1 GB", SubscriptionProductId = 25, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 75, DataPackageName = "3 GB", SubscriptionProductId = 25, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 76, DataPackageName = "15 GB", SubscriptionProductId = 25, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                #endregion
+
+                #region Fastpris
+                e.HasData(new { Id = 77, DataPackageName = "5 GB", SubscriptionProductId = 26, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 78, DataPackageName = "15 GB", SubscriptionProductId = 26, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 79, DataPackageName = "50 GB", SubscriptionProductId = 26, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 80, DataPackageName = "100 GB", SubscriptionProductId = 26, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                #endregion
+
+                #endregion
+
+                #region Telia Sweden
+                e.HasData(new { Id = 81, DataPackageName = "3 GB", SubscriptionProductId = 30, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 82, DataPackageName = "15 GB", SubscriptionProductId = 30, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 83, DataPackageName = "40 GB", SubscriptionProductId = 30, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 84, DataPackageName = "Obegränsad GB", SubscriptionProductId = 30, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+
+                #endregion
+
+            });
             
 
             modelBuilder.Entity<SubscriptionProduct>(e =>
@@ -139,13 +182,27 @@ namespace SubscriptionManagementServices.SeedData
                 e.HasData(new { Id = 16, SubscriptionName = "Bedrift flyt S", OperatorId = 3, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
                 e.HasData(new { Id = 17, SubscriptionName = "Bedrift XS", OperatorId = 3, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
                 #endregion
-                #region Telia
+                #region Telia Norway
                 e.HasData(new { Id = 18, SubscriptionName = "Telia smart", OperatorId = 1, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
                 e.HasData(new { Id = 19, SubscriptionName = "Telia Smart Avtalepris L", OperatorId = 1, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
                 e.HasData(new { Id = 20, SubscriptionName = "Mobilt bredbånd", OperatorId = 1, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
                 e.HasData(new { Id = 21, SubscriptionName = "Telia Ubegrenset", OperatorId = 1, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
 
                 #endregion
+                #region Tele2
+                e.HasData(new { Id = 22, SubscriptionName = "Mobilt (fast pris)", OperatorId = 4, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 23, SubscriptionName = "Mobilt (rörlig pris)", OperatorId = 4, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 24, SubscriptionName = "Bredband", OperatorId = 4, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 25, SubscriptionName = "Datakort", OperatorId = 4, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 26, SubscriptionName = "Fastpris", OperatorId = 4, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 27, SubscriptionName = "Sveriges Radio (Mobilabonnemang)", OperatorId = 4, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 28, SubscriptionName = "Sveriges Radio (Mobilt Bredband)", OperatorId = 4, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                e.HasData(new { Id = 29, SubscriptionName = "Sveriges Radio (Telematik)", OperatorId = 4, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                #endregion
+                #region Telia Sweden
+                e.HasData(new { Id = 30, SubscriptionName = "Jobbmobil", OperatorId = 2, CreatedBy = generatedDataGuid, DeletedBy = generatedDataGuid, UpdatedBy = generatedDataGuid, IsDeleted = false });
+                #endregion
+
 
             });
         }
