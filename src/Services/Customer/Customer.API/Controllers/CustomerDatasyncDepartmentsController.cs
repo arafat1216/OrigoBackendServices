@@ -168,7 +168,7 @@ public class CustomerDatasyncDepartmentsController : ControllerBase
     [HttpPost("update-department")]
     [Topic("customer-datasync-pub-sub", "update-department")]
     [ProducesResponseType(typeof(Department), (int)HttpStatusCode.OK)]
-    public async Task<ActionResult<Department>> UpdateDepartmentPut([FromBody] UpdateDepartmentEvent department)
+    public async Task<ActionResult<Department>> UpdateDepartment([FromBody] UpdateDepartmentEvent department)
     {
         var updatedDepartment = await _departmentServices.UpdateDepartmentAsync(department.CustomerId, 
             department.DepartmentId, 

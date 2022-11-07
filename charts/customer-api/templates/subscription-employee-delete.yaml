@@ -1,10 +1,10 @@
 apiVersion: dapr.io/v1alpha1
 kind: Subscription
 metadata:
-  name: create-employee
+  name: delete-employee
 spec:
-  topic: create-employee
-  route: /api/v1/customer-datasync/users/create-employee
+  topic: delete-employee
+  route: /api/v1/customer-datasync/users/delete-employee
   pubsubname: customer-datasync-pub-sub
 scopes:
 - customerservices
