@@ -1884,7 +1884,12 @@ namespace OrigoApiGateway.Services
         /// <inheritdoc/>
         public async Task<PagedModel<HardwareSuperType>> AssetAdvancedSearch(AssetSearchParameters searchParameters, int page, int limit, bool includeImeis = false, bool includeLabels = false, bool includeContractHolderUser = false)
         {
-            var response = await HttpClient.PostAsJsonAsync($"{_options.ApiPath}/search/assets?includeImeis={includeImeis}&includeLabels={includeLabels}&includeContractHolderUser={includeContractHolderUser}", searchParameters);
+            StringBuilder sb = new($"{_options.ApiPath}/search/assets?page={page}&limit={limit}");
+            if (includeImeis) sb.Append($"&includeImeis={includeImeis}");
+            if (includeLabels) sb.Append($"&includeLabels={includeLabels}");
+            if (includeContractHolderUser) sb.Append($"&includeContractHolderUser={includeContractHolderUser}");
+
+            var response = await HttpClient.PostAsJsonAsync(sb.ToString(), searchParameters);
             var assetLifecycles = await response.Content.ReadFromJsonAsync<PagedModel<HardwareSuperType>>();
 
             if (assetLifecycles is null)
