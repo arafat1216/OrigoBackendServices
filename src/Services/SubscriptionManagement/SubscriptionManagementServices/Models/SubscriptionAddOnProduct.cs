@@ -20,5 +20,6 @@ namespace SubscriptionManagementServices.Models
 
         public IReadOnlyCollection<TransferToBusinessSubscriptionOrder>? TransferToBusinessSubscriptionOrders { get; set; }
         public IReadOnlyCollection<NewSubscriptionOrder>? NewSubscriptionOrders { get; set; }
+        public IReadOnlyCollection<CustomerStandardBusinessSubscriptionProduct> CustomerStandardBusinessSubscriptionProduct { get; set; }
     }
 }

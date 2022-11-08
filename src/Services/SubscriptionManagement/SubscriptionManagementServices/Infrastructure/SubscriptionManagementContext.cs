@@ -33,6 +33,7 @@ namespace SubscriptionManagementServices.Infrastructure
         public DbSet<OrderSimSubscriptionOrder> OrderSimSubscriptionOrders => Set<OrderSimSubscriptionOrder>();
         public DbSet<NewSubscriptionOrder> NewSubscriptionOrders => Set<NewSubscriptionOrder>();
         public DbSet<CustomerStandardPrivateSubscriptionProduct> CustomerStandardPrivateSubscriptionProducts => Set<CustomerStandardPrivateSubscriptionProduct>();
+        public DbSet<CustomerStandardBusinessSubscriptionProduct> CustomerStandardBusinessSubscriptionProduct => Set<CustomerStandardBusinessSubscriptionProduct>();
 
 
 
@@ -56,6 +57,7 @@ namespace SubscriptionManagementServices.Infrastructure
             modelBuilder.ApplyConfiguration(new OrderSimSubscriptionOrderConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new NewSubscriptionOrderConfiguration(_isSQLite));
             modelBuilder.ApplyConfiguration(new CustomerStandardPrivateSubscriptionProductConfiguration(_isSQLite));
+            modelBuilder.ApplyConfiguration(new CustomerStandardBusinessSubscriptionProductConfiguration(_isSQLite));
             modelBuilder.SeedGlobalProducts();
         }
     }
