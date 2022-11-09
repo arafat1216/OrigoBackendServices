@@ -8,7 +8,7 @@ namespace CustomerServices.Models
     /// <summary>
     ///     Contains all the user-provided search-parameters used when performing an advanced search.
     /// </summary>
-    public class UserSearchParameters
+    public record UserSearchParameters
     {
         /*
          * Generic search
@@ -25,7 +25,7 @@ namespace CustomerServices.Models
         /// </list>
         /// </para>
         /// </summary>
-        public string? QuickSearch { get; set; }
+        public string? QuickSearch { get; init; }
 
         /// <summary>
         /// Determines the search-condition that should be used for <c><see cref="QuickSearch"/></c>.
@@ -134,7 +134,7 @@ namespace CustomerServices.Models
         public string? Email { get; init; }
 
         /// <summary>
-        /// Determines the search-condition that should be used for <c><see cref="Imei"/></c>.
+        /// Determines the search-condition that should be used for <c><see cref="Email"/></c>.
         /// 
         /// <para>
         /// <list type="bullet">
