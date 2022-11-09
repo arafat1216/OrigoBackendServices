@@ -249,4 +249,65 @@ public class CustomerSettingsService : ICustomerSettingsService
 
         return mapped;
     }
+
+    public async Task<IList<CustomerStandardBusinessSubscriptionProductDTO>> GetStandardBusinessSubscriptionProductsAsync(Guid organizationId, Guid callerId)
+    {
+        var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeOperator: true, includeStandardBusinessSubscriptionProduct: true, asNoTracking: false);
+        if (customerSetting == null) throw new CustomerSettingsException($"Missing customer settings for customer with id: {organizationId}", Guid.Parse("9fadfd14-4cd9-44a9-991d-b2be30a20142"));
+
+        var standardBusinessSubscriptionProduct = customerSetting.CustomerOperatorSettings.Where(a => a.StandardBusinessSubscriptionProduct != null)
+                 .Select(emp => new CustomerStandardBusinessSubscriptionProductDTO
+                 {
+                     DataPackage = emp.StandardBusinessSubscriptionProduct.DataPackage,
+                     OperatorName = emp.Operator.OperatorName,
+                     OperatorId = emp.Operator.Id,
+                     SubscriptionName = emp.StandardBusinessSubscriptionProduct.SubscriptionName,
+                     AddOnProducts = emp.StandardBusinessSubscriptionProduct.AddOnProducts != null ? emp.StandardBusinessSubscriptionProduct.AddOnProducts.Select(e => e.AddOnProductName).ToList() : null
+                 }).ToList();
+
+        if (standardBusinessSubscriptionProduct == null) throw new CustomerSettingsException($"Customer with id: {organizationId} don't have standard business subscription product set up", Guid.Parse("fab65c43-1f65-479a-8443-4c65b037d695"));
+
+        return standardBusinessSubscriptionProduct;
+
+    }
+
+    public async Task<CustomerStandardBusinessSubscriptionProductDTO> AddStandardBusinessSubscriptionProductsAsync(Guid organizationId, NewCustomerStandardBusinessSubscriptionProduct businessSubscriptionProduct)
+    {
+        var @operator = await _operatorRepository.GetOperatorAsync(businessSubscriptionProduct.OperatorId);
+        if (@operator == null) throw new InvalidOperatorIdInputDataException(businessSubscriptionProduct.OperatorId, Guid.Parse("49b9ef5e-8837-4905-b8bb-b828e17ae273"));
+
+        var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeOperator: true, includeStandardBusinessSubscriptionProduct: true, asNoTracking: false);
+
+        if (customerSetting == null) throw new CustomerSettingsException($"Missing customer settings for customer with id: {organizationId}", Guid.Parse("a637c4cd-39de-4715-b6d3-71b99e162bd4"));
+
+        var customerStandardProduct = customerSetting.AddCustomerStandardBusinessSubscriptionProduct(businessSubscriptionProduct);
+
+        await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSetting);
+
+        var customerStandardProductDTO = _mapper.Map<CustomerStandardBusinessSubscriptionProductDTO>(customerStandardProduct);
+        customerStandardProductDTO.OperatorId = @operator.Id;
+        customerStandardProductDTO.OperatorName = @operator.OperatorName;
+
+        return customerStandardProductDTO;
+
+    }
+
+    public async Task<CustomerStandardBusinessSubscriptionProductDTO> DeleteStandardBusinessSubscriptionProductsAsync(Guid organizationId, int operatorId, Guid callerId)
+    {
+        var @operator = await _operatorRepository.GetOperatorAsync(operatorId);
+        if (@operator == null) throw new InvalidOperatorIdInputDataException(operatorId, Guid.Parse("627f7bd2-6b8b-4362-bcde-b1ff61ecb7de"));
+
+        var customerSetting = await _customerSettingsRepository.GetCustomerSettingsAsync(organizationId, includeOperator: true, includeStandardBusinessSubscriptionProduct: true, asNoTracking: false);
+        if (customerSetting == null) throw new CustomerSettingsException($"Missing customer settings for customer with id: {organizationId}", Guid.Parse("ccae51ea-513c-4e18-adff-08f06697c7a2"));
+
+
+        var deletedStandardBusinessSubscription = customerSetting.RemoveCustomerStandardBusinessSubscriptionProduct(operatorId, callerId);
+        await _customerSettingsRepository.UpdateCustomerSettingsAsync(customerSetting);
+
+        var deletedStandardBusinessSubscriptionDTO = _mapper.Map<CustomerStandardBusinessSubscriptionProductDTO>(deletedStandardBusinessSubscription);
+        deletedStandardBusinessSubscriptionDTO.OperatorName = @operator.OperatorName;
+        deletedStandardBusinessSubscriptionDTO.OperatorId = @operator.Id;
+
+        return deletedStandardBusinessSubscriptionDTO;
+    }
 }

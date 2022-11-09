@@ -249,5 +249,35 @@ namespace SubscriptionManagementServices.Models
             AddDomainEvent(new CustomerStandardPrivateSubscriptionProductRemovedDomainEvent(standardProduct, operatorId, callerId, CustomerId));
             return standardProduct;
         }
+        
+        public CustomerStandardBusinessSubscriptionProduct AddCustomerStandardBusinessSubscriptionProduct(NewCustomerStandardBusinessSubscriptionProduct businessProduct)
+        {
+
+            var customerOperatorSetting = CustomerOperatorSettings.FirstOrDefault(a => a.Operator.Id == businessProduct.OperatorId);
+            if (customerOperatorSetting == null) throw new CustomerSettingsException($"Customer don't have operator with id {businessProduct.OperatorId} as a setting", Guid.Parse("5ea10a47-589a-4047-aa99-151db883f824"));
+
+            var customerStandardBusinessSubscriptionProduct = 
+                new CustomerStandardBusinessSubscriptionProduct(
+                businessProduct.DataPackage,
+                businessProduct.SubscriptionName,
+                businessProduct.CallerId,
+                businessProduct.AddOnProducts.Select(a => new SubscriptionAddOnProduct(a, businessProduct.CallerId)).ToList()
+                );
+
+            customerOperatorSetting.StandardBusinessSubscriptionProduct = customerStandardBusinessSubscriptionProduct;
+            AddDomainEvent(new CustomerStandardBusinessSubscriptionProductAddedDomainEvent(CustomerId, customerOperatorSetting.Operator.OperatorName, customerStandardBusinessSubscriptionProduct, businessProduct.CallerId));
+
+            return customerStandardBusinessSubscriptionProduct;
+        }
+        public CustomerStandardBusinessSubscriptionProduct RemoveCustomerStandardBusinessSubscriptionProduct(int operatorId, Guid callerId)
+        {
+            var customerOperatorSetting = CustomerOperatorSettings.FirstOrDefault(a => a.Operator.Id == operatorId && a.StandardBusinessSubscriptionProduct != null);
+            if (customerOperatorSetting == null) throw new CustomerSettingsException($"Customer don't have standard business product set up for {operatorId}", Guid.Parse("fae81e86-cc80-4b3e-87e6-83c1c0827e94"));
+
+            var standardProduct = customerOperatorSetting.StandardBusinessSubscriptionProduct;
+            customerOperatorSetting.StandardBusinessSubscriptionProduct = null;
+            AddDomainEvent(new CustomerStandardBusinessSubscriptionProductRemovedDomainEvent(standardProduct, operatorId, callerId, CustomerId));
+            return standardProduct;
+        }
     }
 }

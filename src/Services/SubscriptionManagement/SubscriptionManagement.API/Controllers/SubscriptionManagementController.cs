@@ -553,6 +553,79 @@ namespace SubscriptionManagement.API.Controllers
 
             return Ok(subscriptionProducts);
         }
-       
+
+        /// <summary>
+        /// Gets the standard business subscription product
+        /// </summary>
+        /// <param name="organizationId">Customer identifier</param>
+        /// <param name="callerId">The caller making the request</param>
+        /// <returns>An asynchronously task with a list of business subscription product for each operator.</returns>
+        [HttpGet]
+        [Route("{organizationId:Guid}/standard-business-subscription-products")]
+        [ProducesResponseType(typeof(IList<CustomerStandardBusinessSubscriptionProductDTO>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [SwaggerOperation(Tags = new[] { "Customer Subscription Products" })]
+        public async Task<ActionResult<IList<CustomerStandardBusinessSubscriptionProductDTO>>> GetStandardBusinessSubscriptionProducts(Guid organizationId, [FromQuery(Name = "X-Authenticated-UserId")] Guid callerId)
+        {
+
+            var customersBusinessSubscriptionProducts = await _customerSettingsService.GetStandardBusinessSubscriptionProductsAsync(organizationId, callerId);
+            if (customersBusinessSubscriptionProducts == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(customersBusinessSubscriptionProducts);
+        }
+
+        /// <summary>
+        /// Adds a standard business subscription product for customer.
+        /// </summary>
+        /// <param name="organizationId">Customer identifier.</param>
+        /// <param name="businessSubscriptionProduct">The new standard business subscription product that is to be created.</param>
+        /// <returns>An asynchronously task with the created business subscription product.</returns>
+        [HttpPost]
+        [Route("{organizationId:Guid}/standard-business-subscription-products")]
+        [ProducesResponseType(typeof(CustomerStandardBusinessSubscriptionProductDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [SwaggerOperation(Tags = new[] { "Customer Subscription Products" })]
+        public async Task<ActionResult<CustomerStandardBusinessSubscriptionProductDTO>> AddStandardBusinessSubscriptionProducts(Guid organizationId, [FromBody] NewCustomerStandardBusinessSubscriptionProduct businessSubscriptionProduct, [FromQuery(Name = "X-Authenticated-UserId")] Guid callerId)
+        {
+            businessSubscriptionProduct.CallerId = callerId;
+            var customersBusinessSubscriptionProduct = await _customerSettingsService.AddStandardBusinessSubscriptionProductsAsync(organizationId, businessSubscriptionProduct);
+            if (customersBusinessSubscriptionProduct == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(customersBusinessSubscriptionProduct);
+        }
+
+        /// <summary>
+        /// Delete standard business subscription product.
+        /// </summary>
+        /// <param name="organizationId">Customer identifier.</param>
+        /// <param name="operatorId">The operator to delete from.</param>
+        /// <param name="callerId">The caller making the request</param>
+        /// <returns>An asynchronously task with the deleted business subscription product.</returns>
+        [HttpDelete]
+        [Route("{organizationId:Guid}/standard-business-subscription-products/{operatorId:Int}")]
+        [ProducesResponseType(typeof(CustomerStandardPrivateSubscriptionProductDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [SwaggerOperation(Tags = new[] { "Customer Subscription Products" })]
+        public async Task<ActionResult<CustomerStandardBusinessSubscriptionProductDTO>> DeleteStandardBusinessSubscriptionProducts(Guid organizationId, int operatorId,[FromQuery(Name = "X-Authenticated-UserId")] Guid callerId)
+        {
+
+            var deletedBusinessSubscriptionProducts = await _customerSettingsService.DeleteStandardBusinessSubscriptionProductsAsync(organizationId, operatorId, callerId);
+            if (deletedBusinessSubscriptionProducts == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(deletedBusinessSubscriptionProducts);
+        }
+
     }
 }

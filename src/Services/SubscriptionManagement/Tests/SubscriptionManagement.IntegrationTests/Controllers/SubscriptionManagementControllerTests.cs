@@ -1206,6 +1206,7 @@ public class
         // Assert
         Assert.Equal(5, response!.TotalItems);
     }
+
     [Fact]
     public async Task GetAllSubscriptionOrders_ByOrderType()
     {
@@ -1222,5 +1223,73 @@ public class
         // Assert
         Assert.Equal(3, response!.TotalItems);
         Assert.Equal((int)SubscriptionOrderTypes.TransferToBusiness, response!.Items[0].OrderTypeId);
+    }
+
+    [Fact]
+    public async Task DeleteStandardBusinessSubscriptionProducts()
+    {
+        var response = await _httpClient.DeleteAsync($"/api/v1/SubscriptionManagement/{_organizationId}/standard-business-subscription-products/{_operatorId}");
+        var standardBusinessSubscription = await response.Content.ReadFromJsonAsync<CustomerStandardBusinessSubscriptionProductDTO>();
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK,response.StatusCode);
+        Assert.NotNull(standardBusinessSubscription);
+        Assert.Equal(_operatorId, standardBusinessSubscription.OperatorId);
+        Assert.Equal("Telia - NO", standardBusinessSubscription.OperatorName);
+        Assert.Equal("BusinessDataPackage", standardBusinessSubscription.DataPackage);
+        Assert.Equal(1,standardBusinessSubscription.AddOnProducts!.Count);
+    }
+
+    [Fact]
+    public async Task AddStandardBusinessSubscriptionProducts()
+    {
+        // Arrange
+        var subscriptionName = "Subscription free";
+        var datapackage = "15GB";
+        var newCustomerStandardBusinessSubscriptionProduct = new NewCustomerStandardBusinessSubscriptionProduct
+        {
+            OperatorId = _operatorId,
+            DataPackage = datapackage,
+            SubscriptionName = subscriptionName,
+            AddOnProducts = new List<string> { "Faktura kontroll" },
+            CallerId = _callerId
+        };
+
+        // Act
+        var response = await _httpClient.PostAsJsonAsync($"/api/v1/SubscriptionManagement/{_organizationId}/standard-business-subscription-products", newCustomerStandardBusinessSubscriptionProduct);
+        var standardBusinessSubscription = await response.Content.ReadFromJsonAsync<CustomerStandardBusinessSubscriptionProductDTO>();
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(standardBusinessSubscription);
+        Assert.Equal("Telia - NO", standardBusinessSubscription.OperatorName);
+        Assert.Equal(_operatorId, standardBusinessSubscription.OperatorId);
+        Assert.Equal(1, standardBusinessSubscription.AddOnProducts!.Count);
+        Assert.Equal(subscriptionName, standardBusinessSubscription.SubscriptionName);
+        Assert.Equal(datapackage, standardBusinessSubscription.DataPackage);
+    }
+
+    [Fact]
+    public async Task GetStandardBusinessSubscriptionProducts()
+    {
+        // Arrange
+        var response = await _httpClient.GetAsync($"/api/v1/SubscriptionManagement/{_organizationId}/standard-business-subscription-products");
+        var standardBusinessSubscription = await response.Content.ReadFromJsonAsync<List<CustomerStandardBusinessSubscriptionProductDTO>>();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(standardBusinessSubscription);
+
+        Assert.Collection(standardBusinessSubscription,
+           item => Assert.Equal("Telia - NO", item.OperatorName)
+       );
+        Assert.Collection(standardBusinessSubscription,
+            item => Assert.Equal("BusinessSubscription", item.SubscriptionName)
+        );
+        Assert.Collection(standardBusinessSubscription,
+            item => Assert.Equal("BusinessDataPackage", item.DataPackage)
+        );
+        Assert.Collection(standardBusinessSubscription,
+           item => Assert.Equal(1, item.AddOnProducts!.Count)
+       );
     }
 }

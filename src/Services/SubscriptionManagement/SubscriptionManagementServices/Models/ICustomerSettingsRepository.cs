@@ -3,7 +3,7 @@
     public interface ICustomerSettingsRepository
     {
         Task<CustomerSettings?> GetCustomerSettingsAsync(Guid organizationId, bool asNoTracking, bool includeCustomerOperatorSettings = false, bool includeOperator = false,
-                    bool includeStandardPrivateSubscriptionProduct = false, bool includeCustomerOperatorAccounts = false, bool includeAvailableSubscriptionProducts = false,
+                    bool includeStandardPrivateSubscriptionProduct = false, bool includeStandardBusinessSubscriptionProduct = false, bool includeCustomerOperatorAccounts = false, bool includeAvailableSubscriptionProducts = false,
                     bool includeGlobalSubscriptionProduct = false, bool includeDataPackages = false, bool includeCustomerReferenceFields = false);
         Task<CustomerSettings> AddCustomerSettingsAsync(CustomerSettings customerSettings);
         Task<CustomerSettings> UpdateCustomerSettingsAsync(CustomerSettings customerSettings);

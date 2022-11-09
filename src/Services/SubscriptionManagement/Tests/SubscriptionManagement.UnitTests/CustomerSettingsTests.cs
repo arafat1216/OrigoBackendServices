@@ -377,4 +377,53 @@ public class CustomerSettingsTests : SubscriptionManagementServiceBaseTests
         // Assert
         Assert.Equal(@operator!.Id, subscriptionProductForCustomer.OperatorId);
     }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetStandardBusinessSubscriptionProductsAsync()
+    {
+        var standardBusinessSubscriptionProducts = await _customerSettingsService.GetStandardBusinessSubscriptionProductsAsync(ORGANIZATION_ONE_ID, CALLER_ONE_ID);
+
+        Assert.Collection(standardBusinessSubscriptionProducts,
+            item => Assert.Equal("Op1", item.OperatorName),
+            item => Assert.Equal("Op2", item.OperatorName)
+        );
+        Assert.Collection(standardBusinessSubscriptionProducts,
+            item => Assert.Equal("Subscription", item.SubscriptionName),
+            item => Assert.Equal("Subscription Business", item.SubscriptionName)
+        );
+        Assert.Collection(standardBusinessSubscriptionProducts,
+            item => Assert.Equal("50GB", item.DataPackage),
+            item => Assert.Equal("20GB", item.DataPackage)
+        );
+        Assert.Collection(standardBusinessSubscriptionProducts,
+           item => Assert.Equal(1, item.AddOnProducts.Count),
+           item => Assert.Empty(item.AddOnProducts)
+       );
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task AddStandardBusinessSubscriptionProductsAsync()
+    {
+
+        var newStandardBusinessSubscriptionProduct = new NewCustomerStandardBusinessSubscriptionProduct { DataPackage = "5GB", OperatorId = 10, SubscriptionName = "New subscription", AddOnProducts = new List<string> { "Faktura kontroll"} };
+
+        var addedStandardBusinessSubscriptionProducts = await _customerSettingsService.AddStandardBusinessSubscriptionProductsAsync(ORGANIZATION_ONE_ID, newStandardBusinessSubscriptionProduct);
+
+        Assert.NotNull(addedStandardBusinessSubscriptionProducts);
+        Assert.Equal("New subscription",addedStandardBusinessSubscriptionProducts.SubscriptionName);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task DeleteStandardBusinessSubscriptionProductsAsync()
+    {
+        var deletedStandardBusinessSubscriptionProducts = await _customerSettingsService.DeleteStandardBusinessSubscriptionProductsAsync(ORGANIZATION_ONE_ID, operatorId: 10, CALLER_ONE_ID);
+
+        Assert.NotNull(deletedStandardBusinessSubscriptionProducts);
+        Assert.Equal("Subscription", deletedStandardBusinessSubscriptionProducts.SubscriptionName);
+        Assert.Equal(10, deletedStandardBusinessSubscriptionProducts.OperatorId);
+        Assert.Equal("Op1", deletedStandardBusinessSubscriptionProducts.OperatorName);
+    }
 }

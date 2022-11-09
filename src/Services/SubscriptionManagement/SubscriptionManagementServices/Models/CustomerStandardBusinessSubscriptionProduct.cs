@@ -1,4 +1,5 @@
 ﻿using Common.Seedwork;
+using System.Text.Json.Serialization;
 
 namespace SubscriptionManagementServices.Models
 {
@@ -8,17 +9,20 @@ namespace SubscriptionManagementServices.Models
         {
         }
 
-        public CustomerStandardBusinessSubscriptionProduct(string? dataPackage, string subscriptionName, Guid callerId)
+        public CustomerStandardBusinessSubscriptionProduct(string? dataPackage, string subscriptionName, Guid callerId, List<SubscriptionAddOnProduct>? subscriptionAddOnProducts)
         {
             DataPackage = dataPackage;
             SubscriptionName = subscriptionName;
             CreatedBy = callerId;
-
+            _addOnProducts = subscriptionAddOnProducts;
 
         }
         public string SubscriptionName { get; set; }
         public string? DataPackage { get; set; }
-        public IReadOnlyCollection<SubscriptionAddOnProduct>? AddOnProducts { get; set; }
+        [JsonIgnore]
+        public IReadOnlyCollection<SubscriptionAddOnProduct>? AddOnProducts => _addOnProducts.AsReadOnly();
+
+        private readonly List<SubscriptionAddOnProduct> _addOnProducts = new();
 
 
     }

@@ -29,5 +29,10 @@ namespace SubscriptionManagementServices
         
         Task<IList<CustomerStandardPrivateSubscriptionProductDTO>> GetStandardPrivateSubscriptionProductsAsync(Guid organizationId);
         Task<CustomerStandardPrivateSubscriptionProductDTO> DeleteStandardPrivateSubscriptionProductsAsync(Guid organizationId, int operatorId, Guid callerId);
+       
+        //*****************************************************************///
+        Task<IList<CustomerStandardBusinessSubscriptionProductDTO>> GetStandardBusinessSubscriptionProductsAsync(Guid organizationId, Guid callerId);
+        Task<CustomerStandardBusinessSubscriptionProductDTO> AddStandardBusinessSubscriptionProductsAsync(Guid organizationId, NewCustomerStandardBusinessSubscriptionProduct businessSubscriptionProduct);
+        Task<CustomerStandardBusinessSubscriptionProductDTO> DeleteStandardBusinessSubscriptionProductsAsync(Guid organizationId, int operatorId, Guid callerId);
     }
 }

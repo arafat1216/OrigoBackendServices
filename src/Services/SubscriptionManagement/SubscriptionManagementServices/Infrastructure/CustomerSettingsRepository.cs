@@ -24,7 +24,7 @@ namespace SubscriptionManagementServices.Infrastructure
         }
 
         public async Task<CustomerSettings?> GetCustomerSettingsAsync(Guid organizationId, bool asNoTracking, bool includeCustomerOperatorSettings = false, bool includeOperator = false,
-            bool includeStandardPrivateSubscriptionProduct = false, bool includeCustomerOperatorAccounts = false, bool includeAvailableSubscriptionProducts = false,
+            bool includeStandardPrivateSubscriptionProduct = false, bool includeStandardBusinessSubscriptionProduct = false, bool includeCustomerOperatorAccounts = false, bool includeAvailableSubscriptionProducts = false,
             bool includeGlobalSubscriptionProduct = false, bool includeDataPackages = false, bool includeCustomerReferenceFields = false)
         {
             IQueryable<CustomerSettings> query = _subscriptionManagementContext.Set<CustomerSettings>();
@@ -39,6 +39,11 @@ namespace SubscriptionManagementServices.Infrastructure
             if (includeStandardPrivateSubscriptionProduct)
                 query = query.Include(cs => cs.CustomerOperatorSettings)
                     .ThenInclude(o => o.StandardPrivateSubscriptionProduct);
+
+            if (includeStandardBusinessSubscriptionProduct)
+                query = query.Include(cs => cs.CustomerOperatorSettings)
+                    .ThenInclude(o => o.StandardBusinessSubscriptionProduct)
+                    .ThenInclude(a => a.AddOnProducts);
 
             if (includeCustomerOperatorAccounts)
                 query = query.Include(cs => cs.CustomerOperatorSettings)

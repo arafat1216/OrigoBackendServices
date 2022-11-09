@@ -43,6 +43,10 @@ namespace OrigoApiGateway.Services
         Task<OrigoCustomerStandardPrivateSubscriptionProduct> PostCustomerStandardPrivateSubscriptionProductAsync(Guid organizationId, NewStandardPrivateProductDTO standardPrivateProduct);
 
         Task<OrigoCustomerStandardPrivateSubscriptionProduct> DeleteCustomerStandardPrivateSubscriptionProductAsync(Guid organizationId, int operatorId, Guid callerId);
+        Task<IList<OrigoCustomerStandardBusinessSubscriptionProduct>> GetCustomerStandardBusinessSubscriptionProductAsync(Guid organizationId);
+        Task<OrigoCustomerStandardBusinessSubscriptionProduct> PostCustomerStandardBusinessSubscriptionProductAsync(Guid organizationId, NewStandardBusinessSubscriptionProduct standardBusinessProduct);
+
+        Task<OrigoCustomerStandardBusinessSubscriptionProduct> DeleteCustomerStandardBusinessSubscriptionProductAsync(Guid organizationId, int operatorId);
         Task<OrigoSubscriptionOrderDetailView> GetSubscriptionOrderDetailViewAsync(Guid organizationId, Guid orderId, int orderType);
 
 

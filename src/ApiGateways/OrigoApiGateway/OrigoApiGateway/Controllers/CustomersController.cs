@@ -1194,6 +1194,90 @@ namespace OrigoApiGateway.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Gets the configured standard business products.
+        /// </summary>
+        /// <param name="organizationId">Customer identifier.</param>
+        /// <returns>A list of standard business subscription products that has been configured for given customer across each operators.</returns>
+        [HttpGet]
+        [Route("{organizationId:Guid}/standard-business-subscription-products")]
+        [ProducesResponseType(typeof(IList<OrigoCustomerStandardBusinessSubscriptionProduct>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
+        public async Task<ActionResult<IList<OrigoCustomerStandardBusinessSubscriptionProduct>>> GetCustomerStandardBusinessSubscriptionProduct(Guid organizationId)
+        {
+
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+
+            var response = await SubscriptionManagementService.GetCustomerStandardBusinessSubscriptionProductAsync(organizationId);
+
+            return Ok(response);
+        }
+        [HttpPost]
+        [Route("{organizationId:Guid}/standard-business-subscription-products")]
+        [ProducesResponseType(typeof(OrigoCustomerStandardBusinessSubscriptionProduct), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
+        public async Task<ActionResult<OrigoCustomerStandardBusinessSubscriptionProduct>> AddStandardBusinessSubscriptionProducts(Guid organizationId, [FromBody] NewStandardBusinessSubscriptionProduct standardBusinessProduct)
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+
+            var response = await SubscriptionManagementService.PostCustomerStandardBusinessSubscriptionProductAsync(organizationId, standardBusinessProduct);
+
+            return Ok(response);
+        }
+
+        [HttpDelete]
+        [Route("{organizationId:Guid}/standard-business-subscription-products/{operatorId:Int}")]
+        [ProducesResponseType(typeof(OrigoCustomerStandardPrivateSubscriptionProduct), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [PermissionAuthorize(Permission.SubscriptionManagement)]
+        public async Task<ActionResult> DeleteStandardBusinessSubscriptionProducts(Guid organizationId, int operatorId)
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role == PredefinedRole.EndUser.ToString() || role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString())
+            {
+                return Forbid();
+            }
+
+            if (role != PredefinedRole.SystemAdmin.ToString())
+            {
+                var accessList = HttpContext.User.Claims.Where(c => c.Type == "AccessList").Select(y => y.Value).ToList();
+                if (accessList == null || !accessList.Any() || !accessList.Contains(organizationId.ToString()))
+                {
+                    return Forbid();
+                }
+            }
+            var response = await SubscriptionManagementService.DeleteCustomerStandardBusinessSubscriptionProductAsync(organizationId, operatorId);
+
+            return Ok(response);
+        }
+
 
         [Route("{organizationId:Guid}/assetsTotalBookValue")]
         [ProducesResponseType(typeof(CustomerAssetsTotalBookValue), (int)HttpStatusCode.OK)]

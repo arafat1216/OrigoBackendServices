@@ -71,12 +71,15 @@ public class SubscriptionManagementWebApplicationFactory<TProgram> : WebApplicat
                 var standardPrivateProduct = new CustomerStandardPrivateSubscriptionProduct("PrivateDataPackage","PrivateSubscription",Guid.Empty);
                 subscriptionManagementContext.CustomerStandardPrivateSubscriptionProducts.Add(standardPrivateProduct);
 
+                var standardBusinessProduct = new CustomerStandardBusinessSubscriptionProduct("BusinessDataPackage", "BusinessSubscription", Guid.Empty, new List<SubscriptionAddOnProduct> { new SubscriptionAddOnProduct("Faktura kontroll",Guid.NewGuid())});
+                subscriptionManagementContext.CustomerStandardBusinessSubscriptionProduct.Add(standardBusinessProduct);
                 var customerOperatorSettings = new List<CustomerOperatorSettings>
                 {
                     new (firstOperator,
                         new List<CustomerSubscriptionProduct> { customerSubscriptionProduct },
                         new List<CustomerOperatorAccount> { customerOperatorAccount },
-                        standardPrivateProduct
+                        standardPrivateProduct,
+                        standardBusinessProduct
                         )
                 };
                 var customerReferenceFields = new List<CustomerReferenceField>

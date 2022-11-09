@@ -57,8 +57,11 @@ namespace SubscriptionManagement.UnitTests
 
             context.AddRange(customerOperatorAccountOne, customerOperatorAccountTwo, customerOperatorAccountThree);
             var customerOperatorSettings = new List<CustomerOperatorSettings>();
-           
-            var customerOperatorSettingOne = new CustomerOperatorSettings(operatorOne, new List<CustomerSubscriptionProduct>{customerSubscriptionProductOne}, customerOperatorAccounts, null);
+
+            var customersStandardBusinessSubscriptionProductOperator1 = new CustomerStandardBusinessSubscriptionProduct("50GB", "Subscription",CALLER_ONE_ID,new List<SubscriptionAddOnProduct> { new SubscriptionAddOnProduct("Faktura kontroll", CALLER_ONE_ID) });
+            context.Add(customersStandardBusinessSubscriptionProductOperator1);
+
+            var customerOperatorSettingOne = new CustomerOperatorSettings(operatorOne, new List<CustomerSubscriptionProduct>{customerSubscriptionProductOne}, customerOperatorAccounts, null, customersStandardBusinessSubscriptionProductOperator1);
             //Setup for operatorsettings two
             var customerOperatorAccountsForOperatorTwo = new List<CustomerOperatorAccount>();
             var customerOperatorAccountForOperatorTwo = new CustomerOperatorAccount(4, ORGANIZATION_ONE_ID, "", "AC_NUM4", "AC_NAME4", operatorTwo.Id, CALLER_ONE_ID);
@@ -72,7 +75,10 @@ namespace SubscriptionManagement.UnitTests
             var globalSubscriptionProduct = new CustomerSubscriptionProduct(new SubscriptionProduct("Bedrift +", operatorTwo, null, CALLER_ONE_ID), CALLER_ONE_ID, new List<DataPackage> { new DataPackage("2 GB", CALLER_ONE_ID) });
             context.AddRange(customerSubscriptionProductTwo, globalSubscriptionProduct);
 
-            var customerOperatorSettingTwo = new CustomerOperatorSettings(operatorTwo, new List<CustomerSubscriptionProduct> { customerSubscriptionProductTwo, globalSubscriptionProduct  }, customerOperatorAccountsForOperatorTwo, null);
+            var customersStandardBusinessSubscriptionProductOperator2 = new CustomerStandardBusinessSubscriptionProduct("20GB", "Subscription Business", CALLER_ONE_ID, null);
+            context.Add(customersStandardBusinessSubscriptionProductOperator2);
+
+            var customerOperatorSettingTwo = new CustomerOperatorSettings(operatorTwo, new List<CustomerSubscriptionProduct> { customerSubscriptionProductTwo, globalSubscriptionProduct  }, customerOperatorAccountsForOperatorTwo, null, customersStandardBusinessSubscriptionProductOperator2);
             
             customerOperatorSettings.Add(customerOperatorSettingOne);
             customerOperatorSettings.Add(customerOperatorSettingTwo);
