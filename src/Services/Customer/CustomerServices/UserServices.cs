@@ -374,7 +374,7 @@ namespace CustomerServices
         public async Task<UserDTO> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,
             string email, string employeeId, string mobileNumber, UserPreference userPreference, Guid callerId)
         {
-            var user = await _organizationRepository.GetUserAsync(customerId, userId, includeDepartment: true, includeUserPreference: true); 
+            var user = await _organizationRepository.GetUserAsync(customerId, userId, includeDepartment: true, includeUserPreference: true);
             //get role from current email
             var role = await GetRoleNameForUser(user.Email);
 
@@ -512,7 +512,7 @@ namespace CustomerServices
             userDTO.Role = await GetRoleNameForUser(user.Email);
             return userDTO;
         }
-        
+
         public async Task<UserDTO> DeleteUserByPhoneNumberAsync(Guid customerId, string phoneNumber, Guid callerId, bool softDelete = true)
         {
             var user = await _organizationRepository.GetUserAsync(customerId, phoneNumber);
@@ -869,17 +869,36 @@ namespace CustomerServices
 
         public async Task<UserInfoDTO> GetUserInfoFromPhoneNumber(Guid organizationId, string mobileNumber)
         {
-            return _mapper.Map<UserInfoDTO>( await _organizationRepository.GetUserByMobileNumber(mobileNumber, organizationId) );
+            return _mapper.Map<UserInfoDTO>(await _organizationRepository.GetUserByMobileNumber(mobileNumber, organizationId));
         }
 
         public async Task SubscriptionHandledForOffboardingAsync(Guid customerId, string mobileNumber, Guid callerId)
         {
             var user = await _organizationRepository.GetUserByMobileNumber(mobileNumber, customerId, includeUserpreferences: true);
-            if(user != null && user.UserStatus == UserStatus.OffboardInitiated)
+            if (user != null && user.UserStatus == UserStatus.OffboardInitiated)
             {
                 user.HandleSubscriptionForOffboarding(true, callerId);
                 await _organizationRepository.SaveEntitiesAsync();
             }
         }
+
+
+#nullable enable
+        /// <inheritdoc/>
+        public async Task<PagedModel<UserDTO>> UserAdvancedSearchAsync(UserSearchParameters searchParameters,
+                                                                       int page,
+                                                                       int limit,
+                                                                       CancellationToken cancellationToken,
+                                                                       bool includeUserPreferences = false,
+                                                                       bool includeDepartmentInfo = false,
+                                                                       bool includeOrganizationDetails = false,
+                                                                       bool includeRoleDetails = false)
+        {
+            var results = await _organizationRepository.UserAdvancedSearchAsync(searchParameters, page, limit, cancellationToken, includeUserPreferences: includeUserPreferences, includeDepartmentInfo: includeDepartmentInfo, includeOrganizationDetails: includeOrganizationDetails, includeRoleDetails: includeRoleDetails);
+            return results;
+        }
+#nullable restore
+
+
     }
 }

@@ -72,5 +72,40 @@ namespace CustomerServices
         /// <exception cref="Exceptions.UserNotFoundException">If user with the user id provided is not found.</exception>
         Task<ExceptionMessagesDTO> ResendOrigoInvitationMail(Guid customerId, IList<Guid> userIds, string[]? role, Guid[]? assignedToDepartment);
         Task SubscriptionHandledForOffboardingAsync(Guid customerId, string mobileNumber, Guid callerId);
+
+#nullable enable
+        /// <summary>
+        ///     An advanced search that retrieves all <c>UserDTO</c> entities that matches the given criteria.
+        /// </summary>
+        /// <param name="searchParameters"> A class containing all the search-parameters. </param>
+        /// <param name="page"> The current page number. </param>
+        /// <param name="limit"> The highest number of items that can be added in a single page. </param>
+        /// <param name="cancellationToken"> A injected <see cref="CancellationToken"/>. </param>
+        /// <param name="includeUserPreferences">
+        ///     When <c><see langword="true"/></c>, information about the users preferences is loaded/included in the retrieved data. 
+        ///     <para>This property will not be included unless it's explicitly requested. </para>
+        /// </param>
+        /// <param name="includeDepartmentInfo">
+        ///     When <c><see langword="true"/></c>, the users department information is loaded/included in the retrieved data. 
+        ///     <para>This property will not be included unless it's explicitly requested. </para>
+        /// </param>
+        /// <param name="includeOrganizationDetails">
+        ///     When <c><see langword="true"/></c>, the users organization details is loaded/included in the retrieved data. 
+        ///     <para>This property will not be included unless it's explicitly requested. </para>
+        /// </param>
+        /// <param name="includeRoleDetails">
+        ///     When <c><see langword="true"/></c>, the users role details is loaded/included in the retrieved data. 
+        ///     <para>This property will not be included unless it's explicitly requested. </para>
+        /// </param>
+        /// <returns> The asynchronous task. The task results contains the corresponding <see cref="UserDTO"/> results. </returns>
+        Task<PagedModel<UserDTO>> UserAdvancedSearchAsync(UserSearchParameters searchParameters,
+                                                          int page,
+                                                          int limit,
+                                                          CancellationToken cancellationToken,
+                                                          bool includeUserPreferences = false,
+                                                          bool includeDepartmentInfo = false,
+                                                          bool includeOrganizationDetails = false,
+                                                          bool includeRoleDetails = false);
     }
+#nullable restore
 }

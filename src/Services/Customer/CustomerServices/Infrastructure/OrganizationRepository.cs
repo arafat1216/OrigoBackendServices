@@ -1,4 +1,5 @@
-﻿using Common.Extensions;
+﻿using Common.Enums;
+using Common.Extensions;
 using Common.Interfaces;
 using Common.Logging;
 using Common.Utilities;
@@ -7,9 +8,9 @@ using CustomerServices.Models;
 using CustomerServices.ServiceModels;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+
 
 #nullable enable
 
@@ -407,22 +408,22 @@ public class OrganizationRepository : IOrganizationRepository
             .FirstOrDefaultAsync();
     }
 
-        public async Task<User?> GetUserByMobileNumber(string mobileNumber, Guid organizationId, bool includeUserpreferences = false)
-        {
-            if (string.IsNullOrEmpty(mobileNumber))
-                return null;
+    public async Task<User?> GetUserByMobileNumber(string mobileNumber, Guid organizationId, bool includeUserpreferences = false)
+    {
+        if (string.IsNullOrEmpty(mobileNumber))
+            return null;
 
-            if(includeUserpreferences) return await _customerContext.Users
-                                         .Include(u => u.Customer)
-                                         .Include(u => u.UserPreference)
-                                         .Where(u => u.MobileNumber == mobileNumber && u.Customer.OrganizationId == organizationId)
-                                         .FirstOrDefaultAsync();
+        if (includeUserpreferences) return await _customerContext.Users
+                                     .Include(u => u.Customer)
+                                     .Include(u => u.UserPreference)
+                                     .Where(u => u.MobileNumber == mobileNumber && u.Customer.OrganizationId == organizationId)
+                                     .FirstOrDefaultAsync();
 
-            return await _customerContext.Users
-                                         .Include(u => u.Customer)
-                                         .Where(u => u.MobileNumber == mobileNumber && u.Customer.OrganizationId == organizationId)
-                                         .FirstOrDefaultAsync();
-        }
+        return await _customerContext.Users
+                                     .Include(u => u.Customer)
+                                     .Where(u => u.MobileNumber == mobileNumber && u.Customer.OrganizationId == organizationId)
+                                     .FirstOrDefaultAsync();
+    }
 
     public async Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId,
         string[]? role,
@@ -476,9 +477,9 @@ public class OrganizationRepository : IOrganizationRepository
             if (Regex.IsMatch(search, "^[+]{0,1}[0-9]{2,14}$"))
                 phoneNumber = true;
 
-            query = query.Where(u =>    (!email && u.FirstName.ToLower().Contains(search.ToLower()))
+            query = query.Where(u => (!email && u.FirstName.ToLower().Contains(search.ToLower()))
                                      || (!email && u.LastName.ToLower().Contains(search.ToLower()))
-                                     ||   u.Email.ToLower().Contains(search.ToLower())
+                                     || u.Email.ToLower().Contains(search.ToLower())
                                      || (phoneNumber && u.MobileNumber.Contains(search)));
         }
 
@@ -757,4 +758,236 @@ public class OrganizationRepository : IOrganizationRepository
             .AsNoTracking()
             .Select(p => p.HashedApiKey).FirstOrDefaultAsync(cancellationToken);
     }
+
+
+#nullable enable
+    /// <inheritdoc/>
+    public async Task<PagedModel<UserDTO>> UserAdvancedSearchAsync(UserSearchParameters searchParameters,
+                                                                   int page,
+                                                                   int limit,
+                                                                   CancellationToken cancellationToken,
+                                                                   bool includeUserPreferences = false,
+                                                                   bool includeDepartmentInfo = false,
+                                                                   bool includeOrganizationDetails = false,
+                                                                   bool includeRoleDetails = false)
+    {
+        IQueryable<User> query = _customerContext.Users
+                                                 .AsNoTracking();
+
+        // Quick search
+        if (!string.IsNullOrEmpty(searchParameters.QuickSearch))
+        {
+            // See if the query-string contains an "@". If so, we can assume it's an email, and can likely skip searching for some of the parameters, such as names.
+            bool potentialEmailFound = searchParameters.QuickSearch.Contains('@');
+
+            // See if the query-string contains any numbers. If so we can likely skip searching for some of the parameters, such as names.
+            bool numbersFound = Regex.IsMatch(searchParameters.QuickSearch, "\\d");
+
+
+            switch (searchParameters.QuickSearchSearchType)
+            {
+                case StringSearchType.Equals:
+                    {
+                        query = query.Where(e =>
+                                   (!potentialEmailFound && !numbersFound && (e.FirstName.ToLower() + " " + e.LastName.ToLower()).Equals(searchParameters.QuickSearch.ToLower()))
+                                || (potentialEmailFound && e.Email.ToLower().Equals(searchParameters.QuickSearch.ToLower()))
+                        );
+
+                        break;
+                    }
+                case StringSearchType.StartsWith:
+                    {
+                        query = query.Where(e =>
+                                   (!potentialEmailFound && !numbersFound && (e.FirstName.ToLower() + " " + e.LastName.ToLower()).StartsWith(searchParameters.QuickSearch.ToLower()))
+                                || (e.Email.ToLower().StartsWith(searchParameters.QuickSearch.ToLower()))
+                        );
+
+                        break;
+                    }
+                case StringSearchType.Contains:
+                    {
+                        query = query.Where(e =>
+                                   (!potentialEmailFound && !numbersFound && (e.FirstName.ToLower() + " " + e.LastName.ToLower()).Contains(searchParameters.QuickSearch.ToLower()))
+                                || (e.Email.ToLower().Contains(searchParameters.QuickSearch.ToLower()))
+                        );
+
+                        break;
+                    }
+                default:
+                    break;
+            }
+        }
+
+
+        // Where filter: Organization-ID is in list
+        if (searchParameters.OrganizationIds is not null && searchParameters.OrganizationIds.Any())
+        {
+            query = query.Where(e => searchParameters.OrganizationIds.Contains(e.Customer.OrganizationId));
+        }
+
+        // Where filter: Department-ID is in list
+        if (searchParameters.DepartmentIds is not null && searchParameters.DepartmentIds.Any())
+        {
+            query = query.Where(e => searchParameters.DepartmentIds.Contains(e.Department!.ExternalDepartmentId));
+        }
+
+        // Where filter: Lifecycle status-ID is in list
+        if (searchParameters.StatusIds is not null && searchParameters.StatusIds.Any())
+        {
+            query = query.Where(e => searchParameters.StatusIds.Contains((int)e.UserStatus));
+        }
+
+        // Where filter: Email-address
+        if (!string.IsNullOrEmpty(searchParameters.Email))
+        {
+            switch (searchParameters.EmailSearchType)
+            {
+                case StringSearchType.Equals:
+                    {
+                        query = query.Where(e => !string.IsNullOrEmpty(e.Email) && e.Email.ToLower().Equals(searchParameters.Email.ToLower()));
+                        break;
+                    }
+                case StringSearchType.StartsWith:
+                    {
+                        query = query.Where(e => !string.IsNullOrEmpty(e.Email) && e.Email.ToLower().StartsWith(searchParameters.Email.ToLower()));
+                        break;
+                    }
+                case StringSearchType.Contains:
+                    {
+                        query = query.Where(e => !string.IsNullOrEmpty(e.Email) && e.Email.ToLower().Contains(searchParameters.Email.ToLower()));
+                        break;
+                    }
+                default:
+                    break;
+            }
+        }
+
+        // Where filter: First-name
+        if (!string.IsNullOrEmpty(searchParameters.FirstName))
+        {
+            switch (searchParameters.FirstNameSearchType)
+            {
+                case StringSearchType.Equals:
+                    {
+                        query = query.Where(e => !string.IsNullOrEmpty(e.FirstName) && e.FirstName.ToLower().Equals(searchParameters.FirstName.ToLower()));
+                        break;
+                    }
+                case StringSearchType.StartsWith:
+                    {
+                        query = query.Where(e => !string.IsNullOrEmpty(e.FirstName) && e.FirstName.ToLower().StartsWith(searchParameters.FirstName.ToLower()));
+                        break;
+                    }
+                case StringSearchType.Contains:
+                    {
+                        query = query.Where(e => !string.IsNullOrEmpty(e.FirstName) && e.FirstName.ToLower().Contains(searchParameters.FirstName.ToLower()));
+                        break;
+                    }
+                default:
+                    break;
+            }
+        }
+
+        // Where filter: Last-name
+        if (!string.IsNullOrEmpty(searchParameters.LastName))
+        {
+            switch (searchParameters.LastNameSearchType)
+            {
+                case StringSearchType.Equals:
+                    {
+                        query = query.Where(e => !string.IsNullOrEmpty(e.LastName) && e.LastName.ToLower().Equals(searchParameters.LastName.ToLower()));
+                        break;
+                    }
+                case StringSearchType.StartsWith:
+                    {
+                        query = query.Where(e => !string.IsNullOrEmpty(e.LastName) && e.LastName.ToLower().StartsWith(searchParameters.LastName.ToLower()));
+                        break;
+                    }
+                case StringSearchType.Contains:
+                    {
+                        query = query.Where(e => !string.IsNullOrEmpty(e.LastName) && e.LastName.ToLower().Contains(searchParameters.LastName.ToLower()));
+                        break;
+                    }
+                default:
+                    break;
+            }
+        }
+
+
+        // Where filter: Full name (combines the first and last name, then searches in the combined value)
+        if (!string.IsNullOrEmpty(searchParameters.FullName))
+        {
+            switch (searchParameters.FullNameSearchType)
+            {
+                case StringSearchType.Equals:
+                    {
+                        query = query.Where(e => !string.IsNullOrEmpty(e.LastName) && (e.FirstName.ToLower() + " " + e.LastName.ToLower()).Equals(searchParameters.FullName.ToLower()));
+                        break;
+                    }
+                case StringSearchType.StartsWith:
+                    {
+                        query = query.Where(e => !string.IsNullOrEmpty(e.LastName) && (e.FirstName.ToLower() + " " + e.LastName.ToLower()).StartsWith(searchParameters.FullName.ToLower()));
+                        break;
+                    }
+                case StringSearchType.Contains:
+                    {
+                        query = query.Where(e => !string.IsNullOrEmpty(e.LastName) && (e.FirstName.ToLower() + " " + e.LastName.ToLower()).Contains(searchParameters.FullName.ToLower()));
+                        break;
+                    }
+                default:
+                    break;
+            }
+        }
+
+        // Returns: Change the select based on it there if the user-permission should be included or not (eliminates unnecessary joins and lookups)
+        if (includeRoleDetails)
+        {
+            return await query.SelectMany(u => _customerContext.UserPermissions.Where(up => u.Id == up.User.Id).DefaultIfEmpty(), (u, up) => new UserDTO
+            {
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                AssignedToDepartment = (includeDepartmentInfo && u.Department != null) ? u.Department.ExternalDepartmentId : Guid.Empty,
+                DepartmentName = (includeDepartmentInfo && u.Department != null) ? u.Department!.Name : null,
+                Email = u.Email,
+                OrganizationName = includeOrganizationDetails ? u.Customer.Name : null,
+                EmployeeId = u.EmployeeId,
+                MobileNumber = u.MobileNumber,
+                Role = up.Role.Name,
+                UserPreference = (includeUserPreferences && u.UserPreference != null) ? new UserPreferenceDTO { Language = u.UserPreference.Language } : null,
+                Id = u.UserId,
+                UserStatus = (int)u.UserStatus,
+                UserStatusName = u.UserStatus.ToString(),
+                LastWorkingDay = u.LastWorkingDay,
+                LastDayForReportingSalaryDeduction = u.LastDayForReportingSalaryDeduction,
+                ManagerOf = includeDepartmentInfo ? u.ManagesDepartments.Select(a => new ManagerOfDTO { DepartmentId = a.ExternalDepartmentId, DepartmentName = a.Name }).ToList() : null
+            })
+            .PaginateAsync(page, limit, cancellationToken);
+        }
+        else
+        {
+            return await query.Select(u => new UserDTO
+            {
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                AssignedToDepartment = (includeDepartmentInfo && u.Department != null) ? u.Department.ExternalDepartmentId : Guid.Empty,
+                DepartmentName = (includeDepartmentInfo && u.Department != null) ? u.Department!.Name : null,
+                Email = u.Email,
+                OrganizationName = includeOrganizationDetails ? u.Customer.Name : null,
+                EmployeeId = u.EmployeeId,
+                MobileNumber = u.MobileNumber,
+                Role = null,
+                UserPreference = (includeUserPreferences && u.UserPreference != null) ? new UserPreferenceDTO { Language = u.UserPreference.Language } : null,
+                Id = u.UserId,
+                UserStatus = (int)u.UserStatus,
+                UserStatusName = u.UserStatus.ToString(),
+                LastWorkingDay = u.LastWorkingDay,
+                LastDayForReportingSalaryDeduction = u.LastDayForReportingSalaryDeduction,
+                ManagerOf = includeDepartmentInfo ? u.ManagesDepartments.Select(a => new ManagerOfDTO { DepartmentId = a.ExternalDepartmentId, DepartmentName = a.Name }).ToList() : null
+            })
+            .PaginateAsync(page, limit, cancellationToken);
+        }
+
+
+    }
+#nullable restore
+
 }

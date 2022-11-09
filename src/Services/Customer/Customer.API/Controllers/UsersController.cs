@@ -11,6 +11,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
 using CustomerServices.ServiceModels;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Customer.API.Controllers;
 
@@ -114,7 +115,7 @@ public class UsersController : ControllerBase
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<ActionResult<List<UserNamesDTO>>> GetAllUserNames([FromRoute] Guid customerId, CancellationToken cancellationToken)
     {
-            return Ok(await _userServices.GetAllUsersWithNameOnly(customerId, cancellationToken));
+        return Ok(await _userServices.GetAllUsersWithNameOnly(customerId, cancellationToken));
     }
 
     [Route("{userId:Guid}")]
@@ -613,6 +614,52 @@ public class UsersController : ControllerBase
         await _userServices.SubscriptionHandledForOffboardingAsync(customerId, mobileNumber, callerId);
 
         return Ok();
-
     }
+
+
+#nullable enable
+    /// <summary>
+    ///     Search for a user.
+    /// </summary>
+    /// <remarks>
+    ///     An advanced search that retrieves all <c>UserDTO</c> entities that matches the given criteria.
+    /// </remarks>
+    /// <param name="searchParameters"> A class containing all the search-parameters. </param>
+    /// <param name="page"> The current page number. </param>
+    /// <param name="limit"> The highest number of items that can be added in a single page. </param>
+    /// <param name="cancellationToken"> A injected <see cref="CancellationToken"/>. </param>
+    /// <param name="includeUserPreferences">
+    ///     When <c><see langword="true"/></c>, information about the users preferences is loaded/included in the retrieved data. 
+    ///     <para>This property will not be included unless it's explicitly requested. </para>
+    /// </param>
+    /// <param name="includeDepartmentInfo">
+    ///     When <c><see langword="true"/></c>, the users department information is loaded/included in the retrieved data. 
+    ///     <para>This property will not be included unless it's explicitly requested. </para>
+    /// </param>
+    /// <param name="includeOrganizationDetails">
+    ///     When <c><see langword="true"/></c>, the users organization details is loaded/included in the retrieved data. 
+    ///     <para>This property will not be included unless it's explicitly requested. </para>
+    /// </param>
+    /// <param name="includeRoleDetails">
+    ///     When <c><see langword="true"/></c>, the users role details is loaded/included in the retrieved data. 
+    ///     <para>This property will not be included unless it's explicitly requested. </para>
+    /// </param>
+    /// <returns> The asynchronous task. The task results contains the corresponding <see cref="UserDTO"/> results. </returns>
+    [HttpPost]
+    [Route("/api/v{version:apiVersion}/search/users")]
+    [Tags("Search")]
+    [SwaggerResponse(StatusCodes.Status200OK, null, typeof(PagedModel<UserDTO>))]
+    public async Task<ActionResult<PagedModel<UserDTO>>> UserAdvancedSearchAsync([FromBody] CustomerServices.Models.UserSearchParameters searchParameters,
+                                                                                 CancellationToken cancellationToken,
+                                                                                 [FromQuery] int page = 1,
+                                                                                 [FromQuery] int limit = 25,
+                                                                                 [FromQuery] bool includeUserPreferences = false,
+                                                                                 [FromQuery] bool includeDepartmentInfo = false,
+                                                                                 [FromQuery] bool includeOrganizationDetails = false,
+                                                                                 [FromQuery] bool includeRoleDetails = false)
+    {
+        var results = await _userServices.UserAdvancedSearchAsync(searchParameters, page, limit, cancellationToken, includeUserPreferences: includeUserPreferences, includeDepartmentInfo: includeDepartmentInfo, includeOrganizationDetails: includeOrganizationDetails, includeRoleDetails: includeRoleDetails);
+        return Ok(results);
+    }
+#nullable restore
 }

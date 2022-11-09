@@ -172,7 +172,7 @@ public interface IOrganizationRepository
     ///     <see href="https://docs.microsoft.com/en-us/ef/core/querying/tracking"/> for more details. </para></param>
     /// <returns> An asynchronous task. The task results contains the given organization's preferences, or <see langword="null"/> if no results were found. </returns>
     Task<OrganizationPreferences?> GetOrganizationPreferencesAsync(Guid organizationId, bool asNoTracking = false);
-        
+
     Task<Location?> GetOrganizationLocationAsync(Guid locationId);
     Task<IList<Location>?> GetOrganizationAllLocationAsync(Guid organizationId);
     Task<Location> DeleteOrganizationLocationAsync(Location organizationLocation);
@@ -199,8 +199,8 @@ public interface IOrganizationRepository
         bool includeUserPreference = false,
         bool asNoTracking = false);
 
-        Task<User?> GetUserByMobileNumber(string mobileNumber, Guid organizationId, bool includeUserpreferences = false);
-        Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, bool asNoTracking, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 25);
+    Task<User?> GetUserByMobileNumber(string mobileNumber, Guid organizationId, bool includeUserpreferences = false);
+    Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, bool asNoTracking, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 25);
 
     /// <summary>
     ///     Retrieves a user by the organization and user IDs. Optional parameters may be provided to apply additional filtering, and for enabling eager loading. <br/>
@@ -336,4 +336,41 @@ public interface IOrganizationRepository
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<string?> GetHashedApiKey(Guid organizationId, CancellationToken cancellationToken);
+
+
+#nullable enable
+    /// <summary>
+    ///     An advanced search that retrieves all <c>UserDTO</c> entities that matches the given criteria.
+    /// </summary>
+    /// <param name="searchParameters"> A class containing all the search-parameters. </param>
+    /// <param name="page"> The current page number. </param>
+    /// <param name="limit"> The highest number of items that can be added in a single page. </param>
+    /// <param name="cancellationToken"> A injected <see cref="CancellationToken"/>. </param>
+    /// <param name="includeUserPreferences">
+    ///     When <c><see langword="true"/></c>, information about the users preferences is loaded/included in the retrieved data. 
+    ///     <para>This property will not be included unless it's explicitly requested. </para>
+    /// </param>
+    /// <param name="includeDepartmentInfo">
+    ///     When <c><see langword="true"/></c>, the users department information is loaded/included in the retrieved data. 
+    ///     <para>This property will not be included unless it's explicitly requested. </para>
+    /// </param>
+    /// <param name="includeOrganizationDetails">
+    ///     When <c><see langword="true"/></c>, the users organization details is loaded/included in the retrieved data. 
+    ///     <para>This property will not be included unless it's explicitly requested. </para>
+    /// </param>
+    /// <param name="includeRoleDetails">
+    ///     When <c><see langword="true"/></c>, the users role details is loaded/included in the retrieved data. 
+    ///     <para>This property will not be included unless it's explicitly requested. </para>
+    /// </param>
+    /// <returns> The asynchronous task. The task results contains the corresponding <see cref="UserDTO"/> results. </returns>
+    Task<PagedModel<UserDTO>> UserAdvancedSearchAsync(UserSearchParameters searchParameters,
+                                                      int page,
+                                                      int limit,
+                                                      CancellationToken cancellationToken,
+                                                      bool includeUserPreferences = false,
+                                                      bool includeDepartmentInfo = false,
+                                                      bool includeOrganizationDetails = false,
+                                                      bool includeRoleDetails = false);
+#nullable restore
+
 }
