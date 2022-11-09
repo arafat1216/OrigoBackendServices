@@ -113,8 +113,8 @@ stages:
         generateReleaseNotes: true
 
 - ${{ if and(eq(variables['Build.Reason'], 'Schedule'), eq(variables['e2esuccessful'], '1'), eq(variables['deployassetmicroservice'], '1')) }}:
-  - stage: DeployTest
-    displayName: Deploy to Test
+  - stage: DeployScheduledTest
+    displayName: Scheduled deploy to Test
     dependsOn: DeployDev
     variables:
     - group: AssetsLibrary
