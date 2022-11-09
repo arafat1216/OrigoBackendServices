@@ -8,6 +8,8 @@ using OrigoApiGateway.Controllers;
 using OrigoApiGateway.Mappings;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
+using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
+using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Response;
 using OrigoApiGateway.Services;
 using OrigoGateway.IntegrationTests.Helpers;
 using System.Net.Http.Headers;
@@ -724,5 +726,160 @@ namespace OrigoGateway.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
+
+        [Fact]
+        public async Task GetCustomerStandardBusinessSubscriptionProduct()
+        {
+
+            var organizationId = Guid.NewGuid();
+            var email = "partnerAdmin@test.io";
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "PartnerAdmin"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "SubscriptionManagement"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+
+                    var subscriptionManagementService = new Mock<ISubscriptionManagementService>();
+                    var businessSubscriptionProducts = new List<OrigoCustomerStandardBusinessSubscriptionProduct> { new OrigoCustomerStandardBusinessSubscriptionProduct
+                    {
+                        DataPackage = "10GB",
+                        OperatorId = 1,
+                        OperatorName = "Telenor",
+                        SubscriptionName = "Fri flyt"
+                    } };
+
+                    subscriptionManagementService.Setup(_ => _.GetCustomerStandardBusinessSubscriptionProductAsync(organizationId)).ReturnsAsync(businessSubscriptionProducts);
+                    services.AddSingleton(subscriptionManagementService.Object);
+                });
+
+
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.GetAsync($"/origoapi/v1.0/customers/{organizationId}/standard-business-subscription-products");
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task DeleteStandardBusinessSubscriptionProducts()
+        {
+
+            var organizationId = Guid.NewGuid();
+            var email = "partnerAdmin@test.io";
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "PartnerAdmin"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "SubscriptionManagement"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+
+                    var subscriptionManagementService = new Mock<ISubscriptionManagementService>();
+                    var businessSubscriptionProducts =  new OrigoCustomerStandardBusinessSubscriptionProduct
+                    {
+                        DataPackage = "10GB",
+                        OperatorId = 1,
+                        OperatorName = "Telenor",
+                        SubscriptionName = "Fri flyt"
+                    };
+
+                    subscriptionManagementService.Setup(_ => _.DeleteCustomerStandardBusinessSubscriptionProductAsync(organizationId,1)).ReturnsAsync(businessSubscriptionProducts);
+                    services.AddSingleton(subscriptionManagementService.Object);
+                });
+
+
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.DeleteAsync($"/origoapi/v1.0/customers/{organizationId}/standard-business-subscription-products/1");
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task AddStandardBusinessSubscriptionProducts()
+        {
+
+            var organizationId = Guid.NewGuid();
+            var email = "partnerAdmin@test.io";
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "PartnerAdmin"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "SubscriptionManagement"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+            var newBusinessSubscriptionProducts = new NewStandardBusinessSubscriptionProduct
+            {
+                DataPackage = "10GB",
+                OperatorId = 1,
+                SubscriptionName = "Fri flyt"
+            };
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
+
+                    var subscriptionManagementService = new Mock<ISubscriptionManagementService>();
+                  
+                    var businessSubscriptionProducts = new OrigoCustomerStandardBusinessSubscriptionProduct
+                    {
+                        DataPackage = "10GB",
+                        OperatorId = 1,
+                        OperatorName = "Telenor",
+                        SubscriptionName = "Fri flyt"
+                    };
+
+                    subscriptionManagementService.Setup(_ => _.PostCustomerStandardBusinessSubscriptionProductAsync(organizationId, It.IsAny<NewStandardBusinessSubscriptionProduct>())).ReturnsAsync(businessSubscriptionProducts);
+                    services.AddSingleton(subscriptionManagementService.Object);
+                });
+
+
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            var response = await client.PostAsJsonAsync($"/origoapi/v1.0/customers/{organizationId}/standard-business-subscription-products", newBusinessSubscriptionProducts);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
     }
 }

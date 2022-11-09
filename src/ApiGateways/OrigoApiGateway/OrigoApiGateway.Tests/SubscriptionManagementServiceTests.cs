@@ -5,13 +5,9 @@ using Moq.Protected;
 using OrigoApiGateway.Mappings.SubscriptionManagement;
 using OrigoApiGateway.Models.SubscriptionManagement.Frontend.Request;
 using OrigoApiGateway.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -88,6 +84,153 @@ namespace OrigoApiGateway.Tests
 
             // Assert
             Assert.Equal("Private +", order.NewSubscriptionName);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void PostCustomerStandardBusinessSubscriptionProductAsync()
+        {
+            // Arrange
+            Guid CUSTOMER_ID = Guid.Parse("20ef7dbd-a0d1-44c3-b855-19799cceb347");
+            string MOBILE_NUMBER = "98989898";
+
+            var transferPrivateOrder = new TransferToPrivateSubscriptionOrder();
+
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                x.RequestUri != null && x.RequestUri.ToString().Contains("/standard-business-subscription-products") &&
+                x.Method == HttpMethod.Post),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        {
+                            ""OperatorId"": 1,
+                            ""OperatorName"": ""Telia"",
+                            ""SubscriptionName"": ""Private +"",
+                            ""DataPackage"": ""10GB""
+                        }
+                    ")
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new SubscriptionManagementConfiguration() { ApiPath = @"/subscriptionmanagementservices" };
+            var optionsMock = new Mock<IOptions<SubscriptionManagementConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var subscriptionManagement = new SubscriptionManagementService(Mock.Of<ILogger<SubscriptionManagementService>>(), optionsMock.Object, Mock.Of<IUserServices>(), mockFactory.Object, _mapper);
+            var newStandardBusinessProduct = new NewStandardBusinessSubscriptionProduct { SubscriptionName = "", DataPackage = "", OperatorId = 1 };
+            // Act
+            var standardBusinessProduct = await subscriptionManagement.PostCustomerStandardBusinessSubscriptionProductAsync(CUSTOMER_ID, newStandardBusinessProduct);
+
+            // Assert
+            Assert.Equal("Private +", standardBusinessProduct.SubscriptionName);
+        }
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void DeleteStandardBusinessSubscriptionProducts()
+        {
+            // Arrange
+            Guid CUSTOMER_ID = Guid.Parse("20ef7dbd-a0d1-44c3-b855-19799cceb347");
+            string MOBILE_NUMBER = "98989898";
+
+            var transferPrivateOrder = new TransferToPrivateSubscriptionOrder();
+
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                x.RequestUri != null && x.RequestUri.ToString().Contains("/standard-business-subscription-products") &&
+                x.Method == HttpMethod.Delete),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        {
+                            ""OperatorId"": 1,
+                            ""OperatorName"": ""Telia"",
+                            ""SubscriptionName"": ""Private +"",
+                            ""DataPackage"": ""10GB""
+                        }
+                    ")
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new SubscriptionManagementConfiguration() { ApiPath = @"/subscriptionmanagementservices" };
+            var optionsMock = new Mock<IOptions<SubscriptionManagementConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var subscriptionManagement = new SubscriptionManagementService(Mock.Of<ILogger<SubscriptionManagementService>>(), optionsMock.Object, Mock.Of<IUserServices>(), mockFactory.Object, _mapper);
+            // Act
+            var standardBusinessProduct = await subscriptionManagement.DeleteCustomerStandardBusinessSubscriptionProductAsync(CUSTOMER_ID, 1);
+
+            // Assert
+            Assert.Equal("Private +", standardBusinessProduct.SubscriptionName);
+        }
+
+
+        [Fact]
+        [Trait("Category", "UnitTest")]
+        public async void GetCustomerStandardBusinessSubscriptionProductAsync()
+        {
+            // Arrange
+            Guid CUSTOMER_ID = Guid.Parse("20ef7dbd-a0d1-44c3-b855-19799cceb347");
+            string MOBILE_NUMBER = "98989898";
+
+            var transferPrivateOrder = new TransferToPrivateSubscriptionOrder();
+
+            var mockFactory = new Mock<IHttpClientFactory>();
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+            mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+                x.RequestUri != null && x.RequestUri.ToString().Contains("/standard-business-subscription-products") &&
+                x.Method == HttpMethod.Get),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(
+                        @"
+                        [{
+                            ""OperatorId"": 1,
+                            ""OperatorName"": ""Telia"",
+                            ""SubscriptionName"": ""Private +"",
+                            ""DataPackage"": ""10GB""
+                        }]
+                    ")
+                });
+
+            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var options = new SubscriptionManagementConfiguration() { ApiPath = @"/subscriptionmanagementservices" };
+            var optionsMock = new Mock<IOptions<SubscriptionManagementConfiguration>>();
+            optionsMock.Setup(o => o.Value).Returns(options);
+
+            var subscriptionManagement = new SubscriptionManagementService(Mock.Of<ILogger<SubscriptionManagementService>>(), optionsMock.Object, Mock.Of<IUserServices>(), mockFactory.Object, _mapper);
+            // Act
+            var standardBusinessProduct = await subscriptionManagement.GetCustomerStandardBusinessSubscriptionProductAsync(CUSTOMER_ID);
+
+            // Assert
+            Assert.NotNull(standardBusinessProduct);
+
+            Assert.Collection(standardBusinessProduct,
+               item => Assert.Equal("Telia", item.OperatorName)
+           );
+            Assert.Collection(standardBusinessProduct,
+                item => Assert.Equal("Private +", item.SubscriptionName)
+            );
+            Assert.Collection(standardBusinessProduct,
+                item => Assert.Equal("10GB", item.DataPackage)
+            );
         }
     }
 }

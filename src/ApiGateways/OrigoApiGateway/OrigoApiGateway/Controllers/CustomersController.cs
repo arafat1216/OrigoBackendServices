@@ -1222,6 +1222,13 @@ namespace OrigoApiGateway.Controllers
 
             return Ok(response);
         }
+
+        /// <summary>
+        /// Configures a standard business products for the specified operator.
+        /// </summary>
+        /// <param name="organizationId">Customer identifier.</param>
+        /// <param name="standardBusinessProduct">New standard business subscription product to be configured for the customer.</param>
+        /// <returns>The added standard business subscription products that has been configured for given customer.</returns>
         [HttpPost]
         [Route("{organizationId:Guid}/standard-business-subscription-products")]
         [ProducesResponseType(typeof(OrigoCustomerStandardBusinessSubscriptionProduct), (int)HttpStatusCode.OK)]
@@ -1250,6 +1257,12 @@ namespace OrigoApiGateway.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Deletes the standard business products for the specified operator.
+        /// </summary>
+        /// <param name="organizationId">Customer identifier.</param>
+        /// <param name="operatorId">Operator id of the standard business subscription product.</param>
+        /// <returns></returns>
         [HttpDelete]
         [Route("{organizationId:Guid}/standard-business-subscription-products/{operatorId:Int}")]
         [ProducesResponseType(typeof(OrigoCustomerStandardPrivateSubscriptionProduct), (int)HttpStatusCode.OK)]
