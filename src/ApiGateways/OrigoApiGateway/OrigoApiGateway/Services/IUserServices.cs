@@ -1,7 +1,10 @@
 ﻿#nullable enable
 using Common.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using OrigoApiGateway.Models;
+using OrigoApiGateway.Models.Asset.Backend;
 using OrigoApiGateway.Models.BackendDTO;
+using OrigoApiGateway.Models.Customer.Backend;
 using System.Security.Claims;
 
 namespace OrigoApiGateway.Services
@@ -32,5 +35,40 @@ namespace OrigoApiGateway.Services
         Task<OrigoUser> CompleteOnboardingAsync(Guid customerId, Guid userId);
         Task<(bool correctOrganization, Guid userId)> UserEmailLinkedToGivenOrganization(Guid organizationId, string userEmail);
         Task SubscriptionHandledForOffboardingAsync(Guid customerId, string mobileNumber);
+
+#nullable enable
+        /// <summary>
+        ///     An advanced search that retrieves all users that matches the given criteria.
+        /// </summary>
+        /// <param name="searchParameters"> A class containing all the search-parameters. </param>
+        /// <param name="page"> The current page number. </param>
+        /// <param name="limit"> The highest number of items that can be added in a single page. </param>
+        /// <param name="cancellationToken"> A injected <see cref="CancellationToken"/>. </param>
+        /// <param name="includeUserPreferences">
+        ///     When <c><see langword="true"/></c>, information about the users preferences is loaded/included in the retrieved data. 
+        ///     <para>This property will not be included unless it's explicitly requested. </para>
+        /// </param>
+        /// <param name="includeDepartmentInfo">
+        ///     When <c><see langword="true"/></c>, the users department information is loaded/included in the retrieved data. 
+        ///     <para>This property will not be included unless it's explicitly requested. </para>
+        /// </param>
+        /// <param name="includeOrganizationDetails">
+        ///     When <c><see langword="true"/></c>, the users organization details is loaded/included in the retrieved data. 
+        ///     <para>This property will not be included unless it's explicitly requested. </para>
+        /// </param>
+        /// <param name="includeRoleDetails">
+        ///     When <c><see langword="true"/></c>, the users role details is loaded/included in the retrieved data. 
+        ///     <para>This property will not be included unless it's explicitly requested. </para>
+        /// </param>
+        /// <returns> The asynchronous task. The task results contains a paged list with the corresponding users. </returns>
+        Task<PagedModel<OrigoUser>> UserAdvancedSearch(UserSearchParameters searchParameters,
+                                                       int page,
+                                                       int limit,
+                                                       CancellationToken cancellationToken,
+                                                       bool includeUserPreferences = false,
+                                                       bool includeDepartmentInfo = false,
+                                                       bool includeOrganizationDetails = false,
+                                                       bool includeRoleDetails = false);
+#nullable restore
     }
 }

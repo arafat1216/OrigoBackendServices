@@ -1,5 +1,4 @@
 ﻿#nullable enable
-using System.Net;
 using AutoMapper;
 using Common.Enums;
 using Common.Interfaces;
@@ -7,6 +6,9 @@ using Microsoft.Extensions.Options;
 using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
+using OrigoApiGateway.Models.Customer.Backend;
+using System.Net;
+using System.Text;
 using System.Text.Json;
 
 namespace OrigoApiGateway.Services
@@ -599,7 +601,7 @@ namespace OrigoApiGateway.Services
                     await HttpClient.GetAsync($"{_options.ApiPath}/{userName}/users-info") :
                     await HttpClient.GetAsync($"{_options.ApiPath}/{userId}/users-info");
 
-                if(!response.IsSuccessStatusCode) return new UserInfoDTO();
+                if (!response.IsSuccessStatusCode) return new UserInfoDTO();
                 var userInfo = await response.Content.ReadFromJsonAsync<UserInfoDTO>();
                 return userInfo ?? new UserInfoDTO();
             }
@@ -614,7 +616,7 @@ namespace OrigoApiGateway.Services
             try
             {
                 if (string.IsNullOrEmpty(mobileNumber)) return null;
-                
+
 
                 var response = await HttpClient.GetAsync($"{_options.ApiPath}/{organizationId}/{mobileNumber}/users-info");
                 if (!response.IsSuccessStatusCode) return null;
@@ -688,7 +690,7 @@ namespace OrigoApiGateway.Services
 
         public async Task SubscriptionHandledForOffboardingAsync(Guid organizationId, string mobileNumber)
         {
-            try 
+            try
             {
                 var completeOffboardingSubscriptionTaskUri = $"{_options.ApiPath}/{organizationId}/users/offboard-subscription";
                 await HttpClient.PostAsync(completeOffboardingSubscriptionTaskUri, JsonContent.Create(mobileNumber));
@@ -698,5 +700,47 @@ namespace OrigoApiGateway.Services
                 _logger.LogError(ex, "SubscriptionHandledForOffboardingAsync failed with exception.");
             }
         }
+
+
+
+#nullable enable
+        /// <inheritdoc/>
+        public async Task<PagedModel<OrigoUser>> UserAdvancedSearch(UserSearchParameters searchParameters,
+                                                                    int page,
+                                                                    int limit,
+                                                                    CancellationToken cancellationToken,
+                                                                    bool includeUserPreferences = false,
+                                                                    bool includeDepartmentInfo = false,
+                                                                    bool includeOrganizationDetails = false,
+                                                                    bool includeRoleDetails = false)
+        {
+            StringBuilder sb = new($"{_options.ApiBaseUrl}/search/users?page={page}&limit={limit}");
+            if (includeUserPreferences) sb.Append($"&includeUserPreferences={includeUserPreferences}");
+            if (includeDepartmentInfo) sb.Append($"&includeDepartmentInfo={includeDepartmentInfo}");
+            if (includeOrganizationDetails) sb.Append($"&includeOrganizationDetails={includeOrganizationDetails}");
+            if (includeRoleDetails) sb.Append($"&includeRoleDetails={includeRoleDetails}");
+
+            var response = await HttpClient.PostAsJsonAsync(sb.ToString(), searchParameters, cancellationToken);
+
+            try
+            {
+                var users = await response.Content.ReadFromJsonAsync<PagedModel<OrigoUser>>();
+
+                if (users is null)
+                    throw new JsonException("The deserialized JSON object was null");
+
+                return users;
+            }
+#if DEBUG
+#pragma warning disable S1481 // Unused local variables should be removed
+            finally
+            {
+                string responseString = await response.Content.ReadAsStringAsync();
+            }
+#pragma warning restore S1481 // Unused local variables should be removed
+#endif
+        }
+
+#nullable restore
     }
 }
