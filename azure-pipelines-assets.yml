@@ -10,6 +10,13 @@ trigger:
     - src/Core
     - src/Services/Asset
 
+schedules:
+- cron: "15 14 * * *"
+  displayName: Daily midnight build
+  branches:
+    include:
+    - trunk
+
 resources:
 - repo: self
 
@@ -67,38 +74,60 @@ stages:
       pipelineWorkspace: $(Pipeline.Workspace)
       generateReleaseNotes: true
 
-- stage: DeployTest
-  displayName: Deploy to Test
-  dependsOn: DeployDev
-  variables:
-  - group: AssetsLibrary
-  jobs:
-  - template: general-deploy.yaml
-    parameters:
-      vmImage: 'ubuntu-latest'
-      environment: 'OrigoV2Test.test'
-      artifactDirectory: $(System.ArtifactsDirectory)
-      dbConnection: '$(AssetsDbConnectionTest)'
-      releaseName: assetservices
-      namespace: test
-      tag: '$(Build.BuildId)'
-      pipelineWorkspace: $(Pipeline.Workspace)
-      generateReleaseNotes: true
+- ${{ if ne(variables['Build.Reason'], 'Schedule') }}:
+  - stage: DeployTest
+    displayName: Deploy to Test
+    dependsOn: DeployDev
+    variables:
+    - group: AssetsLibrary
+    - group: Common
+    jobs:
+    - template: general-deploy.yaml
+      parameters:
+        vmImage: 'ubuntu-latest'
+        environment: 'OrigoV2Test.test'
+        artifactDirectory: $(System.ArtifactsDirectory)
+        dbConnection: '$(AssetsDbConnectionTest)'
+        releaseName: assetservices
+        namespace: test
+        tag: '$(Build.BuildId)'
+        pipelineWorkspace: $(Pipeline.Workspace)
+        generateReleaseNotes: true
 
-- stage: DeployProd
-  displayName: Deploy to Prod
-  dependsOn: DeployTest
-  variables:
-  - group: AssetsLibrary
-  jobs:
-  - template: general-deploy.yaml
-    parameters:
-      vmImage: 'ubuntu-latest'
-      environment: 'OrigoV2Prod.prod'
-      artifactDirectory: $(System.ArtifactsDirectory)
-      dbConnection: '$(AssetsDbConnectionProd)'
-      releaseName: assetservices
-      namespace: prod
-      tag: '$(Build.BuildId)'
-      pipelineWorkspace: $(Pipeline.Workspace)
-      generateReleaseNotes: true
+  - stage: DeployProd
+    displayName: Deploy to Prod
+    dependsOn: DeployTest
+    variables:
+    - group: AssetsLibrary
+    jobs:
+    - template: general-deploy.yaml
+      parameters:
+        vmImage: 'ubuntu-latest'
+        environment: 'OrigoV2Prod.prod'
+        artifactDirectory: $(System.ArtifactsDirectory)
+        dbConnection: '$(AssetsDbConnectionProd)'
+        releaseName: assetservices
+        namespace: prod
+        tag: '$(Build.BuildId)'
+        pipelineWorkspace: $(Pipeline.Workspace)
+        generateReleaseNotes: true
+
+- ${{ if and(eq(variables['Build.Reason'], 'Schedule'), eq(variables['e2esuccessful'], '1'), eq(variables['deployassetmicroservice'], '1')) }}:
+  - stage: DeployTest
+    displayName: Deploy to Test
+    dependsOn: DeployDev
+    variables:
+    - group: AssetsLibrary
+    - group: Common
+    jobs:
+    - template: general-deploy.yaml
+      parameters:
+        vmImage: 'ubuntu-latest'
+        environment: 'OrigoV2ScheduledTest.test'
+        artifactDirectory: $(System.ArtifactsDirectory)
+        dbConnection: '$(AssetsDbConnectionTest)'
+        releaseName: assetservices
+        namespace: test
+        tag: '$(Build.BuildId)'
+        pipelineWorkspace: $(Pipeline.Workspace)
+        generateReleaseNotes: true
