@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Common.Enums;
+﻿using Common.Enums;
 using Common.Infrastructure;
 using CustomerServices.Infrastructure.Context;
 using CustomerServices.Models;
 using Microsoft.EntityFrameworkCore;
-using Moq;
 
 namespace CustomerServices.UnitTests;
 
@@ -179,7 +176,7 @@ public class UnitTestDatabaseSeeder
         var userPermissions = new UserPermissions(userOne, adminRole, new List<Guid>(), EMPTY_CALLER_ID);
         var managerPermissions = new UserPermissions(userFour, managerRole, new List<Guid>(), EMPTY_CALLER_ID);
         var managerPermissionsTwo = new UserPermissions(userFive, managerRole, new List<Guid>(), EMPTY_CALLER_ID);
-        var partnerAdminPermissions = new UserPermissions(partnerAdminUser, partnerAdminRole, new List<Guid>{TECHSTEP_PARTNER_ID}, EMPTY_CALLER_ID);
+        var partnerAdminPermissions = new UserPermissions(partnerAdminUser, partnerAdminRole, new List<Guid> { TECHSTEP_PARTNER_ID }, EMPTY_CALLER_ID);
         var systemAdminPermissions = new UserPermissions(systemAdminUser, systemAdminRole, new List<Guid>(), EMPTY_CALLER_ID);
 
 

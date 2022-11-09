@@ -1,8 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using Moq;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace CustomerServices.UnitTests
 {

@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
-using Common.Logging;
+﻿using Common.Logging;
 using CustomerServices.Infrastructure;
 using CustomerServices.Infrastructure.Context;
 using CustomerServices.Models;
@@ -14,8 +6,10 @@ using CustomerServices.ServiceModels;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Moq;
-using Xunit;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Threading;
 
 namespace CustomerServices.UnitTests;
 
@@ -219,7 +213,7 @@ public class DepartmentServicesTests
 
         //Assert
         Assert.Equal(2, departmentNames.Count);
-        Assert.Contains(new DepartmentNamesDTO { DepartmentId = UnitTestDatabaseSeeder.DEPARTMENT_ONE_ID, DepartmentName = UnitTestDatabaseSeeder.DEPARTMENT_ONE_NAME},
+        Assert.Contains(new DepartmentNamesDTO { DepartmentId = UnitTestDatabaseSeeder.DEPARTMENT_ONE_ID, DepartmentName = UnitTestDatabaseSeeder.DEPARTMENT_ONE_NAME },
             departmentNames);
         Assert.Contains(new DepartmentNamesDTO { DepartmentId = UnitTestDatabaseSeeder.DEPARTMENT_TWO_ID, DepartmentName = UnitTestDatabaseSeeder.DEPARTMENT_TWO_NAME },
             departmentNames);

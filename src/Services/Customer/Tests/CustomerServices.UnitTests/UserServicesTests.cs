@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
-using Common.Enums;
+﻿using Common.Enums;
 using Common.Infrastructure;
 using Common.Interfaces;
 using Common.Logging;
@@ -20,8 +13,9 @@ using CustomerServices.ServiceModels;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Moq;
-using Xunit;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Threading;
 
 namespace CustomerServices.UnitTests;
 
@@ -545,7 +539,7 @@ public class UserServicesTests
             Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
         // Act
-        var user = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_TWO_ID, null, null, new List<int> { 6,7,8 }, new CancellationToken());
+        var user = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_TWO_ID, null, null, new List<int> { 6, 7, 8 }, new CancellationToken());
 
         Assert.Equal(1, user.Items.Count);
         Assert.Contains("Jhon", user.Items[0].FirstName);
@@ -769,7 +763,7 @@ public class UserServicesTests
         Assert.Null(organizationUserCount);
     }
 
-    
+
     [Fact]
     [Trait("Category", "UnitTest")]
     public async Task CompleteOnboardingAsync()
@@ -802,10 +796,10 @@ public class UserServicesTests
             Mock.Of<IOktaServices>(), _mapper, userPermissionServices, Mock.Of<IEmailService>());
 
         // Act
-        var user = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null,null,null,CancellationToken.None, "+4799999999");
-        var multipleUsers = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null,null,null,CancellationToken.None, "+47");
-        var usersOnlyOneDigits = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null,null,null,CancellationToken.None, "5");
-        var noUsersMatch = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null,null,null,CancellationToken.None, "5s");
+        var user = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null, null, CancellationToken.None, "+4799999999");
+        var multipleUsers = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null, null, CancellationToken.None, "+47");
+        var usersOnlyOneDigits = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null, null, CancellationToken.None, "5");
+        var noUsersMatch = await userServices.GetAllUsersAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null, null, CancellationToken.None, "5s");
 
         // Assert
         Assert.Equal(1, user.Items.Count);

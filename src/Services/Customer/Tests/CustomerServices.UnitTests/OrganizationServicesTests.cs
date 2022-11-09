@@ -1,24 +1,17 @@
-﻿using AutoMapper;
+﻿using Common.Configuration;
+using Common.Infrastructure;
 using Common.Logging;
+using CustomerServices.Email;
+using CustomerServices.Email.Models;
 using CustomerServices.Infrastructure;
 using CustomerServices.Infrastructure.Context;
 using CustomerServices.ServiceModels;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Moq;
-using System;
+using Microsoft.Extensions.Options;
 using System.Linq;
 using System.Reflection;
-using System.Security;
-using System.Threading.Tasks;
-using Common.Infrastructure;
-using Xunit;
-using CustomerServices.Email;
-using CustomerServices.Email.Models;
-using Microsoft.Extensions.Options;
-using Common.Configuration;
-using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace CustomerServices.UnitTests;
@@ -45,7 +38,7 @@ public class OrganizationServicesTests
         var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var emailMock = new Mock<IEmailService>();
         _emailServiceMock = emailMock;
-        _organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper, emailMock.Object, 
+        _organizationServices = new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, _mapper, emailMock.Object,
             Options.Create(new TechstepPartnerConfiguration
             {
                 PartnerId = UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID
@@ -165,7 +158,7 @@ public class OrganizationServicesTests
         });
 
         // Assert 
-        Assert.Equal(Common.Enums.CustomerStatus.BeforeOnboarding,organization.Status);
+        Assert.Equal(Common.Enums.CustomerStatus.BeforeOnboarding, organization.Status);
     }
 
     [Fact]
@@ -239,7 +232,7 @@ public class OrganizationServicesTests
 
         //Act and Assert
         var organization = await _organizationServices.AddOrganizationAsync(newOrganization);
-            
+
         Assert.Null(organization.TechstepCustomerId);
     }
 
@@ -356,7 +349,7 @@ public class OrganizationServicesTests
     {
         // Act
         var organization = await _organizationServices.PatchOrganizationAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null, Guid.Empty, null, null, null, null, null, null, null, null, null, null, 1, "");
-            
+
         // Assert 
         Assert.Equal("COMPANY ONE", organization.Name);
         Assert.Equal("999888777", organization.OrganizationNumber);
@@ -413,7 +406,7 @@ public class OrganizationServicesTests
         var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var organization = await organizationRepository.GetOrganizationByTechstepCustomerIdAsync(123456789);
         // Assert
-        Assert.Equal(UnitTestDatabaseSeeder.CUSTOMER_FIVE_ID,organization?.OrganizationId);
+        Assert.Equal(UnitTestDatabaseSeeder.CUSTOMER_FIVE_ID, organization?.OrganizationId);
     }
 
     [Fact]
@@ -431,7 +424,7 @@ public class OrganizationServicesTests
         // Act
         var organization = await _organizationServices.PutOrganizationAsync(organizationUpdate);
         // Arrange
-        Assert.Equal("COMPANY FOUR",organization.Name);
+        Assert.Equal("COMPANY FOUR", organization.Name);
         Assert.Equal("999555444", organization.OrganizationNumber);
     }
     [Fact]
@@ -453,7 +446,7 @@ public class OrganizationServicesTests
         Assert.Equal(newName, organization.Name);
         Assert.Equal(newOrgNumber, organization.OrganizationNumber);
     }
-       
+
     [Fact]
     [Trait("Category", "UnitTest")]
     public async Task PatchOrganizationAsync_WithTechstepPartner_NotUpdateNameAndOrgNumb()
@@ -463,7 +456,7 @@ public class OrganizationServicesTests
         var newOrgNumber = "55555555";
         var newName = "Hallo på do!";
         // Act
-        var organization = await _organizationServices.PatchOrganizationAsync(UnitTestDatabaseSeeder.CUSTOMER_FOUR_ID, null,null, UnitTestDatabaseSeeder.EMPTY_CALLER_ID,newName, newOrgNumber,null,null,null,null,null,null,null,null,null);
+        var organization = await _organizationServices.PatchOrganizationAsync(UnitTestDatabaseSeeder.CUSTOMER_FOUR_ID, null, null, UnitTestDatabaseSeeder.EMPTY_CALLER_ID, newName, newOrgNumber, null, null, null, null, null, null, null, null, null);
         // Arrange
         Assert.Equal("COMPANY FOUR", organization.Name);
         Assert.Equal("999555444", organization.OrganizationNumber);
@@ -476,7 +469,7 @@ public class OrganizationServicesTests
         //Arrange
         var newOrgNumber = "55555555";
         var newName = "Hallo på do!";
-            
+
         // Act
         var organization = await _organizationServices.PatchOrganizationAsync(UnitTestDatabaseSeeder.CUSTOMER_ONE_ID, null, null, UnitTestDatabaseSeeder.EMPTY_CALLER_ID, newName, newOrgNumber, null, null, null, null, null, null, null, null, null);
         // Arrange
@@ -506,7 +499,7 @@ public class OrganizationServicesTests
         // Act
         await _organizationServices.GenerateAndSaveHashedApiKeyAsync(UnitTestDatabaseSeeder.CUSTOMER_THREE_ID, CancellationToken.None);
         var hashedApiKey = await _organizationServices.GetHashedApiKeyAsync(UnitTestDatabaseSeeder.CUSTOMER_THREE_ID, CancellationToken.None);
-        
+
         // Assert
         Assert.False(string.IsNullOrEmpty(hashedApiKey));
         Assert.Matches(@"^([^\:]*\:){3}[^\:]*$", hashedApiKey);

@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CustomerServices.Models;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Common.Enums;
-using CustomerServices.Models;
-using Xunit;
 
 namespace CustomerServices.UnitTests
 {

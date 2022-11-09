@@ -1,22 +1,15 @@
-﻿using Common.Configuration;
-using Common.Utilities;
+﻿using Common.Utilities;
 using CustomerServices.Email;
-using Moq;
+using CustomerServices.Email.Configuration;
+using CustomerServices.Email.Models;
+using Microsoft.Extensions.Options;
+using Moq.Protected;
 using System.Globalization;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Resources;
-using System.Threading.Tasks;
-using Xunit;
-using System;
-using System.Net.Http;
-using Microsoft.Extensions.Options;
-using System.IO;
-using CustomerServices.Email.Models;
-using System.Collections.Generic;
-using Moq.Protected;
 using System.Threading;
-using System.Net;
-using CustomerServices.Email.Configuration;
 
 namespace CustomerServices.UnitTests
 {
@@ -174,12 +167,12 @@ namespace CustomerServices.UnitTests
             var flatDictionary = new FlatDictionary();
             var emailservice = new EmailService(mockIOption.Object, flatDictionary, resourceManger, mockFactory.Object);
 
-            var offBoardingOverdue = new OffboardingOverdueMail 
-            { 
-                CustomerId = Guid.NewGuid(), 
-                UserId = Guid.NewGuid(), 
-                LastWorkingDays = DateTime.UtcNow.ToString(), 
-                Recipient = new List<string> {"d@d.com" },
+            var offBoardingOverdue = new OffboardingOverdueMail
+            {
+                CustomerId = Guid.NewGuid(),
+                UserId = Guid.NewGuid(),
+                LastWorkingDays = DateTime.UtcNow.ToString(),
+                Recipient = new List<string> { "d@d.com" },
                 UserName = "Donald Duck"
             };
 

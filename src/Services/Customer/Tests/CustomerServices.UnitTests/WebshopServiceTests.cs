@@ -1,22 +1,6 @@
-﻿using AutoMapper;
-using Common.Configuration;
-using Common.Exceptions;
-using Common.Infrastructure;
-using Common.Logging;
-using CustomerServices.Email;
-using CustomerServices.Infrastructure;
-using CustomerServices.Infrastructure.Context;
-using CustomerServices.Models;
+﻿using CustomerServices.Models;
 using CustomerServices.ServiceModels;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Moq;
-using System;
-using System.Reflection;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace CustomerServices.UnitTests
 {

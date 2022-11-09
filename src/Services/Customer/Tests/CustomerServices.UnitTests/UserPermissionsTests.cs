@@ -1,16 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using AutoMapper;
-using Common.Infrastructure;
+﻿using Common.Infrastructure;
 using Common.Logging;
 using CustomerServices.Infrastructure.Context;
 using CustomerServices.Mappings;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Moq;
-using Xunit;
+using System.Linq;
+using System.Reflection;
 
 namespace CustomerServices.UnitTests;
 

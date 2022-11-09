@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using AutoMapper;
-using Common.Configuration;
+﻿using Common.Configuration;
 using Common.Infrastructure;
 using Common.Logging;
 using CustomerServices.Email;
@@ -15,8 +10,8 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Moq;
-using Xunit;
+using System.Linq;
+using System.Reflection;
 
 namespace CustomerServices.UnitTests;
 
@@ -39,10 +34,10 @@ public class PartnerServicesTests
         var organizationRepository =
             new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         _organizationServices =
-            new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, mapper, Mock.Of<IEmailService>(), 
+            new OrganizationServices(Mock.Of<ILogger<OrganizationServices>>(), organizationRepository, mapper, Mock.Of<IEmailService>(),
             Options.Create(new TechstepPartnerConfiguration
             {
-               PartnerId = UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID
+                PartnerId = UnitTestDatabaseSeeder.TECHSTEP_PARTNER_ID
             }));
         _partnerServices = new PartnerServices(Mock.Of<ILogger<PartnerServices>>(), organizationRepository);
     }
@@ -152,7 +147,7 @@ public class PartnerServicesTests
         organization!.ChangePartner(null);
         await _organizationServices.UpdateOrganizationAsync(organization);
 
-        
+
         var partnerList = await _partnerServices.GetPartnersAsync();
 
         //Partner that exists is not the Customer One
