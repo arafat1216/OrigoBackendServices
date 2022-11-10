@@ -37,10 +37,10 @@ services:
     project: src/Services/HardwareServiceOrder/HardwareServiceOrder.API/HardwareServiceOrder.API.csproj
     bindings:
     - port: 58893
-  - name: customerdatasyncapi
-    project: ../CustomerDataSync/src/CustomerDataSync.csproj
-    bindings:
-    - port: 58894
+  #- name: customerdatasyncapi
+  #  project: ../CustomerDataSync/src/CustomerDataSync.csproj
+  #  bindings:
+  #  - port: 58894
   - name: rabbit
     image: rabbitmq:3-management
     bindings:
