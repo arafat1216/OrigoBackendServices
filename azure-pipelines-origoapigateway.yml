@@ -11,6 +11,13 @@ trigger:
     - src/Core
     - src/ApiGateways
 
+schedules:
+- cron: "0 3 * * *"
+  displayName: Daily midnight build
+  branches:
+    include:
+    - trunk
+
 resources:
 - repo: self
 
@@ -68,42 +75,64 @@ stages:
       generateReleaseNotes: true
       releaseDocName: 'Release_$(Build.BuildNumber).md'
 
-- stage: DeployTest
-  displayName: Deploy to Test
-  dependsOn: DeployDev
-  variables:
-  - group: OrigoApiGateway
-  jobs:
-  - template: general-deploy.yaml
-    parameters:
-      vmImage: 'ubuntu-latest'
-      environment: 'OrigoV2Test.test'
-      artifactDirectory: $(System.ArtifactsDirectory)
-      releaseName: origoapigateway
-      namespace: test
-      tag: '$(Build.BuildId)'
-      pipelineWorkspace: $(Pipeline.Workspace)
-      helmOverrideDeployValues: ',ingress.hosts[0].host=origov2test.mytos.no,ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=origov2test.mytos.no,ingress.tls[0].secretName=letsencrypt-origov2dev'
-      runMigration: false
-      generateReleaseNotes: true
-      releaseDocName: 'Release_$(Build.BuildNumber).md'
+- ${{ if ne(variables['Build.Reason'], 'Schedule') }}:
+    - stage: DeployTest
+      displayName: Deploy to Test
+      dependsOn: DeployDev
+      variables:
+      - group: OrigoApiGateway
+      jobs:
+      - template: general-deploy.yaml
+        parameters:
+          vmImage: 'ubuntu-latest'
+          environment: 'OrigoV2Test.test'
+          artifactDirectory: $(System.ArtifactsDirectory)
+          releaseName: origoapigateway
+          namespace: test
+          tag: '$(Build.BuildId)'
+          pipelineWorkspace: $(Pipeline.Workspace)
+          helmOverrideDeployValues: ',ingress.hosts[0].host=origov2test.mytos.no,ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=origov2test.mytos.no,ingress.tls[0].secretName=letsencrypt-origov2dev'
+          runMigration: false
+          generateReleaseNotes: true
+          releaseDocName: 'Release_$(Build.BuildNumber).md'
 
-- stage: DeployProd
-  displayName: Deploy to Prod
-  dependsOn: DeployTest
-  variables:
-  - group: OrigoApiGateway
-  jobs:
-  - template: general-deploy.yaml
-    parameters:
-      vmImage: 'ubuntu-latest'
-      environment: 'OrigoV2Prod.prod'
-      artifactDirectory: $(System.ArtifactsDirectory)
-      releaseName: origoapigateway
-      namespace: prod
-      tag: '$(Build.BuildId)'
-      pipelineWorkspace: $(Pipeline.Workspace)
-      helmOverrideDeployValues: ',ingress.hosts[0].host=smart.techstep.io,ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=smart.techstep.io,ingress.tls[0].secretName=letsencrypt-smart-techstepio'
-      runMigration: false
-      generateReleaseNotes: true
-      releaseDocName: 'Release_$(Build.BuildNumber).md'
+    - stage: DeployProd
+      displayName: Deploy to Prod
+      dependsOn: DeployTest
+      variables:
+      - group: OrigoApiGateway
+      jobs:
+      - template: general-deploy.yaml
+        parameters:
+          vmImage: 'ubuntu-latest'
+          environment: 'OrigoV2Prod.prod'
+          artifactDirectory: $(System.ArtifactsDirectory)
+          releaseName: origoapigateway
+          namespace: prod
+          tag: '$(Build.BuildId)'
+          pipelineWorkspace: $(Pipeline.Workspace)
+          helmOverrideDeployValues: ',ingress.hosts[0].host=smart.techstep.io,ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=smart.techstep.io,ingress.tls[0].secretName=letsencrypt-smart-techstepio'
+          runMigration: false
+          generateReleaseNotes: true
+          releaseDocName: 'Release_$(Build.BuildNumber).md'
+
+- ${{ if and(eq(variables['Build.Reason'], 'Schedule'), eq(variables['e2esuccessful'], '1'), eq(variables['deployorigoapigatewaymicroservice'], '1')) }}:
+    - stage: DeployScheduledTest
+      displayName: Scheduled deploy to Test
+      dependsOn: DeployDev
+      variables:
+      - group: OrigoApiGateway
+      jobs:
+      - template: general-deploy.yaml
+        parameters:
+          vmImage: 'ubuntu-latest'
+          environment: 'OrigoV2ScheduledTest.test'
+          artifactDirectory: $(System.ArtifactsDirectory)
+          releaseName: origoapigateway
+          namespace: test
+          tag: '$(Build.BuildId)'
+          pipelineWorkspace: $(Pipeline.Workspace)
+          helmOverrideDeployValues: ',ingress.hosts[0].host=origov2test.mytos.no,ingress.hosts[0].paths[0]=/origoapi,ingress.tls[0].hosts[0]=origov2test.mytos.no,ingress.tls[0].secretName=letsencrypt-origov2dev'
+          runMigration: false
+          generateReleaseNotes: true
+          releaseDocName: 'Release_$(Build.BuildNumber).md'

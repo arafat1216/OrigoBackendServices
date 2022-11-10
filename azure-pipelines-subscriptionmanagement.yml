@@ -11,6 +11,13 @@ trigger:
     - charts/subscriptionmanagement-api
     - src/Services/subscriptionmanagement
 
+schedules:
+- cron: "0 3 * * *"
+  displayName: Daily midnight build
+  branches:
+    include:
+    - trunk
+
 resources:
 - repo: self
 
@@ -68,38 +75,59 @@ stages:
       pipelineWorkspace: $(Pipeline.Workspace)
       generateReleaseNotes: true
 
-- stage: DeployTest
-  displayName: Deploy to Test
-  dependsOn: DeployDev
-  variables:
-  - group: SubscriptionManagementLibrary
-  jobs:
-  - template: general-deploy.yaml
-    parameters:
-      vmImage: 'ubuntu-latest'
-      environment: 'OrigoV2Test.test'
-      artifactDirectory: $(System.ArtifactsDirectory)
-      dbConnection: '$(SubscriptionmanagementDbConnectionTest)'
-      releaseName: subscriptionmanagementservices
-      namespace: test
-      tag: '$(Build.BuildId)'
-      pipelineWorkspace: $(Pipeline.Workspace)
-      generateReleaseNotes: true
+- ${{ if ne(variables['Build.Reason'], 'Schedule') }}:
+    - stage: DeployTest
+      displayName: Deploy to Test
+      dependsOn: DeployDev
+      variables:
+      - group: SubscriptionManagementLibrary
+      jobs:
+      - template: general-deploy.yaml
+        parameters:
+          vmImage: 'ubuntu-latest'
+          environment: 'OrigoV2Test.test'
+          artifactDirectory: $(System.ArtifactsDirectory)
+          dbConnection: '$(SubscriptionmanagementDbConnectionTest)'
+          releaseName: subscriptionmanagementservices
+          namespace: test
+          tag: '$(Build.BuildId)'
+          pipelineWorkspace: $(Pipeline.Workspace)
+          generateReleaseNotes: true
 
-- stage: DeployProd
-  displayName: Deploy to Prod
-  dependsOn: DeployTest
-  variables:
-  - group: SubscriptionManagementLibrary
-  jobs:
-  - template: general-deploy.yaml
-    parameters:
-      vmImage: 'ubuntu-latest'
-      environment: 'OrigoV2Prod.prod'
-      artifactDirectory: $(System.ArtifactsDirectory)
-      dbConnection: '$(SubscriptionmanagementDbConnectionProd)'
-      releaseName: subscriptionmanagementservices
-      namespace: prod
-      tag: '$(Build.BuildId)'
-      pipelineWorkspace: $(Pipeline.Workspace)
-      generateReleaseNotes: true
+    - stage: DeployProd
+      displayName: Deploy to Prod
+      dependsOn: DeployTest
+      variables:
+      - group: SubscriptionManagementLibrary
+      jobs:
+      - template: general-deploy.yaml
+        parameters:
+          vmImage: 'ubuntu-latest'
+          environment: 'OrigoV2Prod.prod'
+          artifactDirectory: $(System.ArtifactsDirectory)
+          dbConnection: '$(SubscriptionmanagementDbConnectionProd)'
+          releaseName: subscriptionmanagementservices
+          namespace: prod
+          tag: '$(Build.BuildId)'
+          pipelineWorkspace: $(Pipeline.Workspace)
+          generateReleaseNotes: true
+
+- ${{ if and(eq(variables['Build.Reason'], 'Schedule'), eq(variables['e2esuccessful'], '1'), eq(variables['deploysubscriptionmanagementmicroservice'], '1')) }}:
+    - stage: DeployScheduledTest
+      displayName: Scheduled deploy to Test
+      dependsOn: DeployDev
+      variables:
+      - group: SubscriptionManagementLibrary
+      - group: Common
+      jobs:
+      - template: general-deploy.yaml
+        parameters:
+          vmImage: 'ubuntu-latest'
+          environment: 'OrigoV2ScheduledTest.test'
+          artifactDirectory: $(System.ArtifactsDirectory)
+          dbConnection: '$(SubscriptionmanagementDbConnectionTest)'
+          releaseName: subscriptionmanagementservices
+          namespace: test
+          tag: '$(Build.BuildId)'
+          pipelineWorkspace: $(Pipeline.Workspace)
+          generateReleaseNotes: true

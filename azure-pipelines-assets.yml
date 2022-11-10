@@ -11,7 +11,7 @@ trigger:
     - src/Services/Asset
 
 schedules:
-- cron: "30 15 * * *"
+- cron: "0 3 * * *"
   displayName: Daily midnight build
   branches:
     include:
@@ -80,7 +80,6 @@ stages:
     dependsOn: DeployDev
     variables:
     - group: AssetsLibrary
-    - group: Common
     jobs:
     - template: general-deploy.yaml
       parameters:
