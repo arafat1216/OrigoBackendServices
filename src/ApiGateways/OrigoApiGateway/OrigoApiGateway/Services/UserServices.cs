@@ -722,25 +722,15 @@ namespace OrigoApiGateway.Services
 
             var response = await HttpClient.PostAsJsonAsync(sb.ToString(), searchParameters, cancellationToken);
 
-            try
-            {
-                var users = await response.Content.ReadFromJsonAsync<PagedModel<OrigoUser>>();
+            var users = await response.Content.ReadFromJsonAsync<PagedModel<OrigoUser>>();
 
-                if (users is null)
-                    throw new JsonException("The deserialized JSON object was null");
+            if (users is null)
+                throw new JsonException("The deserialized JSON object was null");
 
-                return users;
-            }
-#if DEBUG
-#pragma warning disable S1481 // Unused local variables should be removed
-            finally
-            {
-                string responseString = await response.Content.ReadAsStringAsync();
-            }
-#pragma warning restore S1481 // Unused local variables should be removed
-#endif
+            return users;
         }
-
 #nullable restore
+
+
     }
 }
