@@ -41,5 +41,8 @@ namespace Customer.API.ViewModels
         public string Role { get; init; }
         public IList<ManagerOfDTO> ManagerOf { get; init; }
 
+        public DateTime CreatedDate { get; init; }
+
+        public DateTime LastUpdatedDate { get; init; }
     }
 }
