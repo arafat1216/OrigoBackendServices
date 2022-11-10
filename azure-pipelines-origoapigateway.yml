@@ -122,6 +122,7 @@ stages:
       dependsOn: DeployDev
       variables:
       - group: OrigoApiGateway
+      - group: Common
       jobs:
       - template: general-deploy.yaml
         parameters:
