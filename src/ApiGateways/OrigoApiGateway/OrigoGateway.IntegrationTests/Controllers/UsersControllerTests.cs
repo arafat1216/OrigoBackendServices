@@ -367,6 +367,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             var response = await client.PostAsync($"/origoapi/v1.0/customers/{organizationId}/users/onboarding-completed", null);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
+
         [Fact]
         public async Task CreateUserForCustomer_IncludeOnboardingEqualFalse()
         {
@@ -377,8 +378,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
             var permissionsIdentity = new ClaimsIdentity();
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, callerId.ToString()));
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "SystemAdmin"));
-            permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
-            permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateCustomer"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "CanCreateUser"));
             permissionsIdentity.AddClaim(new Claim("Permissions", "OnAndOffboarding"));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
 
@@ -421,6 +421,43 @@ namespace OrigoGateway.IntegrationTests.Controllers
             var response = await client.PostAsJsonAsync($"/origoapi/v1.0/customers/{organizationId}/users", newUser);
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
+
+        [Fact]
+        public async Task CreateUserForCustomer_DoesNotHavePermissions_Forbidden()
+        {
+            var organizationId = Guid.NewGuid();
+            var callerId = Guid.NewGuid();
+
+            var permissionsIdentity = new ClaimsIdentity();
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, callerId.ToString()));
+            permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "SystemAdmin"));
+            permissionsIdentity.AddClaim(new Claim("Permissions", "OnAndOffboarding"));
+            permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), "mail@mail.com", CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    services.AddSingleton(userPermissionServiceMock.Object);
+
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                        options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                    }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                        TestAuthenticationHandler.DefaultScheme, options => { options.Email = "mail@mail.com"; });
+                });
+            }).CreateClient();
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+
+            var response = await client.PostAsJsonAsync($"/origoapi/v1.0/customers/{organizationId}/users", new NewUser());
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+
         [Fact]
         public async Task PatchUserForCustomer_AsEndUser_IsAssetTileClosed()
         {

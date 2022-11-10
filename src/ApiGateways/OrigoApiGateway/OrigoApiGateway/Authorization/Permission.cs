@@ -11,6 +11,7 @@
         CanReadAsset,
         CanUpdateAsset,
         CanDeleteAsset,
+        CanCreateUser,
         //Product permissions
         BasicHardwareRepair,
         EmployeeAccess,
