@@ -1,4 +1,5 @@
 ﻿using OrigoApiGateway.Models.BackendDTO;
+using System.Text.Json.Serialization;
 
 namespace OrigoApiGateway.Models
 {
@@ -28,6 +29,16 @@ namespace OrigoApiGateway.Models
         public string EmployeeId { get; init; }
 
         public string OrganizationName { get; init; }
+
+#nullable enable
+        /// <summary>
+        ///     The organization ID belonging to the corresponding <see cref="OrganizationName"/>.
+        ///     This property is typically only included for cross-customer requests, where the organization details has been requested.
+        /// </summary>
+        [SwaggerSchema(ReadOnly = true)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public Guid? OrganizationId { get; init; }
+#nullable restore
 
         public string Role { get; init; }
 

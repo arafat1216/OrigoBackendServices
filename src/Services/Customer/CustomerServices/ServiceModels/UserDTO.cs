@@ -27,6 +27,14 @@ namespace CustomerServices.ServiceModels
         public UserPreferenceDTO UserPreference { get; init; }
 
         public string OrganizationName { get; init; }
+
+#nullable enable
+        /// <summary>
+        ///     The organization ID belonging to the corresponding <see cref="OrganizationName"/>.
+        /// </summary>
+        public Guid? OrganizationId { get; init; }
+#nullable restore
+
         public string UserStatusName { get; init; }
         public int UserStatus { get; init; }
         public bool IsActiveState { get; init; }
