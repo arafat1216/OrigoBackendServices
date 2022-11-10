@@ -1,6 +1,5 @@
 ﻿#nullable enable
 
-using AutoMapper;
 using Common.Enums;
 using Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -21,21 +20,12 @@ namespace OrigoApiGateway.Controllers
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Returned if the system encounter an unexpected problem.")]
     public class UsersBackofficeController : ControllerBase
     {
-        private readonly ILogger<UsersBackofficeController> _logger;
         private readonly IUserServices _userServices;
-        private readonly ICustomerServices _customerServices;
-        private readonly IMapper _mapper;
 
 
-        public UsersBackofficeController(ILogger<UsersBackofficeController> logger,
-            IUserServices userServices,
-            ICustomerServices customerServices,
-            IMapper mapper)
+        public UsersBackofficeController(IUserServices userServices)
         {
-            _logger = logger;
             _userServices = userServices;
-            _customerServices = customerServices;
-            _mapper = mapper;
         }
 
 
