@@ -5,6 +5,7 @@ using CustomerServices.Models;
 using CustomerServices.UnitTests;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace CustomerServices.Infrastructure.Tests
 {
@@ -388,6 +389,24 @@ namespace CustomerServices.Infrastructure.Tests
             Assert.Equal(0, nonExistingStatusResults.Items.Count);
             Assert.Equal(1, existingAndNonExistingStatusResults.Items.Count);
         }
+
+
+        [Fact(DisplayName = "User advanced search: Include Organization Details")]
+        public async Task UserAdvancedSearchAsync_IncludeOrganizationDetails_Test()
+        {
+            // Arrange
+            await using var context = new CustomerContext(ContextOptions);
+            var organizationRepository = new OrganizationRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+
+            // Act
+            UserSearchParameters searchParameters = new();
+            var withIncludesResults = await organizationRepository.UserAdvancedSearchAsync(searchParameters, 1, 25, new(), includeOrganizationDetails: true);
+
+            // Assert
+            Assert.True(!string.IsNullOrEmpty(withIncludesResults.Items.First().OrganizationName));
+            Assert.True(withIncludesResults.Items.First().OrganizationId != null);
+        }
+
 
     }
 }
