@@ -79,65 +79,85 @@ stages:
       generateReleaseNotes: true
       releaseDocName: 'Release_$(Build.BuildNumber).md'
 
-- ${{ if ne(variables['Build.Reason'], 'Schedule') }}:
-    - stage: DeployTest
-      displayName: Deploy to Test
-      dependsOn: DeployDev
-      variables:
-      - group: ProductCatalogLibrary
-      jobs:
-      - template: general-deploy.yaml
-        parameters:
-          vmImage: 'ubuntu-latest'
-          environment: 'OrigoV2Test.test'
-          artifactDirectory: $(System.ArtifactsDirectory)
-          dbConnection: '$(ProductCatalogDbConnectionTest)'
-          releaseName: productcatalogservices
-          namespace: test
-          tag: '$(Build.BuildId)'
-          pipelineWorkspace: $(Pipeline.Workspace)
-          useLoggingDb: false
-          generateReleaseNotes: true
-          releaseDocName: 'Release_$(Build.BuildNumber).md'
+- stage: DeployTest
+  displayName: Deploy to Test
+  dependsOn: DeployDev
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'Schedule'))
+  variables:
+  - group: ProductCatalogLibrary
+  jobs:
+  - template: general-deploy.yaml
+    parameters:
+      vmImage: 'ubuntu-latest'
+      environment: 'OrigoV2Test.test'
+      artifactDirectory: $(System.ArtifactsDirectory)
+      dbConnection: '$(ProductCatalogDbConnectionTest)'
+      releaseName: productcatalogservices
+      namespace: test
+      tag: '$(Build.BuildId)'
+      pipelineWorkspace: $(Pipeline.Workspace)
+      useLoggingDb: false
+      generateReleaseNotes: true
+      releaseDocName: 'Release_$(Build.BuildNumber).md'
 
-    - stage: DeployProd
-      displayName: Deploy to Prod
-      dependsOn: DeployTest
-      variables:
-      - group: ProductCatalogLibrary
-      jobs:
-      - template: general-deploy.yaml
-        parameters:
-          vmImage: 'ubuntu-latest'
-          environment: 'OrigoV2Prod.prod'
-          artifactDirectory: $(System.ArtifactsDirectory)
-          dbConnection: '$(ProductCatalogDbConnectionProd)'
-          releaseName: productcatalogservices
-          namespace: prod
-          tag: '$(Build.BuildId)'
-          pipelineWorkspace: $(Pipeline.Workspace)
-          useLoggingDb: false
-          generateReleaseNotes: true
-          releaseDocName: 'Release_$(Build.BuildNumber).md'
+- stage: DeployProd
+  displayName: Deploy to Prod
+  dependsOn: DeployTest
+  variables:
+  - group: ProductCatalogLibrary
+  jobs:
+  - template: general-deploy.yaml
+    parameters:
+      vmImage: 'ubuntu-latest'
+      environment: 'OrigoV2Prod.prod'
+      artifactDirectory: $(System.ArtifactsDirectory)
+      dbConnection: '$(ProductCatalogDbConnectionProd)'
+      releaseName: productcatalogservices
+      namespace: prod
+      tag: '$(Build.BuildId)'
+      pipelineWorkspace: $(Pipeline.Workspace)
+      useLoggingDb: false
+      generateReleaseNotes: true
+      releaseDocName: 'Release_$(Build.BuildNumber).md'
 
-- ${{ if and(eq(variables['Build.Reason'], 'Schedule'), eq(variables['e2esuccessful'], '1'), eq(variables['deployproductcatalogmicroservice'], '1')) }}:
-    - stage: DeployScheduledTest
-      displayName: Scheduled deploy to Test
-      dependsOn: DeployDev
-      variables:
-      - group: ProductCatalogLibrary
-      - group: Common
-      jobs:
-      - template: general-deploy.yaml
-        parameters:
-          vmImage: 'ubuntu-latest'
-          environment: 'OrigoV2ScheduledTest.test'
-          artifactDirectory: $(System.ArtifactsDirectory)
-          dbConnection: '$(ProductCatalogDbConnectionTest)'
-          releaseName: productcatalogservices
-          namespace: test
-          tag: '$(Build.BuildId)'
-          pipelineWorkspace: $(Pipeline.Workspace)
-          useLoggingDb: false
-          generateReleaseNotes: true
-          releaseDocName: 'Release_$(Build.BuildNumber).md'
+- stage: DeployScheduledTest
+  displayName: Scheduled deploy to Test
+  dependsOn: DeployDev
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'Schedule'), eq(variables['e2esuccessful'], '1'), eq(variables['deployproductcatalogmicroservice'], '1'))
+  variables:
+  - group: ProductCatalogLibrary
+  - group: Common
+  jobs:
+  - template: general-deploy.yaml
+    parameters:
+      vmImage: 'ubuntu-latest'
+      environment: 'OrigoV2ScheduledTest.test'
+      artifactDirectory: $(System.ArtifactsDirectory)
+      dbConnection: '$(ProductCatalogDbConnectionTest)'
+      releaseName: productcatalogservices
+      namespace: test
+      tag: '$(Build.BuildId)'
+      pipelineWorkspace: $(Pipeline.Workspace)
+      useLoggingDb: false
+      generateReleaseNotes: true
+      releaseDocName: 'Release_$(Build.BuildNumber).md'
+
+- stage: DeployScheduledProd
+  displayName: Scheduled deploy to Prod
+  dependsOn: DeployScheduledTest
+  variables:
+  - group: ProductCatalogLibrary
+  jobs:
+  - template: general-deploy.yaml
+    parameters:
+      vmImage: 'ubuntu-latest'
+      environment: 'OrigoV2Prod.prod'
+      artifactDirectory: $(System.ArtifactsDirectory)
+      dbConnection: '$(ProductCatalogDbConnectionProd)'
+      releaseName: productcatalogservices
+      namespace: prod
+      tag: '$(Build.BuildId)'
+      pipelineWorkspace: $(Pipeline.Workspace)
+      useLoggingDb: false
+      generateReleaseNotes: true
+      releaseDocName: 'Release_$(Build.BuildNumber).md'

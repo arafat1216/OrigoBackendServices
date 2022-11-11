@@ -11,7 +11,7 @@ trigger:
     - src/Services/Asset
 
 schedules:
-- cron: "55 11 * * *"
+- cron: "0 3 * * *"
   displayName: Daily midnight build
   branches:
     include:
