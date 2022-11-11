@@ -591,6 +591,74 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
     }
 
     [Fact]
+    public async Task GetAssetsForCustomerAsync_Manager_AccessToOwnAssets()
+    {
+        var organizationId = Guid.Parse("6c514552-ea67-48c8-91ec-83c2b16248ee");
+        var departmentId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+
+        var email = "manager@test.io";
+        var permissionsIdentity = new ClaimsIdentity();
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "Manager"));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, userId.ToString()));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadAsset"));
+        permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+        permissionsIdentity.AddClaim(new Claim("AccessList", departmentId.ToString()));
+
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services =>
+            {
+                var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).ReturnsAsync(permissionsIdentity);
+                services.AddSingleton(userPermissionServiceMock.Object);
+
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                    options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                    TestAuthenticationHandler.DefaultScheme, options =>
+                    {
+                        options.Email = email;
+                    });
+                var customersAssets = new PagedModel<HardwareSuperType>()
+                {
+                    CurrentPage = 1,
+                    Items = new List<HardwareSuperType>()
+                    {
+                        new HardwareSuperType
+                        {
+                            DepartmentName = null,
+                            Alias = "",
+                            AssetCategoryId = 1,
+                            Description = "",
+                            AssetStatus = AssetLifecycleStatus.InUse,
+                            AssetHolderId = userId
+                        }
+                    },
+                    PageSize = 1,
+                    TotalItems = 1,
+                    TotalPages = 1,
+                };
+
+                var assetService = new Mock<IAssetServices>();
+                assetService.Setup(_ => _.GetAssetsForCustomerAsync(organizationId, It.IsAny<CancellationToken>(), It.IsAny<FilterOptionsForAsset>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(),
+                    It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(customersAssets);
+                services.AddSingleton(assetService.Object);
+            });
+        }).CreateClient();
+
+
+        var response = await client.GetAsync($"/origoapi/v1.0/assets/customers/{organizationId}/?userId=me");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
     public async Task GetAssetLifecycleCounters_Manager()
     {
         var organizationId = Guid.Parse("6c514552-ea67-48c8-91ec-83c2b16248ee");

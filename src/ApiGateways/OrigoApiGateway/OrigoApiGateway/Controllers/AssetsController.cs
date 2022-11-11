@@ -253,18 +253,18 @@ namespace OrigoApiGateway.Controllers
                 {
                     return Forbid();
                 }
-            }
 
-            if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && accessList != null)
-            {
-                filterOptions.Department ??= new List<Guid?>();
-                foreach (var departmentId in accessList)
-
+                if ((role == PredefinedRole.DepartmentManager.ToString() || role == PredefinedRole.Manager.ToString()) && filterOptions.UserId != "me")
                 {
-                    if (Guid.TryParse(departmentId, out var departmentGuid))
-                    {
-                        filterOptions.Department.Add(departmentGuid);
+                    filterOptions.Department ??= new List<Guid?>();
+                    foreach (var departmentId in accessList)
 
+                    {
+                        if (Guid.TryParse(departmentId, out var departmentGuid))
+                        {
+                            filterOptions.Department.Add(departmentGuid);
+
+                        }
                     }
                 }
             }
