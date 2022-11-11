@@ -1319,8 +1319,12 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(TechstepCustomers), (int)HttpStatusCode.OK)]
         [PermissionAuthorize(PermissionOperator.And, Permission.CanCreateCustomer, Permission.CanUpdateCustomer)]
         [HttpGet]
-        public async Task<ActionResult> GetTechstepCustomers([FromQuery] string searchString)
+        public async Task<ActionResult> GetTechstepCustomers([FromQuery] string searchString, [FromQuery] string countryCode = "NO")
         {
+            if (countryCode.Length != 2)
+            {
+                return BadRequest("Invalid Country Code");
+            }
             var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
             if (role != PredefinedRole.SystemAdmin.ToString() && role != PredefinedRole.PartnerAdmin.ToString())
@@ -1328,7 +1332,7 @@ namespace OrigoApiGateway.Controllers
                 return Forbid();
             }
 
-            var techstepCustomers = await CustomerServices.GetTechstepCustomers(searchString);
+            var techstepCustomers = await CustomerServices.GetTechstepCustomersAsync(searchString, countryCode);
 
             return Ok(techstepCustomers);
         }

@@ -38,6 +38,6 @@ namespace OrigoApiGateway.Services
         Task<IList<Location>> DeleteLocationAsync(Guid customerId, Guid locationId, Guid callerId);
         Task<Organization> InitiateOnbardingAsync(Guid customerId);
         Task UpdateCustomerFromTechstepCore(TechstepCoreCustomersData techstepCoreUpdate);
-        Task<TechstepCustomers> GetTechstepCustomers(string searchString);
+        Task<TechstepCustomers> GetTechstepCustomersAsync(string searchString, string countryCode);
     }
 }

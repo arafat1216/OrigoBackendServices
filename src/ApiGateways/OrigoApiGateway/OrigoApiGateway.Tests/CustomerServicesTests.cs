@@ -1,47 +1,46 @@
-﻿
-using AutoMapper;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Moq.Protected;
-using OrigoApiGateway.Mappings;
-using OrigoApiGateway.Services;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
+using Moq.Protected;
+using OrigoApiGateway.Mappings;
+using OrigoApiGateway.Services;
 
-namespace OrigoApiGateway.Tests
+namespace OrigoApiGateway.Tests;
+
+public class CustomerServicesTests
 {
-    public class CustomerServicesTests
-    {
-        private static IMapper? _mapper;
+    private static IMapper? _mapper;
 
-        public CustomerServicesTests()
+    public CustomerServicesTests()
+    {
+        if (_mapper == null)
         {
-            if (_mapper == null)
+            var mappingConfig = new MapperConfiguration(mc =>
             {
-                var mappingConfig = new MapperConfiguration(mc =>
-                {
-                    mc.AddMaps(Assembly.GetAssembly(typeof(TechstepCoreProfile)));
-                });
-                _mapper = mappingConfig.CreateMapper();
-            }
+                mc.AddMaps(Assembly.GetAssembly(typeof(TechstepCoreProfile)));
+            });
+            _mapper = mappingConfig.CreateMapper();
         }
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task GetTechstepCustomers_NotIncludeInactiveCustomers()
-        {
-            var mockFactory = new Mock<IHttpClientFactory>();
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(
-                        @"
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetTechstepCustomers_NotIncludeInactiveCustomers()
+    {
+        var mockFactory = new Mock<IHttpClientFactory>();
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        mockHttpMessageHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(@"
                         {""data"": [{
                             ""techstepCustomerId"": ""1111111111111"",
                             ""orgNumber"": ""12546782"",
@@ -71,52 +70,49 @@ namespace OrigoApiGateway.Tests
                             ""isBlocked"": false,
                             ""chainCount"": ""2""}]}
                     ")
-                });
-            mockHttpMessageHandler.Protected()
-              .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
-               x.RequestUri != null && x.RequestUri.ToString().Contains("/?partnerId=") &&
-               x.Method == HttpMethod.Get),
-                  ItExpr.IsAny<CancellationToken>())
-              .ReturnsAsync(new HttpResponseMessage
-              {
-                  StatusCode = HttpStatusCode.OK,
-                  Content = new StringContent(
-                      @"
+            });
+        mockHttpMessageHandler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync",
+            ItExpr.Is<HttpRequestMessage>(x =>
+                x.RequestUri != null && x.RequestUri.ToString().Contains("/?partnerId=") && x.Method == HttpMethod.Get),
+            ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(@"
                         []
                     ")
-              });
+        });
 
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
-            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-            var options = new CustomerConfiguration { TechstepPartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C") };
-            var optionsMock = new Mock<IOptions<CustomerConfiguration>>();
-            optionsMock.Setup(o => o.Value).Returns(options);
-            var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), mockFactory.Object, optionsMock.Object, _mapper);
+        var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+        mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+        var options =
+            new CustomerConfiguration { TechstepPartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C") };
+        var optionsMock = new Mock<IOptions<CustomerConfiguration>>();
+        optionsMock.Setup(o => o.Value).Returns(options);
+        var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), mockFactory.Object,
+            optionsMock.Object, _mapper);
 
-            var searchString = "Organization";
-            var techstepCoreData = await customerService.GetTechstepCustomers(searchString);
+        var searchString = "Organization";
+        var techstepCoreData = await customerService.GetTechstepCustomersAsync(searchString, "NO");
 
-            Assert.NotNull(techstepCoreData);
-            Assert.NotEmpty(techstepCoreData.Data);
-            Assert.Equal(1,techstepCoreData.Data?.Count);
-            Assert.All(techstepCoreData?.Data, u => Assert.Equal("Organization 1", u.Name));
-        }
-        [Fact]
-        [Trait("Category", "UnitTest")]
-        public async Task GetTechstepCustomers_DontShowCustomersAlreadyAddedInList()
-        {
-            var mockFactory = new Mock<IHttpClientFactory>();
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
+        Assert.NotNull(techstepCoreData);
+        Assert.NotEmpty(techstepCoreData.Data);
+        Assert.Equal(1, techstepCoreData.Data?.Count);
+        Assert.All(techstepCoreData?.Data, u => Assert.Equal("Organization 1", u.Name));
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task GetTechstepCustomers_DoNotShowCustomersAlreadyAddedInList()
+    {
+        var mockFactory = new Mock<IHttpClientFactory>();
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        mockHttpMessageHandler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync",
+            ItExpr.Is<HttpRequestMessage>(x =>
                 x.RequestUri != null && x.RequestUri.ToString().Contains("?searchString=") &&
-                x.Method == HttpMethod.Get),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(
-                        @"
+                x.Method == HttpMethod.Get), ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(@"
                         {""data"": [{
                             ""techstepCustomerId"": ""1111111111111"",
                             ""orgNumber"": ""000000001"",
@@ -146,17 +142,14 @@ namespace OrigoApiGateway.Tests
                             ""isBlocked"": false,
                             ""chainCount"": ""2""}]}
                     ")
-                });
-            mockHttpMessageHandler.Protected()
-               .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(x =>
-                x.RequestUri != null && x.RequestUri.ToString().Contains("/?partnerId=") &&
-                x.Method == HttpMethod.Get),
-                   ItExpr.IsAny<CancellationToken>())
-               .ReturnsAsync(new HttpResponseMessage
-               {
-                   StatusCode = HttpStatusCode.OK,
-                   Content = new StringContent(
-                       @"
+        });
+        mockHttpMessageHandler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync",
+            ItExpr.Is<HttpRequestMessage>(x =>
+                x.RequestUri != null && x.RequestUri.ToString().Contains("/?partnerId=") && x.Method == HttpMethod.Get),
+            ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(@"
                         [{
                             ""organizationId"": ""3fa85f64-5717-4562-b3fc-2c963f66afa6"",
                             ""organizationNumber"": ""000000001"",
@@ -175,22 +168,41 @@ namespace OrigoApiGateway.Tests
                             ""techstepCustomerId"": 121212122
                         }]
                     ")
-               });
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
-            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
-            var options = new CustomerConfiguration { TechstepPartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C") };
-            var optionsMock = new Mock<IOptions<CustomerConfiguration>>();
-            optionsMock.Setup(o => o.Value).Returns(options);
-            var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), mockFactory.Object, optionsMock.Object, _mapper);
+        });
+        var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+        mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+        var options =
+            new CustomerConfiguration { TechstepPartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C") };
+        var optionsMock = new Mock<IOptions<CustomerConfiguration>>();
+        optionsMock.Setup(o => o.Value).Returns(options);
+        var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), mockFactory.Object,
+            optionsMock.Object, _mapper);
 
-            var searchString = "Organization";
-            var techstepCoreData = await customerService.GetTechstepCustomers(searchString);
+        const string SEARCH_STRING = "Organization";
+        var techstepCoreData = await customerService.GetTechstepCustomersAsync(SEARCH_STRING, "NO");
 
 
-            Assert.NotNull(techstepCoreData);
-            Assert.NotEmpty(techstepCoreData.Data);
-            Assert.Equal(1, techstepCoreData.Data?.Count);
-            Assert.All(techstepCoreData?.Data, u => Assert.Equal("Organization 2", u.Name));
-        }
+        Assert.NotNull(techstepCoreData);
+        Assert.NotEmpty(techstepCoreData.Data);
+        Assert.Equal(1, techstepCoreData.Data!.Count);
+        Assert.All(techstepCoreData.Data, u => Assert.Equal("Organization 2", u.Name));
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+
+    public async Task GetTechstepCustomers_WithMissingCountryCode_ReturnsEmpty()
+    {
+        // Arrange
+        var mockFactory = new Mock<IHttpClientFactory>();
+        var optionsMock = new Mock<IOptions<CustomerConfiguration>>();
+        var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), mockFactory.Object,
+            optionsMock.Object, _mapper);
+
+        // Act
+        var techstepCustomersFound = await customerService.GetTechstepCustomersAsync("ABC", "");
+
+        // Assert
+        Assert.Null(techstepCustomersFound.Data);
     }
 }

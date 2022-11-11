@@ -551,24 +551,31 @@ public class CustomerServices : ICustomerServices
         }
     }
 
-    public async Task<TechstepCustomers> GetTechstepCustomers(string searchString)
+    public async Task<TechstepCustomers> GetTechstepCustomersAsync(string searchString, string countryCode)
     {
-        if (string.IsNullOrEmpty(searchString))
+        if (string.IsNullOrEmpty(searchString) || string.IsNullOrEmpty(countryCode))
         {
             return new TechstepCustomers();
         }
 
-        var techstepProducts = await TechtepCoreHttpClient.GetFromJsonAsync<TechstepCoreCustomersData>($"?searchString={searchString}&pageSize=50");
+        if (countryCode is not ("NO" or "SE"))
+        {
+            return new TechstepCustomers();
+        }
+
+        TechtepCoreHttpClient.DefaultRequestHeaders.Remove("CountryCode");
+        TechtepCoreHttpClient.DefaultRequestHeaders.Add("CountryCode", countryCode);
+        var techstepCoreCustomers = await TechtepCoreHttpClient.GetFromJsonAsync<TechstepCoreCustomersData>($"?searchString={searchString}&pageSize=50");
         var techstepCustomers = await HttpClient.GetFromJsonAsync<IList<Organization>>($"{_options.ApiPath}/{true}/?partnerId={_options.TechstepPartnerId}");
 
-        if (techstepProducts == null)
+        if (techstepCoreCustomers == null)
         {
             return new TechstepCustomers();
         }
 
         var notImportedTechstepCustomers = techstepCustomers != null
-            ? techstepProducts.Data.Where(core => !techstepCustomers.Any(org => org.OrganizationNumber == core.OrgNumber)).ToList()
-            : techstepProducts.Data;
+            ? techstepCoreCustomers.Data.Where(core => !techstepCustomers.Any(org => org.OrganizationNumber == core.OrgNumber)).ToList()
+            : techstepCoreCustomers.Data;
 
         return _mapper.Map<TechstepCustomers>(notImportedTechstepCustomers);
     }
