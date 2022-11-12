@@ -171,11 +171,19 @@ namespace OrigoApiGateway
                 var baseUrlString = baseUrl.ToString();
                 if (!string.IsNullOrEmpty(baseUrlString))
                 {
-                    services.AddHttpClient("techstep-core-customers", c => 
+                    services.AddHttpClient("techstep-core-customers-no", c => 
                     { 
                         c.BaseAddress = new Uri(baseUrlString); 
-                        c.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", apiKey); 
+                        c.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", apiKey);
+                        c.DefaultRequestHeaders.Add("CountryCode", "NO");
                     });
+                    services.AddHttpClient("techstep-core-customers-se", c =>
+                    {
+                        c.BaseAddress = new Uri(baseUrlString);
+                        c.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", apiKey);
+                        c.DefaultRequestHeaders.Add("CountryCode", "SE");
+                    });
+
                 }
             }
             services.AddHttpClient("userpermissionservices", c => { c.BaseAddress = new Uri("http://customerservices"); })

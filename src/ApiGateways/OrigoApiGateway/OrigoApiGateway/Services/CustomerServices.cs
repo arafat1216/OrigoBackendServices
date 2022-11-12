@@ -2,7 +2,6 @@
 using Common.Enums;
 using Common.Exceptions;
 using Common.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
@@ -27,7 +26,6 @@ public class CustomerServices : ICustomerServices
 
     private readonly ILogger<CustomerServices> _logger;
     private HttpClient HttpClient => _httpClientFactory.CreateClient("customerservices");
-    private HttpClient TechtepCoreHttpClient => _httpClientFactory.CreateClient("techstep-core-customers");
     private readonly CustomerConfiguration _options;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IMapper _mapper;
@@ -563,19 +561,28 @@ public class CustomerServices : ICustomerServices
             return new TechstepCustomers();
         }
 
-        TechtepCoreHttpClient.DefaultRequestHeaders.Remove("CountryCode");
-        TechtepCoreHttpClient.DefaultRequestHeaders.Add("CountryCode", countryCode);
-        var techstepCoreCustomers = await TechtepCoreHttpClient.GetFromJsonAsync<TechstepCoreCustomersData>($"?searchString={searchString}&pageSize=50");
-        var techstepCustomers = await HttpClient.GetFromJsonAsync<IList<Organization>>($"{_options.ApiPath}/{true}/?partnerId={_options.TechstepPartnerId}");
+        TechstepCoreCustomersData techstepCoreCustomersData;
+        if (countryCode == "NO")
+        {
+            using var techstepCoreHttpClient = _httpClientFactory.CreateClient("techstep-core-customers-no");
+            techstepCoreCustomersData = await techstepCoreHttpClient.GetFromJsonAsync<TechstepCoreCustomersData>($"?searchString={searchString}&pageSize=50");
+        }
+        else
+        {
+            using var techstepCoreHttpClient = _httpClientFactory.CreateClient("techstep-core-customers-se");
+            techstepCoreCustomersData = await techstepCoreHttpClient.GetFromJsonAsync<TechstepCoreCustomersData>($"?searchString={searchString}&pageSize=50");
+        }
 
-        if (techstepCoreCustomers == null)
+        using var customerHttpClient = _httpClientFactory.CreateClient("customerservices");
+        var techstepCustomers = await customerHttpClient.GetFromJsonAsync<IList<Organization>>($"{_options.ApiPath}/{true}/?partnerId={_options.TechstepPartnerId}");
+        if (techstepCoreCustomersData == null)
         {
             return new TechstepCustomers();
         }
 
         var notImportedTechstepCustomers = techstepCustomers != null
-            ? techstepCoreCustomers.Data.Where(core => !techstepCustomers.Any(org => org.OrganizationNumber == core.OrgNumber)).ToList()
-            : techstepCoreCustomers.Data;
+            ? techstepCoreCustomersData.Data.Where(core => techstepCustomers.All(org => org.OrganizationNumber != core.OrgNumber)).ToList()
+            : techstepCoreCustomersData.Data;
 
         return _mapper.Map<TechstepCustomers>(notImportedTechstepCustomers);
     }

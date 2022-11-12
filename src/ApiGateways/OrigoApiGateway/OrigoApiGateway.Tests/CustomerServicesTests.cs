@@ -33,6 +33,7 @@ public class CustomerServicesTests
     [Trait("Category", "UnitTest")]
     public async Task GetTechstepCustomers_NotIncludeInactiveCustomers()
     {
+        // Arrange
         var mockFactory = new Mock<IHttpClientFactory>();
         var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
         mockHttpMessageHandler.Protected()
@@ -82,28 +83,37 @@ public class CustomerServicesTests
                     ")
         });
 
-        var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
-        mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+        using var customerHttpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+        using var techstepCoreNoHttpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+        using var techstepCoreSeHttpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+
+        mockFactory.Setup(_ => _.CreateClient("customerservices")).Returns(customerHttpClient);
+        mockFactory.Setup(_ => _.CreateClient("techstep-core-customers-no")).Returns(techstepCoreNoHttpClient);
+        mockFactory.Setup(_ => _.CreateClient("techstep-core-customers-se")).Returns(techstepCoreSeHttpClient);
+
         var options =
             new CustomerConfiguration { TechstepPartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C") };
         var optionsMock = new Mock<IOptions<CustomerConfiguration>>();
         optionsMock.Setup(o => o.Value).Returns(options);
         var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), mockFactory.Object,
             optionsMock.Object, _mapper);
+        const string SEARCH_STRING = "Organization";
 
-        var searchString = "Organization";
-        var techstepCoreData = await customerService.GetTechstepCustomersAsync(searchString, "NO");
+        // Act
+        var techstepCoreData = await customerService.GetTechstepCustomersAsync(SEARCH_STRING, "NO");
 
+        // Assert
         Assert.NotNull(techstepCoreData);
         Assert.NotEmpty(techstepCoreData.Data);
         Assert.Equal(1, techstepCoreData.Data?.Count);
-        Assert.All(techstepCoreData?.Data, u => Assert.Equal("Organization 1", u.Name));
+        Assert.All(techstepCoreData.Data!, u => Assert.Equal("Organization 1", u.Name));
     }
 
     [Fact]
     [Trait("Category", "UnitTest")]
     public async Task GetTechstepCustomers_DoNotShowCustomersAlreadyAddedInList()
     {
+        // Arrange
         var mockFactory = new Mock<IHttpClientFactory>();
         var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
         mockHttpMessageHandler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync",
@@ -169,19 +179,24 @@ public class CustomerServicesTests
                         }]
                     ")
         });
-        var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
-        mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+        using var customerHttpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+        using var techstepCoreNoHttpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+        using var techstepCoreSeHttpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+        mockFactory.Setup(_ => _.CreateClient("customerservices")).Returns(customerHttpClient);
+        mockFactory.Setup(_ => _.CreateClient("techstep-core-customers-no")).Returns(techstepCoreNoHttpClient);
+        mockFactory.Setup(_ => _.CreateClient("techstep-core-customers-se")).Returns(techstepCoreSeHttpClient);
         var options =
             new CustomerConfiguration { TechstepPartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C") };
         var optionsMock = new Mock<IOptions<CustomerConfiguration>>();
         optionsMock.Setup(o => o.Value).Returns(options);
         var customerService = new CustomerServices(Mock.Of<ILogger<CustomerServices>>(), mockFactory.Object,
             optionsMock.Object, _mapper);
-
         const string SEARCH_STRING = "Organization";
+
+        // Act
         var techstepCoreData = await customerService.GetTechstepCustomersAsync(SEARCH_STRING, "NO");
 
-
+        // Assert
         Assert.NotNull(techstepCoreData);
         Assert.NotEmpty(techstepCoreData.Data);
         Assert.Equal(1, techstepCoreData.Data!.Count);
