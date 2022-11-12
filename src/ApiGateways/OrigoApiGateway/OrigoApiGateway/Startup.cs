@@ -175,7 +175,6 @@ namespace OrigoApiGateway
                     { 
                         c.BaseAddress = new Uri(baseUrlString); 
                         c.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", apiKey); 
-                        c.DefaultRequestHeaders.Add("CountryCode","NO"); 
                     });
                 }
             }
