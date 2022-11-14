@@ -444,11 +444,7 @@ namespace OrigoApiGateway.Services
             var products = await _userPermissionService.GetOrderedModuleProductsByPartnerAndOrganizationAsync(customer.PartnerId!.Value, customer.OrganizationId, false);
             var lifeCycleType = LifecycleType.NoLifecycle;
 
-            if (products.Any(x => x.Id == 2))
-            {
-                lifeCycleType = LifecycleType.NoLifecycle;
-            }
-            else if (products.Any(x => x.Id == 3))
+            if (products.Any(x => x.Id == 3))
             {
                 lifeCycleType = LifecycleType.Transactional;
             }
@@ -491,7 +487,8 @@ namespace OrigoApiGateway.Services
                             SerialNumber = validAsset.SerialNumber,
                             PurchaseDate = validAsset.PurchaseDate,
                             Labels = validAsset.Label != string.Empty ? new List<string> { validAsset.Label } : null,
-                            PaidByCompany = new Common.Model.Money(decimal.Parse(validAsset.PurchasePrice), currency)
+                            PaidByCompany = new Common.Model.Money(decimal.Parse(validAsset.PurchasePrice), currency),
+                            LifecycleType = lifeCycleType
                         });
 
 
@@ -528,7 +525,8 @@ namespace OrigoApiGateway.Services
                             PurchaseDate = validAsset.PurchaseDate,
                             PurchasedBy = validAsset.ImportedUser.FirstName + ' ' + validAsset.ImportedUser.LastName,
                             Labels = validAsset.Label != string.Empty ? new List<string> { validAsset.Label } : null,
-                            PaidByCompany = new Common.Model.Money(decimal.Parse(validAsset.PurchasePrice), currency)
+                            PaidByCompany = new Common.Model.Money(decimal.Parse(validAsset.PurchasePrice), currency),
+                            LifecycleType = lifeCycleType
                         });
                 }
             }

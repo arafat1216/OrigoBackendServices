@@ -620,6 +620,40 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
+    public async Task AddAssetForCustomerAsync_ImportNoLifecyclesetting_CalculateEndDate36Months()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+        var newAssetDTO = new NewAssetDTO
+        {
+            Alias = "",
+            SerialNumber = "4543534535344",
+            AssetCategoryId = 1,
+            Brand = "iPhone",
+            Description = "",
+            Note = "",
+            ProductName = "iPhone X",
+            LifecycleType = LifecycleType.Transactional, 
+            PurchaseDate = new DateTime(2022, 1, 1),
+            AssetHolderId = Guid.NewGuid(),
+            Imei = new List<long> { 865822011610467 },
+            CallerId = Guid.Empty,
+            Source = "FileImport"
+        };
+
+        // Act
+        var newAsset = await assetService.AddAssetLifecycleForCustomerAsync(Guid.NewGuid(), newAssetDTO);
+
+        Assert.Equal(new DateTime(2025,1,31), newAsset.EndPeriod);
+        Assert.Equal(new DateTime(2022,2,1), newAsset.StartPeriod);
+    }
+
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
     public async Task AddAssetForCustomerAsync_IMEINot15Digits_ShouldThrowInvalidAssetDataException()
     {
         // Arrange
