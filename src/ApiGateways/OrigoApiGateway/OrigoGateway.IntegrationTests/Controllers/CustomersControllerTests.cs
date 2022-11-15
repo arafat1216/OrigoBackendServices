@@ -574,10 +574,12 @@ namespace OrigoGateway.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
-
+        // Creates a new customer as a partner-admin, where the partner-ID has not been specified.
+        // The ID should be auto-assigned based on the user's access-list.
         [Fact]
         public async Task CreateCustomer_PartnerAdminForbidden_NotPartnerIdForCustomer()
         {
+            // Arrange
             var partnerId = Guid.NewGuid();
             var organizationId = Guid.NewGuid();
             var differentOrganizationId = Guid.NewGuid();
@@ -596,37 +598,42 @@ namespace OrigoGateway.IntegrationTests.Controllers
             permissionsIdentity.AddClaim(new Claim("AccessList", differentOrganizationId.ToString()));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
 
+            var userPermissionServiceMock = new Mock<IUserPermissionService>();
+            var customerService = new Mock<ICustomerServices>();
+
             var client = _factory.WithWebHostBuilder(builder =>
             {
                 builder.ConfigureTestServices(services =>
                 {
-                    var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                    var organizations = new Organization { OrganizationId = organizationId, PartnerId = partnerId };
+
                     userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                    customerService.Setup(_ => _.CreateCustomerAsync(created, callerId)).ReturnsAsync(organizations);
+
                     services.AddSingleton(userPermissionServiceMock.Object);
+                    services.AddSingleton(customerService.Object);
                     services.AddAuthentication(options =>
                     {
                         options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
                         options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
                     }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
                         TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
-
-                    var customerService = new Mock<ICustomerServices>();
-                    var organizations = new Organization { OrganizationId = organizationId, PartnerId = partnerId };
-                    customerService.Setup(_ => _.CreateCustomerAsync(created, callerId)).ReturnsAsync(organizations);
-                    services.AddSingleton(customerService.Object);
                 });
-
-
             }).CreateClient();
 
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(TestAuthenticationHandler.DefaultScheme);
+
+            // Act
             var response = await client.PostAsJsonAsync($"/origoapi/v1.0/customers", new NewOrganization());
 
+            // Asserts
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            customerService.Verify(_ => _.CreateCustomerAsync(created, callerId), Times.Once());
+            customerService.Verify(_ => _.CreateCustomerAsync(It.Is<NewOrganization>(e => e.PartnerId == partnerId), It.IsAny<Guid>()));
         }
 
-
+        // Create a new customer as a partner-admin, where the partner-ID is not a part of the user's access-list.
+        // This is a negative test, and should "fail" as the user should not have access to the requested partner-ID.
         [Fact]
         public async Task CreateCustomer_PartnerAdminAddsWithDiffrentPartnerId()
         {
@@ -804,7 +811,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
 
                     var subscriptionManagementService = new Mock<ISubscriptionManagementService>();
-                    var businessSubscriptionProducts =  new OrigoCustomerStandardBusinessSubscriptionProduct
+                    var businessSubscriptionProducts = new OrigoCustomerStandardBusinessSubscriptionProduct
                     {
                         DataPackage = "10GB",
                         OperatorId = 1,
@@ -812,7 +819,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         SubscriptionName = "Fri flyt"
                     };
 
-                    subscriptionManagementService.Setup(_ => _.DeleteCustomerStandardBusinessSubscriptionProductAsync(organizationId,1)).ReturnsAsync(businessSubscriptionProducts);
+                    subscriptionManagementService.Setup(_ => _.DeleteCustomerStandardBusinessSubscriptionProductAsync(organizationId, 1)).ReturnsAsync(businessSubscriptionProducts);
                     services.AddSingleton(subscriptionManagementService.Object);
                 });
 
@@ -860,7 +867,7 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         TestAuthenticationHandler.DefaultScheme, options => { options.Email = email; });
 
                     var subscriptionManagementService = new Mock<ISubscriptionManagementService>();
-                  
+
                     var businessSubscriptionProducts = new OrigoCustomerStandardBusinessSubscriptionProduct
                     {
                         DataPackage = "10GB",

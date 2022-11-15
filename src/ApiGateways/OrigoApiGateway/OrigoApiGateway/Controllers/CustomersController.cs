@@ -156,6 +156,7 @@ namespace OrigoApiGateway.Controllers
             {
                 return Forbid();
             }
+
             if (role == PredefinedRole.PartnerAdmin.ToString())
             {
                 var access = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "AccessList")?.Value;
@@ -163,7 +164,6 @@ namespace OrigoApiGateway.Controllers
                 {
                     if (newCustomer.PartnerId == null) newCustomer.PartnerId = parsedGuid;
                     if (newCustomer.PartnerId != parsedGuid) return Forbid();
-
                 }
             }
 
