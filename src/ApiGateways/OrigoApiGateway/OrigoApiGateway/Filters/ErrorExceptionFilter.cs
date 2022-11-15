@@ -22,7 +22,7 @@ namespace OrigoApiGateway.Filters
         public override void OnException(ExceptionContext context)
         {
             var exception = context.Exception;
-            _logger.LogError(exception.Message, exception);
+            _logger.LogError(exception, $"{exception.Message}");
 
             if (exception is ArgumentException or SubscriptionManagementException or ProductCatalogException or AssetException)
             {

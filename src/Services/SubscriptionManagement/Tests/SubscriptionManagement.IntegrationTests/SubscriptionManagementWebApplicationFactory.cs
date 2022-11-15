@@ -11,10 +11,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using SubscriptionManagement.IntegrationTests.Controllers;
+using SubscriptionManagement.IntegrationTests.Helpers;
 using SubscriptionManagementServices.Email;
 using SubscriptionManagementServices.Infrastructure;
-using SubscriptionManagementServices.Models;
-using SubscriptionManagementServices.Types;
 using SubscriptionManagementServices.Utilities;
 
 // ReSharper disable StringLiteralTypo
@@ -28,12 +27,13 @@ public class SubscriptionManagementWebApplicationFactory<TProgram> : WebApplicat
 {
     private readonly DbConnection _dbConnection = new SqliteConnection("Data Source=:memory:");
 
-    public readonly int CUSTOMER_SUBSCRIPTION_PRODUCT_ID = 200;
-    public readonly int SUBSCRIPTION_PRODUCT_ID = 300;
-    public readonly int OPERATOR_ACCOUNT_ID = 100;
-    public readonly Guid ORGANIZATION_ID = Guid.Parse("7adbd9fa-97d1-11ec-8500-00155d64bd3d");
-    public readonly string PHONE_NUMBER = "99999998";
-    public int FIRST_OPERATOR_ID;
+    public int CUSTOMER_SUBSCRIPTION_PRODUCT_ID => SubscriptionManagementDataSeeding.CUSTOMER_SUBSCRIPTION_PRODUCT_ID;
+    public int SUBSCRIPTION_PRODUCT_ID => SubscriptionManagementDataSeeding.SUBSCRIPTION_PRODUCT_ID;
+    public int OPERATOR_ACCOUNT_ID => SubscriptionManagementDataSeeding.OPERATOR_ACCOUNT_ID;
+    public Guid ORGANIZATION_ID => SubscriptionManagementDataSeeding.ORGANIZATION_ID;
+    public Guid ORGANIZATION_TWO_ID => SubscriptionManagementDataSeeding.ORGANIZATION_TWO_ID;
+    public string PHONE_NUMBER => SubscriptionManagementDataSeeding.PHONE_NUMBER;
+    public int FIRST_OPERATOR_ID => SubscriptionManagementDataSeeding.FIRST_OPERATOR_ID;
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -55,57 +55,7 @@ public class SubscriptionManagementWebApplicationFactory<TProgram> : WebApplicat
 
             try
             {
-                // TODO: Add Separate DataSeeding Class
-                var firstOperator = subscriptionManagementContext.Operators.FirstOrDefault();
-                FIRST_OPERATOR_ID = firstOperator!.Id;
-                var subscriptionProduct = new SubscriptionProduct(SUBSCRIPTION_PRODUCT_ID, "TOTAL BEDRIFT", firstOperator!, new List<DataPackage>{new DataPackage("20GB", Guid.Empty), new DataPackage("30GB", Guid.Empty)}, Guid.Empty);
-                subscriptionManagementContext.SubscriptionProducts.AddRangeAsync(
-                    new List<SubscriptionProduct>
-                    {
-                        subscriptionProduct
-                    });
-                var customerSubscriptionProduct = new CustomerSubscriptionProduct(CUSTOMER_SUBSCRIPTION_PRODUCT_ID, subscriptionProduct, Guid.Empty, (IList<DataPackage>?)subscriptionProduct.DataPackages);
-                var customerOperatorAccount = new CustomerOperatorAccount(OPERATOR_ACCOUNT_ID, ORGANIZATION_ID, "1111111111111", "435543", "CC1", firstOperator!.Id, Guid.Empty);
-                subscriptionManagementContext.CustomerOperatorAccounts.Add(customerOperatorAccount);
-
-                var standardPrivateProduct = new CustomerStandardPrivateSubscriptionProduct("PrivateDataPackage","PrivateSubscription",Guid.Empty);
-                subscriptionManagementContext.CustomerStandardPrivateSubscriptionProducts.Add(standardPrivateProduct);
-
-                var standardBusinessProduct = new CustomerStandardBusinessSubscriptionProduct("BusinessDataPackage", "BusinessSubscription", Guid.Empty, new List<SubscriptionAddOnProduct> { new SubscriptionAddOnProduct("Faktura kontroll",Guid.NewGuid())});
-                subscriptionManagementContext.CustomerStandardBusinessSubscriptionProduct.Add(standardBusinessProduct);
-                var customerOperatorSettings = new List<CustomerOperatorSettings>
-                {
-                    new (firstOperator,
-                        new List<CustomerSubscriptionProduct> { customerSubscriptionProduct },
-                        new List<CustomerOperatorAccount> { customerOperatorAccount },
-                        standardPrivateProduct,
-                        standardBusinessProduct
-                        )
-                };
-                var customerReferenceFields = new List<CustomerReferenceField>
-                {
-                    new CustomerReferenceField("URef1", CustomerReferenceTypes.User, Guid.Empty),
-                    new CustomerReferenceField("URef2", CustomerReferenceTypes.User, Guid.Empty),
-                    new CustomerReferenceField("AccURef1", CustomerReferenceTypes.Account, Guid.Empty)
-                };
-                subscriptionManagementContext.CustomerSettings.Add(new CustomerSettings(ORGANIZATION_ID,
-                    customerOperatorSettings, customerReferenceFields));
-
-                subscriptionManagementContext.TransferToPrivateSubscriptionOrders.Add(new TransferToPrivateSubscriptionOrder()
-                {
-                    UserInfo = new PrivateSubscription(
-                        "EndUser","Test","office address","1219","Oslo","NO","test@techstep.no", DateTime.UtcNow, 
-                        "Telia", null
-                        ),
-                    MobileNumber = PHONE_NUMBER,
-                    OperatorName = "Telia",
-                    NewSubscription = "New",
-                    OrderExecutionDate = DateTime.UtcNow,
-                    OrganizationId = ORGANIZATION_ID,
-                    SalesforceTicketId = "911"
-                });
-
-                subscriptionManagementContext.SaveChanges();
+                SubscriptionManagementDataSeeding.PopulateData(subscriptionManagementContext);
             }
             catch (Exception e)
             {

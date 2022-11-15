@@ -28,6 +28,7 @@ public class
     private readonly HttpClient _httpClient;
     private readonly Guid _callerId = Guid.Parse("1d64e718-97cb-11ec-ad86-00155d64bd3d");
     private readonly Guid _organizationId;
+    private readonly Guid _organizationIdTwo;
     private readonly string _phoneNumber;
     private readonly int _operatorId;
     private readonly int _operatorAccountId;
@@ -43,6 +44,7 @@ public class
         _httpClient = factory.CreateDefaultClient();
         _subscriptionProductId = factory.CUSTOMER_SUBSCRIPTION_PRODUCT_ID;
         _organizationId = factory.ORGANIZATION_ID;
+        _organizationIdTwo = factory.ORGANIZATION_TWO_ID;
         _phoneNumber = factory.PHONE_NUMBER;
         _operatorAccountId = factory.OPERATOR_ACCOUNT_ID;
         _operatorId = factory.FIRST_OPERATOR_ID;
@@ -1291,5 +1293,16 @@ public class
         Assert.Collection(standardBusinessSubscription,
            item => Assert.Equal(1, item.AddOnProducts!.Count)
        );
+    }
+    [Fact]
+    public async Task GetStandardBusinessSubscriptionProducts_NotConfiguredAnyDefaultProducts_returnsEmptyList()
+    {
+        // Arrange
+        var response = await _httpClient.GetAsync($"/api/v1/SubscriptionManagement/{_organizationIdTwo}/standard-business-subscription-products");
+        var standardBusinessSubscription = await response.Content.ReadFromJsonAsync<List<CustomerStandardBusinessSubscriptionProductDTO>>();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(standardBusinessSubscription);
+        Assert.Equal(0, standardBusinessSubscription.Count());
     }
 }

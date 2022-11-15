@@ -5,6 +5,7 @@ using Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrigoApiGateway.Authorization;
+using OrigoApiGateway.Exceptions;
 using OrigoApiGateway.Filters;
 using OrigoApiGateway.Models;
 using OrigoApiGateway.Models.BackendDTO;
@@ -1217,10 +1218,16 @@ namespace OrigoApiGateway.Controllers
                     return Forbid();
                 }
             }
-
-            var response = await SubscriptionManagementService.GetCustomerStandardBusinessSubscriptionProductAsync(organizationId);
-
-            return Ok(response);
+            try
+            {
+                var response = await SubscriptionManagementService.GetCustomerStandardBusinessSubscriptionProductAsync(organizationId);
+                return Ok(response);
+            }
+            catch (SubscriptionManagementException)
+            {
+                return Ok(new List<OrigoCustomerStandardBusinessSubscriptionProduct>());
+            }
+           
         }
 
         /// <summary>
