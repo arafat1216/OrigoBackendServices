@@ -49,6 +49,11 @@ namespace CustomerServices
         {
             return await _organizationRepository.GetAllUsersAsync(customerId, role, assignedToDepartment, userStatus, true, cancellationToken, search, page, limit);
         }
+        
+        public async Task<PagedModel<UserDTO>> GetAllScimUsersAsync(string? userName, CancellationToken cancellationToken, int startIndex = 0, int limit = 25)
+        {
+            return await _organizationRepository.GetAllScimUsersAsync(userName, true, cancellationToken, startIndex, limit);
+        }
 
         private async Task<string> GetRoleNameForUser(string userEmail)
         {
@@ -501,6 +506,41 @@ namespace CustomerServices
             var userDeletedEvent = new UserEvent
             {
                 CustomerId = customerId,
+                UserId = userId,
+                DepartmentId = user.Department?.ExternalDepartmentId,
+                CreatedDate = DateTime.UtcNow
+            };
+            await PublishEvent("customer-pub-sub", "user-deleted", userDeletedEvent);
+
+            //Get the users role and assign it to the users DTO
+            var userDTO = _mapper.Map<UserDTO>(user);
+            userDTO.Role = await GetRoleNameForUser(user.Email);
+            return userDTO;
+        }
+
+        public async Task<UserDTO> DeleteUserAsync(Guid userId, Guid callerId, bool softDelete = true)
+        {
+            var user = await _organizationRepository.GetUserAsync(userId);
+
+            if (!softDelete)
+                throw new UserDeletedException();
+
+            if (user == null || user.IsDeleted) return null;
+
+            user.UnAssignAllDepartments(user.Customer.OrganizationId);
+
+            user.SetDeleteStatus(true, callerId);
+
+            await _organizationRepository.SaveEntitiesAsync();
+
+            if (!string.IsNullOrEmpty(user.OktaUserId))
+            {
+                await _oktaServices.RemoveUserFromGroupAsync(user.OktaUserId);
+            }
+
+            var userDeletedEvent = new UserEvent
+            {
+                CustomerId = user.Customer.OrganizationId,
                 UserId = userId,
                 DepartmentId = user.Department?.ExternalDepartmentId,
                 CreatedDate = DateTime.UtcNow

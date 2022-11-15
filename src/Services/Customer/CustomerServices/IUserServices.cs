@@ -13,6 +13,7 @@ namespace CustomerServices
     {
         Task<OrganizationUserCount?> GetUsersCountAsync(Guid customerId, Guid[]? assignedToDepartment, string[]? role);        
         Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 100);
+        Task<PagedModel<UserDTO>> GetAllScimUsersAsync(string? userName, CancellationToken cancellationToken, int startIndex = 0, int limit = 25);
         /// <summary>
         /// Gets a list of all users for a customer. The list only contains user id and full name and is sorted by userid so we can do a faster lookup.
         /// </summary>
@@ -31,6 +32,7 @@ namespace CustomerServices
         Task<UserDTO> UpdateUserPatchAsync(Guid customerId, Guid userId, string firstName, string lastName,
             string email, string employeeId, string mobileNumber, UserPreference userPreference, Guid callerId);
         Task<UserDTO> DeleteUserAsync(Guid customerId, Guid userId, Guid callerId, bool softDelete = true);
+        Task<UserDTO> DeleteUserAsync(Guid userId, Guid callerId, bool softDelete = true);
         Task<UserDTO> DeleteUserByPhoneNumberAsync(Guid customerId, string phoneNumber, Guid callerId, bool softDelete = true);
         Task<UserDTO> SetUserActiveStatusAsync(Guid customerId, Guid userId, bool isActive, Guid callerId);
         Task<UserDTO> AssignDepartment(Guid customerId, Guid userId, Guid departmentId, Guid callerId);

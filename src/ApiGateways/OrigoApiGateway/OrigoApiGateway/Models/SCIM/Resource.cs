@@ -23,7 +23,7 @@ public class Resource
     ///     included.  Value order is not specified and MUST NOT impact
     ///     behavior.
     /// </summary>
-    public List<string> Schemas { get; set; } = new();
+    public List<string> Schemas { get; set; } = new() { "urn:ietf:params:scim:schemas:core:2.0:User" };
 
     /// <summary>
     ///     A unique identifier for a SCIM resource as defined by the service

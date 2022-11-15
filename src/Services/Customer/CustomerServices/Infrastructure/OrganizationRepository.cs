@@ -507,6 +507,50 @@ public class OrganizationRepository : IOrganizationRepository
             .PaginateAsync(page, limit, cancellationToken);
     }
 
+    public async Task<PagedModel<UserDTO>> GetAllScimUsersAsync(string? userName,
+        bool asNoTracking,
+        CancellationToken cancellationToken,
+        int startIndex = 0,
+        int limit = 25)
+    {
+        var query = _customerContext.Users
+            .SelectMany(
+                u => _customerContext.UserPermissions
+                    .Where(up => u.Id == up.User.Id).DefaultIfEmpty(),
+                (u, up) => new UserDTO
+                {
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    AssignedToDepartment = u.Department == null ? Guid.Empty : u.Department.ExternalDepartmentId,
+                    DepartmentName = u.Department == null ? null : u.Department.Name,
+                    Email = u.Email,
+                    OrganizationName = u.Customer.Name,
+                    EmployeeId = u.EmployeeId,
+                    MobileNumber = u.MobileNumber,
+                    Role = up.Role.Name,
+                    UserPreference = u.UserPreference == null ? null : new UserPreferenceDTO { Language = u.UserPreference.Language },
+                    Id = u.UserId,
+                    UserStatus = (int)u.UserStatus,
+                    UserStatusName = u.UserStatus.ToString(),
+                    LastWorkingDay = u.LastWorkingDay,
+                    LastDayForReportingSalaryDeduction = u.LastDayForReportingSalaryDeduction,
+                    ManagerOf = u.ManagesDepartments.Select(a => new ManagerOfDTO { DepartmentId = a.ExternalDepartmentId, DepartmentName = a.Name }).ToList()
+                });
+        
+        if (userName is not null)
+        {
+            query = query.Where(u => u.Email == userName);
+        }
+
+        if (asNoTracking)
+        {
+            query = query.AsNoTracking();
+        }
+
+        return await query.OrderBy(u => u.FirstName)
+            .PaginateIndexedBasedAsync(startIndex, limit, cancellationToken);
+    }
+
     /// <inheritdoc/>
     public async Task<User?> GetUserAsync(Guid organizationId, Guid userId, bool includeDepartment = false, bool includeUserPreference = false, bool asNoTracking = false)
     {
@@ -527,6 +571,7 @@ public class OrganizationRepository : IOrganizationRepository
     {
         return await _customerContext.Users
             .Where(u => u.UserId == userId)
+            .Where(u => u.IsDeleted == false)
             .Include(u => u.Customer)
             .Include(u => u.UserPreference)
             .Include(u => u.Department)
@@ -537,7 +582,7 @@ public class OrganizationRepository : IOrganizationRepository
     public async Task<User?> GetUserAsync(Guid organizationId, string phoneNumber)
     {
         return await _customerContext.Users
-            .Where(u => u.Customer.OrganizationId == organizationId && u.MobileNumber == phoneNumber && !u.IsDeleted)
+            .Where(u => u.Customer.OrganizationId == organizationId && u.MobileNumber == phoneNumber && u.IsDeleted == false)
             .Include(u => u.Customer)
             .Include(u => u.UserPreference)
             .Include(u => u.Department)

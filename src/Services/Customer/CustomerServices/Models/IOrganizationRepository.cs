@@ -203,6 +203,22 @@ public interface IOrganizationRepository
     Task<PagedModel<UserDTO>> GetAllUsersAsync(Guid customerId, string[]? role, Guid[]? assignedToDepartment, IList<int>? userStatus, bool asNoTracking, CancellationToken cancellationToken, string search = "", int page = 1, int limit = 25);
 
     /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="userName">UserName of the User. Currently we Email is mapped as the userName</param>
+    /// <param name="asNoTracking"> When <see langword="true"/> then query will explicitly be run as no-tracking. If the value is <see langword="false"/> 
+    ///     the query will use the default behavior. <para>
+    ///     
+    ///     No tracking queries are useful when the results are used in a <i>read-only</i> scenario. They're quicker to execute because there's no need to set up the
+    ///     change tracking information. If you don't need to update the entities retrieved from the database, then a no-tracking query should be used. See 
+    ///     <see href="https://docs.microsoft.com/en-us/ef/core/querying/tracking"/> for more details. </para></param>
+    /// <param name="cancellationToken"> The cancellation token, passed down from the API controller. </param>
+    /// <param name="startIndex"> start index of the data</param>
+    /// <param name="limit">Number of items to be returned</param>
+    /// <returns></returns>
+    Task<PagedModel<UserDTO>> GetAllScimUsersAsync(string? userName, bool asNoTracking, CancellationToken cancellationToken, int startIndex = 0, int limit = 25);
+
+    /// <summary>
     ///     Retrieves a user by the organization and user IDs. Optional parameters may be provided to apply additional filtering, and for enabling eager loading. <br/>
     ///     The use of named parameters is recommended.
     /// </summary>

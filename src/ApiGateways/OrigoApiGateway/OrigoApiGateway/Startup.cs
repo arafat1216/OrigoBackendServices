@@ -107,6 +107,7 @@ namespace OrigoApiGateway
             services.AddSingleton<IUserPermissionService, UserPermissionService>();
             services.AddSingleton<IFeatureFlagServices, FeatureFlagServices>();
             services.AddSingleton<IUserServices, UserServices>();
+            services.AddSingleton<IScimService, ScimService>();
             services.AddSingleton<IDepartmentsServices, DepartmentsServices>();
             services.AddSingleton<IProductCatalogServices, ProductCatalogServices>();
             services.AddSingleton<ISubscriptionManagementService, SubscriptionManagementService>();
@@ -206,6 +207,7 @@ namespace OrigoApiGateway
             services.Configure<CustomerConfiguration>(Configuration.GetSection("Customer"));
             services.Configure<PartnerConfiguration>(Configuration.GetSection("Partner"));
             services.Configure<UserConfiguration>(Configuration.GetSection("User"));
+            services.Configure<ScimConfiguration>(Configuration.GetSection("Scim"));
             services.Configure<UserPermissionsConfigurations>(Configuration.GetSection("UserPermissions"));
             services.Configure<DepartmentConfiguration>(Configuration.GetSection("Department"));
             services.Configure<ProductCatalogConfiguration>(Configuration.GetSection("ProductCatalog"));

@@ -79,16 +79,21 @@ public record ScimUser
     /// A list of a ScimUser's emails.
     /// Only a single one of these will be used, but the protocol requires this be defined as a list.
     /// </summary>
-    public List<string> Emails { get; set; }
+    public List<string> Emails { get; set; } = new List<string>() { };
 
     /// <summary>
     /// A ScimUser's phone numbers.
     /// </summary>
-    public List<string>? PhoneNumbers { get; set; }
+    public List<string>? PhoneNumbers { get; set; } = new List<string>() { };
 
     /// <summary>
     /// A ScimUser's assigned (Okta) Groups.
     /// This will e.g. contain a Group with an organizationId as its name.
     /// </summary>
     public List<string> Groups { get; set; }
+    
+    /// <summary>
+    ///     <inheritdoc cref="MetaData" />
+    /// </summary>
+    public MetaData Meta { get; set; } = new();
 }

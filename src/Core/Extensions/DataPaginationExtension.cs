@@ -34,6 +34,31 @@ public static class DataPaginationExtension
 
         return paged;
     }
+    
+    public static async Task<PagedModel<TModel>> PaginateIndexedBasedAsync<TModel>(
+        this IQueryable<TModel> query,
+        int startIndex,
+        int limit,
+        CancellationToken cancellationToken)
+        where TModel : class
+    {
+
+        var paged = new PagedModel<TModel>();
+
+        startIndex = (startIndex < 0) ? 0 : startIndex;
+
+        paged.PageSize = limit;
+
+        paged.Items = await query
+            .Skip(startIndex)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+
+        paged.TotalItems = await query.CountAsync(cancellationToken);
+        paged.TotalPages = (int)Math.Ceiling(paged.TotalItems / (double)limit);
+
+        return paged;
+    }
 
     public static PagedModel<TModel> PaginateAsync<TModel>(
         this IEnumerable<TModel> query,
