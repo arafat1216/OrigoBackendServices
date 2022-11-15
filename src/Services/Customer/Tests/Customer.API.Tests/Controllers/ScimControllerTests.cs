@@ -125,14 +125,13 @@ public class ScimControllerTests : IClassFixture<CustomerWebApplicationFactory<S
         // Act
         var requestDelete = new HttpRequestMessage(HttpMethod.Delete, $"{RequestUri}/{user.Id}");
         requestDelete.Content = JsonContent.Create(_callerId);
-        await httpClient.SendAsync(requestDelete);
+        response = await httpClient.SendAsync(requestDelete);
 
-        // Fetch newly created employee
         response = await httpClient.GetAsync($"{RequestUri}/{user.Id.ToString()}");
         var result = await response.Content.ReadFromJsonAsync<User>();
 
         // Assert
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
     
     [Fact]

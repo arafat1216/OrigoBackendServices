@@ -571,7 +571,6 @@ public class OrganizationRepository : IOrganizationRepository
     {
         return await _customerContext.Users
             .Where(u => u.UserId == userId)
-            .Where(u => u.IsDeleted == false)
             .Include(u => u.Customer)
             .Include(u => u.UserPreference)
             .Include(u => u.Department)
@@ -582,7 +581,7 @@ public class OrganizationRepository : IOrganizationRepository
     public async Task<User?> GetUserAsync(Guid organizationId, string phoneNumber)
     {
         return await _customerContext.Users
-            .Where(u => u.Customer.OrganizationId == organizationId && u.MobileNumber == phoneNumber && u.IsDeleted == false)
+            .Where(u => u.Customer.OrganizationId == organizationId && u.MobileNumber == phoneNumber && !u.IsDeleted)
             .Include(u => u.Customer)
             .Include(u => u.UserPreference)
             .Include(u => u.Department)
