@@ -1336,7 +1336,9 @@ public class AssetServices : IAssetServices
         {
             assetLifecycle.AssignAssetLifecycleHolder(user, departmentId, callerId);
         }
+            await _assetLifecycleRepository.SaveEntitiesAsync();
     }
+
     /// <inheritdoc/>
     public async Task CancelReturn(Guid assetLifecycleId, Guid callerId)
     {

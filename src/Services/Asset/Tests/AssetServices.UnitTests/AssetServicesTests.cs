@@ -2053,6 +2053,7 @@ public class AssetServicesTests : AssetBaseTest
 
 
     }
+
     [Fact]
     [Trait("Category", "UnitTest")]
     public async Task DeactivateAssetLifecycleStatus_MapImeiToViewModel()
@@ -2069,6 +2070,28 @@ public class AssetServicesTests : AssetBaseTest
         Assert.Equal(1, activateAssets.Count);
         Assert.All(activateAssets, assetLifecycle => Assert.Equal(1, assetLifecycle.Asset.Imeis.Count));
         Assert.All(activateAssets, assetLifecycle => Assert.All(assetLifecycle.Asset.Imeis, imei => Assert.Equal(500119468586675, imei)));
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task SyncDepartmentForUserToAssetLifecycleAsync_ShouldResultInSaveChanges_ManagedByDepartmentShouldBeAssignedToAsset()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+
+        //Check that the asset does not have a department assigned to it
+        var assetLifecycles = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, ASSETLIFECYCLE_TWO_ID, null,null, includeContractHolderUser: true);
+        Assert.Null(assetLifecycles!.ManagedByDepartmentId);
+
+        //Assigne the department to the asset
+        await assetService.SyncDepartmentForUserToAssetLifecycleAsync(assetLifecycles.CustomerId, assetLifecycles.ContractHolderUserId!.Value, DEPARTMENT_ID,CALLER_ID);
+
+        //Fetch same asset and check that it is assigned to the department
+        var assetLifecyclesChanged = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, ASSETLIFECYCLE_TWO_ID, null, null, includeContractHolderUser: true);
+        Assert.Equal(DEPARTMENT_ID, assetLifecyclesChanged!.ManagedByDepartmentId);
     }
 
 }
