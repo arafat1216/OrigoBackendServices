@@ -187,8 +187,8 @@ namespace OrigoApiGateway.Controllers
 
             var tileData = new OnboardingTilesPreference()
             {
-                ShowAssetTile = !user.UserPreference.IsAssetTileClosed.HasValue || !user.UserPreference.IsAssetTileClosed.Value,
-                ShowSubscriptionTile = !user.UserPreference.IsSubscriptionTileClosed.HasValue || !user.UserPreference.IsSubscriptionTileClosed.Value
+                ShowAssetTile = user.UserPreference.IsAssetTileClosed == false,
+                ShowSubscriptionTile = user.UserPreference.IsSubscriptionTileClosed == false
             };
 
             var updatePreference = new UserPreference();

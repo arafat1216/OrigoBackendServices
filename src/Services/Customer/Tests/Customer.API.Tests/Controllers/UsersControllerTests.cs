@@ -176,6 +176,66 @@ namespace Customer.API.IntegrationTests.Controllers
             Assert.True(user?.UserPreference.SubscriptionIsHandledForOffboarding);
         }
 
+        [Fact]
+        public async Task UpdateUserPatch_UpdateOnlyUserpreferences_IsAssetTileClosed()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+
+            var getUri = $"/api/v1/organizations/{_customerId}/users/{_userTwoId}";
+            var user  = await httpClient.GetFromJsonAsync<User>(getUri);
+
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userTwoId}";
+
+            var updateUser = new UpdateUser
+            {
+                UserPreference = new UserPreference
+                {
+                    IsAssetTileClosed = true
+                },
+                CallerId = _callerId
+            };
+            var response = await httpClient.PostAsJsonAsync(requestUri, updateUser);
+
+            var updatedUser = response.Content.ReadFromJsonAsync<User>().Result;
+
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.True(updatedUser?.UserPreference.IsAssetTileClosed);
+            Assert.Equal(updatedUser?.UserPreference.IsSubscriptionTileClosed, user?.UserPreference.IsSubscriptionTileClosed);
+        }
+
+        [Fact]
+        public async Task UpdateUserPatch_UpdateOnlyUserpreferences_IsSubscriptionTileClosed()
+        {
+            var httpClient = _factory.CreateClientWithDbSetup(CustomerTestDataSeedingForDatabase.ResetDbForTests);
+            var requestUri = $"/api/v1/organizations/{_customerId}/users/{_userTwoId}";
+
+            var updateAssetTile = new UpdateUser
+            {
+                UserPreference = new UserPreference
+                {
+                    IsAssetTileClosed = true
+                },
+                CallerId = _callerId
+            };
+            var response = await httpClient.PostAsJsonAsync(requestUri, updateAssetTile);
+            var user = response.Content.ReadFromJsonAsync<User>().Result;
+
+            var updateSubTile = new UpdateUser
+            {
+                UserPreference = new UserPreference
+                {
+                    IsSubscriptionTileClosed = true
+                },
+                CallerId = _callerId
+            };
+            response = await httpClient.PostAsJsonAsync(requestUri, updateSubTile);
+            var updatedUser = response.Content.ReadFromJsonAsync<User>().Result;
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.True(updatedUser?.UserPreference.IsSubscriptionTileClosed);
+            Assert.Equal(updatedUser?.UserPreference.IsAssetTileClosed, user?.UserPreference.IsAssetTileClosed);
+        }
 
         [Fact]
         public async Task UpdateUserPutAsync_ReturnsOK()
@@ -268,12 +328,12 @@ namespace Customer.API.IntegrationTests.Controllers
             };
             var response = await _httpClient.PostAsJsonAsync(requestUri, updateUser);
 
-            var user = response.Content.ReadFromJsonAsync<User>();
+            var user = await response.Content.ReadFromJsonAsync<User>();
 
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(true, user?.Result?.UserPreference.IsAssetTileClosed);
-            Assert.Equal(false, user?.Result?.UserPreference.IsSubscriptionTileClosed);
+            Assert.Equal(true, user?.UserPreference.IsAssetTileClosed);
+            Assert.Null(user?.UserPreference.IsSubscriptionTileClosed);
         }
 
         [Fact]
@@ -945,8 +1005,32 @@ namespace Customer.API.IntegrationTests.Controllers
 
             Assert.NotNull(user);
             Assert.Equal("EndUser", user?.Role);
+        }
 
+        [Fact]
+        public async Task CreateUserForCustomer_OnBoardingTilesClosed()
+        {
 
+            var body = new NewUser
+            {
+                CallerId = _callerId,
+                Email = "testTiles@mail.com",
+                FirstName = "test",
+                LastName = "user",
+                EmployeeId = "123",
+                MobileNumber = "+479898644",
+                UserPreference = new UserPreference { Language = "en" }
+            };
+            var request = $"/api/v1/organizations/{_customerId}/users";
+            var response = await _httpClient.PostAsJsonAsync(request, body);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+            var user = await response.Content.ReadFromJsonAsync<ViewModels.User>();
+
+            Assert.NotNull(user);
+            Assert.Equal("EndUser", user?.Role);
+            Assert.Null(user?.UserPreference.IsAssetTileClosed);
+            Assert.Null(user?.UserPreference.IsSubscriptionTileClosed);
         }
         [Fact]
         public async Task CreateUserForCustomer_NotValidRole_ShouldNotThrowExceptionOnlyGiveEnUserRole()

@@ -42,8 +42,10 @@ namespace CustomerServices.Models
         public void SetOnboardingTiles(User user, bool? isAssetTileClosed, bool? isSubscriptionTileClosed, Guid callerId)
         {
             UpdatedBy = callerId;
-            IsAssetTileClosed = isAssetTileClosed;
-            IsSubscriptionTileClosed = isSubscriptionTileClosed;
+            if(isAssetTileClosed.HasValue)
+                IsAssetTileClosed = isAssetTileClosed;
+            if (isSubscriptionTileClosed.HasValue)
+                IsSubscriptionTileClosed = isSubscriptionTileClosed;
             AddDomainEvent(new SetOnboardingTilesDomainEvent(this, user, callerId));
             LastUpdatedDate = DateTime.UtcNow;
         }
