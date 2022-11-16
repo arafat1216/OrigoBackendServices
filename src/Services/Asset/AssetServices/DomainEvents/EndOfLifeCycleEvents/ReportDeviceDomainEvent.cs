@@ -22,7 +22,7 @@ namespace AssetServices.DomainEvents.EndOfLifeCycleEvents
 
         public override string EventMessage()
         {
-            return $"User Id: {AssetLifecycle.ContractHolderUser!.ExternalId} has Reported '{ReportCategory}' for the asset Id:{AssetLifecycle.ExternalId} with status: {PreviousAssetLifecycleStatus};";
+            return $"User Id: {CallerId} has Reported '{ReportCategory}' for the asset Id:{AssetLifecycle.ExternalId} with status: {PreviousAssetLifecycleStatus};";
         }
     }
 }
