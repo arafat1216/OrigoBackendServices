@@ -70,7 +70,7 @@ public class ScimController : ControllerBase
 
 
     [HttpGet("users")]
-    [ProducesResponseType(typeof(List<OrigoUser>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ListResponse<User>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     [PermissionAuthorize(Permission.CanReadCustomer)]
     public async Task<ActionResult<ListResponse<User>>> GetAllUsers(CancellationToken cancellationToken,
