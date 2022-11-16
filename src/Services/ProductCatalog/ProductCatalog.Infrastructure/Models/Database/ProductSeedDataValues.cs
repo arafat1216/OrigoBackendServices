@@ -10,7 +10,7 @@ namespace ProductCatalog.Infrastructure.Models.Database
     {
         SubscriptionManagement = 1,
         Implement = 2,
-        TransactionalDeviceLifecycleManagement = 3,
+        FullLifecycle = 3,
         BookValue = 4,
         RecycleAndWipe = 5,
     }
