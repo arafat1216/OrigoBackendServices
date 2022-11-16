@@ -244,7 +244,7 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                     new ProductTranslation { ProductId = (int)ProductSeedDataValues.Implement, Language = "nb", Name = "Implement", Description = "Enkel Asset Management for enheter kjøpt transaksjonelt i Techstep egen nettbutikk.", UpdatedBy = systemUserId },
                 });
 
-                // Transactional Device Lifecycle
+                // Full Lifecycle
                 entity.HasData(new Product { Id = (int)ProductSeedDataValues.FullLifecycle, PartnerId = Guid.Parse("5741B4A1-4EEF-4FC2-B1B8-0BA7F41ED93C"), ProductTypeId = (int)ProductTypeSeedDataValue.Module, UpdatedBy = systemUserId });
                 entity.OwnsMany(e => e.Translations).HasData(new List<ProductTranslation>()
                 {
@@ -285,7 +285,7 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.Implement, FeatureId = (int)FeatureSeedDataValues.BasicUserManagement, UpdatedBy = systemUserId });
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.Implement, FeatureId = (int)FeatureSeedDataValues.BasicAssetManagement, UpdatedBy = systemUserId });
 
-                // Add features to: Transactional Device Lifecycle
+                // Add features to: Full Lifecycle
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.FullLifecycle, FeatureId = (int)FeatureSeedDataValues.EmployeeAccess, UpdatedBy = systemUserId });
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.FullLifecycle, FeatureId = (int)FeatureSeedDataValues.DepartmentStructure, UpdatedBy = systemUserId });
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.FullLifecycle, FeatureId = (int)FeatureSeedDataValues.OnAndOffboarding, UpdatedBy = systemUserId });
@@ -328,6 +328,7 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                 entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.RecycleAndWipe, RequiresProductId = (int)ProductSeedDataValues.FullLifecycle, UpdatedBy = systemUserId });
                 entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.SubscriptionManagement, RequiresProductId = (int)ProductSeedDataValues.FullLifecycle, UpdatedBy = systemUserId });
                 entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.BookValue, RequiresProductId = (int)ProductSeedDataValues.FullLifecycle, UpdatedBy = systemUserId });
+                entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.FullLifecycle, RequiresProductId = (int)ProductSeedDataValues.BookValue, UpdatedBy = systemUserId });
             });
 
             /*
