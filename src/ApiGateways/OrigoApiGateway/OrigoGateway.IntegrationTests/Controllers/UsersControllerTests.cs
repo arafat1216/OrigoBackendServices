@@ -372,14 +372,12 @@ namespace OrigoGateway.IntegrationTests.Controllers
         public async Task CreateUserForCustomer_IncludeOnboardingEqualFalse()
         {
             var organizationId = Guid.NewGuid();
-            var partnerId = Guid.NewGuid();
             var callerId = Guid.NewGuid();
 
             var permissionsIdentity = new ClaimsIdentity();
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, callerId.ToString()));
             permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, "SystemAdmin"));
             permissionsIdentity.AddClaim(new Claim("Permissions", "CanCreateUser"));
-            permissionsIdentity.AddClaim(new Claim("Permissions", "OnAndOffboarding"));
             permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
 
             var newUser = new NewUser { Email = "tesst@mail.com", MobileNumber = "+4745545457" };
@@ -400,6 +398,8 @@ namespace OrigoGateway.IntegrationTests.Controllers
                         TestAuthenticationHandler.DefaultScheme, options => { options.Email = "mail@mail.com"; });
 
                     var usersService = new Mock<IUserServices>();
+                    var productService = new Mock<IProductCatalogServices>();
+                    var organizationService = new Mock<ICustomerServices>();
 
                     var user = new OrigoUser
                     {
@@ -411,7 +411,11 @@ namespace OrigoGateway.IntegrationTests.Controllers
                     usersService.Setup(_ => _.AddUserForCustomerAsync(organizationId, newUser, callerId, It.IsAny<bool>()))
                         .ReturnsAsync(user);
 
+                    var products = new List<string>{ "SubscriptionManagement", "InternalAssetReturn", "RecycleAndWipeAssetReturn" };
+                    productService.Setup(pc => pc.GetProductPermissionsForOrganizationAsync(organizationId)).ReturnsAsync(products);
+
                     services.AddSingleton(usersService.Object);
+                    services.AddSingleton(productService.Object);
                 });
             }).CreateClient();
 

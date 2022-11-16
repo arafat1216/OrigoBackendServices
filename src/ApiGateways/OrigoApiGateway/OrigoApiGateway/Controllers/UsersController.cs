@@ -341,13 +341,15 @@ namespace OrigoApiGateway.Controllers
                 var actor = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Actor)?.Value;
                 _ = Guid.TryParse(actor, out Guid callerId);
 
-                //The customer that has Transactional and the feature OnAndOffboarding handels the creation of user in a different way then the customers with Implement 
-                var permissions = HttpContext.User.Claims.Where(c => c.Type == "Permissions").Select(c => c.Value).ToList();
                 var includeOnboarding = false;
-
-                if (permissions.Contains(Permission.OnAndOffboarding.ToString()))
+                var productPermissions = await _productCatalogServices.GetProductPermissionsForOrganizationAsync(organizationId);
+                if (productPermissions.Any())
                 {
-                   includeOnboarding = true;
+                    includeOnboarding = productPermissions.Contains("OnAndOffboarding");
+                }
+                else
+                {
+                    return NotFound("Products not found");
                 }
 
                 var updatedUser = await _userServices.AddUserForCustomerAsync(organizationId, newUser, callerId, includeOnboarding);
