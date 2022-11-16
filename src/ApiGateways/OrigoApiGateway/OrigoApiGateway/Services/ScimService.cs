@@ -58,14 +58,14 @@ public class ScimService : IScimService
     }
 
 
-    public async Task<ListResponse> GetAllUsersAsync(CancellationToken cancellationToken, string userName = "", int startIndex = 0, int limit = 25)
+    public async Task<ListResponse<User>> GetAllUsersAsync(CancellationToken cancellationToken, string userName = "", int startIndex = 0, int limit = 25)
     {
         try
         {
             var users = await HttpClient.GetFromJsonAsync<PagedModel<UserDTO>>($"{_options.ApiPath}?userName={userName}&startIndex={startIndex}&limit={limit}", cancellationToken);
 
-            var resources = _mapper.Map<List<Resource>>(users.Items);
-            return new ListResponse(resources)
+            var resources = _mapper.Map<List<User>>(users.Items);
+            return new ListResponse<User>(resources)
             {
                 StartIndex = ++startIndex,
                 TotalResults = users.TotalItems,

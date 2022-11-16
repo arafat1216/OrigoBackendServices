@@ -73,7 +73,7 @@ public class ScimController : ControllerBase
     [ProducesResponseType(typeof(List<OrigoUser>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     [PermissionAuthorize(Permission.CanReadCustomer)]
-    public async Task<ActionResult<ListResponse>> GetAllUsers(CancellationToken cancellationToken, 
+    public async Task<ActionResult<ListResponse<User>>> GetAllUsers(CancellationToken cancellationToken,
         [FromQuery] string? filter,
         [FromQuery] int startIndex = 1, 
         [FromQuery][Range(1, 100)] int count = 25)

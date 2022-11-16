@@ -51,6 +51,36 @@ public class ScimUserProfileTests
         };
     }
 
+    private User GetUserResource()
+    {
+        return new User
+        {
+            UserName = "john@test-domain.com",
+            Name = new()
+            {
+                FamilyName = "Doe",
+                GivenName = "John",
+                MiddleName = "John"
+            },
+            Active = true,
+            Emails = new()
+            {
+                new() 
+                {
+                    Value = "john@test-domain.com",
+                    Primary = true
+                }
+            },
+            PhoneNumbers = new()
+            {
+                new()
+                {
+                    Value = "+4759555724"
+                }
+            }
+        };
+    }
+
     private OrigoUser GetOrigoUser()
     {
         return new OrigoUser
@@ -196,5 +226,24 @@ public class ScimUserProfileTests
         Assert.Equal(userDto.Id.ToString(), result.Id);
         Assert.Equal(userDto.Id.ToString(), result.ExternalId);
         Assert.Equal("User", result.Meta.ResourceType);
+    }
+
+    [Fact]
+    public void UserDto_To_User_ProfileTest()
+    {
+        // Arrange
+        var userDto = GetUserDto();
+
+        // Act
+        var result = _mapper.Map<User>(userDto);
+
+        // Assert
+        Assert.Equal(userDto.Id.ToString(), result.ExternalId);
+        Assert.Equal(userDto.LastName, result.Name.FamilyName);
+        Assert.Equal(userDto.FirstName, result.Name.GivenName);
+        Assert.NotEmpty(result.DisplayName);
+        Assert.Equal(userDto.Email, result?.Emails?.FirstOrDefault()?.Value);
+        Assert.Equal(userDto.MobileNumber, result?.PhoneNumbers?.FirstOrDefault()?.Value);
+        Assert.Equal("User", result?.Meta.ResourceType);
     }
 }

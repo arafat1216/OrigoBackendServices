@@ -8,7 +8,7 @@ public interface IScimService
 {
     Task<OrigoUser> GetUserAsync(Guid userId);
 
-    Task<ListResponse> GetAllUsersAsync(CancellationToken cancellationToken, string userName = "", int page = 1, int limit = 25);
+    Task<ListResponse<User>> GetAllUsersAsync(CancellationToken cancellationToken, string userName = "", int page = 1, int limit = 25);
 
     Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUser newUser, Guid callerId, bool includeOnboarding);
 
