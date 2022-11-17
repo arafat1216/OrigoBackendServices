@@ -51,36 +51,6 @@ public class ScimUserProfileTests
         };
     }
 
-    private User GetUserResource()
-    {
-        return new User
-        {
-            UserName = "john@test-domain.com",
-            Name = new()
-            {
-                FamilyName = "Doe",
-                GivenName = "John",
-                MiddleName = "John"
-            },
-            Active = true,
-            Emails = new()
-            {
-                new() 
-                {
-                    Value = "john@test-domain.com",
-                    Primary = true
-                }
-            },
-            PhoneNumbers = new()
-            {
-                new()
-                {
-                    Value = "+4759555724"
-                }
-            }
-        };
-    }
-
     private OrigoUser GetOrigoUser()
     {
         return new OrigoUser
