@@ -51,7 +51,7 @@ namespace OrigoApiGateway.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(CustomerUserCount), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-        [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.OnAndOffboarding)]
+        [PermissionAuthorize(Permission.CanReadCustomer)]
         public async Task<ActionResult<CustomerUserCount>> GetUsersCount(Guid organizationId)
         {
             try
