@@ -638,9 +638,11 @@ public class AssetLifecycle : Entity, IAggregateRoot
     public static AssetLifecycle CreateAssetLifecycle(CreateAssetLifecycleDTO assetLifecycleDTO)
     {
         var assetLifecycleStatus = assetLifecycleDTO.LifecycleType == LifecycleType.Transactional ? AssetLifecycleStatus.InputRequired : AssetLifecycleStatus.Active;
-        assetLifecycleStatus = 
-            (assetLifecycleDTO.ManagedByDepartmentId == null || assetLifecycleDTO.ManagedByDepartmentId == Guid.Empty) 
-             && (assetLifecycleDTO.AssetHolderId == null || assetLifecycleDTO.AssetHolderId == Guid.Empty) ? AssetLifecycleStatus.InputRequired : AssetLifecycleStatus.Active;
+        assetLifecycleStatus =
+             (assetLifecycleDTO.ManagedByDepartmentId == null || assetLifecycleDTO.ManagedByDepartmentId == Guid.Empty) 
+             && (assetLifecycleDTO.AssetHolderId == null || assetLifecycleDTO.AssetHolderId == Guid.Empty) && (assetLifecycleDTO.LifecycleType != LifecycleType.NoLifecycle) ? AssetLifecycleStatus.InputRequired : AssetLifecycleStatus.Active;
+        //((assetLifecycleDTO.ManagedByDepartmentId == null || assetLifecycleDTO.ManagedByDepartmentId == Guid.Empty) && assetLifecycleDTO.LifecycleType != LifecycleType.NoLifecycle) 
+        // && ((assetLifecycleDTO.AssetHolderId == null || assetLifecycleDTO.AssetHolderId == Guid.Empty) && assetLifecycleDTO.LifecycleType != LifecycleType.NoLifecycle) ? AssetLifecycleStatus.InputRequired : AssetLifecycleStatus.Active;
         var salaryDeductionTransactions = CreateSalaryDeductionTransactions(assetLifecycleDTO.PurchaseDate,
             assetLifecycleDTO.MonthlySalaryDeductionRuntime, assetLifecycleDTO.MonthlySalaryDeduction, assetLifecycleDTO.LifecycleType);
         return new AssetLifecycle

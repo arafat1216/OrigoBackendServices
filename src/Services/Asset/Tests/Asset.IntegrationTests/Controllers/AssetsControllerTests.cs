@@ -771,18 +771,16 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
     }
 
     [Fact]
-    public async Task CreateNoLifecycleAssetWithOwner_ShouldBePersonal()
+    public async Task CreateNoLifecycleAssetWithOwner_ShouldGetActiveStatus()
     {
         var newAsset = new NewAsset
         {
-            Alias = "Just another name",
+            
             AssetCategoryId = 1,
-            Note = "A long note",
             Brand = "iPhone",
             ProductName = "12 Pro Max",
             LifecycleType = LifecycleType.NoLifecycle,
             PurchaseDate = new DateTime(2022, 2, 2),
-            AssetHolderId = Guid.NewGuid(),
             Imei = new List<long> { 356728115537645 },
             CallerId = _callerId,
             Source = "WEBSHOP"
@@ -794,7 +792,12 @@ public class AssetsControllerTests : IClassFixture<AssetWebApplicationFactory<St
         _testOutputHelper.WriteLine(await createResponse.Content.ReadAsStringAsync());
         var assetReturned = await createResponse.Content.ReadFromJsonAsync<API.ViewModels.Asset>();
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
-        Assert.True(assetReturned!.IsPersonal);
+        Assert.False(assetReturned!.IsPersonal);
+        Assert.NotNull(assetReturned);
+        Assert.Equal(AssetLifecycleStatus.Active,assetReturned!.AssetStatus);
+        Assert.Equal(LifecycleType.NoLifecycle, assetReturned!.LifecycleType);
+        Assert.Equal(default(DateTime), assetReturned!.StartPeriod);
+        Assert.Equal(default(DateTime), assetReturned!.EndPeriod);
     }
 
     [Fact]

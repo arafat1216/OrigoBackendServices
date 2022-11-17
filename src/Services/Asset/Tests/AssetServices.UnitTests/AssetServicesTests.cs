@@ -360,10 +360,8 @@ public class AssetServicesTests : AssetBaseTest
             ProductName = "iPhone X",
             LifecycleType = LifecycleType.NoLifecycle,
             PurchaseDate = new DateTime(2020, 1, 1),
-            AssetHolderId = ASSETHOLDER_ONE_ID,
             Imei = new List<long> { 458718920164666 },
             MacAddress = "5e:c4:33:df:61:70",
-            ManagedByDepartmentId = Guid.NewGuid(),
             Note = "Test note",
             Description = "description"
         };
@@ -374,6 +372,10 @@ public class AssetServicesTests : AssetBaseTest
 
         // Assert
         Assert.NotNull(newAssetRead);
+        Assert.Equal(LifecycleType.NoLifecycle, newAssetRead.AssetLifecycleType);
+        Assert.Equal(AssetLifecycleStatus.Active,newAssetRead.AssetLifecycleStatus);
+        Assert.Equal(default(DateTime), newAssetRead.StartPeriod);
+        Assert.Equal(default(DateTime), newAssetRead.EndPeriod);
     }
 
     [Fact]
@@ -587,7 +589,7 @@ public class AssetServicesTests : AssetBaseTest
     }
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async Task AddAssetForCustomerAsync_FileImportNoUser_ShouldGetInputRequired()
+    public async Task AddAssetForCustomerAsync_FileImportWithNoLifecycle_ShouldGetActiveStatus()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
@@ -615,7 +617,7 @@ public class AssetServicesTests : AssetBaseTest
         var newAsset = await assetService.AddAssetLifecycleForCustomerAsync(COMPANY_ID, newAssetDTO);
 
         // Assert
-        Assert.Equal(AssetLifecycleStatus.InputRequired, newAsset.AssetLifecycleStatus);
+        Assert.Equal(AssetLifecycleStatus.Active, newAsset.AssetLifecycleStatus);
     }
 
     [Fact]
