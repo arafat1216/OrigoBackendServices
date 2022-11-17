@@ -641,8 +641,6 @@ public class AssetLifecycle : Entity, IAggregateRoot
         assetLifecycleStatus =
              (assetLifecycleDTO.ManagedByDepartmentId == null || assetLifecycleDTO.ManagedByDepartmentId == Guid.Empty) 
              && (assetLifecycleDTO.AssetHolderId == null || assetLifecycleDTO.AssetHolderId == Guid.Empty) && (assetLifecycleDTO.LifecycleType != LifecycleType.NoLifecycle) ? AssetLifecycleStatus.InputRequired : AssetLifecycleStatus.Active;
-        //((assetLifecycleDTO.ManagedByDepartmentId == null || assetLifecycleDTO.ManagedByDepartmentId == Guid.Empty) && assetLifecycleDTO.LifecycleType != LifecycleType.NoLifecycle) 
-        // && ((assetLifecycleDTO.AssetHolderId == null || assetLifecycleDTO.AssetHolderId == Guid.Empty) && assetLifecycleDTO.LifecycleType != LifecycleType.NoLifecycle) ? AssetLifecycleStatus.InputRequired : AssetLifecycleStatus.Active;
         var salaryDeductionTransactions = CreateSalaryDeductionTransactions(assetLifecycleDTO.PurchaseDate,
             assetLifecycleDTO.MonthlySalaryDeductionRuntime, assetLifecycleDTO.MonthlySalaryDeduction, assetLifecycleDTO.LifecycleType);
         return new AssetLifecycle
