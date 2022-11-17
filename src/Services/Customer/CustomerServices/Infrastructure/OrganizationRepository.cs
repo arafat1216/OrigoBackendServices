@@ -249,7 +249,8 @@ public class OrganizationRepository : IOrganizationRepository
         if (asNoTracking)
             query = query.AsNoTracking();
 
-        return await query.PaginateAsync(page, limit, cancellationToken);
+        return await query.OrderBy(e => e.Name)
+                          .PaginateAsync(page, limit, cancellationToken);
     }
 
     /// <inheritdoc/>
