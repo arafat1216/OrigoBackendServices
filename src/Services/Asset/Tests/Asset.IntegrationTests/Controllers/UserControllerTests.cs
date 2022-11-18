@@ -63,7 +63,7 @@ public class UserControllerTests : IClassFixture<AssetWebApplicationFactory<Star
         var deleteUserRequestEvent = new UserEvent { CustomerId = _customerId, UserId = _user , DepartmentId = _departmentId, CreatedDate = DateTime.UtcNow};
 
         // Act
-        var response =  await httpClient.PostAsJsonAsync(requestUri, deleteUserRequestEvent);
+        var response =  await httpClient.PostAsJsonAsync(requestUri, deleteUserRequestEvent); 
 
         // Assert
         Assert.True(response.IsSuccessStatusCode);

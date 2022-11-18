@@ -869,8 +869,7 @@ namespace AssetServices.Infrastructure
 
             foreach (var assetLifecycle in assetLifecyclesForUser)
             {
-                if (departmentId != null)
-                    assetLifecycle.AssignAssetLifecycleHolder(null, departmentId, callerId);
+                assetLifecycle.UnassignAssetLifecycleHolder(departmentId, callerId);
 
                 _assetContext.Entry(assetLifecycle).State = EntityState.Modified;
             }

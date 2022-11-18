@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.Linq;
 using AssetServices.DomainEvents;
 using AssetServices.DomainEvents.AssetLifecycleEvents;
@@ -321,6 +320,28 @@ public class AssetLifecycle : Entity, IAggregateRoot
             UpdatedBy = callerId;
             LastUpdatedDate = DateTime.UtcNow;
         }
+    }
+     public void UnassignAssetLifecycleHolder(Guid? departmentId, Guid callerId)
+     {
+        var previousOwner = ContractHolderUser;
+        ContractHolderUser = null;
+
+        if (departmentId != null && departmentId != default(Guid) && ManagedByDepartmentId != departmentId)
+        {
+           ManagedByDepartmentId = departmentId.Value;
+        }
+
+
+        if (ManagedByDepartmentId == null || ManagedByDepartmentId == default(Guid))
+        {
+            UpdateAssetStatus(AssetLifecycleStatus.InputRequired, callerId);
+        }
+        else
+        {
+            UpdateAssetStatus(AssetLifecycleStatus.Available,callerId);
+        }
+        AddDomainEvent(new UnAssignContractHolderToAssetLifeCycleDomainEvent(this, callerId, previousOwner));
+
     }
 
     public void UpdateAlias(string alias, Guid callerId)

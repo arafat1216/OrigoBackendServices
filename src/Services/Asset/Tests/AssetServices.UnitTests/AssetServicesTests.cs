@@ -81,7 +81,7 @@ public class AssetServicesTests : AssetBaseTest
         var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, null);
 
         // Assert
-        Assert.Equal(11, assetsFromCompany);
+        Assert.Equal(12, assetsFromCompany);
     }
 
     [Fact]
@@ -97,7 +97,7 @@ public class AssetServicesTests : AssetBaseTest
         var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, null, departmentId: DEPARTMENT_ID);
 
         // Assert
-        Assert.Equal(7, assetsFromCompany);
+        Assert.Equal(8, assetsFromCompany);
     }
 
     [Fact]
@@ -113,7 +113,7 @@ public class AssetServicesTests : AssetBaseTest
         var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, AssetLifecycleStatus.InUse);
 
         // Assert
-        Assert.Equal(2, assetsFromCompany);
+        Assert.Equal(3, assetsFromCompany);
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public class AssetServicesTests : AssetBaseTest
         var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, AssetLifecycleStatus.InUse, DEPARTMENT_ID);
 
         // Assert
-        Assert.Equal(1, assetsFromCompany);
+        Assert.Equal(2, assetsFromCompany);
     }
 
     [Fact]
@@ -148,7 +148,7 @@ public class AssetServicesTests : AssetBaseTest
                 new CancellationToken());
 
         // Assert
-        Assert.Equal(13, assetsFromUser.Items.Count);
+        Assert.Equal(14, assetsFromUser.Items.Count);
 
 
         //filter by UserId
@@ -172,7 +172,7 @@ public class AssetServicesTests : AssetBaseTest
         assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, category, null, null, null, null, null, null, 1, 15,
              new CancellationToken());
 
-        Assert.Equal(12, assetsFromUser.Items.Count);
+        Assert.Equal(13, assetsFromUser.Items.Count);
 
 
 
@@ -182,7 +182,7 @@ public class AssetServicesTests : AssetBaseTest
 
         assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, departments, null, null, null, null, null, null, null, 1, 15, new CancellationToken());
 
-        Assert.Equal(8, assetsFromUser.Items.Count);
+        Assert.Equal(9, assetsFromUser.Items.Count);
 
 
         //filter data only status
@@ -243,7 +243,7 @@ public class AssetServicesTests : AssetBaseTest
              new CancellationToken());
 
         // Assert 
-        Assert.Equal(2, assetsFromUser.Items.Count);
+        Assert.Equal(3, assetsFromUser.Items.Count);
 
         assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, null, null, null, false, true, null, null, null, 1, 10,
              new CancellationToken());
@@ -1102,6 +1102,154 @@ public class AssetServicesTests : AssetBaseTest
 
         // Assert
         Assert.Equal(0, assetLifeCycles.Count);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task UnAssignAssetLifecyclesForUserAsync_UserSync_ShouldUnassigneUserFromAssetWhenUserHasADepartment()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+
+        //Act
+        // User with department
+        var userEventWithDepartment = new Common.Model.EventModels.UserEvent
+        {
+            CustomerId = COMPANY_ID,
+            UserId = ASSETHOLDER_THREE_ID,
+            DepartmentId = DEPARTMENT_ID,
+            CreatedDate = DateTime.UtcNow
+        };
+        await assetService.UnAssignAssetLifecyclesForUserAsync(userEventWithDepartment.CustomerId, userEventWithDepartment.UserId, userEventWithDepartment.DepartmentId, CALLER_ID);
+
+        var nonUserAssets = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_THREE_ID, false, false, includeContractHolderUser: true);
+        Assert.Empty(nonUserAssets);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task UnAssignAssetLifecyclesForUserAsync_UserSync_ShouldUnassigneAssetWhenUserDontHaveDepartmentAndMakeAssetInputRequired()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+
+        //Act
+        var userEventWithoutDepartment = new Common.Model.EventModels.UserEvent
+        {
+            CustomerId = COMPANY_ID,
+            UserId = ASSETHOLDER_TWO_ID,
+            DepartmentId = null,
+            CreatedDate = DateTime.UtcNow
+        };
+
+        //Asset is only attached to a user and no department
+        var usersAssetsBeforeUnassigning = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_TWO_ID, false, false, includeContractHolderUser: true);
+        Assert.Equal(1, usersAssetsBeforeUnassigning.Count());
+        Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Equal(ASSETHOLDER_TWO_ID, item.ContractHolderUserId));
+        Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Null(item.ManagedByDepartmentId));
+        Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Equal(AssetLifecycleStatus.InUse, item.AssetLifecycleStatus));
+        var assetLifecycleId = usersAssetsBeforeUnassigning[0].ExternalId;
+
+        //Unassign asset
+        await assetService.UnAssignAssetLifecyclesForUserAsync(userEventWithoutDepartment.CustomerId, userEventWithoutDepartment.UserId, userEventWithoutDepartment.DepartmentId, CALLER_ID);
+
+        //User has no assigned assets
+        var usersAssets = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_TWO_ID, false, false, includeContractHolderUser: true);
+        Assert.Empty(usersAssets);
+
+        //Asset has gotten input required since it has no department or user assigned to it and it should be input required since it has no holder
+        var assetLifecycle = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID,assetLifecycleId, null,null,false,false,false, includeContractHolderUser: true);
+        Assert.Equal(AssetLifecycleStatus.InputRequired,assetLifecycle.AssetLifecycleStatus);
+        Assert.Null(assetLifecycle.ContractHolderUserId);
+        Assert.Null(assetLifecycle.ManagedByDepartmentId);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task UnAssignAssetLifecyclesForUserAsync_ShouldHoldDepartmentWhenUserIsUnassignedAndAssetHasManagedBy()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+
+        //Act
+        var userEventWithoutDepartment = new Common.Model.EventModels.UserEvent
+        {
+            CustomerId = COMPANY_ID,
+            UserId = ASSETHOLDER_THREE_ID,
+            DepartmentId = null,
+            CreatedDate = DateTime.UtcNow
+        };
+
+        //Asset is attached to a user and department, but does not get the department id by the user sync
+        var usersAssetsBeforeUnassigning = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_THREE_ID, false, false, includeContractHolderUser: true);
+        Assert.Equal(1, usersAssetsBeforeUnassigning.Count());
+        Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Equal(ASSETHOLDER_THREE_ID, item.ContractHolderUserId));
+        Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Equal(DEPARTMENT_ID, item.ManagedByDepartmentId));
+        Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Equal(AssetLifecycleStatus.InUse, item.AssetLifecycleStatus));
+        var assetLifecycleId = usersAssetsBeforeUnassigning[0].ExternalId;
+
+        //Unassigned from the user
+        await assetService.UnAssignAssetLifecyclesForUserAsync(userEventWithoutDepartment.CustomerId, userEventWithoutDepartment.UserId, userEventWithoutDepartment.DepartmentId, CALLER_ID);
+        
+        //Get users assets, which should be non
+        var usersAssets = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_THREE_ID, false, false, includeContractHolderUser: true);
+        Assert.Empty(usersAssets);
+
+        //Get the asset of the user, and it should not have been unassigned from the department and also it should have available status
+        var assetLifecycle = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, assetLifecycleId, null, null, false, false, false, includeContractHolderUser: true);
+        Assert.Equal(AssetLifecycleStatus.Available, assetLifecycle.AssetLifecycleStatus);
+        Assert.Null(assetLifecycle.ContractHolderUserId);
+        Assert.Equal(DEPARTMENT_ID,assetLifecycle.ManagedByDepartmentId);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task UnAssignAssetLifecyclesForUserAsync_UserSync_ShouldAssignDepartmentIDepartmentIdIsProvide()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
+
+        //Act
+        var userEventWithoutDepartment = new Common.Model.EventModels.UserEvent
+        {
+            CustomerId = COMPANY_ID,
+            UserId = ASSETHOLDER_TWO_ID,
+            DepartmentId = DEPARTMENT_ID,
+            CreatedDate = DateTime.UtcNow
+        };
+
+        //Asset has department and holder
+        var usersAssetsBeforeUnassigning = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_TWO_ID, false, false, includeContractHolderUser: true);
+        Assert.Equal(1, usersAssetsBeforeUnassigning.Count());
+        Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Equal(ASSETHOLDER_TWO_ID, item.ContractHolderUserId));
+        Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Null(item.ManagedByDepartmentId));
+        Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Equal(AssetLifecycleStatus.InUse, item.AssetLifecycleStatus));
+        var assetLifecycleId = usersAssetsBeforeUnassigning[0].ExternalId;
+
+        //Unassigned asset from user
+        await assetService.UnAssignAssetLifecyclesForUserAsync(userEventWithoutDepartment.CustomerId, userEventWithoutDepartment.UserId, userEventWithoutDepartment.DepartmentId, CALLER_ID);
+
+        //Check if user has any assets assigned to him/her
+        var usersAssets = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_TWO_ID, false, false, includeContractHolderUser: true);
+        Assert.Empty(usersAssets);
+
+        //Get asset and check that its still assigned to department
+        var assetLifecycle = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, assetLifecycleId, null, null, false, false, false, includeContractHolderUser: true);
+        Assert.Equal(AssetLifecycleStatus.Available, assetLifecycle.AssetLifecycleStatus);
+        Assert.Null(assetLifecycle.ContractHolderUserId);
+        Assert.Equal(DEPARTMENT_ID, assetLifecycle.ManagedByDepartmentId);
     }
 
     [Theory]
@@ -1991,7 +2139,7 @@ public class AssetServicesTests : AssetBaseTest
         Assert.Equal(1, assetsCounter?.NonPersonal?.PendingReturn);
         Assert.Equal(1, assetsCounter?.NonPersonal?.PendingRecycle);
 
-        Assert.Equal(1, assetsCounter?.Personal?.InUse);
+        Assert.Equal(2, assetsCounter?.Personal?.InUse);
         Assert.Equal(0, assetsCounter?.Personal?.Active);
         Assert.Equal(0, assetsCounter?.Personal?.InputRequired);
         Assert.Equal(1, assetsCounter?.Personal?.Available);
@@ -2046,7 +2194,7 @@ public class AssetServicesTests : AssetBaseTest
         Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.PendingReturn);
         Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.ExpiresSoon);
 
-        Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.InUse);
+        Assert.Equal(1, assetsCounter?.Departments[0]?.Personal.InUse);
         Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.Active);
         Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.InputRequired);
         Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.Available);

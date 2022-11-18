@@ -492,6 +492,9 @@ namespace CustomerServices
 
             if (user == null || user.IsDeleted) return null;
 
+            //Keep the department to sync up with the asset sync
+            Guid? departmentId = user.Department?.ExternalDepartmentId;
+
             user.UnAssignAllDepartments(customerId);
 
             user.SetDeleteStatus(true, callerId);
@@ -507,7 +510,7 @@ namespace CustomerServices
             {
                 CustomerId = customerId,
                 UserId = userId,
-                DepartmentId = user.Department?.ExternalDepartmentId,
+                DepartmentId = departmentId,
                 CreatedDate = DateTime.UtcNow
             };
             await PublishEvent("customer-pub-sub", "user-deleted", userDeletedEvent);
