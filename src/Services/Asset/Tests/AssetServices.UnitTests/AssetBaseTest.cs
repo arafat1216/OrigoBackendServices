@@ -100,7 +100,7 @@ namespace AssetServices.UnitTests
 
             var assetLifecycleFive = new AssetLifecycle(ASSETLIFECYCLE_FOUR_ID) { CustomerId = COMPANY_ID, Alias = "alias_4", AssetLifecycleStatus = AssetLifecycleStatus.InputRequired, AssetLifecycleType = LifecycleType.Transactional };
             assetLifecycleFive.AssignAsset(assetFive, CALLER_ID);
-            assetLifecycleFive.AssignAssetLifecycleHolder(userOne, null, CALLER_ID);
+            assetLifecycleFive.AssignAssetLifecycleHolder(userOne, DEPARTMENT_ID, CALLER_ID);
             assetLifecycleFive.MakeAssetAvailable(CALLER_ID);
             assetLifecycleFive.AssignCustomerLabel(labelOne, CALLER_ID);
 

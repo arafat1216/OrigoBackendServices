@@ -97,7 +97,7 @@ public class AssetServicesTests : AssetBaseTest
         var assetsFromCompany = await assetService.GetAssetsCountAsync(COMPANY_ID, null, departmentId: DEPARTMENT_ID);
 
         // Assert
-        Assert.Equal(8, assetsFromCompany);
+        Assert.Equal(9, assetsFromCompany);
     }
 
     [Fact]
@@ -182,7 +182,7 @@ public class AssetServicesTests : AssetBaseTest
 
         assetsFromUser = await assetService.GetAssetLifecyclesForCustomerAsync(COMPANY_ID, null, null, departments, null, null, null, null, null, null, null, 1, 15, new CancellationToken());
 
-        Assert.Equal(9, assetsFromUser.Items.Count);
+        Assert.Equal(10, assetsFromUser.Items.Count);
 
 
         //filter data only status
@@ -1384,21 +1384,18 @@ public class AssetServicesTests : AssetBaseTest
 
     [Fact]
     [Trait("Category", "UnitTest")]
-    public async Task MakeAssetAvailableAsync()
+    public async Task MakeAssetAvailableAsync_UnassignedFromAll()
     {
         // Arrange
         await using var context = new AssetsContext(ContextOptions);
         var assetRepository =
             new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
         var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, new Mock<IEmailService>().Object);
-        var assetLifecyclesFromUser = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_ONE_ID);
-
-        var assetGuid = assetLifecyclesFromUser.FirstOrDefault()!.ExternalId;
 
         // Act
         var data = new MakeAssetAvailableDTO()
         {
-            AssetLifeCycleId = assetGuid,
+            AssetLifeCycleId = ASSETLIFECYCLE_FOUR_ID,
             CallerId = Guid.Empty
         };
         var updatedAssetsLifecycles = await assetService.MakeAssetAvailableAsync(COMPANY_ID, data);
@@ -1406,6 +1403,8 @@ public class AssetServicesTests : AssetBaseTest
         // Assert
         Assert.True(updatedAssetsLifecycles.ContractHolderUserId == null);
         Assert.True(updatedAssetsLifecycles.Labels == null || !updatedAssetsLifecycles.Labels.Any());
+        Assert.Equal(DEPARTMENT_ID,updatedAssetsLifecycles.ManagedByDepartmentId);
+        Assert.Null(updatedAssetsLifecycles.ContractHolderUserId);
         Assert.Equal(AssetLifecycleStatus.Available, updatedAssetsLifecycles.AssetLifecycleStatus);
     }
     [Fact]
@@ -1473,6 +1472,32 @@ public class AssetServicesTests : AssetBaseTest
 
         var makeAvailable = await assetService.MakeAssetAvailableAsync(COMPANY_ID, body);
         emailServiceMock.Verify(e => e.UnassignedFromUserEmailAsync(It.IsAny<Email.Model.UnassignedFromUserNotification>(), It.IsAny<string>()), Times.Once);
+    }
+
+    [Fact]
+    [Trait("Category", "UnitTest")]
+    public async Task MakeAssetAvailableAsync_EmailServiceCalled_AssetIsNotAssignedToAHolderShouldReturnAsset()
+    {
+        // Arrange
+        await using var context = new AssetsContext(ContextOptions);
+        var assetRepository =
+            new AssetLifecycleRepository(context, Mock.Of<IFunctionalEventLogService>(), Mock.Of<IMediator>());
+        var emailServiceMock = new Mock<IEmailService>();
+        var assetService = new AssetServices(Mock.Of<ILogger<AssetServices>>(), assetRepository, _mapper, emailServiceMock.Object);
+
+        // Act
+        var body = new MakeAssetAvailableDTO
+        {
+            AssetLifeCycleId = ASSETLIFECYCLE_TWO_ID,
+            CallerId = CALLER_ID,
+            PreviousUser = new EmailPersonAttributeDTO { Email = "test@test.com", Name = "Test" }
+        };
+
+        var makeAvailable = await assetService.MakeAssetAvailableAsync(COMPANY_ID, body);
+        Assert.NotNull(makeAvailable);
+        Assert.Null(makeAvailable.ManagedByDepartmentId);
+        Assert.Null(makeAvailable.ContractHolderUserId);
+        Assert.Equal(AssetLifecycleStatus.InputRequired,makeAvailable.AssetLifecycleStatus);
     }
 
     [Fact]
@@ -2197,7 +2222,7 @@ public class AssetServicesTests : AssetBaseTest
         Assert.Equal(1, assetsCounter?.Departments[0]?.Personal.InUse);
         Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.Active);
         Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.InputRequired);
-        Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.Available);
+        Assert.Equal(1, assetsCounter?.Departments[0]?.Personal.Available);
         Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.Expired);
         Assert.Equal(0, assetsCounter?.Departments[0]?.Personal.Repair);
 

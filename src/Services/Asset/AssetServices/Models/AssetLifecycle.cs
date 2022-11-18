@@ -390,7 +390,15 @@ public class AssetLifecycle : Entity, IAggregateRoot
         ContractHolderUser = null;
         if(Labels.Any())
             _labels.Clear();
-        _assetLifecycleStatus = AssetLifecycleStatus.Available;
+
+        if (ManagedByDepartmentId == null || ManagedByDepartmentId == default(Guid))
+        {
+            UpdateAssetStatus(AssetLifecycleStatus.InputRequired, callerId);
+        }
+        else
+        {
+            UpdateAssetStatus(AssetLifecycleStatus.Available, callerId);
+        }
     }
 
     /// <summary>
