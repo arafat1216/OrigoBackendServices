@@ -1292,6 +1292,22 @@ namespace OrigoApiGateway.Services
                         result = _mapper.Map<OrigoMobilePhone>(asset);
                     else
                         result = _mapper.Map<OrigoTablet>(asset);
+
+                    if (asset.ManagedByDepartmentId != null)
+                    {
+                        var department = await _departmentsServices.GetDepartmentAsync(asset.OrganizationId, asset.ManagedByDepartmentId ?? throw new ArgumentNullException("DepartmentId"));
+                        if (department != null) result.DepartmentName = department.Name;
+                    }
+                    if (asset.AssetHolderId != null)
+                    {
+                        var user = await _userServices.GetUserAsync(asset.AssetHolderId ?? throw new ArgumentNullException("UserId"));
+                        if (user != null)
+                        {
+                            result.AssetHolderName = user.DisplayName;
+                            result.AssetholderFirstName = user.FirstName;
+                            result.AssetHolderLastName = user.LastName;
+                        }
+                    }
                 }
 
                 return result;
@@ -1431,6 +1447,22 @@ namespace OrigoApiGateway.Services
                             result = _mapper.Map<OrigoMobilePhone>(asset);
                         else
                             result = _mapper.Map<OrigoTablet>(asset);
+
+                        if (asset.ManagedByDepartmentId != null)
+                        {
+                            var department = await _departmentsServices.GetDepartmentAsync(asset.OrganizationId, asset.ManagedByDepartmentId ?? throw new ArgumentNullException("DepartmentId"));
+                            if (department != null) result.DepartmentName = department.Name;
+                        }
+                        if (asset.AssetHolderId != null)
+                        {
+                            var user = await _userServices.GetUserAsync(asset.AssetHolderId ?? throw new ArgumentNullException("UserId"));
+                            if (user != null)
+                            {
+                                result.AssetHolderName = user.DisplayName;
+                                result.AssetholderFirstName = user.FirstName;
+                                result.AssetHolderLastName = user.LastName;
+                            }
+                        }
                     }
                     origoAssets.Add(result);
                 }

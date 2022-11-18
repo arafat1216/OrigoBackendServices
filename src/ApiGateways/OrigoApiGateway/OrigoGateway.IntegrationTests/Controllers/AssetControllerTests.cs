@@ -14,6 +14,7 @@ using OrigoApiGateway.Models.Asset;
 using OrigoApiGateway.Services;
 using OrigoGateway.IntegrationTests.Helpers;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Reflection;
 using System.Security.Claims;
 using Services = OrigoApiGateway.Services;
@@ -711,6 +712,283 @@ public class AssetControllerTests : IClassFixture<OrigoGatewayWebApplicationFact
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
+    }
+    [Fact]
+    public async Task AssignLabelsToAssets_ContractHolderAndDepartmentNameInReturnData()
+    {
+        var organizationId = Guid.Parse("6c514552-ea67-48c8-91ec-83c2b16248ee");
+        var departmentId = Guid.NewGuid();
+
+        var email = "manager@test.io";
+        var permissionsIdentity = new ClaimsIdentity();
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, PredefinedRole.SystemAdmin.ToString()));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadAsset"));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateAsset"));
+        permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+        permissionsIdentity.AddClaim(new Claim("AccessList", departmentId.ToString()));
+
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services =>
+            {
+                var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                services.AddSingleton(userPermissionServiceMock.Object);
+
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                    options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                    TestAuthenticationHandler.DefaultScheme, options =>
+                    {
+                        options.Email = email;
+                    });
+
+                var mockFactory = new Mock<IHttpClientFactory>();
+                var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+                mockHttpMessageHandler.Protected()
+                    .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                        ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                        {
+                            StatusCode = HttpStatusCode.OK,
+                            Content = new StringContent(@"
+                        [{
+                          ""id"": ""4e7413da-54c9-4f79-b882-f66ce48e5074"",
+                          ""organizationId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                          ""alias"": ""alias_0"",
+                          ""note"": """",
+                          ""description"": """",
+                          ""assetTag"": """",
+                          ""assetCategoryId"": 1,
+                          ""assetCategoryName"": ""Mobile phone"",
+                          ""brand"": ""Samsung"",
+                          ""productName"": ""Samsung Galaxy S20"",
+                          ""lifecycleType"": 2,
+                          ""lifecycleName"": ""Transactional"",                          
+                          ""bookValue"": 0,
+                          ""buyoutPrice"": 0,
+                          ""purchaseDate"": ""0001-01-01T00:00:00"",
+                          ""createdDate"": ""2022-05-11T21:30:02.1795951Z"",
+                          ""managedByDepartmentId"": ""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",
+                          ""assetHolderId"": ""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",
+                          ""assetStatus"": 9,
+                          ""assetStatusName"": ""InUse"",
+                          ""labels"": [
+                            {
+                              ""id"": ""c553ae5b-6a3f-49c2-8d3e-8644d8f7e975"",
+                              ""text"": ""Label1"",
+                              ""color"": 0,
+                              ""colorName"": ""Blue""
+                            },
+                            {
+                              ""id"": ""fa0c43b6-1101-4698-bad9-2fb58b2032b3"",
+                              ""text"": ""CompanyOne"",
+                              ""color"": 2,
+                              ""colorName"": ""Lightblue""
+                            }
+                          ],
+                          ""serialNumber"": ""123456789012345"",
+                          ""imei"": [
+                            500119468586675
+                          ],
+                          ""macAddress"": ""B26EDC46046B"",
+                          ""orderNumber"": """",
+                          ""productId"": """",
+                          ""invoiceNumber"": """",
+                          ""transactionId"": """",
+                          ""isPersonal"": true,
+                          ""source"": ""Unknown""
+                        }]
+                    ")
+                        });
+                var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+                mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+                var options = new AssetConfiguration { ApiPath = @"/assets" };
+                var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+                optionsMock.Setup(o => o.Value).Returns(options);
+
+                var mappingConfig = new MapperConfiguration(mc =>
+                {
+                    mc.AddMaps(Assembly.GetAssembly(typeof(NewDisposeSettingProfile)));
+                });
+                var _mapper = mappingConfig.CreateMapper();
+                var userService = new Mock<IUserServices>();
+                userService.Setup(x => x.GetUserAsync(It.IsAny<Guid>())).ReturnsAsync(new OrigoUser()
+                {
+                    DisplayName = "DisplayName",
+                    FirstName = "FirstName",
+                    LastName = "LastName",
+                });
+                var departmentService = new Mock<IDepartmentsServices>();
+                departmentService.Setup(x => x.GetDepartmentAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).ReturnsAsync(new OrigoDepartment()
+                {
+                    Name = "Name"
+                });
+                var userPermissionOptionsMock = new Mock<IOptions<UserPermissionsConfigurations>>();
+                var cacheService = new Mock<ICacheService>();
+                var userPermissionService = new UserPermissionService(Mock.Of<ILogger<UserPermissionService>>(),
+                    mockFactory.Object, userPermissionOptionsMock.Object, _mapper, Mock.Of<IProductCatalogServices>(), cacheService.Object);
+
+                var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), mockFactory.Object,
+                    optionsMock.Object, userService.Object, userPermissionService, _mapper, departmentService.Object);
+                services.AddSingleton<IAssetServices>(x => assetService);
+            });
+        }).CreateClient();
+
+        var labelBody = new AssetLabels()
+        {
+            AssetGuids = new List<Guid>(),
+            LabelGuids = new List<Guid>()
+        };
+        var response = await client.PostAsync($"/origoapi/v1.0/assets/customers/{organizationId}/labels/assign", JsonContent.Create(labelBody));
+        var returnAsset = await response.Content.ReadFromJsonAsync<List<OrigoMobilePhone>>();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("DisplayName", returnAsset![0].AssetHolderName);
+        Assert.Equal("FirstName", returnAsset![0].AssetholderFirstName);
+        Assert.Equal("LastName", returnAsset![0].AssetHolderLastName);
+        Assert.Equal("Name", returnAsset![0].DepartmentName);
+    }
+
+    [Fact]
+    public async Task UpdateAsset_ContractHolderAndDepartmentNameInReturnData()
+    {
+        var organizationId = Guid.Parse("6c514552-ea67-48c8-91ec-83c2b16248ee");
+        var departmentId = Guid.NewGuid();
+
+        var email = "manager@test.io";
+        var permissionsIdentity = new ClaimsIdentity();
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Email, email));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Role, PredefinedRole.SystemAdmin.ToString()));
+        permissionsIdentity.AddClaim(new Claim(ClaimTypes.Actor, Guid.NewGuid().ToString()));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanReadCustomer"));
+        permissionsIdentity.AddClaim(new Claim("Permissions", "CanUpdateAsset"));
+        permissionsIdentity.AddClaim(new Claim("AccessList", organizationId.ToString()));
+        permissionsIdentity.AddClaim(new Claim("AccessList", departmentId.ToString()));
+
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services =>
+            {
+                var userPermissionServiceMock = new Mock<IUserPermissionService>();
+                userPermissionServiceMock.Setup(_ => _.GetUserPermissionsIdentityAsync(It.IsAny<string>(), email, CancellationToken.None)).Returns(Task.FromResult(permissionsIdentity));
+                services.AddSingleton(userPermissionServiceMock.Object);
+
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = TestAuthenticationHandler.DefaultScheme;
+                    options.DefaultScheme = TestAuthenticationHandler.DefaultScheme;
+                }).AddScheme<TestAuthenticationSchemeOptions, TestAuthenticationHandler>(
+                    TestAuthenticationHandler.DefaultScheme, options =>
+                    {
+                        options.Email = email;
+                    });
+
+                var mockFactory = new Mock<IHttpClientFactory>();
+                var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+                mockHttpMessageHandler.Protected()
+                    .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                        ItExpr.IsAny<CancellationToken>()).ReturnsAsync(new HttpResponseMessage
+                        {
+                            StatusCode = HttpStatusCode.OK,
+                            Content = new StringContent(@"
+                        {
+                          ""id"": ""4e7413da-54c9-4f79-b882-f66ce48e5074"",
+                          ""organizationId"": ""cab4bb77-3471-4ab3-ae5e-2d4fce450f36"",
+                          ""alias"": ""alias_0"",
+                          ""note"": """",
+                          ""description"": """",
+                          ""assetTag"": """",
+                          ""assetCategoryId"": 1,
+                          ""assetCategoryName"": ""Mobile phone"",
+                          ""brand"": ""Samsung"",
+                          ""productName"": ""Samsung Galaxy S20"",
+                          ""lifecycleType"": 2,
+                          ""lifecycleName"": ""Transactional"",                          
+                          ""bookValue"": 0,
+                          ""buyoutPrice"": 0,
+                          ""purchaseDate"": ""0001-01-01T00:00:00"",
+                          ""createdDate"": ""2022-05-11T21:30:02.1795951Z"",
+                          ""managedByDepartmentId"": ""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",
+                          ""assetHolderId"": ""6d16a4cb-4733-44de-b23b-0eb9e8ae6590"",
+                          ""assetStatus"": 9,
+                          ""assetStatusName"": ""InUse"",
+                          ""labels"": [
+                            {
+                              ""id"": ""c553ae5b-6a3f-49c2-8d3e-8644d8f7e975"",
+                              ""text"": ""Label1"",
+                              ""color"": 0,
+                              ""colorName"": ""Blue""
+                            },
+                            {
+                              ""id"": ""fa0c43b6-1101-4698-bad9-2fb58b2032b3"",
+                              ""text"": ""CompanyOne"",
+                              ""color"": 2,
+                              ""colorName"": ""Lightblue""
+                            }
+                          ],
+                          ""serialNumber"": ""123456789012345"",
+                          ""imei"": [
+                            500119468586675
+                          ],
+                          ""macAddress"": ""B26EDC46046B"",
+                          ""orderNumber"": """",
+                          ""productId"": """",
+                          ""invoiceNumber"": """",
+                          ""transactionId"": """",
+                          ""isPersonal"": true,
+                          ""source"": ""Unknown""
+                        }
+                    ")
+                        });
+                var httpClient = new HttpClient(mockHttpMessageHandler.Object) { BaseAddress = new Uri("http://localhost") };
+                mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+                var options = new AssetConfiguration { ApiPath = @"/assets" };
+                var optionsMock = new Mock<IOptions<AssetConfiguration>>();
+                optionsMock.Setup(o => o.Value).Returns(options);
+
+                var mappingConfig = new MapperConfiguration(mc =>
+                {
+                    mc.AddMaps(Assembly.GetAssembly(typeof(NewDisposeSettingProfile)));
+                });
+                var _mapper = mappingConfig.CreateMapper();
+                var userService = new Mock<IUserServices>();
+                userService.Setup(x => x.GetUserAsync(It.IsAny<Guid>())).ReturnsAsync(new OrigoUser()
+                {
+                    DisplayName = "DisplayName",
+                    FirstName = "FirstName",
+                    LastName = "LastName",
+                });
+                var departmentService = new Mock<IDepartmentsServices>();
+                departmentService.Setup(x => x.GetDepartmentAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).ReturnsAsync(new OrigoDepartment()
+                {
+                    Name = "Name"
+                });
+                var userPermissionOptionsMock = new Mock<IOptions<UserPermissionsConfigurations>>();
+                var cacheService = new Mock<ICacheService>();
+                var userPermissionService = new UserPermissionService(Mock.Of<ILogger<UserPermissionService>>(),
+                    mockFactory.Object, userPermissionOptionsMock.Object, _mapper, Mock.Of<IProductCatalogServices>(), cacheService.Object);
+
+                var assetService = new Services.AssetServices(Mock.Of<ILogger<Services.AssetServices>>(), mockFactory.Object,
+                    optionsMock.Object, userService.Object, userPermissionService, _mapper, departmentService.Object);
+                services.AddSingleton<IAssetServices>(x => assetService);
+            });
+        }).CreateClient();
+
+        var updatedAsset = new OrigoUpdateAsset();
+        var response = await client.PatchAsync($"/origoapi/v1.0/assets/{Guid.NewGuid()}/customers/{organizationId}/update", JsonContent.Create(updatedAsset));
+        var returnAsset = await response.Content.ReadFromJsonAsync<OrigoMobilePhone>();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("DisplayName", returnAsset!.AssetHolderName);
+        Assert.Equal("FirstName", returnAsset!.AssetholderFirstName);
+        Assert.Equal("LastName", returnAsset!.AssetHolderLastName);
+        Assert.Equal("Name", returnAsset!.DepartmentName);
     }
 
     [Fact]
