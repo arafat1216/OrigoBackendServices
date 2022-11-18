@@ -1150,7 +1150,7 @@ public class AssetServicesTests : AssetBaseTest
 
         //Asset is only attached to a user and no department
         var usersAssetsBeforeUnassigning = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_TWO_ID, false, false, includeContractHolderUser: true);
-        Assert.Equal(1, usersAssetsBeforeUnassigning.Count());
+        Assert.Single(usersAssetsBeforeUnassigning);
         Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Equal(ASSETHOLDER_TWO_ID, item.ContractHolderUserId));
         Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Null(item.ManagedByDepartmentId));
         Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Equal(AssetLifecycleStatus.InUse, item.AssetLifecycleStatus));
@@ -1165,7 +1165,7 @@ public class AssetServicesTests : AssetBaseTest
 
         //Asset has gotten input required since it has no department or user assigned to it and it should be input required since it has no holder
         var assetLifecycle = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID,assetLifecycleId, null,null,false,false,false, includeContractHolderUser: true);
-        Assert.Equal(AssetLifecycleStatus.InputRequired,assetLifecycle.AssetLifecycleStatus);
+        Assert.Equal(AssetLifecycleStatus.InputRequired,assetLifecycle!.AssetLifecycleStatus);
         Assert.Null(assetLifecycle.ContractHolderUserId);
         Assert.Null(assetLifecycle.ManagedByDepartmentId);
     }
@@ -1191,7 +1191,7 @@ public class AssetServicesTests : AssetBaseTest
 
         //Asset is attached to a user and department, but does not get the department id by the user sync
         var usersAssetsBeforeUnassigning = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_THREE_ID, false, false, includeContractHolderUser: true);
-        Assert.Equal(1, usersAssetsBeforeUnassigning.Count());
+        Assert.Single(usersAssetsBeforeUnassigning);
         Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Equal(ASSETHOLDER_THREE_ID, item.ContractHolderUserId));
         Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Equal(DEPARTMENT_ID, item.ManagedByDepartmentId));
         Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Equal(AssetLifecycleStatus.InUse, item.AssetLifecycleStatus));
@@ -1206,7 +1206,7 @@ public class AssetServicesTests : AssetBaseTest
 
         //Get the asset of the user, and it should not have been unassigned from the department and also it should have available status
         var assetLifecycle = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, assetLifecycleId, null, null, false, false, false, includeContractHolderUser: true);
-        Assert.Equal(AssetLifecycleStatus.Available, assetLifecycle.AssetLifecycleStatus);
+        Assert.Equal(AssetLifecycleStatus.Available, assetLifecycle!.AssetLifecycleStatus);
         Assert.Null(assetLifecycle.ContractHolderUserId);
         Assert.Equal(DEPARTMENT_ID,assetLifecycle.ManagedByDepartmentId);
     }
@@ -1232,7 +1232,7 @@ public class AssetServicesTests : AssetBaseTest
 
         //Asset has department and holder
         var usersAssetsBeforeUnassigning = await assetService.GetAssetLifecyclesForUserAsync(COMPANY_ID, ASSETHOLDER_TWO_ID, false, false, includeContractHolderUser: true);
-        Assert.Equal(1, usersAssetsBeforeUnassigning.Count());
+        Assert.Single(usersAssetsBeforeUnassigning);
         Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Equal(ASSETHOLDER_TWO_ID, item.ContractHolderUserId));
         Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Null(item.ManagedByDepartmentId));
         Assert.Collection(usersAssetsBeforeUnassigning, item => Assert.Equal(AssetLifecycleStatus.InUse, item.AssetLifecycleStatus));
@@ -1247,7 +1247,7 @@ public class AssetServicesTests : AssetBaseTest
 
         //Get asset and check that its still assigned to department
         var assetLifecycle = await assetService.GetAssetLifecycleForCustomerAsync(COMPANY_ID, assetLifecycleId, null, null, false, false, false, includeContractHolderUser: true);
-        Assert.Equal(AssetLifecycleStatus.Available, assetLifecycle.AssetLifecycleStatus);
+        Assert.Equal(AssetLifecycleStatus.Available, assetLifecycle!.AssetLifecycleStatus);
         Assert.Null(assetLifecycle.ContractHolderUserId);
         Assert.Equal(DEPARTMENT_ID, assetLifecycle.ManagedByDepartmentId);
     }
