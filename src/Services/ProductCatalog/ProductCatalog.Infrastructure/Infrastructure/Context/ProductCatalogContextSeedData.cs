@@ -300,6 +300,7 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.FullLifecycle, FeatureId = (int)FeatureSeedDataValues.BasicNonPersonalAssetManagement, UpdatedBy = systemUserId });
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.FullLifecycle, FeatureId = (int)FeatureSeedDataValues.BasicBookValueManagement, UpdatedBy = systemUserId });
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.FullLifecycle, FeatureId = (int)FeatureSeedDataValues.BasicTransactionalAssetReturn, UpdatedBy = systemUserId });
+                entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.FullLifecycle, FeatureId = (int)FeatureSeedDataValues.AssetBookValue, UpdatedBy = systemUserId });
 
                 // Add features to: Book Value
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.BookValue, FeatureId = (int)FeatureSeedDataValues.AssetBookValue, UpdatedBy = systemUserId });
@@ -327,8 +328,6 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
 
                 entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.RecycleAndWipe, RequiresProductId = (int)ProductSeedDataValues.FullLifecycle, UpdatedBy = systemUserId });
                 entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.SubscriptionManagement, RequiresProductId = (int)ProductSeedDataValues.FullLifecycle, UpdatedBy = systemUserId });
-                entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.BookValue, RequiresProductId = (int)ProductSeedDataValues.FullLifecycle, UpdatedBy = systemUserId });
-                entity.HasData(new ProductRequiresOne { ProductId = (int)ProductSeedDataValues.FullLifecycle, RequiresProductId = (int)ProductSeedDataValues.BookValue, UpdatedBy = systemUserId });
             });
 
             /*
