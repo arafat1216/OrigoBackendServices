@@ -27,6 +27,7 @@ namespace ProductCatalog.Infrastructure.Models.Database
         AssetManagement = 13,
         SubscriptionManagement = 14,
         AssetBookValue = 15,
-        InternalAssetReturn = 16
+        InternalAssetReturn = 16,
+        WebshopAccess = 17
     }
 }

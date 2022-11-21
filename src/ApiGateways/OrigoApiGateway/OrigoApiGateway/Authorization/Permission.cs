@@ -21,6 +21,7 @@
         AssetManagement,
         SubscriptionManagement,
         AssetBookValue,
-        InternalAssetReturn
+        InternalAssetReturn,
+        WebshopAccess
     }
 }

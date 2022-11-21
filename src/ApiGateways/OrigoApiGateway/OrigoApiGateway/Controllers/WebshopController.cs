@@ -20,6 +20,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using OrigoApiGateway.Authorization;
 
 namespace OrigoApiGateway.Controllers
 {
@@ -154,7 +155,7 @@ namespace OrigoApiGateway.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         [Route("provision")]
-        [Authorize]
+        [PermissionAuthorize(Permission.WebshopAccess)]
         public async Task<ActionResult> ProvisionAuthenticatedUserIntoWebshop()
         {
             try

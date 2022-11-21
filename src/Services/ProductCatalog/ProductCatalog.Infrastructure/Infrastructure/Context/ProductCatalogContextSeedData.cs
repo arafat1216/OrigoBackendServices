@@ -210,6 +210,14 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                     new FeatureTranslation { FeatureId = (int)FeatureSeedDataValues.AssetManagement, Language = "en", Name = "Asset Management", Description = "Allows organizations to perform asset management tasks.", UpdatedBy = systemUserId },
                     new FeatureTranslation { FeatureId = (int)FeatureSeedDataValues.AssetManagement, Language = "nb", Name = "Asset-håndtering", Description = "Lar en organisasjon utføre behandling av assets.", UpdatedBy = systemUserId },
                 });
+
+                // Webshop Access 
+                entity.HasData(new Feature { Id = (int)FeatureSeedDataValues.WebshopAccess, AccessControlPermissionNode = "WebshopAccess", FeatureTypeId = (int)FeatureTypeSeedDataValues.Unknown, UpdatedBy = systemUserId });
+                entity.OwnsMany(e => e.Translations).HasData(new List<FeatureTranslation>()
+                {
+                    new FeatureTranslation { FeatureId = (int)FeatureSeedDataValues.WebshopAccess, Language = "en", Name = "Webshop Access", Description = "Allows Users to visit web shop page.", UpdatedBy = systemUserId },
+                    new FeatureTranslation { FeatureId = (int)FeatureSeedDataValues.WebshopAccess, Language = "nb", Name = "Tilgang til nettbutikk", Description = "Lar brukere besøke nettbutikksiden.", UpdatedBy = systemUserId },
+                });
             });
 
             #endregion Features
@@ -293,6 +301,7 @@ namespace ProductCatalog.Infrastructure.Infrastructure.Context
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.FullLifecycle, FeatureId = (int)FeatureSeedDataValues.BuyoutAsset, UpdatedBy = systemUserId });
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.FullLifecycle, FeatureId = (int)FeatureSeedDataValues.BasicHardwareRepair, UpdatedBy = systemUserId });
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.FullLifecycle, FeatureId = (int)FeatureSeedDataValues.InternalAssetReturn, UpdatedBy = systemUserId });
+                entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.FullLifecycle, FeatureId = (int)FeatureSeedDataValues.WebshopAccess, UpdatedBy = systemUserId });
 
                 //TODO: Remove when frontend check for the right feature
                 entity.HasData(new ProductFeature { ProductId = (int)ProductSeedDataValues.FullLifecycle, FeatureId = (int)FeatureSeedDataValues.BasicUserManagement, UpdatedBy = systemUserId });
