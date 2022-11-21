@@ -145,6 +145,7 @@ namespace CustomerServices
                 }
 
                 userWithEmail.SetDeleteStatus(false, callerId);
+                await ActivateDeactivatedUser(userWithEmail, customer.AddUsersToOkta);
 
                 //Check if the phone number should be updated
                 if (mobileNumber != default && userWithEmail.MobileNumber?.Trim() != mobileNumber?.Trim())
@@ -184,21 +185,6 @@ namespace CustomerServices
                     userPreference.Language != userWithEmail.UserPreference?.Language)
                     userWithEmail.ChangeUserPreferences(userPreference, callerId);
 
-                //Okta
-                if (customer.AddUsersToOkta && !newUserNotToBeAddedToOkta)
-                {
-                    var userExistInOkta = await _oktaServices.UserExistsInOktaAsync(userWithEmail.OktaUserId);
-                    if (userExistInOkta)
-                    {
-                        await _oktaServices.AddUserToGroup(userWithEmail.OktaUserId);
-                    }
-                    else //Add new user to Okta
-                    {
-                        var oktaUserId = await _oktaServices.AddOktaUserAsync(userWithEmail.UserId, userWithEmail.FirstName, userWithEmail.LastName,
-                            userWithEmail.Email, userWithEmail.MobileNumber, true);
-                        userWithEmail = await AssignOktaUserIdAsync(userWithEmail.Customer.OrganizationId, userWithEmail.UserId, oktaUserId, callerId);
-                    }
-                }
                 await _organizationRepository.SaveEntitiesAsync();
 
                 var activatedUserMapped = _mapper.Map<UserDTO>(userWithEmail);
@@ -285,6 +271,32 @@ namespace CustomerServices
 
 
             return mappedNewUserDTO;
+        }
+
+        private async Task ActivateDeactivatedUser(User user, bool addUsersToOkta)
+        {
+            var userExistsInOkta = !string.IsNullOrEmpty(user.OktaUserId) &&
+                                   await _oktaServices.UserExistsInOktaAsync(user.OktaUserId);
+
+            if (userExistsInOkta)
+            {
+                await _oktaServices.AddUserToGroup(user.OktaUserId);
+                user.ActivateUser(user.OktaUserId);
+            }
+            else
+            {
+                if (addUsersToOkta)
+                {
+                    // User does not exist in Okta, but need to activate the User. Therefore re-creating the user in Okta and updating the User status.
+                    // There could be some users whose "OktaUserId" in DB is not null but at the same time do not exist in Okta. They will fall under this condition.
+                    var oktaUserId = await _oktaServices.AddOktaUserAsync(user.UserId, user.FirstName, user.LastName, user.Email, user.MobileNumber, true);
+                    user.ActivateUser(oktaUserId);
+                }
+                else
+                {
+                    user.ActivateUser(string.Empty);
+                }
+            }
         }
 
         private async Task<User> AssignOktaUserIdAsync(Guid customerId, Guid userId, string oktaUserId, Guid callerId)
