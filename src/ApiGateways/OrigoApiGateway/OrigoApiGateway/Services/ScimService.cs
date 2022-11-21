@@ -29,12 +29,12 @@ public class ScimService : IScimService
     }
 
 
-    public async Task<OrigoUser> GetUserAsync(Guid userId)
+    public async Task<User> GetUserAsync(Guid userId)
     {
         try
         {
             var user = await HttpClient.GetFromJsonAsync<UserDTO>($"{_options.ApiPath}/{userId}");
-            return user != null ? _mapper.Map<OrigoUser>(user) : null;
+            return user != null ? _mapper.Map<User>(user) : null;
         }
         catch (HttpRequestException exception)
         {
@@ -89,7 +89,7 @@ public class ScimService : IScimService
         }
     }
     
-    public async Task<OrigoUser> AddUserForCustomerAsync(Guid customerId, NewUser newUser, Guid callerId, bool includeOnboarding)
+    public async Task<User> AddUserForCustomerAsync(Guid customerId, NewUser newUser, Guid callerId, bool includeOnboarding)
     {
         try
         {
@@ -113,7 +113,7 @@ public class ScimService : IScimService
 
 
             var user = await response.Content.ReadFromJsonAsync<UserDTO>();
-            return user == null ? null : _mapper.Map<OrigoUser>(user);
+            return user == null ? null : _mapper.Map<User>(user);
         }
         catch (InvalidUserValueException)
         {
@@ -132,7 +132,7 @@ public class ScimService : IScimService
     }
 
 
-    public async Task<OrigoUser> PutUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser, Guid callerId)
+    public async Task<User> PutUserAsync(Guid customerId, Guid userId, OrigoUpdateUser updateUser, Guid callerId)
     {
         try
         {
@@ -147,7 +147,7 @@ public class ScimService : IScimService
                 throw new BadHttpRequestException("Unable to save user changes", (int)response.StatusCode);
 
             var user = await response.Content.ReadFromJsonAsync<UserDTO>();
-            return user == null ? null : _mapper.Map<OrigoUser>(user);
+            return user == null ? null : _mapper.Map<User>(user);
         }
         catch (InvalidUserValueException)
         {
@@ -161,7 +161,7 @@ public class ScimService : IScimService
     }
 
 
-    public async Task<OrigoUser> DeleteUserAsync(Guid userId, bool softDelete, Guid callerId)
+    public async Task<User> DeleteUserAsync(Guid userId, bool softDelete, Guid callerId)
     {
         try
         {
@@ -182,7 +182,7 @@ public class ScimService : IScimService
             if (!response.IsSuccessStatusCode)
                 throw new BadHttpRequestException("Unable to delete user", (int)response.StatusCode);
             var dto = await response.Content.ReadFromJsonAsync<UserDTO>();
-            return _mapper.Map<OrigoUser>(dto);
+            return _mapper.Map<User>(dto);
         }
         catch (Exception exception)
         {

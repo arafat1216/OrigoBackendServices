@@ -56,15 +56,14 @@ public class ScimController : ControllerBase
     
 
     [HttpGet("users/{userId:Guid}")]
-    [ProducesResponseType(typeof(ScimUser), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-    public async Task<ActionResult<ScimUser>> GetUser(Guid userId)
+    public async Task<ActionResult<User>> GetUser(Guid userId)
     {
-        var origoUser = await _scimServices.GetUserAsync(userId);
-        if (origoUser is null)
+        var user = await _scimServices.GetUserAsync(userId);
+        if (user is null)
             return NotFound(new ScimUserNotFound());
-        var user = _mapper.Map<ScimUser>(origoUser);
         return Ok(user);
     }
 
@@ -90,32 +89,30 @@ public class ScimController : ControllerBase
 
 
     [HttpPost("users")]
-    [ProducesResponseType(typeof(ScimUser), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.Created)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-    public async Task<ActionResult<ScimUser>> CreateUserForCustomer([FromBody] ScimUser scimUser)
+    public async Task<ActionResult<User>> CreateUserForCustomer([FromBody] User scimUser)
     {
         var newUser = _mapper.Map<NewUser>(scimUser);
-        var organizationId = Guid.Parse(scimUser.Groups.FirstOrDefault());
-        var origoUser = await _scimServices.AddUserForCustomerAsync(organizationId, newUser, Guid.Empty, false);
-        var user = _mapper.Map<ScimUser>(origoUser);
+        var organizationId = Guid.Parse(scimUser.Groups.FirstOrDefault().Value);
+        var user = await _scimServices.AddUserForCustomerAsync(organizationId, newUser, Guid.Empty, false);
         return Created(String.Empty, user);
     }
 
 
     [HttpPut("users/{userId:Guid}")]
-    [ProducesResponseType(typeof(ScimUser), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [PermissionAuthorize(PermissionOperator.And, Permission.CanReadCustomer, Permission.CanUpdateCustomer)]
-    public async Task<ActionResult<ScimUser>> UpdateUser(Guid userId, [FromBody] ScimUser updateScimUser)
+    public async Task<ActionResult<User>> UpdateUser(Guid userId, [FromBody] User updateScimUser)
     {
-        var updateUser = _mapper.Map<OrigoUpdateUser>(updateScimUser);
-        var organizationId = Guid.Parse(updateScimUser.Groups.FirstOrDefault());
-        var updatedUser = await _scimServices.PutUserAsync(organizationId, userId, updateUser, Guid.Empty);
+        var origoUpdateUser = _mapper.Map<OrigoUpdateUser>(updateScimUser);
+        var organizationId = Guid.Parse(updateScimUser.Groups.FirstOrDefault().Value);
+        var updatedUser = await _scimServices.PutUserAsync(organizationId, userId, origoUpdateUser, Guid.Empty);
         if (updatedUser == null)
             return NotFound(new ScimUserNotFound());
-        var user = _mapper.Map<ScimUser>(updatedUser);
-        return Ok(user);
+        return Ok(updatedUser);
     }
 
 

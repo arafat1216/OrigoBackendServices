@@ -68,6 +68,23 @@ public class ScimUserProfile : Profile
             .ForMember(destination => destination.ExternalId, options => options.MapFrom(source => source.Id))
             .ForPath(destination => destination.Meta.ResourceType, options => options.MapFrom(source => "User"));
 
+        CreateMap<User, NewUser>()
+            .ForMember(destination => destination.FirstName, options => options.MapFrom(source => source.Name.GivenName))
+            .ForMember(destination => destination.LastName, options => options.MapFrom(source => source.Name.FamilyName))
+            .ForMember(destination => destination.Email, options => options.MapFrom(source => source.Emails.FirstOrDefault().Value))
+            .ForMember(destination => destination.MobileNumber, options => options.MapFrom(source => source.PhoneNumbers.FirstOrDefault().Value))
+            .ForMember(destination => destination.EmployeeId, options => options.NullSubstitute(string.Empty))
+            .ForMember(destination => destination.UserPreference, options => options.NullSubstitute(new UserPreferenceDTO { Language = string.Empty }))
+            .ForMember(destination => destination.Role, options => options.MapFrom(source => PredefinedRole.EndUser));
+
+        CreateMap<User, OrigoUpdateUser>()
+            .ForMember(destination => destination.FirstName, options => options.MapFrom(source => source.Name.GivenName))
+            .ForMember(destination => destination.LastName, options => options.MapFrom(source => source.Name.FamilyName))
+            .ForMember(destination => destination.Email, options => options.MapFrom(source => source.Emails.FirstOrDefault().Value))
+            .ForMember(destination => destination.MobileNumber, options => options.MapFrom(source => source.PhoneNumbers.FirstOrDefault().Value))
+            .ForMember(destination => destination.EmployeeId, options => options.NullSubstitute(string.Empty))
+            .ForMember(destination => destination.UserPreference, options => options.NullSubstitute(new UserPreferenceDTO { Language = string.Empty }));
+
         CreateMap<UserDTO, User>()
             .ForMember(destination => destination.Id, options => options.MapFrom(source => source.Id))
             .ForMember(destination => destination.ExternalId, options => options.MapFrom(source => source.Id))

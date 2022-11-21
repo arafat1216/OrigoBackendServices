@@ -78,6 +78,36 @@ public class ScimUserProfileTests
         };
     }
 
+    private User GetUserResource()
+    {
+        return new User
+        {
+            UserName = "john@test-domain.com",
+            Name = new()
+            {
+                FamilyName = "Doe",
+                GivenName = "John",
+                MiddleName = "John"
+            },
+            Active = true,
+            Emails = new()
+            {
+                new() 
+                {
+                    Value = "john@test-domain.com",
+                    Primary = true
+                }
+            },
+            PhoneNumbers = new()
+            {
+                new()
+                {
+                    Value = "+4759555724"
+                }
+            }
+        };
+    }
+
     [Fact]
     public void ScimUser_To_NewUserDTO_ProfileTest()
     {
@@ -215,5 +245,37 @@ public class ScimUserProfileTests
         Assert.Equal(userDto.Email, result?.Emails?.FirstOrDefault()?.Value);
         Assert.Equal(userDto.MobileNumber, result?.PhoneNumbers?.FirstOrDefault()?.Value);
         Assert.Equal("User", result?.Meta.ResourceType);
+    }
+
+    [Fact]
+    public void User_To_NewUser_ProfileTest()
+    {
+        // Arrange
+        var user = GetUserResource();
+
+        // Act
+        var result = _mapper.Map<NewUser>(user);
+
+        // Assert
+        Assert.Equal(user.Name.GivenName, result.FirstName);
+        Assert.Equal(user.Name.FamilyName, result.LastName);
+        Assert.Equal(user.Emails.FirstOrDefault().Value, result.Email);
+        Assert.Equal(user.PhoneNumbers.FirstOrDefault().Value, result.MobileNumber);
+    }
+
+    [Fact]
+    public void User_To_OrigoUpdateUser_ProfileTest()
+    {
+        // Arrange
+        var user = GetUserResource();
+
+        // Act
+        var result = _mapper.Map<OrigoUpdateUser>(user);
+
+        // Assert
+        Assert.Equal(user.Name.GivenName, result.FirstName);
+        Assert.Equal(user.Name.FamilyName, result.LastName);
+        Assert.Equal(user.Emails.FirstOrDefault().Value, result.Email);
+        Assert.Equal(user.PhoneNumbers.FirstOrDefault().Value, result.MobileNumber);
     }
 }
